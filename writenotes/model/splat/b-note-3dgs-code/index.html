@@ -1,0 +1,2502 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='(Feature image credits: GS big picture, please say thanks to GS.#419 - yuedajiong)
+The 2 submodules are CUDA projects that should be debugged separately from the python project, because the python debugger can&amp;rsquo;t access the PyTorch CUDA extensions. Debug Settings (2023-11-08)
+Intellisense To enable intellisense, the configuration of &amp;ldquo;C/C&#43;&#43; extension&amp;rdquo; must be put in the &amp;ldquo;.vscode/&amp;rdquo; of (top-level) current working directory (.vscode/c_cpp_properties.json), not in submodule&amp;rsquo;s &amp;ldquo;.vscode/&amp;rdquo; (submodules/diff-gaussian-rasterization/.vscode/c_cpp_properties.json).
+Otherwise, the settings won&amp;rsquo;t be loaded.'>
+<title>read: 3DGS | Debug Code</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/splat/b-note-3dgs-code/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: 3DGS | Debug Code'>
+<meta property='og:description' content='(Feature image credits: GS big picture, please say thanks to GS.#419 - yuedajiong)
+The 2 submodules are CUDA projects that should be debugged separately from the python project, because the python debugger can&amp;rsquo;t access the PyTorch CUDA extensions. Debug Settings (2023-11-08)
+Intellisense To enable intellisense, the configuration of &amp;ldquo;C/C&#43;&#43; extension&amp;rdquo; must be put in the &amp;ldquo;.vscode/&amp;rdquo; of (top-level) current working directory (.vscode/c_cpp_properties.json), not in submodule&amp;rsquo;s &amp;ldquo;.vscode/&amp;rdquo; (submodules/diff-gaussian-rasterization/.vscode/c_cpp_properties.json).
+Otherwise, the settings won&amp;rsquo;t be loaded.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/splat/b-note-3dgs-code/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='Splatting' /><meta property='article:tag' content='CUDA' /><meta property='article:published_time' content='2023-11-08T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-08T00:00:00&#43;00:00'/><meta property='og:image' content='https://user-images.githubusercontent.com/52232153/283030293-f9f3589c-fa59-431f-8bd0-478337426933.png' />
+<meta name="twitter:title" content="read: 3DGS | Debug Code">
+<meta name="twitter:description" content="(Feature image credits: GS big picture, please say thanks to GS.#419 - yuedajiong)
+The 2 submodules are CUDA projects that should be debugged separately from the python project, because the python debugger can&amp;rsquo;t access the PyTorch CUDA extensions. Debug Settings (2023-11-08)
+Intellisense To enable intellisense, the configuration of &amp;ldquo;C/C&#43;&#43; extension&amp;rdquo; must be put in the &amp;ldquo;.vscode/&amp;rdquo; of (top-level) current working directory (.vscode/c_cpp_properties.json), not in submodule&amp;rsquo;s &amp;ldquo;.vscode/&amp;rdquo; (submodules/diff-gaussian-rasterization/.vscode/c_cpp_properties.json).
+Otherwise, the settings won&amp;rsquo;t be loaded."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://user-images.githubusercontent.com/52232153/283030293-f9f3589c-fa59-431f-8bd0-478337426933.png' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/watchvideos/' >
+                
+                
+                
+                <span>WatchVideos</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#debug-settings">Debug Settings</a>
+      <ol>
+        <li><a href="#intellisense">Intellisense</a></li>
+        <li><a href="#debug-diffrast">Debug diffRast</a></li>
+        <li><a href="#step-into-cuda-kernels">Step into CUDA Kernels</a></li>
+      </ol>
+    </li>
+    <li><a href="#gaussian-splatting-python">gaussian-splatting python</a>
+      <ol>
+        <li><a href="#define-params">Define Params</a></li>
+        <li><a href="#render">Render</a></li>
+      </ol>
+    </li>
+    <li><a href="#diff_gauss_raster">diff_gauss_raster</a>
+      <ol>
+        <li><a href="#python-invokes">Python Invokes</a></li>
+        <li><a href="#forward-steps">forward Steps</a></li>
+        <li><a href="#preprocesscuda">preprocessCUDA</a></li>
+        <li><a href="#prepare-tiles">Prepare Tiles</a></li>
+        <li><a href="#render-1">Render</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/writenotes/model/splat/b-note-3dgs-code/">
+                
+                    <img src="https://user-images.githubusercontent.com/52232153/283030293-f9f3589c-fa59-431f-8bd0-478337426933.png" loading="lazy" alt="Featured image of post read: 3DGS | Debug Code" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/splat/b-note-3dgs-code/">read: 3DGS | Debug Code</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 08, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    12 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>(Feature image credits: <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/issues/419"  target="_blank" rel="noopener"
+    >GS big picture, please say thanks to GS.#419 - yuedajiong</a>)</p>
+<ul>
+<li>The 2 submodules are CUDA projects that should be <strong>debugged separately</strong> from the python project, because
+the python debugger can&rsquo;t access the PyTorch CUDA extensions.</li>
+</ul>
+<hr>
+<h2 id="debug-settings">Debug Settings</h2>
+<p>(2023-11-08)</p>
+<h3 id="intellisense">Intellisense</h3>
+<ol>
+<li>
+<p>To enable intellisense, the <strong>configuration of &ldquo;C/C++ extension&rdquo;</strong> must be put in the
+&ldquo;.vscode/&rdquo; of (top-level) <strong>current working directory</strong> (<code>.vscode/c_cpp_properties.json</code>),
+not in submodule&rsquo;s &ldquo;.vscode/&rdquo; (<code>submodules/diff-gaussian-rasterization/.vscode/c_cpp_properties.json</code>).</p>
+<p>Otherwise, the settings won&rsquo;t be loaded.</p>
+</li>
+<li>
+<p>CUDA syntax (e.g.,<code>__global__</code>) and header (<code>&lt;cooperative_groups/reduce.h&gt;</code>, <code>min</code>) <strong>won&rsquo;t be recognized</strong>,
+if <code>includePath</code> and <code>compiler</code> are incorrect,</p>
+<details><summary>Doubtful Attempts</summary>
+<ol>
+<li>
+<p>Put the includes paths of torch before cuda&rsquo;s include.
+Otherwise <code>#include &lt;cooperative_groups/reduce.h&gt;</code> in &ldquo;forward.cu&rdquo; can&rsquo;t be found.</p>
+<p>Set the <code>includePath</code> in &ldquo;.vscode/c_cpp_properties.json&rdquo; as:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="s2">&#34;includePath&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/home/yi/anaconda3/envs/AIkui/include/python3.10&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/home/yi/anaconda3/envs/AIkui/lib/python3.10/site-packages/torch/include&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/home/yi/anaconda3/envs/AIkui/lib/python3.10/site-packages/torch/include/torch/csrc/api/include&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/**&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/usr/local/cuda-11.6/include&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">]</span>,
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Error in &ldquo;rasterizer_impl.cu&rdquo;: <code>cannot open source file glm/glm.hpp (dependency of cub/cub.cuh)</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get install libglm-dev
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="https://stackoverflow.com/a/34837050/18003182"  target="_blank" rel="noopener"
+    >Why can&rsquo;t C++ find GLM headers? - SO</a></p>
+</li>
+<li>
+<p>Error in &ldquo;backward.cu&rdquo;: <code>namespace &quot;cooperative_groups&quot; has no member &quot;this_grid&quot;</code></p>
+<p>Change CMakelist: <a class="link" href="https://stackoverflow.com/a/53507587/18003182"  target="_blank" rel="noopener"
+    >SO</a></p>
+<p>Didn&rsquo;t fix</p>
+</li>
+<li>
+<p>Error: <code>identifier &quot;min&quot; is undefinedC/C++(20)</code></p>
+<p>Didn&rsquo;t fix</p>
+</li>
+</ol>
+</details>
+<p>Solution: Use <strong>nvcc as compiler</strong>. Verified &ldquo;.vscode/c_cpp_properties.json&rdquo;:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;configurations&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;Linux&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;includePath&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/**&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;/home/yi/anaconda3/envs/gaussian_splatting/include/python3.7m&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;/home/yi/anaconda3/envs/gaussian_splatting/lib/python3.7/site-packages/torch/include&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;/home/yi/anaconda3/envs/gaussian_splatting/lib/python3.7/site-packages/torch/include/torch/csrc/api/include&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;defines&#34;</span>: <span class="o">[]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;compilerPath&#34;</span>: <span class="s2">&#34;/usr/local/cuda-11.6/bin/nvcc&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;cStandard&#34;</span>: <span class="s2">&#34;c17&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;cppStandard&#34;</span>: <span class="s2">&#34;gnu++14&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;intelliSenseMode&#34;</span>: <span class="s2">&#34;linux-gcc-x64&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;version&#34;</span>: <span class="m">4</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h3 id="debug-diffrast">Debug diffRast</h3>
+<p>(2023-11-18)</p>
+<p>Action: Write a &ldquo;main.cpp&rdquo; that calls the methods of the compiled library &ldquo;CudaRasterizer&rdquo; for debugging.
+Repo for debugging DiffRast: <a class="link" href="https://github.com/zichen34/debug_diff_rast"  target="_blank" rel="noopener"
+    >debug_diff_rust</a></p>
+<ol>
+<li>
+<p>&ldquo;CMakeLists.txt&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span> <span class="s">3.20</span> <span class="s">FATAL_ERROR</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">project</span><span class="p">(</span><span class="s">MyApp</span><span class="p">)</span>    <span class="c"># ${PROJECT_NAME}
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">find_package</span><span class="p">(</span><span class="s">Torch</span> <span class="s">REQUIRED</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_FLAGS</span> <span class="s2">&#34;${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">external/diff-gaussian-rasterization-comments</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">add_executable</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">main.cpp</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set_property</span><span class="p">(</span><span class="s">TARGET</span> <span class="s">MyApp</span> <span class="s">PROPERTY</span> <span class="s">CXX_STANDARD</span> <span class="s">17</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">MyApp</span> <span class="s2">&#34;${TORCH_LIBRARIES}&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">CudaRasterizer</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">target_sources</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">PUBLIC</span> <span class="o">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="o">}</span><span class="s">/external/diff-gaussian-rasterization-comments/rasterize_points.cu</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">target_include_directories</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">PUBLIC</span> <span class="o">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="o">}</span><span class="s">/external/diff-gaussian-rasterization-comments</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>&ldquo;launch.json&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;version&#34;</span>: <span class="s2">&#34;0.2.0&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;configurations&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;DiffRast Launch&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;cppdbg&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;request&#34;</span>: <span class="s2">&#34;launch&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;program&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">fileDirname</span><span class="si">}</span><span class="s2">/build/MyApp&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;args&#34;</span>: <span class="o">[]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;preLaunchTask&#34;</span>: <span class="s2">&#34;Build with cmake&#34;</span>, 
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;cwd&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>&ldquo;tasks.json&rdquo;</p>
+<details> <summary>open</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"> <span class="s2">&#34;version&#34;</span>: <span class="s2">&#34;2.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl"> <span class="s2">&#34;tasks&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">   <span class="o">{</span>
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;label&#34;</span>: <span class="s2">&#34;cmake-configure&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;shell&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;command&#34;</span>: <span class="s2">&#34;cmake&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;args&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;-DCMAKE_BUILD_TYPE=Debug&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;-DCMAKE_PREFIX_PATH=/usr/local/libtorch&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;..&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="o">]</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;options&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;cwd&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/build&#34;</span> 
+</span></span><span class="line"><span class="cl"> 	<span class="o">}</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;group&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;build&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;isDefault&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"> 	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">   <span class="o">{</span>
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;label&#34;</span>: <span class="s2">&#34;cmake-build&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;shell&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;command&#34;</span>: <span class="s2">&#34;cmake&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;args&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;--build&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;.&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	//   <span class="s2">&#34;--config&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	//   <span class="s2">&#34;Debug&#34;</span>
+</span></span><span class="line"><span class="cl"> 	<span class="o">]</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;options&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;cwd&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/build&#34;</span>  // Set the build directory
+</span></span><span class="line"><span class="cl"> 	<span class="o">}</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;group&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;build&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	  <span class="s2">&#34;isDefault&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"> 	<span class="o">}</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">   <span class="o">{</span>
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;label&#34;</span>: <span class="s2">&#34;Build with cmake&#34;</span>,
+</span></span><span class="line"><span class="cl"> 	<span class="s2">&#34;dependsOn&#34;</span>: <span class="o">[</span><span class="s2">&#34;cmake-configure&#34;</span>, <span class="s2">&#34;cmake-build&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">   <span class="o">}</span>
+</span></span><span class="line"><span class="cl"> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ol>
+<hr>
+<h3 id="step-into-cuda-kernels">Step into CUDA Kernels</h3>
+<p>Building project as above won&rsquo;t allow to step into CUDA kernels, e.g., <code>preprocessCUDA</code>.</p>
+<p>(2024-01-20)</p>
+<ul>
+<li>
+<p>Enable CUDA language in CMAKE and set for debugging:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">project</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">LANGUAGES</span> <span class="s">CXX</span> <span class="s">CUDA</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_BUILD_TYPE</span> <span class="s">Debug</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">if</span><span class="p">(</span><span class="s">CMAKE_BUILD_TYPE</span> <span class="s">STREQUAL</span> <span class="s2">&#34;Debug&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>    <span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CUDA_FLAGS</span> <span class="s2">&#34;${CMAKE_CUDA_FLAGS} -g -G&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">endif</span><span class="p">()</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<ol>
+<li>
+<p>Build to binary file:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># cd ~/Downloads/debug_diff_rast</span>
+</span></span><span class="line"><span class="cl">cmake -B ./build -DCMAKE_PREFIX_PATH<span class="o">=</span>/usr/local/libtorch -GNinja
+</span></span><span class="line"><span class="cl">cmake --build ./build
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Launch cuda-gdb: <code>cuda-gdb ./build/MyApp</code>. It&rsquo;s convenient to use cuda-gdb in the terminal of vscode,
+where I can jump to the code by clicking the path.</p>
+</li>
+<li>
+<p>Add breakpoint inside <code>preprocessCUDA</code>: <code>(cuda-gdb) b forward.cu:182 </code></p>
+<p>Not sure if it worked.</p>
+</li>
+</ol>
+<hr>
+<div id="worked-practice"></div>
+<p>(2024-01-26) Nsight (CUDA-GDB)</p>
+<ol>
+<li>
+<p>Generate <strong>Makefile</strong> with cmake:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cmake -B ./build -DCMAKE_PREFIX_PATH<span class="o">=</span>/usr/local/libtorch -G<span class="s2">&#34;Unix Makefiles&#34;</span>
+</span></span><span class="line"><span class="cl">cmake --build ./build
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>To let cmake produce Makefile, do not use <code>-GNinja</code>.
+<a class="link" href="https://stackoverflow.com/a/37356160/18003182"  target="_blank" rel="noopener"
+    >Why isn&rsquo;t the command &ldquo;cmake .&rdquo; generating a makefile? - SO</a></li>
+</ul>
+</li>
+<li>
+<p>Create <code>tasks.json</code></p>
+<p>Following this tutorial: <a class="link" href="https://docs.nvidia.com/nsight-visual-studio-code-edition/cuda-debugger/index.html"  target="_blank" rel="noopener"
+    >Getting Started with the CUDA Debugger :: NVIDIA Nsight VSCE Documentation</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span> 
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;label&#34;</span>: <span class="s2">&#34;CUDA Make&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;shell&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;command&#34;</span>: <span class="s2">&#34;make dbg=1&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;group&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;build&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;isDefault&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;problemMatcher&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">  	<span class="s2">&#34;</span><span class="nv">$nvcc</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;options&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;cwd&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/build&#34;</span>  // Makefile
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And then click the menu bar in vscode &ldquo;Terminal&rdquo; -&gt; &ldquo;Run Build Task &hellip;&rdquo; -&gt; select &ldquo;CUDA Make&rdquo;.</p>
+</li>
+<li>
+<p>Create <code>launch.json</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;CUDA: Debug with CUDA-GDB&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;cuda-gdb&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;request&#34;</span>: <span class="s2">&#34;launch&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;program&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/build/MyApp&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Select the configuration: &ldquo;CUDA: Debug with CUDA-GDB&rdquo; beside the &ldquo;Run&rdquo; button.
+Then, click &ldquo;Run&rdquo; to debug.</p>
+<p>The program can hit the breakpoint in the kernel function <code>preprocessCUDA</code>, for example: <code>float3 p_view;</code>
+at &ldquo;diff-gaussian-rasterization/cuda_rasterizer/forward.cu#192&rdquo;</p>
+</li>
+</ol>
+<hr>
+<h2 id="gaussian-splatting-python">gaussian-splatting python</h2>
+<p><a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting"  target="_blank" rel="noopener"
+    >Source code</a></p>
+<h3 id="define-params">Define Params</h3>
+<p>(2024-01-22)</p>
+<ol>
+<li>
+<p>Create PyTorch tensors for Gaussians&rsquo; parameters at <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/train.py#L34"  target="_blank" rel="noopener"
+    ><code>GaussianModel()</code></a>
+by <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/scene/gaussian_model.py#L44"  target="_blank" rel="noopener"
+    ><code>__init__</code></a> them with <code>torch.empty(0)</code>:</p>
+<ul>
+<li>
+<p><code>_xyz</code> (Gaussian center), <code>_features_dc</code> and <code>_features_rest</code> (SH coeffs),
+<code>_scaling</code> (vec3), <code>_rotation</code>(quaternion), <code>sh_degree</code> (color), <code>_opacity</code> (unweighted alpha)</p>
+</li>
+<li>
+<p>Each covariance matrix 𝚺 is built from a scaling vector and a quaternion:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 496 57"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 96,0 L 104,0' fill='none' stroke='currentColor'></path>
+<path d='M 344,16 L 352,16' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 104,32' fill='none' stroke='currentColor'></path>
+<polygon points='112.000000,0.000000 100.000000,-5.600000 100.000000,5.600000' fill='currentColor' transform='rotate(0.000000, 104.000000, 0.000000)'></polygon>
+<polygon points='112.000000,32.000000 100.000000,26.400000 100.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 104.000000, 32.000000)'></polygon>
+<polygon points='360.000000,16.000000 348.000000,10.400000 348.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 352.000000, 16.000000)'></polygon>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>q</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='168' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>𝐒</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>↗</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>↘</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>𝚺</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>𝐒</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>𝐒</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>ᵀ</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='328' y='20' fill='currentColor' style='font-size:1em'>ᵀ</text>
+<text text-anchor='middle' x='368' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='376' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='384' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='392' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='400' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='400' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='408' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='408' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='416' y='4' fill='currentColor' style='font-size:1em'>?</text>
+<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>`</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='464' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='472' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='480' y='20' fill='currentColor' style='font-size:1em'>`</text>
+</g>
+
+    </svg>
+  
+</div>
+<p><code>symm</code> is [Σ₀₀, Σ₀₁, Σ₀₂, Σ₁₁, Σ₁₂, Σ₂₂]</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Read point cloud and cameras at <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/train.py#L35"  target="_blank" rel="noopener"
+    ><code>Scene()</code></a>
+by calling <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/scene/__init__.py#L25"  target="_blank" rel="noopener"
+    ><code>__init__</code></a></p>
+<ul>
+<li>
+<p>SceneInfo:</p>
+<ul>
+<li>
+<p>Basic point cloud: <code>points</code>(x,y,z), <code>normals</code> (nx,ny,nz), <code>colors</code> (r,g,b)</p>
+</li>
+<li>
+<p>CameraInfo: extrinsics (<code>R</code>,<code>T</code>), fov (<code>FovX</code>,<code>FovY</code>), gt images (<code>image</code>, <code>image_name</code>, <code>image_path</code>, <code>width</code>, <code>height</code>)</p>
+</li>
+<li>
+<p><code>nerf_normalization</code> (avg_cam_center (<code>translate</code>), max displacement from the avg cam (<code>radius</code>)),</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Cameras list <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/scene/__init__.py#L73"  target="_blank" rel="noopener"
+    ><code>train_cameras</code></a> of 300 <code>Camera()</code>
+is made up by repeatly <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/utils/camera_utils.py#L58"  target="_blank" rel="noopener"
+    ><code>loadCam()</code></a></p>
+<ul>
+<li>
+<p>Resize GT image for each camera (i.e., 300 views).</p>
+</li>
+<li>
+<p>Viewing transform (world➡camera): <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/scene/cameras.py#L54"  target="_blank" rel="noopener"
+    ><code>self.world_view_transform</code></a></p>
+</li>
+<li>
+<p>Projection matrix (camera➡clip): <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/utils/graphics_utils.py#L51"  target="_blank" rel="noopener"
+    ><code>self.projection_matrix</code></a></p>
+<p>$$
+𝐏 = \begin{bmatrix}
+\frac{2n}{r-l} &amp; 0 &amp; \frac{r+l}{r-l} &amp; 0 \\
+0 &amp; \frac{2n}{t-b} &amp; \frac{t+b}{t-b} &amp; 0 \\
+0 &amp; 0 &amp; \frac{f}{f-n} &amp; \frac{-fn}{f-n} \\
+0 &amp; 0 &amp; 1 &amp; 0
+\end{bmatrix}
+$$</p>
+<p>By denoting sight width as $W$, the above $r=\frac{W}{2},\ l=-\frac{W}{2}$, so $(r-l)=W$.
+The sight center (principle center) (cx,cy) is (r,l), i.e., (W/2, H/2)
+The clip coordinate of $x$ produced by multiplying 𝐏 will result in $x_{NDC} ∈ [-1,1]$</p>
+<p>By using this 𝐏, the final $z$ axis of ND coordinate ranges in [0,1], unlike the usual NDC cube of [-1,1]</p>
+<p>$$
+near_{NDC} = \frac{ \frac{f * near}{f-n} + \frac{-fn}{f-n} }{n} = 0 \\
+far_{NDC} = \frac{ \frac{f*far}{f-n} + \frac{-fn}{f-n} }{f} = 1
+$$</p>
+<p>Therefore, this 𝐏 leads to a <strong>cuboid</strong> NDC space, rather than a cube NDC space.
+Figuratively, in the clip space, the points satisfying $0&lt;z_{clip} &lt; w_{clip}$ and $-w_{clip} &lt; x_{clip}, y_{clip} &lt; w_{clip}$
+will be excluded from rendering.
+After clipping those point, the remaining space is the NDC space.</p>
+</li>
+<li>
+<p>The transformation from world to clip space (P@w2c)ᵀ for each camera: <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/scene/cameras.py#L56"  target="_blank" rel="noopener"
+    ><code>self.full_proj_transform</code></a></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Initialize Gaussians&rsquo; parameters <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/scene/__init__.py#L83"  target="_blank" rel="noopener"
+    ><code>create_from_pcd</code></a></p>
+<ul>
+<li><code>_xyz</code> is set as the basic piont cloud</li>
+<li><code>_features_dc</code> and <code>_features_rest</code> are converted from the color of the basic point cloud.
+The 0th-order SH coeffs is the rgb. And the rest of coeffs are initialized as 0.</li>
+<li><code>spatial_lr_scale</code> is set to the max displacement from the avg cam center.</li>
+<li><code>_scaling</code> is initialized with simple_KNN.</li>
+<li><code>_rotation</code> is preset with 0 and 1</li>
+<li><code>_opacity</code> is initilized as the inverse of sigmoid(0.1)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Training optimization settings, <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/train.py#L36"  target="_blank" rel="noopener"
+    ><code>gaussians.training_setup()</code></a></p>
+<ul>
+<li>lr for each parameter</li>
+</ul>
+</li>
+</ol>
+<h3 id="render">Render</h3>
+<p>(2024-01-23)</p>
+<p><a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/gaussian_renderer/__init__.py#L18"  target="_blank" rel="noopener"
+    >render()</a></p>
+<ol>
+<li><code>screenspace_points</code>: Gaussian centers on the 2D screen are initialized as 0.</li>
+</ol>
+<hr>
+<h2 id="diff_gauss_raster">diff_gauss_raster</h2>
+<p>(2023-11-18)</p>
+<p><a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization.git"  target="_blank" rel="noopener"
+    >Code</a>
+| Explaination: <a class="link" href="https://github.com/kwea123/gaussian_splatting_notes"  target="_blank" rel="noopener"
+    >kwea123/gaussian_splatting_notes</a></p>
+<h3 id="python-invokes">Python Invokes</h3>
+<ol>
+<li>
+<p>The Python program <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/gaussian_renderer/__init__.py#L85"  target="_blank" rel="noopener"
+    ><code>gaussian_renderer/__init__.py</code></a>
+calls <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/diff_gaussian_rasterization/__init__.py#L187"  target="_blank" rel="noopener"
+    ><code>GaussianRasterizer.forward()</code></a>
+to render an image tile-by-tile.</p>
+</li>
+<li>
+<p>Internally, program goes to the submodule&rsquo;s <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/diff_gaussian_rasterization/__init__.py#L46"  target="_blank" rel="noopener"
+    ><code>_RasterizeGaussians.forward()</code></a>
+in <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/diff_gaussian_rasterization/__init__.py"  target="_blank" rel="noopener"
+    ><code>__ini__.py</code></a>,
+analogous to the &ldquo;test.py&rdquo; that calls the cuda-extension package&rsquo;s methods, which are wrapped in PyTorch&rsquo;s forward and backward.</p>
+<ul>
+<li>
+<p><code>_C</code> is a class of the <code>diff_gaussian_rasterization</code> package, as set in <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/setup.py#L22"  target="_blank" rel="noopener"
+    >setup.py</a></p>
+</li>
+<li>
+<p>The names of package&rsquo;s <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/rasterize_points.h#L19"  target="_blank" rel="noopener"
+    >methods</a>
+are set in <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/ext.cpp#L16"  target="_blank" rel="noopener"
+    ><code>PYBIND11_MODULE()</code></a></p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="forward-steps">forward Steps</h3>
+<ol>
+<li>
+<p><code>RasterizeGaussiansCUDA()</code> in <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/rasterize_points.cu#L36"  target="_blank" rel="noopener"
+    >rasterize_points.cu</a></p>
+<ul>
+<li>Define <code>geomBuffer</code>, <code>binningBuffer</code>, and <code>imgBuffer</code> for storing data of point cloud, tiles, and the rendered image.
+Their memory will be allocated through a Lambda function <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/rasterize_points.cu#L27"  target="_blank" rel="noopener"
+    ><code>resizeFunctional()</code></a>,
+where tensor&rsquo;s <code>resize_</code> method is called.</li>
+</ul>
+</li>
+<li>
+<p>➔ <code>CudaRasterizer::Rasterizer::forward()</code> in <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/rasterizer_impl.cu#L198"  target="_blank" rel="noopener"
+    >cuda_rasterizer/rasterizer_impl.cu</a></p>
+</li>
+<li>
+<p>➔ <code>FORWARD::preprocess()</code> in <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/forward.cu#L402"  target="_blank" rel="noopener"
+    >cuda_rasterizer/forward.cu</a></p>
+</li>
+<li>
+<p>➔ <code>preprocessCUDA()</code> in <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/forward.cu#L156"  target="_blank" rel="noopener"
+    >forward.cu</a></p>
+</li>
+</ol>
+<pre class="pseudocode" data-line-number=true>\begin{algorithm}
+\begin{algorithmic}
+\STATE RasterizeGaussiansCUDA
+\STATE $\quad$ CudaRasterizer::Rasterizer::forward
+\STATE $\qquad$ geomState, imgState
+\COMMENT{Allocate memory}
+\STATE $\qquad$ FORWARD::preprocess
+\STATE $\qquad$ cub::DeviceScan::InclusiveSum
+\COMMENT{Count tiles}
+\STATE $\qquad$ binningState
+\STATE $\qquad$ duplicateWithKeys
+\STATE $\qquad$ getHigherMsb
+\STATE $\qquad$ cub::DeviceRadixSort::SortPairs
+\STATE $\qquad$ identifyTileRanges
+\STATE $\qquad$ FORWARD::render
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+<h3 id="preprocesscuda">preprocessCUDA</h3>
+<ol>
+<li>
+<p><a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/forward.cu#L193"  target="_blank" rel="noopener"
+    >Frustum culling</a></p>
+<p>Delete points whose w (equal to depth) is larger than x, y, z in clip space.
+However, <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/auxiliary.h#L139"  target="_blank" rel="noopener"
+    ><code>in_frustum()</code></a>
+is based on coordinates in the camera space.</p>
+</li>
+<li>
+<p>Construct 3D covariance matrix.
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/main/cuda_rasterizer/forward.cu#L118"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>Given a quaternion $q = [r, \ x, \ y, \ z]$, the rotation matrix is:
+<a class="link" href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Quaternion-derived_rotation_matrix"  target="_blank" rel="noopener"
+    >wiki</a></p>
+<p>$$
+𝐑 =
+\begin{bmatrix}
+1 - 2(y² + z²) &amp; 2(xy - rz) &amp; 2(xz + ry) \\
+2(xy + rz) &amp; 1 - 2(x² + z²) &amp; 2(yz - rx) \\
+2(xz - ry) &amp; 2(yz + rx) &amp; 1 - 2(x²+y²)
+\end{bmatrix}
+$$</p>
+<p>The stretching matrix is diagonal and represented as a 3D vector
+$𝐒 = [x, \ y, \ z]$</p>
+<p>Covariance matrix (3x3) of 3D Gaussian <code>cov3D</code>: 𝚺 = 𝐑𝐒𝐒ᵀ𝐑ᵀ</p>
+</li>
+<li>
+<p>Covariance matrix (3x3) is projected onto 2D screen <code>cov</code>: 𝚺&rsquo; = 𝐉 𝐖 𝚺 𝐖ᵀ𝐉ᵀ.
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/main/cuda_rasterizer/forward.cu#L89-L106"  target="_blank" rel="noopener"
+    >Code</a></p>
+</li>
+<li>
+<p>Take the inverse of 𝚺&rsquo; (𝚺&rsquo;⁻¹), <code>conic</code>, to evaluate the 2D Gaussian PDF.
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/forward.cu#L219-L223"  target="_blank" rel="noopener"
+    >Code</a></p>
+</li>
+<li>
+<p>The extent of a point (Gaussian center) is a bounding square,
+where the &ldquo;radius&rdquo; from each side to the projected pixel is <code>my_radius</code>: 3σ.
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/forward.cu#L225-L237"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>The radius of the circumscribed circle for a 2D Gaussian is the <strong>max</strong> eigenvalue of the 2D covariance matrix $𝐀 = [^{a \ b}_{b \ c}]$.
+The eigenvalues can be solved from:</p>
+<p>$$
+det (𝐀 - λ⋅𝐈) = 0  \\
+\begin{vmatrix} a-λ &amp; b \\ b &amp; c-λ\end{vmatrix} = 0  \\
+(a-λ)(c-λ) - b^2 = 0  \\
+λ^2 - (a+c)λ + ac-b^2 =0
+$$</p>
+<p>Two roots:
+$λ₁,\ λ₂ = \frac{(a+c)}{2} ± \sqrt{\frac{(a+c)²}{4}-(ac-b²)}$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">det</span> <span class="o">=</span> <span class="p">(</span><span class="n">cov</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">cov</span><span class="p">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">cov</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">cov</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> <span class="c1">// determinant
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">-</span> <span class="o">-</span> <span class="o">-</span>
+</span></span><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.5f</span> <span class="o">*</span> <span class="p">(</span><span class="n">cov</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">cov</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">lambda1</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">max</span><span class="p">(</span><span class="mf">0.1f</span><span class="p">,</span> <span class="n">mid</span> <span class="o">*</span> <span class="n">mid</span> <span class="o">-</span> <span class="n">det</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">lambda2</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">max</span><span class="p">(</span><span class="mf">0.1f</span><span class="p">,</span> <span class="n">mid</span> <span class="o">*</span> <span class="n">mid</span> <span class="o">-</span> <span class="n">det</span><span class="p">));</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Pixel coordinates: Scale the ND coordinates of x,y ∈ [-1,1] to image-grid coordiantes <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/957bb97582554f2198a07ab01166211a1b79dccf/cuda_rasterizer/forward.cu#L233"  target="_blank" rel="noopener"
+    ><code>point_image</code></a>
+[0,W] through viewport transformation:
+$x = \frac{W⋅(x-1)}{2} -0.5,\ y=\frac{H⋅(y-1)}{2} -0.5$</p>
+</li>
+</ol>
+<hr>
+<h3 id="prepare-tiles">Prepare Tiles</h3>
+<p>(2024-02-02)</p>
+<ol>
+<li>
+<p>Obtain the total sum of touched tiles for all Gaussian centers by <code>inclusive sum</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">cub</span><span class="o">::</span><span class="n">DeviceScan</span><span class="o">::</span><span class="n">InclusiveSum</span><span class="p">(</span><span class="n">geomState</span><span class="p">.</span><span class="n">scanning_space</span><span class="p">,</span> <span class="n">geomState</span><span class="p">.</span><span class="n">scan_size</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">          <span class="n">geomState</span><span class="p">.</span><span class="n">tiles_touched</span><span class="p">,</span> <span class="n">geomState</span><span class="p">.</span><span class="n">point_offsets</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">-</span> <span class="o">-</span> <span class="o">-</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">num_rendered</span><span class="p">;</span>    <span class="c1">// total number
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">CHECK_CUDA</span><span class="p">(</span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">num_rendered</span><span class="p">,</span> <span class="n">geomState</span><span class="p">.</span><span class="n">point_offsets</span> <span class="o">+</span> <span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">          <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">),</span> <span class="n">debug</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><code>InclusiveSum</code> produces a <strong>sequence</strong> of prefix sum for <code>tiles_touched</code> (the <strong>number</strong> of touched tiles) of 100k points.</p>
+<p>The pointer <code>point_offsets</code> points to the <strong>first</strong> byte of the 100k-byte sequence.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 488 185"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 56,16 L 80,16' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 104,16' fill='none' stroke='currentColor'></path>
+<path d='M 104,16 L 128,16' fill='none' stroke='currentColor'></path>
+<path d='M 128,16 L 152,16' fill='none' stroke='currentColor'></path>
+<path d='M 152,16 L 176,16' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 200,16' fill='none' stroke='currentColor'></path>
+<path d='M 200,16 L 224,16' fill='none' stroke='currentColor'></path>
+<path d='M 280,16 L 304,16' fill='none' stroke='currentColor'></path>
+<path d='M 304,16 L 328,16' fill='none' stroke='currentColor'></path>
+<path d='M 328,16 L 352,16' fill='none' stroke='currentColor'></path>
+<path d='M 56,48 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 L 104,48' fill='none' stroke='currentColor'></path>
+<path d='M 104,48 L 128,48' fill='none' stroke='currentColor'></path>
+<path d='M 128,48 L 152,48' fill='none' stroke='currentColor'></path>
+<path d='M 152,48 L 176,48' fill='none' stroke='currentColor'></path>
+<path d='M 176,48 L 200,48' fill='none' stroke='currentColor'></path>
+<path d='M 200,48 L 224,48' fill='none' stroke='currentColor'></path>
+<path d='M 280,48 L 304,48' fill='none' stroke='currentColor'></path>
+<path d='M 304,48 L 328,48' fill='none' stroke='currentColor'></path>
+<path d='M 328,48 L 352,48' fill='none' stroke='currentColor'></path>
+<path d='M 56,80 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,80 L 104,80' fill='none' stroke='currentColor'></path>
+<path d='M 104,80 L 128,80' fill='none' stroke='currentColor'></path>
+<path d='M 128,80 L 152,80' fill='none' stroke='currentColor'></path>
+<path d='M 152,80 L 176,80' fill='none' stroke='currentColor'></path>
+<path d='M 176,80 L 200,80' fill='none' stroke='currentColor'></path>
+<path d='M 200,80 L 232,80' fill='none' stroke='currentColor'></path>
+<path d='M 280,80 L 304,80' fill='none' stroke='currentColor'></path>
+<path d='M 304,80 L 328,80' fill='none' stroke='currentColor'></path>
+<path d='M 328,80 L 376,80' fill='none' stroke='currentColor'></path>
+<path d='M 56,112 L 80,112' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 104,112' fill='none' stroke='currentColor'></path>
+<path d='M 104,112 L 128,112' fill='none' stroke='currentColor'></path>
+<path d='M 128,112 L 152,112' fill='none' stroke='currentColor'></path>
+<path d='M 152,112 L 176,112' fill='none' stroke='currentColor'></path>
+<path d='M 176,112 L 200,112' fill='none' stroke='currentColor'></path>
+<path d='M 200,112 L 232,112' fill='none' stroke='currentColor'></path>
+<path d='M 280,112 L 304,112' fill='none' stroke='currentColor'></path>
+<path d='M 304,112 L 328,112' fill='none' stroke='currentColor'></path>
+<path d='M 328,112 L 376,112' fill='none' stroke='currentColor'></path>
+<path d='M 56,16 L 56,48' fill='none' stroke='currentColor'></path>
+<path d='M 56,80 L 56,112' fill='none' stroke='currentColor'></path>
+<path d='M 64,128 L 64,144' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 80,80 L 80,112' fill='none' stroke='currentColor'></path>
+<path d='M 104,16 L 104,48' fill='none' stroke='currentColor'></path>
+<path d='M 104,80 L 104,112' fill='none' stroke='currentColor'></path>
+<path d='M 128,16 L 128,48' fill='none' stroke='currentColor'></path>
+<path d='M 128,80 L 128,112' fill='none' stroke='currentColor'></path>
+<path d='M 152,16 L 152,48' fill='none' stroke='currentColor'></path>
+<path d='M 152,80 L 152,112' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 176,48' fill='none' stroke='currentColor'></path>
+<path d='M 176,80 L 176,112' fill='none' stroke='currentColor'></path>
+<path d='M 200,16 L 200,48' fill='none' stroke='currentColor'></path>
+<path d='M 200,80 L 200,112' fill='none' stroke='currentColor'></path>
+<path d='M 224,16 L 224,48' fill='none' stroke='currentColor'></path>
+<path d='M 232,80 L 232,112' fill='none' stroke='currentColor'></path>
+<path d='M 280,16 L 280,48' fill='none' stroke='currentColor'></path>
+<path d='M 280,80 L 280,112' fill='none' stroke='currentColor'></path>
+<path d='M 304,16 L 304,48' fill='none' stroke='currentColor'></path>
+<path d='M 304,80 L 304,112' fill='none' stroke='currentColor'></path>
+<path d='M 328,16 L 328,48' fill='none' stroke='currentColor'></path>
+<path d='M 328,80 L 328,112' fill='none' stroke='currentColor'></path>
+<path d='M 344,128 L 344,144' fill='none' stroke='currentColor'></path>
+<path d='M 352,16 L 352,48' fill='none' stroke='currentColor'></path>
+<path d='M 376,80 L 376,112' fill='none' stroke='currentColor'></path>
+<path d='M 64,120 L 64,128' fill='none' stroke='currentColor'></path>
+<polygon points='80.000000,128.000000 68.000000,122.400002 68.000000,133.600006' fill='currentColor' transform='rotate(270.000000, 64.000000, 128.000000)'></polygon>
+<path d='M 344,120 L 344,128' fill='none' stroke='currentColor'></path>
+<polygon points='360.000000,128.000000 348.000000,122.400002 348.000000,133.600006' fill='currentColor' transform='rotate(270.000000, 344.000000, 128.000000)'></polygon>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='0' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='48' y='164' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='56' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='64' y='100' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='64' y='164' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='72' y='164' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='80' y='164' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='88' y='164' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='104' y='164' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='112' y='164' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='120' y='164' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='128' y='164' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='136' y='100' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='136' y='164' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='144' y='100' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='144' y='164' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='160' y='100' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='168' y='36' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='168' y='100' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='184' y='100' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='192' y='100' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='208' y='100' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='216' y='100' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='224' y='100' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='248' y='100' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='264' y='100' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='288' y='36' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='296' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='312' y='36' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='328' y='164' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='336' y='100' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='336' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='344' y='100' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='344' y='164' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='352' y='100' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='352' y='164' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='360' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='360' y='164' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>K</text>
+<text text-anchor='middle' x='368' y='100' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='368' y='164' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='376' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='384' y='164' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='392' y='164' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='400' y='164' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='408' y='164' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='416' y='164' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='424' y='164' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='432' y='164' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='440' y='164' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='448' y='164' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='456' y='164' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='464' y='164' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='472' y='164' fill='currentColor' style='font-size:1em'>9</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p><code>P</code> = 100k bytes (char) is the number of points (Gaussian center).</p>
+<p>So, <code>point_offsets + P - 1</code> is the last element in the prefix-sum sequence.
+Specifically, it&rsquo;s the <strong>total number</strong> of touched tiles for all 100k points.</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<ol start="2">
+<li>
+<p>Iterate <strong>each Gaussian</strong> to pair every touched tile&rsquo;s id and Gaussian&rsquo;s depth:
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/957bb97582554f2198a07ab01166211a1b79dccf/cuda_rasterizer/rasterizer_impl.cu#L289"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>Iterate each tile that a Gaussian overlaps, and combine the tile index and the Gaussian&rsquo;s depth to form a key</p>
+<ul>
+<li>
+<p>100x100 image are divided to tiles with size of 16x16, so the thread gridDim: (7,7,1)</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 448 297"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 16,16 L 48,16' fill='none' stroke='currentColor'></path>
+<path d='M 48,16 L 80,16' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 112,16' fill='none' stroke='currentColor'></path>
+<path d='M 112,16 L 144,16' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 L 176,16' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 208,16' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 240,16' fill='none' stroke='currentColor'></path>
+<path d='M 16,48 L 48,48' fill='none' stroke='currentColor'></path>
+<path d='M 48,48 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 L 112,48' fill='none' stroke='currentColor'></path>
+<path d='M 112,48 L 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 144,48 L 176,48' fill='none' stroke='currentColor'></path>
+<path d='M 176,48 L 208,48' fill='none' stroke='currentColor'></path>
+<path d='M 208,48 L 240,48' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,80 L 32,80' fill='none' stroke='currentColor'></path>
+<path d='M 32,80 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,80 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 112,80' fill='none' stroke='currentColor'></path>
+<path d='M 112,80 L 144,80' fill='none' stroke='currentColor'></path>
+<path d='M 144,80 L 176,80' fill='none' stroke='currentColor'></path>
+<path d='M 176,80 L 208,80' fill='none' stroke='currentColor'></path>
+<path d='M 208,80 L 240,80' fill='none' stroke='currentColor'></path>
+<path d='M 16,112 L 32,112' fill='none' stroke='currentColor'></path>
+<path d='M 32,112 L 48,112' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 80,112' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 96,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 112,112' fill='none' stroke='currentColor'></path>
+<path d='M 112,112 L 144,112' fill='none' stroke='currentColor'></path>
+<path d='M 144,112 L 176,112' fill='none' stroke='currentColor'></path>
+<path d='M 176,112 L 208,112' fill='none' stroke='currentColor'></path>
+<path d='M 208,112 L 240,112' fill='none' stroke='currentColor'></path>
+<path d='M 32,128 L 48,128' fill='none' stroke='currentColor'></path>
+<path d='M 48,128 L 80,128' fill='none' stroke='currentColor'></path>
+<path d='M 80,128 L 96,128' fill='none' stroke='currentColor'></path>
+<path d='M 128,128 L 144,128' fill='none' stroke='currentColor'></path>
+<path d='M 144,128 L 176,128' fill='none' stroke='currentColor'></path>
+<path d='M 176,128 L 208,128' fill='none' stroke='currentColor'></path>
+<path d='M 208,128 L 240,128' fill='none' stroke='currentColor'></path>
+<path d='M 240,128 L 256,128' fill='none' stroke='currentColor'></path>
+<path d='M 16,144 L 48,144' fill='none' stroke='currentColor'></path>
+<path d='M 48,144 L 80,144' fill='none' stroke='currentColor'></path>
+<path d='M 80,144 L 112,144' fill='none' stroke='currentColor'></path>
+<path d='M 112,144 L 128,144' fill='none' stroke='currentColor'></path>
+<path d='M 128,144 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 144,144 L 176,144' fill='none' stroke='currentColor'></path>
+<path d='M 176,144 L 208,144' fill='none' stroke='currentColor'></path>
+<path d='M 208,144 L 240,144' fill='none' stroke='currentColor'></path>
+<path d='M 16,176 L 48,176' fill='none' stroke='currentColor'></path>
+<path d='M 48,176 L 80,176' fill='none' stroke='currentColor'></path>
+<path d='M 80,176 L 112,176' fill='none' stroke='currentColor'></path>
+<path d='M 112,176 L 128,176' fill='none' stroke='currentColor'></path>
+<path d='M 128,176 L 144,176' fill='none' stroke='currentColor'></path>
+<path d='M 144,176 L 176,176' fill='none' stroke='currentColor'></path>
+<path d='M 176,176 L 208,176' fill='none' stroke='currentColor'></path>
+<path d='M 208,176 L 240,176' fill='none' stroke='currentColor'></path>
+<path d='M 272,192 L 288,192' fill='none' stroke='currentColor'></path>
+<path d='M 16,208 L 48,208' fill='none' stroke='currentColor'></path>
+<path d='M 48,208 L 80,208' fill='none' stroke='currentColor'></path>
+<path d='M 80,208 L 112,208' fill='none' stroke='currentColor'></path>
+<path d='M 112,208 L 128,208' fill='none' stroke='currentColor'></path>
+<path d='M 128,208 L 144,208' fill='none' stroke='currentColor'></path>
+<path d='M 144,208 L 176,208' fill='none' stroke='currentColor'></path>
+<path d='M 176,208 L 208,208' fill='none' stroke='currentColor'></path>
+<path d='M 208,208 L 240,208' fill='none' stroke='currentColor'></path>
+<path d='M 16,240 L 48,240' fill='none' stroke='currentColor'></path>
+<path d='M 48,240 L 80,240' fill='none' stroke='currentColor'></path>
+<path d='M 80,240 L 112,240' fill='none' stroke='currentColor'></path>
+<path d='M 112,240 L 128,240' fill='none' stroke='currentColor'></path>
+<path d='M 128,240 L 144,240' fill='none' stroke='currentColor'></path>
+<path d='M 144,240 L 176,240' fill='none' stroke='currentColor'></path>
+<path d='M 176,240 L 208,240' fill='none' stroke='currentColor'></path>
+<path d='M 208,240 L 240,240' fill='none' stroke='currentColor'></path>
+<path d='M 128,256 L 256,256' fill='none' stroke='currentColor'></path>
+<path d='M 272,256 L 288,256' fill='none' stroke='currentColor'></path>
+<path d='M 16,16 L 16,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,48 L 16,80' fill='none' stroke='currentColor'></path>
+<path d='M 16,80 L 16,112' fill='none' stroke='currentColor'></path>
+<path d='M 16,112 L 16,144' fill='none' stroke='currentColor'></path>
+<path d='M 16,144 L 16,176' fill='none' stroke='currentColor'></path>
+<path d='M 16,176 L 16,208' fill='none' stroke='currentColor'></path>
+<path d='M 16,208 L 16,240' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 32,80' fill='none' stroke='currentColor'></path>
+<path d='M 32,80 L 32,112' fill='none' stroke='currentColor'></path>
+<path d='M 32,112 L 32,128' fill='none' stroke='currentColor'></path>
+<path d='M 48,16 L 48,48' fill='none' stroke='currentColor'></path>
+<path d='M 48,48 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 48,112' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 48,128' fill='none' stroke='currentColor'></path>
+<path d='M 48,128 L 48,144' fill='none' stroke='currentColor'></path>
+<path d='M 48,144 L 48,176' fill='none' stroke='currentColor'></path>
+<path d='M 48,176 L 48,208' fill='none' stroke='currentColor'></path>
+<path d='M 48,208 L 48,240' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,80 L 80,112' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 80,128' fill='none' stroke='currentColor'></path>
+<path d='M 80,128 L 80,144' fill='none' stroke='currentColor'></path>
+<path d='M 80,144 L 80,176' fill='none' stroke='currentColor'></path>
+<path d='M 80,176 L 80,208' fill='none' stroke='currentColor'></path>
+<path d='M 80,208 L 80,240' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 96,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 96,128' fill='none' stroke='currentColor'></path>
+<path d='M 112,16 L 112,48' fill='none' stroke='currentColor'></path>
+<path d='M 112,48 L 112,80' fill='none' stroke='currentColor'></path>
+<path d='M 112,80 L 112,112' fill='none' stroke='currentColor'></path>
+<path d='M 112,112 L 112,144' fill='none' stroke='currentColor'></path>
+<path d='M 112,144 L 112,176' fill='none' stroke='currentColor'></path>
+<path d='M 112,176 L 112,208' fill='none' stroke='currentColor'></path>
+<path d='M 112,208 L 112,240' fill='none' stroke='currentColor'></path>
+<path d='M 128,128 L 128,144' fill='none' stroke='currentColor'></path>
+<path d='M 128,144 L 128,176' fill='none' stroke='currentColor'></path>
+<path d='M 128,176 L 128,208' fill='none' stroke='currentColor'></path>
+<path d='M 128,208 L 128,240' fill='none' stroke='currentColor'></path>
+<path d='M 128,240 L 128,256' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 L 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 144,48 L 144,80' fill='none' stroke='currentColor'></path>
+<path d='M 144,80 L 144,112' fill='none' stroke='currentColor'></path>
+<path d='M 144,112 L 144,128' fill='none' stroke='currentColor'></path>
+<path d='M 144,128 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 144,144 L 144,176' fill='none' stroke='currentColor'></path>
+<path d='M 144,176 L 144,208' fill='none' stroke='currentColor'></path>
+<path d='M 144,208 L 144,240' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 176,48' fill='none' stroke='currentColor'></path>
+<path d='M 176,48 L 176,80' fill='none' stroke='currentColor'></path>
+<path d='M 176,80 L 176,112' fill='none' stroke='currentColor'></path>
+<path d='M 176,112 L 176,128' fill='none' stroke='currentColor'></path>
+<path d='M 176,128 L 176,144' fill='none' stroke='currentColor'></path>
+<path d='M 176,144 L 176,176' fill='none' stroke='currentColor'></path>
+<path d='M 176,176 L 176,208' fill='none' stroke='currentColor'></path>
+<path d='M 176,208 L 176,240' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 208,48' fill='none' stroke='currentColor'></path>
+<path d='M 208,48 L 208,80' fill='none' stroke='currentColor'></path>
+<path d='M 208,80 L 208,112' fill='none' stroke='currentColor'></path>
+<path d='M 208,112 L 208,128' fill='none' stroke='currentColor'></path>
+<path d='M 208,128 L 208,144' fill='none' stroke='currentColor'></path>
+<path d='M 208,144 L 208,176' fill='none' stroke='currentColor'></path>
+<path d='M 208,176 L 208,208' fill='none' stroke='currentColor'></path>
+<path d='M 208,208 L 208,240' fill='none' stroke='currentColor'></path>
+<path d='M 240,16 L 240,48' fill='none' stroke='currentColor'></path>
+<path d='M 240,48 L 240,80' fill='none' stroke='currentColor'></path>
+<path d='M 240,80 L 240,112' fill='none' stroke='currentColor'></path>
+<path d='M 240,112 L 240,128' fill='none' stroke='currentColor'></path>
+<path d='M 240,128 L 240,144' fill='none' stroke='currentColor'></path>
+<path d='M 240,144 L 240,176' fill='none' stroke='currentColor'></path>
+<path d='M 240,176 L 240,208' fill='none' stroke='currentColor'></path>
+<path d='M 240,208 L 240,240' fill='none' stroke='currentColor'></path>
+<path d='M 256,128 L 256,256' fill='none' stroke='currentColor'></path>
+<path d='M 280,200 L 280,208' fill='none' stroke='currentColor'></path>
+<polygon points='296.000000,208.000000 284.000000,202.399994 284.000000,213.600006' fill='currentColor' transform='rotate(270.000000, 280.000000, 208.000000)'></polygon>
+<path d='M 280,240 L 280,248' fill='none' stroke='currentColor'></path>
+<polygon points='296.000000,240.000000 284.000000,234.399994 284.000000,245.600006' fill='currentColor' transform='rotate(90.000000, 280.000000, 240.000000)'></polygon>
+<circle cx='64' cy='96' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='192' cy='192' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='0' y='68' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='0' y='132' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='0' y='164' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='0' y='196' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='0' y='228' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>▦</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='96' y='276' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='104' y='276' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='112' y='276' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='120' y='276' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='128' y='276' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='136' y='276' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='144' y='276' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='276' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='280' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='280' y='228' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='288' y='116' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='288' y='228' fill='currentColor' style='font-size:1em'>σ</text>
+<text text-anchor='middle' x='296' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='304' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='312' y='116' fill='currentColor' style='font-size:1em'>x</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>For example, the above small Gaussian covers 9 tiles at: (0,1), (1,1), (2,1), (0,2), (1,2), (2,2), (0,3), (1,3), (2,3)</p>
+<p>The tile id is <code>y*grid.x + x</code>. Therefore, the 9 tiles&rsquo; id are 8,9,10, 15,16,17, 22,23,24</p>
+</li>
+<li>
+<p>Suppose the tile id is 24 and the Gaussian&rsquo;s depth is 15.7, the key is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">tile id 24:          0000_0000_0001_1000
+</span></span><span class="line"><span class="cl">Shift left <span class="m">32</span> bits:  0001_1000_0000_0000
+</span></span><span class="line"><span class="cl">combine depth:       0001_1000_0000_1111 <span class="c1"># 180F</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Because each Gaussian is processed <strong>in parallel</strong>, the prefix sum <code>point_offsets</code> is referenced
+to locate the starting cell for each Gaussian to store <code>key</code>s into corresponding area of the array <code>gaussian_keys_unsorted</code>:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 496 217"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 48,64 L 72,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 120,64' fill='none' stroke='currentColor'></path>
+<path d='M 120,64 L 144,64' fill='none' stroke='currentColor'></path>
+<path d='M 144,64 L 168,64' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 192,64' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 216,64' fill='none' stroke='currentColor'></path>
+<path d='M 216,64 L 240,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 264,64' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 288,64' fill='none' stroke='currentColor'></path>
+<path d='M 288,64 L 312,64' fill='none' stroke='currentColor'></path>
+<path d='M 312,64 L 336,64' fill='none' stroke='currentColor'></path>
+<path d='M 368,64 L 392,64' fill='none' stroke='currentColor'></path>
+<path d='M 392,64 L 416,64' fill='none' stroke='currentColor'></path>
+<path d='M 416,64 L 440,64' fill='none' stroke='currentColor'></path>
+<path d='M 440,64 L 464,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,96 L 72,96' fill='none' stroke='currentColor'></path>
+<path d='M 72,96 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,96 L 120,96' fill='none' stroke='currentColor'></path>
+<path d='M 120,96 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,96 L 168,96' fill='none' stroke='currentColor'></path>
+<path d='M 168,96 L 192,96' fill='none' stroke='currentColor'></path>
+<path d='M 192,96 L 216,96' fill='none' stroke='currentColor'></path>
+<path d='M 216,96 L 240,96' fill='none' stroke='currentColor'></path>
+<path d='M 240,96 L 264,96' fill='none' stroke='currentColor'></path>
+<path d='M 264,96 L 288,96' fill='none' stroke='currentColor'></path>
+<path d='M 288,96 L 312,96' fill='none' stroke='currentColor'></path>
+<path d='M 312,96 L 336,96' fill='none' stroke='currentColor'></path>
+<path d='M 368,96 L 392,96' fill='none' stroke='currentColor'></path>
+<path d='M 392,96 L 416,96' fill='none' stroke='currentColor'></path>
+<path d='M 416,96 L 440,96' fill='none' stroke='currentColor'></path>
+<path d='M 440,96 L 464,96' fill='none' stroke='currentColor'></path>
+<path d='M 64,160 L 232,160' fill='none' stroke='currentColor'></path>
+<path d='M 384,160 L 448,160' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 48,96' fill='none' stroke='currentColor'></path>
+<path d='M 64,112 L 64,128' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 72,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 120,64 L 120,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,64 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 168,96' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 192,96' fill='none' stroke='currentColor'></path>
+<path d='M 216,64 L 216,96' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 240,96' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 264,96' fill='none' stroke='currentColor'></path>
+<path d='M 272,112 L 272,160' fill='none' stroke='currentColor'></path>
+<path d='M 288,64 L 288,96' fill='none' stroke='currentColor'></path>
+<path d='M 304,112 L 304,128' fill='none' stroke='currentColor'></path>
+<path d='M 312,64 L 312,96' fill='none' stroke='currentColor'></path>
+<path d='M 336,64 L 336,96' fill='none' stroke='currentColor'></path>
+<path d='M 368,64 L 368,96' fill='none' stroke='currentColor'></path>
+<path d='M 376,112 L 376,128' fill='none' stroke='currentColor'></path>
+<path d='M 392,64 L 392,96' fill='none' stroke='currentColor'></path>
+<path d='M 416,64 L 416,96' fill='none' stroke='currentColor'></path>
+<path d='M 440,64 L 440,96' fill='none' stroke='currentColor'></path>
+<path d='M 464,64 L 464,96' fill='none' stroke='currentColor'></path>
+<path d='M 64,104 L 64,112' fill='none' stroke='currentColor'></path>
+<polygon points='80.000000,112.000000 68.000000,106.400002 68.000000,117.599998' fill='currentColor' transform='rotate(270.000000, 64.000000, 112.000000)'></polygon>
+<path d='M 272,104 L 272,112' fill='none' stroke='currentColor'></path>
+<polygon points='288.000000,112.000000 276.000000,106.400002 276.000000,117.599998' fill='currentColor' transform='rotate(270.000000, 272.000000, 112.000000)'></polygon>
+<path d='M 304,104 L 304,112' fill='none' stroke='currentColor'></path>
+<polygon points='320.000000,112.000000 308.000000,106.400002 308.000000,117.599998' fill='currentColor' transform='rotate(270.000000, 304.000000, 112.000000)'></polygon>
+<path d='M 376,104 L 376,112' fill='none' stroke='currentColor'></path>
+<polygon points='392.000000,112.000000 380.000000,106.400002 380.000000,117.599998' fill='currentColor' transform='rotate(270.000000, 376.000000, 112.000000)'></polygon>
+<path d='M 48,144 A 16,16 0 0,0 64,160' fill='none' stroke='currentColor'></path>
+<path d='M 248,144 A 16,16 0 0,1 232,160' fill='none' stroke='currentColor'></path>
+<path d='M 296,144 A 16,16 0 0,0 312,160' fill='none' stroke='currentColor'></path>
+<path d='M 368,144 A 16,16 0 0,0 384,160' fill='none' stroke='currentColor'></path>
+<path d='M 464,144 A 16,16 0 0,1 448,160' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='56' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='112' y='180' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='120' y='180' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='128' y='180' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='128' y='196' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='136' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='144' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='248' y='52' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='256' y='180' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='264' y='180' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='272' y='52' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='272' y='180' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='272' y='196' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='280' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='288' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='296' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='304' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='304' y='180' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='312' y='180' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='312' y='196' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='320' y='164' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='320' y='180' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='328' y='164' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='328' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='336' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='352' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='352' y='84' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='352' y='196' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='392' y='180' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='392' y='196' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='400' y='180' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='400' y='196' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='408' y='180' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='408' y='196' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='416' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='416' y='196' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='424' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='448' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='456' y='52' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='464' y='20' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='464' y='52' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='472' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='472' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='480' y='20' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='480' y='52' fill='currentColor' style='font-size:1em'>6</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<ol start="3">
+<li>
+<p>With performing <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/957bb97582554f2198a07ab01166211a1b79dccf/cuda_rasterizer/rasterizer_impl.cu#L303"  target="_blank" rel="noopener"
+    ><code>SortPairs</code></a>,
+the tile-Gaussian pairs sequence is arranged based on the tile ID,
+and for keys with identical tile id, the depths are then sorted.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 496 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 64,32 L 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 216,32' fill='none' stroke='currentColor'></path>
+<path d='M 216,32 L 272,32' fill='none' stroke='currentColor'></path>
+<path d='M 304,32 L 312,32' fill='none' stroke='currentColor'></path>
+<path d='M 368,32 L 376,32' fill='none' stroke='currentColor'></path>
+<path d='M 376,32 L 424,32' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 72,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 120,64' fill='none' stroke='currentColor'></path>
+<path d='M 120,64 L 144,64' fill='none' stroke='currentColor'></path>
+<path d='M 144,64 L 168,64' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 192,64' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 216,64' fill='none' stroke='currentColor'></path>
+<path d='M 216,64 L 240,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 264,64' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 288,64' fill='none' stroke='currentColor'></path>
+<path d='M 288,64 L 312,64' fill='none' stroke='currentColor'></path>
+<path d='M 312,64 L 336,64' fill='none' stroke='currentColor'></path>
+<path d='M 368,64 L 392,64' fill='none' stroke='currentColor'></path>
+<path d='M 392,64 L 416,64' fill='none' stroke='currentColor'></path>
+<path d='M 416,64 L 440,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,96 L 72,96' fill='none' stroke='currentColor'></path>
+<path d='M 72,96 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,96 L 120,96' fill='none' stroke='currentColor'></path>
+<path d='M 120,96 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,96 L 168,96' fill='none' stroke='currentColor'></path>
+<path d='M 168,96 L 192,96' fill='none' stroke='currentColor'></path>
+<path d='M 192,96 L 216,96' fill='none' stroke='currentColor'></path>
+<path d='M 216,96 L 240,96' fill='none' stroke='currentColor'></path>
+<path d='M 240,96 L 264,96' fill='none' stroke='currentColor'></path>
+<path d='M 264,96 L 288,96' fill='none' stroke='currentColor'></path>
+<path d='M 288,96 L 312,96' fill='none' stroke='currentColor'></path>
+<path d='M 312,96 L 336,96' fill='none' stroke='currentColor'></path>
+<path d='M 368,96 L 392,96' fill='none' stroke='currentColor'></path>
+<path d='M 392,96 L 416,96' fill='none' stroke='currentColor'></path>
+<path d='M 416,96 L 440,96' fill='none' stroke='currentColor'></path>
+<path d='M 48,48 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 48,96' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 72,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 120,64 L 120,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,48 L 144,64' fill='none' stroke='currentColor'></path>
+<path d='M 144,64 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 168,96' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 192,96' fill='none' stroke='currentColor'></path>
+<path d='M 216,16 L 216,32' fill='none' stroke='currentColor'></path>
+<path d='M 216,64 L 216,96' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 240,96' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 264,96' fill='none' stroke='currentColor'></path>
+<path d='M 288,48 L 288,64' fill='none' stroke='currentColor'></path>
+<path d='M 288,64 L 288,96' fill='none' stroke='currentColor'></path>
+<path d='M 312,64 L 312,96' fill='none' stroke='currentColor'></path>
+<path d='M 336,64 L 336,96' fill='none' stroke='currentColor'></path>
+<path d='M 368,64 L 368,96' fill='none' stroke='currentColor'></path>
+<path d='M 376,16 L 376,32' fill='none' stroke='currentColor'></path>
+<path d='M 392,64 L 392,96' fill='none' stroke='currentColor'></path>
+<path d='M 416,64 L 416,96' fill='none' stroke='currentColor'></path>
+<path d='M 440,48 L 440,64' fill='none' stroke='currentColor'></path>
+<path d='M 440,64 L 440,96' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 A 16,16 0 0,0 48,48' fill='none' stroke='currentColor'></path>
+<path d='M 128,32 A 16,16 0 0,1 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 A 16,16 0 0,0 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 272,32 A 16,16 0 0,1 288,48' fill='none' stroke='currentColor'></path>
+<path d='M 304,32 A 16,16 0 0,0 288,48' fill='none' stroke='currentColor'></path>
+<path d='M 424,32 A 16,16 0 0,1 440,48' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>K</text>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='16' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='24' y='132' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='132' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='48' y='132' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='56' y='132' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='72' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='72' y='132' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='80' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='96' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='104' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='120' y='132' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='128' y='132' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='144' y='132' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='152' y='132' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='152' y='148' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='168' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='168' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='176' y='116' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='176' y='132' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='192' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='192' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='200' y='132' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='200' y='148' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='216' y='132' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='224' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='224' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='240' y='132' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='248' y='148' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='264' y='132' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='272' y='132' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='272' y='148' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='288' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='288' y='132' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='296' y='116' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='296' y='132' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='296' y='148' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='312' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='312' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='320' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='320' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='320' y='148' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='352' y='84' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='368' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='368' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='376' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='376' y='132' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='376' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='392' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='392' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='400' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='400' y='132' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='400' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='408' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='416' y='4' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='416' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='416' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='424' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='424' y='132' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='424' y='148' fill='currentColor' style='font-size:1em'>5</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ol>
+<hr>
+<ol start="4">
+<li>
+<p>Iterate <strong>each tile</strong> to record the boundaries <code>ranges</code> of each tiles to be rendered.
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/957bb97582554f2198a07ab01166211a1b79dccf/cuda_rasterizer/rasterizer_impl.cu#L313"  target="_blank" rel="noopener"
+    >Code</a></p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 504 137"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 48,48 L 72,48' fill='none' stroke='currentColor'></path>
+<path d='M 72,48 L 96,48' fill='none' stroke='currentColor'></path>
+<path d='M 96,48 L 120,48' fill='none' stroke='currentColor'></path>
+<path d='M 120,48 L 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 144,48 L 168,48' fill='none' stroke='currentColor'></path>
+<path d='M 168,48 L 192,48' fill='none' stroke='currentColor'></path>
+<path d='M 192,48 L 216,48' fill='none' stroke='currentColor'></path>
+<path d='M 216,48 L 240,48' fill='none' stroke='currentColor'></path>
+<path d='M 240,48 L 264,48' fill='none' stroke='currentColor'></path>
+<path d='M 264,48 L 288,48' fill='none' stroke='currentColor'></path>
+<path d='M 288,48 L 312,48' fill='none' stroke='currentColor'></path>
+<path d='M 312,48 L 336,48' fill='none' stroke='currentColor'></path>
+<path d='M 368,48 L 392,48' fill='none' stroke='currentColor'></path>
+<path d='M 392,48 L 416,48' fill='none' stroke='currentColor'></path>
+<path d='M 416,48 L 440,48' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 72,80' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 120,80 L 144,80' fill='none' stroke='currentColor'></path>
+<path d='M 144,80 L 168,80' fill='none' stroke='currentColor'></path>
+<path d='M 168,80 L 192,80' fill='none' stroke='currentColor'></path>
+<path d='M 192,80 L 216,80' fill='none' stroke='currentColor'></path>
+<path d='M 216,80 L 240,80' fill='none' stroke='currentColor'></path>
+<path d='M 240,80 L 264,80' fill='none' stroke='currentColor'></path>
+<path d='M 264,80 L 288,80' fill='none' stroke='currentColor'></path>
+<path d='M 288,80 L 312,80' fill='none' stroke='currentColor'></path>
+<path d='M 312,80 L 336,80' fill='none' stroke='currentColor'></path>
+<path d='M 368,80 L 392,80' fill='none' stroke='currentColor'></path>
+<path d='M 392,80 L 416,80' fill='none' stroke='currentColor'></path>
+<path d='M 416,80 L 440,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,48 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 64,96 L 64,112' fill='none' stroke='currentColor'></path>
+<path d='M 72,48 L 72,80' fill='none' stroke='currentColor'></path>
+<path d='M 88,96 L 88,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,48 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 112,96 L 112,112' fill='none' stroke='currentColor'></path>
+<path d='M 120,48 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 136,96 L 136,112' fill='none' stroke='currentColor'></path>
+<path d='M 144,48 L 144,80' fill='none' stroke='currentColor'></path>
+<path d='M 152,24 L 152,40' fill='none' stroke='currentColor'></path>
+<path d='M 160,96 L 160,112' fill='none' stroke='currentColor'></path>
+<path d='M 168,48 L 168,80' fill='none' stroke='currentColor'></path>
+<path d='M 184,96 L 184,112' fill='none' stroke='currentColor'></path>
+<path d='M 192,48 L 192,80' fill='none' stroke='currentColor'></path>
+<path d='M 208,96 L 208,112' fill='none' stroke='currentColor'></path>
+<path d='M 216,48 L 216,80' fill='none' stroke='currentColor'></path>
+<path d='M 232,96 L 232,112' fill='none' stroke='currentColor'></path>
+<path d='M 240,48 L 240,80' fill='none' stroke='currentColor'></path>
+<path d='M 256,96 L 256,112' fill='none' stroke='currentColor'></path>
+<path d='M 264,48 L 264,80' fill='none' stroke='currentColor'></path>
+<path d='M 280,96 L 280,112' fill='none' stroke='currentColor'></path>
+<path d='M 288,48 L 288,80' fill='none' stroke='currentColor'></path>
+<path d='M 296,24 L 296,40' fill='none' stroke='currentColor'></path>
+<path d='M 304,96 L 304,112' fill='none' stroke='currentColor'></path>
+<path d='M 312,48 L 312,80' fill='none' stroke='currentColor'></path>
+<path d='M 328,96 L 328,112' fill='none' stroke='currentColor'></path>
+<path d='M 336,48 L 336,80' fill='none' stroke='currentColor'></path>
+<path d='M 368,48 L 368,80' fill='none' stroke='currentColor'></path>
+<path d='M 384,96 L 384,112' fill='none' stroke='currentColor'></path>
+<path d='M 392,48 L 392,80' fill='none' stroke='currentColor'></path>
+<path d='M 408,96 L 408,112' fill='none' stroke='currentColor'></path>
+<path d='M 416,48 L 416,80' fill='none' stroke='currentColor'></path>
+<path d='M 432,24 L 432,40' fill='none' stroke='currentColor'></path>
+<path d='M 432,96 L 432,112' fill='none' stroke='currentColor'></path>
+<path d='M 440,48 L 440,80' fill='none' stroke='currentColor'></path>
+<path d='M 152,32 L 152,40' fill='none' stroke='currentColor'></path>
+<path d='M 296,32 L 296,40' fill='none' stroke='currentColor'></path>
+<path d='M 432,32 L 432,40' fill='none' stroke='currentColor'></path>
+<path d='M 64,88 L 64,96' fill='none' stroke='currentColor'></path>
+<polygon points='80.000000,96.000000 68.000000,90.400002 68.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 64.000000, 96.000000)'></polygon>
+<path d='M 88,88 L 88,96' fill='none' stroke='currentColor'></path>
+<polygon points='104.000000,96.000000 92.000000,90.400002 92.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 88.000000, 96.000000)'></polygon>
+<path d='M 112,88 L 112,96' fill='none' stroke='currentColor'></path>
+<polygon points='128.000000,96.000000 116.000000,90.400002 116.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 112.000000, 96.000000)'></polygon>
+<path d='M 136,88 L 136,96' fill='none' stroke='currentColor'></path>
+<polygon points='152.000000,96.000000 140.000000,90.400002 140.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 136.000000, 96.000000)'></polygon>
+<path d='M 160,88 L 160,96' fill='none' stroke='currentColor'></path>
+<polygon points='176.000000,96.000000 164.000000,90.400002 164.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 160.000000, 96.000000)'></polygon>
+<path d='M 184,88 L 184,96' fill='none' stroke='currentColor'></path>
+<polygon points='200.000000,96.000000 188.000000,90.400002 188.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 184.000000, 96.000000)'></polygon>
+<path d='M 208,88 L 208,96' fill='none' stroke='currentColor'></path>
+<polygon points='224.000000,96.000000 212.000000,90.400002 212.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 208.000000, 96.000000)'></polygon>
+<path d='M 232,88 L 232,96' fill='none' stroke='currentColor'></path>
+<polygon points='248.000000,96.000000 236.000000,90.400002 236.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 232.000000, 96.000000)'></polygon>
+<path d='M 256,88 L 256,96' fill='none' stroke='currentColor'></path>
+<polygon points='272.000000,96.000000 260.000000,90.400002 260.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 256.000000, 96.000000)'></polygon>
+<path d='M 280,88 L 280,96' fill='none' stroke='currentColor'></path>
+<polygon points='296.000000,96.000000 284.000000,90.400002 284.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 280.000000, 96.000000)'></polygon>
+<path d='M 304,88 L 304,96' fill='none' stroke='currentColor'></path>
+<polygon points='320.000000,96.000000 308.000000,90.400002 308.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 304.000000, 96.000000)'></polygon>
+<path d='M 328,88 L 328,96' fill='none' stroke='currentColor'></path>
+<polygon points='344.000000,96.000000 332.000000,90.400002 332.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 328.000000, 96.000000)'></polygon>
+<path d='M 384,88 L 384,96' fill='none' stroke='currentColor'></path>
+<polygon points='400.000000,96.000000 388.000000,90.400002 388.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 384.000000, 96.000000)'></polygon>
+<path d='M 408,88 L 408,96' fill='none' stroke='currentColor'></path>
+<polygon points='424.000000,96.000000 412.000000,90.400002 412.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 408.000000, 96.000000)'></polygon>
+<path d='M 432,88 L 432,96' fill='none' stroke='currentColor'></path>
+<polygon points='448.000000,96.000000 436.000000,90.400002 436.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 432.000000, 96.000000)'></polygon>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>K</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='24' y='68' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='32' y='68' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='32' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='40' y='68' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>|</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='328' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='336' y='20' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='352' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='400' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='408' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='432' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='464' y='20' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='472' y='20' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='480' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='488' y='20' fill='currentColor' style='font-size:1em'>y</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ol>
+<hr>
+<h3 id="render-1">Render</h3>
+<p>(2024-02-04)</p>
+<ol>
+<li>Given a tile (thread block), first determine the indices of pixels that the tile is responsible for.</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/splatting/">Splatting</a>
+        
+            <a href="/tags/cuda/">CUDA</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"
+              integrity="sha512-EKW5YvKU3hpyyOcN6jQnAxO/L8gts+YdYV6Yymtl8pk9YlYFtqJgihORuRoBXK8/cOIlappdU6Ms8KdK6yBCgA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer">
+      </script>
+    
+      
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+      </script>
+    
+      
+      <script>
+        pseudocode.renderClass("pseudocode");
+      </script>
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/writenotes/model/splat/d-vid-3dgs-explain-%E8%91%B5/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://img.youtube.com/vi/1buFrKUaqwM/maxresdefault.jpg" loading="lazy" data-key="" data-hash="https://img.youtube.com/vi/1buFrKUaqwM/maxresdefault.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: 3DGS | AI葵 Cuda Code Walkthrough</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/writenotes/lang/cuda_basic/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">memo: CUDA | Basics</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/writenotes/lang/cuda_debug/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">memo: CUDA | Debugging</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/watchvideos/cuda-ai%E8%91%B5/06_bkward/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: CppExt - AI葵 06 | Backward</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/watchvideos/cuda-ai%E8%91%B5/05_validate/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: CppExt - AI葵 05 | Validate</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

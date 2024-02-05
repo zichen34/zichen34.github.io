@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>科学空间-苏剑林 on Zichen Wang</title>
+        <link>https://zichen34.github.io/watchvideos/%E8%8B%8F%E5%89%91%E6%9E%97/</link>
+        <description>Recent content in 科学空间-苏剑林 on Zichen Wang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sun, 01 Jan 2023 22:48:00 +0000</lastBuildDate><atom:link href="https://zichen34.github.io/watchvideos/%E8%8B%8F%E5%89%91%E6%9E%97/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>read: Blog - 苏剑林 | VAE-3</title>
+        <link>https://zichen34.github.io/watchvideos/%E8%8B%8F%E5%89%91%E6%9E%97/vae_3/</link>
+        <pubDate>Sun, 01 Jan 2023 22:48:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/%E8%8B%8F%E5%89%91%E6%9E%97/vae_3/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.kexue.fm/archives/5383&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;变分自编码器（三）：这样做为什么能成？&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;采样一次就够&#34;&gt;采样一次就够&lt;/h2&gt;
+&lt;p&gt;先推断学习 z 的后验分布 p(z|x) 的参数，再从分布中采样一个 z，用它计算 x 的后验分布 p(x|z) 的参数，再算从x的后验分布中采样得到 x‘的概率，&lt;/p&gt;
+&lt;p&gt;在 VAE 的损失函数：𝓛 = 𝔼_pᐢ(x) [ KL( p(z|x)||q(z) ) + 𝔼_p(z|x) [ -ln q(x|z) ] ]中，&lt;/p&gt;
+&lt;p&gt;KL散度的计算是使用神经网络拟合出的z的后验分布（正态分布）的期望和方差，
+而第 2 项只采了一个样本 x 做近似，所以这一项变为：-ln q(x|z), z~p(z|x)&lt;/p&gt;
+&lt;p&gt;因为 KL 散度也可写成期望：E_p(z|x) [ ln (p(z|x)/q(z)) ]，所以它也可以只采样一个点来近似。所以损失函数就可写为：&lt;/p&gt;
+&lt;p&gt;𝓛 = 𝔼_pᐢ(x) [ ln p(z|x) - ln q(z) - ln q(x|z) ], z~p(z|x)          (5)&lt;/p&gt;
+&lt;p&gt;苏神说，以上的损失函数也能收敛到相似的结果。&lt;/p&gt;
+&lt;h2 id=&#34;似然不能只用一个采样点估计&#34;&gt;似然不能只用一个采样点估计&lt;/h2&gt;
+&lt;p&gt;极大似然的公式可以写成期望：
+q(x|z) &lt;br&gt;
+= arg max_q(x|z) ∫ pᐢ(x) ln (∫ q(x|z) q(z) dz) dx ，数值计算，要乘x的概率&lt;br&gt;
+= arg max_q(x|z) 𝔼_pᐢ(x) [ ln ( ∫ q(x|z) q(z) dz) ] ，采样近似求积分&lt;br&gt;
+= arg max_q(x|z) 𝔼_pᐢ(x) [ ln (1/K ∑_ₖ₌₁ᴷ q(x|zₖ) ], z1,z2,&amp;hellip;,2ₖ～q(z)&lt;/p&gt;
+&lt;p&gt;对这个期望近似：先从先验 q(z) 中采 k 个 z，算积分（求和），再采 1 个 x，求它的概率的对数就行了。&lt;/p&gt;
+&lt;p&gt;shuhuai 说是因为 log 的方差大，所以采样太少会失效。
+苏神说，因为z 和 x 是一一对应的，如果没有采到 zₖ，那它对应的 xₖ 也就采不出来，概率就算不出来，因为采样是随机的，不能保证每次采的 k 个 z，包含了本 batch 中所有 x 对应的 z，所以容易失效。&lt;/p&gt;
+&lt;h2 id=&#34;vae采一个点确实够了&#34;&gt;VAE采一个点确实够了&lt;/h2&gt;
+&lt;p&gt;根据对数据集的了解，数据集X本身带有很强的约束，真正独立的维度很少，所以数据集可以被投影到低维空间的一个隐变量上。
+这和普通的自编码器一样，也就是 z 与 x 一一对应，也就意味这 p(z|x) 和 q(x|z) 的方差为0。
+在引入标准正态形式的先验分布 q(z) 后，粗略地看，只是对隐变量空间做了平移和缩放，所以方差也可以不大。&lt;/p&gt;
+&lt;p&gt;因为 x 的后验分布的方差很小，每次采的结果都一样，都是均值 μ(z)。
+因为 z 与 x 是一一对应的，所以 z 的后验分布的方差也很小，所以每次从中采的 z 都相同。
+所以采样一次，与采样多次没什么差别，期望都是一样的。&lt;/p&gt;
+&lt;h2 id=&#34;后验之妙&#34;&gt;后验之妙&lt;/h2&gt;
+&lt;p&gt;直接从先验 q(z) 中采样不可行，但在后验分布 p(z|x) 中采样一个点就够了，
+因为自编码器里的方差为0，引入 z 的先验（标准正态分布），方差也不会太大。&lt;/p&gt;
+&lt;h2 id=&#34;耿直的iwae&#34;&gt;耿直的IWAE&lt;/h2&gt;
+&lt;p&gt;重要性加权自编码器 Importance Weighted AutoEncoders &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/pdf/1509.00519v1.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;arxiv&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;对 p(x) 做了等价变换：乘一个p(z|x),除一个 p(z|x)&lt;/p&gt;
+&lt;p&gt;p(x) = ∫ q(x|z) q(z) dz  &lt;br&gt;
+= ∫ p(z|x) ⋅ [q(x|z) ⋅ q(z)] / p(z|x) dz  &lt;br&gt;
+= 𝔼_p(z|x) [ q(x|z) ⋅ q(z) / p(z|x) ]&lt;/p&gt;
+&lt;p&gt;这样，从 q(z) 中采样就变成了从 p(z|x) 中采样，此前已论述了后验分布 p(z|x) 方差较小，所以采样几个点就够了：&lt;/p&gt;
+&lt;p&gt;∫ q(x|z) q(z) dz = 1/k ∑ₖ₌₁ᴷ [ q(x|zₖ)q(zₖ)/p(zₖ|x) ], z1,z2,..,zₖ～p(z|x)&lt;/p&gt;
+&lt;p&gt;代入似然函数：&lt;/p&gt;
+&lt;p&gt;q(x|z)
+= arg max_q(x|z) 𝔼_pᐢ(x) [ ln ( ∫ q(x|z) q(z) dz) ] &lt;br&gt;
+= arg max_q(x|z) 𝔼_pᐢ(x) [ ln ( 1/k ∑ₖ₌₁ᴷ [ q(x|zₖ)q(zₖ)/p(zₖ|x) ] ) ]&lt;br&gt;
+= arg min_{q(x|z),p(z|x)} 𝔼_pᐢ(x) [ -ln ( 1/k ∑ₖ₌₁ᴷ [ q(x|zₖ)q(zₖ)/p(zₖ|x) ] ) ], z1,z2,..,zₖ～p(z|x) ，加个负号，求极小值。&lt;/p&gt;
+&lt;p&gt;当 k=1 时，与 (5) 式一样，从这个角度看，IWAE 是VAE的升级版。&lt;/p&gt;
+&lt;p&gt;其实，等价变换可以使用 z 的任意分布（只要能采出z就行），&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“选择 p(z|x) 只是因为它有聚焦性，便于采样。而当 k 足够大时，p(z|x) 的具体形式就不重要了”&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;IWAE 中削弱了推断模型 p(z|x) 的作用，不去近似后验分布&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>read: Blog - 苏剑林 | VAE-2</title>
+        <link>https://zichen34.github.io/watchvideos/%E8%8B%8F%E5%89%91%E6%9E%97/vae_2/</link>
+        <pubDate>Fri, 30 Dec 2022 20:07:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/%E8%8B%8F%E5%89%91%E6%9E%97/vae_2/</guid>
+        <description>&lt;p&gt;笔记 for &lt;a class=&#34;link&#34; href=&#34;https://www.kexue.fm/archives/5343&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;变分自编码器（二）：从贝叶斯观点出发&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;数值计算-vs-采样计算&#34;&gt;数值计算 vs 采样计算&lt;/h2&gt;
+&lt;p&gt;数值计算是先给个数列，对里面的每个数求概率p(x⁽ⁱ⁾)，再加权求和 ∑ᵢ₌₀ⁿ x⁽ⁱ⁾p(x⁽ⁱ⁾) (x⁽ⁱ⁾-x⁽ⁱ⁻¹⁾)；
+采样计算是先从分布中采样，求采样点概率的平均，所以不需要再乘样本点出现的概率：E[x]≈1/n⋅∑ᵢ₌₀ⁿ x⁽ⁱ⁾, x⁽ⁱ⁾∼p(x)。&lt;/p&gt;
+&lt;h2 id=&#34;推导vae-的损失函数&#34;&gt;推导VAE 的损失函数&lt;/h2&gt;
+&lt;p&gt;苏神从逼近联合概率 p(x,z) 出发，而不是从逼近z的后验 p(z|x) 出发。
+也许是因为沿着 EM 的思路走，就需要对后验 p(z|x) 求近似，所以很多人聚焦于推导 p(z|x)。&lt;/p&gt;
+&lt;p&gt;因为想求样本集合 x的分布，&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;但是难以直接描述复杂分布，所以通过引入隐变量把x的分布变成条件分布的叠加，而后可以对隐变量的分布和条件分布做适当简化（比如都假设为正态分布），并且可以用深度学习模型近似求（隐变量）条件分布的参数，即“深度概率图模型”。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;假设 x 是由 z 生成的，所以求 p(x) 可以通过把联合分布 p(x,z) 中的 p(z) 积掉求得：
+p(x) = ∫p(x,z) dz = ∫ p(x|z)p(z) dz&lt;/p&gt;
+&lt;p&gt;目标是用一个 q(x,z) 逼近 p(x,z)，又因为 p(z) 是先验（已知），所以当 q(x,z)≈p(x,z) 时，&lt;strong&gt;生成模型 p(x|z)&lt;/strong&gt; 也就学到了，“一举两得”。&lt;/p&gt;
+&lt;p&gt;通过最小化 KL 散度逼近：KL( p(x,z) || q(x,z) ) = ∫∫ p(x,z) [ ln (p(x,z)/q(x,z)) ] dz dx，是一个二重积分&lt;/p&gt;
+&lt;p&gt;把 p(x,z) 写成 pᐢ(x)⋅p(z|x)，也就是&lt;strong&gt;推断过程&lt;/strong&gt;，由x的先验推出z：&lt;/p&gt;
+&lt;p&gt;KL( p(x,z) || q(x,z) )
+= ∫∫ pᐢ(x)⋅p(z|x) [ ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) ] dz dx  &lt;br&gt;
+= ∫ pᐢ(x) [ ∫ p(z|x) ⋅ ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) dz ] dx  &lt;br&gt;
+= 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) dz]&lt;/p&gt;
+&lt;p&gt;可以蒙特卡罗采样近似求这个期望，也就是把每个样本 x⁽ⁱ⁾ 代入上面中括号里的函数（代入概率密度公式可算出概率值），把函数值求均值。&lt;/p&gt;
+&lt;p&gt;这个期望可以进一步简化，把 ln 拆开：
+ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) = ln pᐢ(x) + ln (p(z|x)/q(x,z))&lt;/p&gt;
+&lt;p&gt;𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) dz ] &lt;br&gt;
+= 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln pᐢ(x) dz] +
+𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln (p(z|x)/q(x,z)) dz]&lt;/p&gt;
+&lt;p&gt;上面第 1 个期望：
+𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln pᐢ(x) dz] = 𝔼_pᐢ(x) [ ln pᐢ(x)⋅∫ p(z|x) dz ]
+= 𝔼_pᐢ(x) [ ln pᐢ(x) ]&lt;/p&gt;
+&lt;p&gt;这里的 pᐢ(x) 是根据样本 x⁽⁰⁾, x⁽¹⁾,&amp;hellip;, x⁽ⁿ⁾ 确定的关于 x 的先验分布，是已知的确定的，所以这一项是一个常数。
+所以 KL 散度 = 常数 + 一个期望：&lt;/p&gt;
+&lt;p&gt;KL( p(x,z) || q(x,z) ) = 常数 + 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln (p(z|x)/q(x,z)) dz]&lt;/p&gt;
+&lt;p&gt;所以最小化KL散度，对应目标函数 𝓛 就是第2个期望：&lt;/p&gt;
+&lt;p&gt;𝓛 = KL( p(x,z) || q(x,z) ) - 常数，则𝓛 的下界就是&amp;quot;-常数&amp;quot;: -𝔼_pᐢ(x) [ ln pᐢ(x) ]，
+其中 pᐢ(x) 不一定是概率，在连续情况时，pᐢ(x) 是概率密度函数，它可以大于1 也可以小于1，所以下界不一定是非负的，即 loss 可能是负数。&lt;/p&gt;
+&lt;p&gt;再把 𝓛 里的 ln 和 q(x,z) 展开：&lt;/p&gt;
+&lt;p&gt;𝓛 = 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( p(z|x) / q(x,z) ) dz]  &lt;br&gt;
+= 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( p(z|x) / (q(x|z)q(z)) dz ]  &lt;br&gt;
+= 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( p(z|x)/q(z) ) dz - ∫ p(z|x) ⋅ ln q(x|z) dz]&lt;/p&gt;
+&lt;p&gt;把里面的积分写成期望：&lt;/p&gt;
+&lt;p&gt;𝓛 = 𝔼_pᐢ(x) [ KL( p(z|x)||q(z) ) + 𝔼_p(z|x) [ -ln q(x|z) ] ]&lt;/p&gt;
+&lt;p&gt;括号里的就是 VAE 的损失函数：KL散度（正则化项）+ x的后验按照 z 的后验求期望 &lt;a class=&#34;link&#34; href=&#34;../ML-%e7%99%bd%e6%9d%bf%e6%8e%a8%e5%af%bc%e7%b3%bb%e5%88%97/32-VAE.md&#34; &gt;shuhuai008-30VAE&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;不能把括号里面的两项分开看或分开最小化。
+如果只令 KL( p(z|x)||q(z) )=0，即每个后验都是标准正态分布，与x无关，导致生成的 x 不准，概率 q(x|z) 会很小，-ln q(x|z) 就会很大。
+而如果 -ln q(x|z) 很小，即x后验概率 q(x|z) 大，后验分布 p(z|x) 的峰肯定集中在 x 附近，即 p(z|x) 的方差小，与标准正态的差距大，KL( p(z|x)||q(z) ) 不会小。
+所以这两部分 loss 是相互拮抗的，𝓛 要以整体来看。
+也就是要推断过程与生成过程相互博弈。&lt;/p&gt;
+&lt;h2 id=&#34;算法设计&#34;&gt;算法设计&lt;/h2&gt;
+&lt;p&gt;损失函数中未知的分布包括：z 的先验 q(z)，z 的后验 p(z|x)，x 的后验 q(x|z) （x 的先验pᐢ(x) 是已知的）&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;为了便于采样，假设 z 的先验分布为标准多元正态分布：q(z)=N(0,I)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;用神经网络拟合 z 的后验 p(z|x) 和 x 的后验 q(x|z)。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;计算 z 的后验是推断过程，对应 EM 的 E步：近似求得 p(z|x)；计算 x 的后验是生成过程，对应 EM 的 M步：把z的近似后验代入似然函数，求极大似然时，对应的模型参数。
+（EM中用于逼近 p(z|x) 的神经网络的参数是 ϕ；用于逼近 q(x|z) 的神经网络（也可直接求导）的参数是 θ）&lt;/p&gt;
+&lt;h3 id=&#34;后验分布近似&#34;&gt;后验分布近似&lt;/h3&gt;
+&lt;p&gt;假设 z 的后验是（各分量独立的）一般正态分布，所以需要神经网络逼近它的期望和方差。期望和方差都由 x 决定，即是 x 的函数 μ_ϕ(x), Σ_ϕ(x)&lt;/p&gt;
+&lt;p&gt;然后 KL 散度就可以写出来了: 1/2(-logσ² + μ² + σ² -1)，已在VAE第一篇推导过。&lt;a class=&#34;link&#34; href=&#34;https://www.kexue.fm/archives/5253&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;变分自编码器（一）：原来是这么一回事&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;生成模型近似&#34;&gt;生成模型近似&lt;/h3&gt;
+&lt;p&gt;对于生成模型部分 q(x|z) 的假设，原作者在论文&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/1312.6114&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;《Auto-Encoding Variational Bayes》&lt;/a&gt;中，给出了两种方案：二项分布或正态分布。“既要满足概率的定义（归一化），又要容易算，没多少选择”&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;二项分布&lt;/strong&gt;只有一个参数：&amp;ldquo;抛硬币向上的概率 ρ&amp;rdquo;。所以对于一个 D 维的样本 x，x 的每一维都是个二值的，所以一个输入样本 x 在 z 成立的情况下，发生的概率就是：
+q(x|z) = ∏ₖ₌₁ᴰ (ρₖ(z))ˣᵏ (1-ρₖ(z))¹⁻ˣᵏ&lt;/p&gt;
+&lt;p&gt;此时的 -ln q(x|z) = ∑ₖ₌₁ᴰ [ -xₖ ln ρₖ(z) - (1-xₖ) ln(1-ρₖ(z)) ]&lt;/p&gt;
+&lt;p&gt;也就是说神经网络的输出 ρ(z) 需要是在 0～1 之间（比如用 sigmoid 激活），然后用交叉熵作为损失函数。&lt;/p&gt;
+&lt;p&gt;如果假设 q(x|z) 是&lt;strong&gt;正态分布&lt;/strong&gt;，用神经网络估计它的期望 μ_θ(z) 和方差 Σ_θ(z)，于是：
+-ln q(x|z) = ½ || (x-μ_θ(z)) / Σ_θ(z) ||² + D/2 ln 2π + ½∑ₖ₌₁ᴰ lnΣ_θ(z)。&lt;/p&gt;
+&lt;p&gt;很多时候，训练时方差会固定为一个较小的常数（每次采样都会采到μ），所以神经网络只需估计μ，也就是把 μ 当作生成的 x&amp;rsquo;，则上式重构误差可简化为：
+-ln q(x|z) = ½ || (x-μ_θ(z)) / Σ_θ(z) ||²&lt;/p&gt;
+&lt;p&gt;x &amp;ndash;&amp;gt; z &amp;ndash;&amp;gt; x&#39;&lt;/p&gt;
+&lt;p&gt;综上，对于二值数据，假设 q(x|z) 是伯努利分布（二项分布），可以对 decoder （第2个神经网络）的输出用 sigmoid 激活，并用交叉熵作为损失函数；
+而对于一般数据，假设 q(x|z) 是正态分布，则使用 mse 作为损失函数。&lt;/p&gt;
+&lt;h3 id=&#34;从后验中采样-z-的技巧&#34;&gt;从后验中采样 z 的技巧&lt;/h3&gt;
+&lt;p&gt;损失函数的第 2 项是：𝔼_p(z|x) [ -ln q(x|z) ]，根据蒙特卡罗的思想，这个期望用均值近似：先采样 z，用 z 计算 x 的后验分布 q(x|z)，再从中采样 x 计算它出现概率的对数：-ln q(x|z)，再求均值：&lt;/p&gt;
+&lt;p&gt;𝔼_p(z|x) [ -ln q(x|z) ] = -1/n ∑ᵢ₌₁ᴺ ln q(x|zᵢ), zᵢ～p(z|x)&lt;/p&gt;
+&lt;p&gt;假设了 p(z|x) 是正态分布，它的参数 μ_ϕ, Σ_ϕ 已由神经网络算出，再使用重参数化技巧就能采样出 z 。&lt;/p&gt;
+&lt;p&gt;但是要采样多少个合适呢？因为每个 z 是专属于 1 个 x，所以只从 p(z|x) 中采一个 z 来计算 x 的分布 q(x|z)，再计算 -ln q(x|z)，就是loss值。&lt;/p&gt;
+&lt;p&gt;最终：𝓛 = 𝔼_pᐢ(x) [ KL( p(z|x)||q(z) ) -ln q(x|z) ] , z～p(z|x)&lt;/p&gt;
+&lt;p&gt;因为每次 epoch 的隐变量都是随机生成的，因此当 epoch 数足够多时，可以保证采样的充分行。苏神试过采样多个的情形，感觉生成的样本没有明显变化。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>images</title>
+        <link>https://zichen34.github.io/watchvideos/%E8%8B%8F%E5%89%91%E6%9E%97/img/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/%E8%8B%8F%E5%89%91%E6%9E%97/img/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>

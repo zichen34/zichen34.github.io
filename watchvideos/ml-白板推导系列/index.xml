@@ -1,0 +1,2975 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>白板推导系列-shuhuai008 on Zichen Wang</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/</link>
+        <description>Recent content in 白板推导系列-shuhuai008 on Zichen Wang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Wed, 28 Dec 2022 00:31:00 +0000</lastBuildDate><atom:link href="https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>watch: ML - 白板 02 | Mathematical Basis</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/02_%E6%95%B0%E5%AD%A6%E5%9F%BA%E7%A1%80/</link>
+        <pubDate>Wed, 28 Dec 2022 00:31:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/02_%E6%95%B0%E5%AD%A6%E5%9F%BA%E7%A1%80/</guid>
+        <description>&lt;p&gt;(2023-10-11)&lt;/p&gt;
+&lt;p&gt;一维高斯 &lt;strong&gt;数据&lt;/strong&gt; 的空间分布像是一个中间重两头轻的铁棒 (线)；
+二维高斯数据的分布像一个 &lt;strong&gt;椭圆&lt;/strong&gt; (面)；
+服从三维高斯分布的数据的空间分布像一个 &lt;strong&gt;椭球&lt;/strong&gt; (体)。&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/av32905863/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;机器学习-白板推导系列(二)-数学基础&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-高斯分布1-极大似然估计&#34;&gt;1. 高斯分布1-极大似然估计&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1RW411m7WE?p=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P1&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;高斯分布在（统计）机器学习中非常重要。比如线性高斯模型是一整套体系，卡尔曼滤波就是一种线性高斯模型。
+隐变量与隐变量，隐变量与观测变量之间服从高斯分布。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;z1 -&amp;gt; z2 -&amp;gt; ... -&amp;gt; zN
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;↓     ↓      ↓     ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;x1 -&amp;gt; x2 -&amp;gt; ... -&amp;gt; xN
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;比如从 z⁽ᵗ⁾ ➔ z⁽ᵗ⁺¹⁾ 的转移服从 &lt;strong&gt;线性高斯&lt;/strong&gt;：z⁽ᵗ⁺¹⁾=Az⁽ᵗ⁾+B+ε，先做线性变换再加上 ε 高斯噪声。&lt;/p&gt;
+&lt;p&gt;再比如 P-PCA（概率PCA）中，原数据是 p 维的 x∈ℝᵖ 要降到 q 维空间 z∈ℝ^q，
+假设 x 与 z 之间的变换为：x=Wz+μ+ε，ε～N(0,σ²⋅I)，0均值的各向同性的（即 Σ 是对角矩阵，并且对角线上的值都是σ²）高斯分布（标准正态分布）。
+如果对角线上的值不相同，就变成了因子分析&lt;/p&gt;
+&lt;p&gt;而且线性高斯模型有很多特性：比如一个高维的随机变量 x∈ℝᵖ 服从高斯分布 x～N(μ,Σ)，将它分成两个小组 x₁∈ℝᵐ, x₂∈ℝⁿ, m+n=p。
+则 x₁ 也服从高斯分布，条件概率 x₂|x₁ 也服从高斯分布。&lt;/p&gt;
+&lt;h3 id=&#34;参数估计&#34;&gt;参数估计&lt;/h3&gt;
+&lt;p&gt;给定数据 𝐗：N个样本，每个样本 x 是 p 维的 x∈ℝᵖ，𝐗 就是一个 N x p 的矩阵：&lt;/p&gt;
+&lt;p&gt;𝐗 = (x₁, x₂,&amp;hellip;, xₙ)ᵀ = $[^{^{ x₁ᵀ}_{x₂ᵀ}} _{^{⋱}_{ xₙᵀ}}]$ₙₓₚ&lt;/p&gt;
+&lt;p&gt;$$
+\pmb X = (x_1, x_2, &amp;hellip;,x_N)^T  \\ =
+\begin{pmatrix}
+x_{11} &amp;amp; x_{12} &amp;amp; \cdots &amp;amp; x_{1p} \\
+x_{21} &amp;amp; x_{22} &amp;amp; \cdots &amp;amp; x_{2p} \\
+\vdots &amp;amp; \vdots &amp;amp; \vdots &amp;amp; \vdots \\
+x_{p1} &amp;amp; x_{p2} &amp;amp; \cdots &amp;amp; x_{pp}
+\end{pmatrix}^T  \\ =
+\begin{pmatrix}
+x_{11} &amp;amp; x_{21} &amp;amp; \cdots &amp;amp; x_{p1} \\
+x_{12} &amp;amp; x_{22} &amp;amp; \cdots &amp;amp; x_{p2} \\
+\vdots &amp;amp; \vdots &amp;amp; \vdots &amp;amp; \vdots \\
+x_{1p} &amp;amp; x_{2p} &amp;amp; \cdots &amp;amp; x_{pp}
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$x_i \in \R^p$ : p维实数向量空间（p维欧氏空间），列向量&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;假设样本 xᵢ 之间是独立同分布，都是从一个高斯分布中抽出来的: xᵢ～N(μ,Σ)。&lt;/p&gt;
+&lt;p&gt;令参数 θ = (μ,Σ) （Σ是协方差矩阵：对角线上是σ²，μ 是位置参数，σ是尺度参数）&lt;/p&gt;
+&lt;p&gt;θ 的极大似然估计 (MLE)：θₘₗₑ = arg max_θ P(X|θ)&lt;/p&gt;
+&lt;p&gt;为简化计算：令 p=1 (一维)，则 θ = (μ,Σ=σ²)，一维高斯分布的概率密度函数: p(x) = 1/(√(2π)⋅σ) ⋅ exp(-(x-μ)²/2σ²)&lt;/p&gt;
+&lt;p&gt;$$
+p(x) = \frac{1}{\sqrt{2π}⋅σ} exp(-\frac{(x-μ)²}{2σ²})
+$$&lt;/p&gt;
+&lt;p&gt;高维（p维）的高斯分布的概率密度函数 (PDF)：p(x)=1/(2πᵖᐟ²⋅|Σ|¹ᐟ²) ⋅ exp(-½(x-μ)ᵀ⋅Σ⁻¹⋅(x-μ))&lt;/p&gt;
+&lt;p&gt;$$
+p(𝐱) = \frac{1}{(2π)^{p/2} |Σ|^½} exp(-\frac{(𝐱-\bm μ)ᵀ(𝐱-\bm μ)}{2Σ})
+$$&lt;/p&gt;
+&lt;p&gt;log P(X|θ) = log ∏ᵢ₌₁ᴺ p(xᵢ|θ) ，独立同分布，联合概率写成连乘 &lt;br&gt;
+= ∑ᵢ₌₁ᴺ log p(xᵢ|θ) ，log把连乘变连加&lt;br&gt;
+= ∑ᵢ₌₁ᴺ log 1/(√(2π)⋅σ) ⋅ exp(-(xᵢ-μ)²/2σ²)，代入高斯分布&lt;br&gt;
+= ∑ᵢ₌₁ᴺ [ log 1/√(2π) + log 1/σ -(xᵢ-μ)²/2σ² ]&lt;/p&gt;
+&lt;h3 id=&#34;先求最佳的-μ&#34;&gt;先求最佳的 μ:&lt;/h3&gt;
+&lt;p&gt;当对数似然最大时，μ 等于多少？&lt;/p&gt;
+&lt;p&gt;μₘₗₑ = arg max_μ P(X|θ) &lt;br&gt;
+= arg max_μ ∑ᵢ₌₁ᴺ [ log 1/√(2π) + log 1/σ -(xᵢ-μ)²/2σ² ] &lt;br&gt;
+= arg max_μ ∑ᵢ₌₁ᴺ [ -(xᵢ-μ)²/2σ² ] ，只保留与μ相关的项 &lt;br&gt;
+= arg min_μ ∑ᵢ₌₁ᴺ (xᵢ-μ)² ，σ² 一定是正的 &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;对 μ 求偏导，令其等于0：&lt;/p&gt;
+&lt;p&gt;∂ ∑ᵢ₌₁ᴺ (xᵢ-μ)² / ∂μ = ∑ᵢ₌₁ᴺ -2(xᵢ-μ) = 0 &lt;br&gt;
+∑ᵢ₌₁ᴺ (xᵢ-μ) = 0 &lt;br&gt;
+∑ᵢ₌₁ᴺ xᵢ - ∑ᵢ₌₁ᴺ μ = 0  &lt;br&gt;
+∑ᵢ₌₁ᴺ xᵢ = Nμ ，μ 与 i 无关 &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;μₘₗₑ = 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ ，最优的 μ 就是样本的均值。
+μₘₗₑ 是&lt;strong&gt;无偏的&lt;/strong&gt;，因为 μₘₗₑ 的期望：&lt;/p&gt;
+&lt;p&gt;E[μₘₗₑ] = 1/N ⋅ ∑ᵢ₌₁ᴺ [μₘₗₑ]  &lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ [ 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ ] &lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ [μ] ，因为样本iid,服从高斯分布 &lt;br&gt;
+= 1/N ⋅ Nμ
+= μ (真实的 μ)&lt;/p&gt;
+&lt;p&gt;μₘₗₑ 的&lt;strong&gt;期望&lt;/strong&gt;是无偏的，但每次的 μₘₗₑ 并不是真实的 μ，每次估出来的可能比μ大或者小，这个 μ 无法通过一次估计得到，只能是随着样本量的增加，把每次试验的结果求平均才会无限近似真实的 μ。
+（但是样本不可能有无限个，所以实际上真实均值是无法得到的）&lt;/p&gt;
+&lt;h3 id=&#34;求最优的-σ&#34;&gt;求最优的 σ²&lt;/h3&gt;
+&lt;p&gt;用类似的过程:&lt;/p&gt;
+&lt;p&gt;σ²ₘₗₑ = arg max_σ² P(X|θ) &lt;br&gt;
+= arg max_σ² ∑ᵢ₌₁ᴺ [ log 1/√(2π) + log 1/σ -(xᵢ-μ)²/2σ² ] &lt;br&gt;
+= arg max_σ² ∑ᵢ₌₁ᴺ [ -log σ -(xᵢ-μ)²/2σ² ] ，只保留与σ²相关的项 &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;目标函数对 σ 求偏导：&lt;/p&gt;
+&lt;p&gt;∂ ∑ᵢ₌₁ᴺ [ -log σ -(xᵢ-μ)²/2σ² ] / ∂σ
+= ∑ᵢ₌₁ᴺ [-1/σ - (xᵢ-μ)²/2 ⋅ -2σ⁻³ = 0 ，两边同乘σ³ &lt;br&gt;
+∑ᵢ₌₁ᴺ [-σ² + (xᵢ-μ)² = 0 ，把∑ 带进去 &lt;br&gt;
+∑ᵢ₌₁ᴺ σ² =  ∑ᵢ₌₁ᴺ (xᵢ-μ)² ，σ² 与 i 无关 &lt;br&gt;
+N σ² = ∑ᵢ₌₁ᴺ (xᵢ-μ)² &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;σ²ₘₗₑ = 1/N ⋅ ∑ᵢ₌₁ᴺ (xᵢ-μₘₗₑ)²&lt;/p&gt;
+&lt;p&gt;最优的 σ² 也是对样本方差求期望。
+这个 σ²ₘₗₑ 是&lt;strong&gt;有偏估计&lt;/strong&gt;，因为 σ²ₘₗₑ 的期望不等于 σ²：&lt;/p&gt;
+&lt;p&gt;先对 σ²ₘₗₑ 做简化:&lt;/p&gt;
+&lt;p&gt;σ²ₘₗₑ = 1/N ⋅ ∑ᵢ₌₁ᴺ (xᵢ - μₘₗₑ)² &lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ (xᵢ² - 2xᵢμₘₗₑ + μₘₗₑ²) ， 展开括号的平方&lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ² - 1/N ⋅ ∑ᵢ₌₁ᴺ 2xᵢ⋅μₘₗₑ + 1/N ⋅ ∑ᵢ₌₁ᴺ μₘₗₑ²) ，∑带进去
+= 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ² - 2μₘₗₑ² + μₘₗₑ² ，第2项里有个样本均值，第3项与i无关 &lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ² - μₘₗₑ²&lt;/p&gt;
+&lt;p&gt;对 σ²ₘₗₑ 求期望：&lt;/p&gt;
+&lt;p&gt;E[ σ²ₘₗₑ ] = E [ 1/N ⋅ ∑ᵢ₌₁ᴺ (xᵢ - μₘₗₑ)² ] &lt;br&gt;
+= E [ 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ² - μₘₗₑ² ] &lt;br&gt;
+= E [ 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ² -μ² - (μₘₗₑ²-μ²) ] ，添加μ² 横等变换 &lt;br&gt;
+= E [ 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ² -μ²] - E [μₘₗₑ²-μ²] ，拆成2个期望 &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;先看第 1 项： 把 μ² 写到 ∑ 里面：
+E [ 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ² -μ²] = E [ 1/N ⋅ ∑ᵢ₌₁ᴺ (xᵢ² -μ²)] ，μ²与i无关 &lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ [E(xᵢ² -μ²)] ，里面是一个期望，把外面的期望展开 &lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ [ E(xᵢ²) - E(μ²) ] ，μ²是常数 &lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ [ E(xᵢ²) - μ² ] ，因为 μ 是随机变量 xᵢ 的期望：E(xᵢ)=μ &lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ [ E(xᵢ²) - E(xᵢ)² ] ，这是xᵢ 的方差（定义）&lt;br&gt;
+= 1/N ⋅ ∑ᵢ₌₁ᴺ σ²  &lt;br&gt;
+= σ²&lt;/p&gt;
+&lt;p&gt;也就是说，第 1 项是 σ²，对于第 2 项：
+E [μₘₗₑ²-μ²] = E (μₘₗₑ²) - E(μ²) = E (μₘₗₑ²) - μ²  &lt;br&gt;
+= E (μₘₗₑ²) - E²(μₘₗₑ) &lt;br&gt;
+= Var(μₘₗₑ) ，这是 μₘₗₑ 的方差 &lt;br&gt;
+= Var( 1/N ⋅ ∑ᵢ₌₁ᴺ xᵢ ) ，把1/N 提出来，会变成平方 &lt;br&gt;
+= 1/N² ⋅ ∑ᵢ₌₁ᴺ Var(xᵢ)
+= 1/N² ⋅ ∑ᵢ₌₁ᴺ σ² &lt;br&gt;
+= 1/N ⋅ σ²&lt;/p&gt;
+&lt;p&gt;所以 σ²ₘₗₑ 的期望等于上面两项相减：
+E[ σ²ₘₗₑ ] = σ² - 1/N ⋅ σ² = (N-1)/N ⋅ σ²&lt;/p&gt;
+&lt;p&gt;σ² 的无偏估计是 σ² = 1/(N-1) ⋅ ∑ᵢ₌₁ᴺ (xᵢ-μₘₗₑ)²&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;2-高斯分布2-极大似然估计无偏估计vs有偏估计&#34;&gt;2. 高斯分布2-极大似然估计（无偏估计VS有偏估计）&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1RW411m7WE?p=2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P2&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;一个估计量 T(θ) 的期望 E(T(θ) 等于它的本身最初的值，这个参数的估计是无偏的，比如 E(μ^) = μ; E(σ^) = σ。如果不相等就是有偏的。&lt;/p&gt;
+&lt;p&gt;用MLE估计出来的方差 σ²ₘₗₑ 的期望小于模型的真实方差。
+因为计算方差时，计算的是样本到&lt;strong&gt;样本均值&lt;/strong&gt; 的距离，而不是到真实均值的距离，因为真实均值要做无数次试验才能得到（除非μ=样本均值）。
+如果用样本均值代替真实均值μ 的话：Var(x)= E [(x-μ)²] ➔ Var(x)= E [( x-x̄ )]²，除非 μ=样本均值 x⁻，Var(x) = E( x-x̄ )² &amp;lt; E(x-μ)²。
+证明如下&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/zzdbullet/p/10087196.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;样本方差与总体方差 - 小时候挺菜 -博客园&lt;/a&gt;：&lt;/p&gt;
+&lt;p&gt;(1/n)⋅∑ᵢ₌₁ᴺ(xᵢ-x⁻)² = (1/n)⋅∑ᵢ₌₁ᴺ [(xᵢ-μ)+ (μ-x⁻)]²  &lt;br&gt;
+= (1/n)⋅∑ᵢ₌₁ᴺ (xᵢ-μ)² + (2/n)⋅∑ᵢ₌₁ᴺ(xᵢ-μ)⋅(μ-x⁻) + (1/n)⋅∑ᵢ₌₁ᴺ(μ-x⁻)² &lt;br&gt;
+= (1/n)⋅∑ᵢ₌₁ᴺ (xᵢ-μ)² + 2(x⁻-μ)(μ-x⁻) + (μ-x⁻)²  &lt;br&gt;
+= (1/n)⋅∑ᵢ₌₁ᴺ (xᵢ-μ)² - (μ-x⁻)²&lt;/p&gt;
+&lt;p&gt;如果 μ ≠ x⁻，则 (1/n)⋅∑ᵢ₌₁ᴺ(xᵢ-x⁻)² &amp;lt; (1/n)⋅∑ᵢ₌₁ᴺ (xᵢ-μ)²&lt;/p&gt;
+&lt;p&gt;MLE 是点估计，会造成偏差&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;3-高斯分布3-从概率密度函数角度观察&#34;&gt;3. 高斯分布3-从概率密度函数角度观察&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1RW411m7WE?p=3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P3&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;多维高斯分布的概率密度函数: 对于一个 p 维的随机&lt;strong&gt;向量&lt;/strong&gt; 𝐱∈ℝᵖ 服从多维的高斯分布，其概率密度函数为：&lt;/p&gt;
+&lt;p&gt;𝐱～N(𝛍,Σ)= 1/(2πᵖᐟ²⋅|Σ|¹ᐟ²) ⋅ exp(-½(𝐱-𝛍)ᵀ⋅Σ⁻¹⋅(𝐱-𝛍))，
+其中μ 是期望, Σ是方差矩阵，exp里面-1/2后面是线代中的二次型&lt;/p&gt;
+&lt;p&gt;对于一个样本（随机向量）p个维度: 𝐱 = (x1,\ x2,\ &amp;hellip;,\ xp)&lt;/p&gt;
+&lt;p&gt;𝛍 也是 p 维的向量：𝛍 = (μ1,\ μ,\ &amp;hellip;,\ μp)&lt;/p&gt;
+&lt;p&gt;Σ 就是 p×p 维的矩阵：&lt;/p&gt;
+&lt;p&gt;Σ =(σ11, σ12, &amp;hellip;, σ1p &lt;br&gt;
+σ21, σ22, &amp;hellip;, σ2p &lt;br&gt;
+⋮    ⋮    ⋮   ⋮    &lt;br&gt;
+σp1, σp2, &amp;hellip;, σpp)&lt;/p&gt;
+&lt;p&gt;通常，这个矩阵Σ是半正定的，而且是沿对角线对称的，比如 σ12 = σ21。
+在本节中假设 Σ 是正定的，以便叙述。&lt;/p&gt;
+&lt;p&gt;在 PDF 中，𝐱 是自变量，𝛍,Σ 是参数。式中与 𝐱 相关的只有 (𝐱-𝛍)ᵀ，其他部分认为是系数，所以集中看一下 exp 中的部分：&lt;/p&gt;
+&lt;p&gt;(𝐱-𝛍)ᵀ⋅Σ⁻¹⋅(𝐱-𝛍) 是一个标量，这个函数可以看作 马氏距离，两个向量：𝐱 和 𝛍 之间的距离&lt;/p&gt;
+&lt;h3 id=&#34;马氏距离&#34;&gt;马氏距离&lt;/h3&gt;
+&lt;p&gt;Mahalanobis distance is used to measure multivariate distances between a point and a normal distribution with &lt;strong&gt;covariance&lt;/strong&gt; 𝚺.
+&lt;a class=&#34;link&#34; href=&#34;https://janakiev.com/blog/covariance-matrix/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;janakiev-blog&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;假设有两个二维的向量：𝐳1=(z11,\\ z12)，𝐳2=(z21,\\ z22)&lt;/p&gt;
+&lt;p&gt;根据定义求两向量之间的距离：
+(𝐳1-𝐳2)ᵀ ⋅ Σ⁻¹ ⋅ (𝐳1-𝐳2) =
+(z11-z21, z12-z22)ᵀ ⋅ Σ⁻¹ ⋅ (z11-z21, \\ z12-z22)&lt;/p&gt;
+&lt;p&gt;如果方差矩阵 Σ 是单位矩阵：Σ=I，马氏距离就是欧氏距离&lt;/p&gt;
+&lt;p&gt;(z11-z21, z12-z22)ᵀ ⋅ I ⋅ (z11-z21, \\ z12-z22) = (z11-z21)² + (z12-z22)²&lt;/p&gt;
+&lt;h3 id=&#34;方差矩阵&#34;&gt;方差矩阵&lt;/h3&gt;
+&lt;p&gt;因为假设了 Σ 是正定的（每个特征值λᵢ都是大于0的，不能等于0），而且是对称的，所以对 Σ 做一个特征值分解：&lt;/p&gt;
+&lt;p&gt;Σ = UΛUᵀ，其中 U 是正交矩阵：UUᵀ=UᵀU=I，U=(𝐮₁,𝐮₂,&amp;hellip;, 𝐮ₚ)，每个小 𝐮 是列向量，所以U是p×p的矩阵；Λ 是对角的：Λ=diag(λᵢ), i=1,&amp;hellip;p；&lt;/p&gt;
+&lt;p&gt;把矩阵形式展开：&lt;/p&gt;
+&lt;p&gt;Σ = UΛUᵀ = (𝐮₁,𝐮₂,&amp;hellip;, 𝐮ₚ) ⋅&lt;br&gt;
+(λ₁, 0, 0, &amp;hellip; 0 &lt;br&gt; 0, λ₂, 0, &amp;hellip; 0 &lt;br&gt;⋮⋮⋮⋮ &lt;br&gt; 0, 0, 0, &amp;hellip; λₚ) ⋅ &lt;br&gt;
+(𝐮₁ᵀ,\\ 𝐮₂ᵀ,\\ &amp;hellip;,\\ 𝐮ₚᵀ) &lt;br&gt;
+= (𝐮₁λ₁, 𝐮₂λ₂, &amp;hellip;, 𝐮ₚλₚ) ⋅ (𝐮₁ᵀ,\\ 𝐮₂ᵀ,\\ &amp;hellip;, 𝐮ₚᵀ) &lt;br&gt;
+= ∑ᵢ₌₁ᵖ 𝐮ᵢλᵢ𝐮ᵢᵀ&lt;/p&gt;
+&lt;p&gt;Σ⁻¹ = (UΛUᵀ)⁻¹ = (Uᵀ)⁻¹ Λ⁻¹ U⁻¹ = U Λ⁻¹ U⁻¹ ，（正交矩阵的转置等于它的逆），其中特征值矩阵 Λ⁻¹ = diag(1/ λᵢ), ᵢ=1,&amp;hellip;,p  &lt;br&gt;
+= ∑ᵢ₌₁ᵖ 𝐮ᵢ (1/λᵢ) 𝐮ᵢᵀ&lt;/p&gt;
+&lt;p&gt;把 Σ⁻¹ 代入马氏距离：&lt;/p&gt;
+&lt;p&gt;(𝐱-𝛍)ᵀ⋅Σ⁻¹⋅(𝐱-𝛍)
+= (𝐱-𝛍)ᵀ ⋅ ∑ᵢ₌₁ᵖ [ 𝐮ᵢ (1/λᵢ) 𝐮ᵢᵀ ] ⋅ (𝐱-𝛍) ，把(𝐱-𝛍) 放到 Σ 里面 &lt;br&gt;
+= ∑ᵢ₌₁ᵖ [ (𝐱-𝛍)ᵀ ⋅ 𝐮ᵢ (1/λᵢ) 𝐮ᵢᵀ ⋅ (𝐱-𝛍) ]&lt;/p&gt;
+&lt;p&gt;定义一个向量 𝐲 = (y₁, y₂, &amp;hellip;, yₚ)，其中每一维是一个标量：yᵢ = (𝐱-𝛍)ᵀ ⋅ 𝐮ᵢ
+所以上面的马氏距离可以写成：
+(𝐱-𝛍)ᵀ⋅Σ⁻¹⋅(𝐱-𝛍)
+= ∑ᵢ₌₁ᵖ [ yᵢ (1/λᵢ) yᵢᵀ ] &lt;br&gt;
+= ∑ᵢ₌₁ᵖ [ yᵢ² (1/λᵢ) ] ， yᵢ 是标量，就是平方&lt;/p&gt;
+&lt;p&gt;假设 p=2，马氏距离= y₁²/λᵢ + y₂²/λ₂，而且令 马氏距离= 1:
+y₁²/λ₁ + y₂²/λ₂ = 1，就得到一个椭圆曲线&lt;/p&gt;
+&lt;p&gt;x1 和 x2 是原来的坐标轴，𝐮₁, 𝐮₂ 是新的基向量。把 xᵢ 变换成 yᵢ 就是向量 𝐱 减去均值之后（去中心化），然后投影到向量 𝐮ᵢ 上得到的坐标。&lt;/p&gt;
+&lt;p&gt;𝐱 和 𝛍 之间的马氏距离，在𝐮₁, 𝐮₂ 的坐标系下是一个椭圆曲线，不同的样本x对应曲线上不同的点。
+如果 λ₁ &amp;gt; λ₂，则半长轴=√λ₁；半短轴=√λ₂&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/02_%E9%A9%AC%E6%B0%8F%E8%B7%9D%E7%A6%BB%E6%A4%AD%E5%9C%86.png width=&gt;
+  
+  
+
+
+&lt;p&gt;𝐱 和 𝛍 之间的马氏距离可以是任意值，即椭圆方程不等于1，取不同的值 r：&lt;/p&gt;
+&lt;p&gt;y₁²/λ₁ + y₂²/λ₂ = r&lt;/p&gt;
+&lt;p&gt;因为马氏距离是概率密度中的一项，马氏距离不同对应的概率就不同，r-&amp;gt; p(r)&lt;/p&gt;
+&lt;p&gt;当 r 取不同值的时候，就是一圈一圈的椭圆。对于一个两维的随机变量 𝐱=(x1,x2)，它的概率值y是第3维，所以在这个三维空间中，如果固定 y 值（即r值），就是对曲面水平横切了一刀，得到一条等高线，是在特征向量 𝐮 下的椭圆&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/02_%E4%BA%8C%E7%BB%B4%E9%AB%98%E6%96%AF%E5%88%86%E5%B8%83.png width=&gt;
+  
+  
+
+
+&lt;p&gt;如果 Σ 分解出来的所有的特征值 λᵢ 都相同，曲线就变成圆了，在各个轴上的投影都相等。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;4-高斯分布4-局限性&#34;&gt;4. 高斯分布4-局限性&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1RW411m7WE?p=4&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P4&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;在高维高斯分布的概率密度函数中，只有 exp 里面的“二次型”与样本 x 相关，而且是𝐱 和 𝛍 之间的马氏距离，
+对正定矩阵 Σ 做特征值分解，可以发现“二次型”对应于以特征向量 𝐮 为基底的坐标系下的标准椭圆曲线，&lt;/p&gt;
+&lt;p&gt;用 Δ 表示二次型，则概率密度函数：p(x)=1/(2πᵖᐟ²⋅|Σ|¹ᐟ²) ⋅ exp(-Δ/2)&lt;/p&gt;
+&lt;p&gt;在概率密度函数中，只有 x 是自变量，𝛍,Σ 都是模型的参数。
+给定一个概率值 0 &amp;lt;= p(x) &amp;lt;= 1，比如 0.5，它会对应一个 Δ= r1，对应到椭圆方程的右侧，再把 r1 乘到左边就变成了标准的椭圆方程。
+当 p=0.5, 则 Δ= r2，会得到另一个椭圆曲线。
+如果把所有概率取一遍，就对应一个曲面。椭圆对应一条条等高线&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/02_%E4%BA%8C%E7%BB%B4%E9%AB%98%E6%96%AF%E5%88%86%E5%B8%83%E6%9B%B2%E9%9D%A2.png width=&gt;
+  
+  
+
+
+&lt;h3 id=&#34;1-方差矩阵参数太多&#34;&gt;(1) 方差矩阵参数太多&lt;/h3&gt;
+&lt;p&gt;Σₚₓₚ 有 p² 个参数，但又因为它是对称的，实际的参数个数= (p²-p)/2 + p
+= (p²+p)/2 = p(p+1)/2 = O(p²)&lt;/p&gt;
+&lt;p&gt;时间复杂度是维数的平方，在高维问题中，p 会很大，参数太多，计算太复杂。&lt;/p&gt;
+&lt;p&gt;可以简化方差矩阵：假设 Σ 是对角矩阵，只有对角线上有值
+(λ₁ 0 0 &amp;hellip; 0 \ 0 λ₂ 0 &amp;hellip; 0 \ &amp;hellip; \ 0 0 0 &amp;hellip; λₚ)&lt;/p&gt;
+&lt;p&gt;因为它是对角矩阵（已经相互独立），就不需要对它做特征值分解了，Σ就用自己，没有引入新基向量 U=(𝐮₁,𝐮₂,&amp;hellip;, 𝐮ₚ)，U就是单位矩阵，所以基向量还是 (𝐱₁,𝐱₂,&amp;hellip;, 𝐱ₚ)，仍向𝐱投影 &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1RW411m7WE/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;journeyc 的评论&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Δ = (𝐱-𝛍)ᵀ⋅Σ⁻¹⋅(𝐱-𝛍) = ∑ᵢ₌₁ᵖ (𝐱ᵢ-𝛍ᵢ)² (1/λᵢ)&lt;/p&gt;
+&lt;p&gt;在各个轴上的投影为 yᵢ = (𝐱-𝛍)ᵀ ⋅ 𝐱ᵢ&lt;/p&gt;
+&lt;p&gt;所以这里的椭圆就是在 (𝐱₁,𝐱₂,&amp;hellip;, 𝐱ₚ) 下的，长短轴与各x轴平行，而没有旋转&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/02_%E2%88%91%E6%98%AF%E5%AF%B9%E8%A7%92%E9%98%B5.png width=&gt;
+  
+  
+
+
+&lt;p&gt;如果 ∑ 是对角阵，并且 λ₁ = λ₂ = &amp;hellip; = λₚ，曲线就变成“正的”圆形，称为各向同性的高斯分布&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/02_%E5%90%84%E5%90%91%E5%90%8C%E6%80%A7%E9%AB%98%E6%96%AF%E5%88%86%E5%B8%83.png width=&gt;
+  
+  
+
+
+&lt;p&gt;通过简化方差矩阵，变成各向同性的，解决参数过多的问题。
+比如在因子分析中，假设隐变量 z 是对角矩阵。概率PCA （P-PCA) 就是因子分析的特殊情况，假设 z 是各向同性的概率分布&lt;/p&gt;
+&lt;h3 id=&#34;2-一个高斯表达力有限&#34;&gt;(2) 一个高斯表达力有限&lt;/h3&gt;
+&lt;p&gt;仅用一个高斯分布，对模型的描述可能不准确。GMM 是多个高斯分布的混合。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;5-高斯分布5-已知联合概率求边缘概率及条件概率&#34;&gt;5. 高斯分布5-已知联合概率求边缘概率及条件概率&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1RW411m7WE?p=5&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P5&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;已知一个多维高斯分布，求它的边缘概率分布，和条件概率分布&lt;/p&gt;
+&lt;p&gt;把 p 维的随机向量 𝐱 看作两组的联合：𝐱=(𝐱ₐ,\ 𝐱b)，其中 xₐ∈ℝᵐ, xb∈ℝⁿ, m+n=p。
+把 p 维的期望 𝛍 也分成两组: 𝛍 = (𝛍ₐ,\ 𝛍b)；
+把方差矩阵 ∑ 拆成 4 块：∑ = (∑ₐₐ , ∑ₐb \ ∑bₐ , ∑bb)，这是对称矩阵，所以∑ₐb = ∑bₐ&lt;/p&gt;
+&lt;p&gt;然后把随机向量 𝐱 看作是 (𝐱ₐ,𝐱b) 的联合概率分布，求边缘概率分布 P(𝐱ₐ)，以及条件概率分布 P(𝐱b|𝐱ₐ)。根据对称性，P(𝐱b) 和 P(𝐱ₐ|𝐱b) 也可求得&lt;/p&gt;
+&lt;p&gt;求解方法：配方法（PRML中），这节会采用一种比配方法稍微简单一点的方法&lt;/p&gt;
+&lt;p&gt;首先引入一个定理：
+已知一个随机变量 x 服从高斯分布 x～N(μ,Σ)，有 y=Ax+B，则 y 也服从高斯分布： y～N(Aμ+B, AΣAᵀ)。
+（x 是p维向量，y 是 q 维向量，则 A 是qxp 的矩阵，Σ是pxp的，则 AΣAᵀ 是qxq的）&lt;/p&gt;
+&lt;p&gt;不严谨的解释：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;E[y] = E[Ax+B] = AE&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; +B = Aμ+B&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Var[y] = Var [ Ax+B ] = Var [Ax] + Var [B] , B是常数方差=0 &lt;br&gt;
+= A Var &lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Aᵀ = AΣAᵀ&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;比如对一维随机变量 x～N(μ, σ²)，y=ax+b，则 Var[y] = Var[ax+b] = a²Var&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; = a²⋅σ²。直观上看，一维是a²，多维应该是AAᵀ&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;求边缘概率-p𝐱ₐ-的分布&#34;&gt;求边缘概率 P(𝐱ₐ) 的分布&lt;/h3&gt;
+&lt;p&gt;构造一个矩阵：
+𝐱ₐ = (Iₘ 0) (𝐱ₐ \ 𝐱b)&lt;/p&gt;
+&lt;p&gt;其中 (Iₘ 0) 对应 A，(𝐱ₐ \ 𝐱b) 就是 x，B=0&lt;/p&gt;
+&lt;p&gt;根据上述定理:&lt;/p&gt;
+&lt;p&gt;E[𝐱ₐ] = E[A𝐱+B] = A𝛍+B = (Iₘ 0) (𝛍ₐ,\ 𝛍b) = 𝛍ₐ&lt;/p&gt;
+&lt;p&gt;Var[𝐱ₐ] = AΣAᵀ = (Iₘ 0) (∑ₐₐ , ∑ₐb \ ∑bₐ , ∑bb) (Iₘ \ 0)
+= (Iₘ ∑ₐₐ, Iₘ ∑ₐb) (Iₘ \ 0)
+= ∑ₐₐ&lt;/p&gt;
+&lt;p&gt;所以 𝐱ₐ～N(𝛍ₐ, ∑ₐₐ)&lt;/p&gt;
+&lt;h3 id=&#34;求条件概率-p𝐱b𝐱ₐ-的分布&#34;&gt;求条件概率 P(𝐱b|𝐱ₐ) 的分布&lt;/h3&gt;
+&lt;p&gt;（可用配方法）&lt;/p&gt;
+&lt;p&gt;构造3个变量：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;先定义一个 x_{b⋅a} 的变量：x_{b⋅a} = x_b - ∑_bₐ ∑ₐₐ⁻¹ xₐ 。
+如果 x_{b⋅a} 的分布知道了 x_{b⋅a}～N(𝛍^, ∑^)，那么 x_b = x_{b⋅a} + ∑_bₐ ∑ₐₐ⁻¹ xₐ，x_b 与 xₐ 之间的关系就找到了。 &lt;br&gt;
+rationalizable 的评论：“如果能找到一个线性变换 Z = Xa+C⋅Xb，使得Z与Xb不相关 Cov(Z, Xb)=0，那么 Var(Xa|Xb) = Var(Z|Xb) = Var(Z)，E(Xa|Xb)=E(Z)-C⋅Xb，就都可以计算出来了。”&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;与此对应，定义 𝛍_{b⋅a} = 𝛍_b - ∑_bₐ ∑ₐₐ⁻¹ 𝛍ₐ。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;因为 ∑ 是分块矩阵，把∑_{bb⋅a} 定义为∑_{aa} 的舒尔补Schur complement: ∑_{bb⋅a} =∑_{bb} - ∑_{ba} ∑_{aa}⁻¹ ∑_{ab}&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&#34;1-先求-x_ba-的分布&#34;&gt;(1) 先求 x_{b⋅a} 的分布:&lt;/h4&gt;
+&lt;p&gt;x_{b⋅a} = (- ∑_bₐ ∑ₐₐ⁻¹, Iₙ) (xₐ,\\ x_b) = (- ∑_bₐ ∑ₐₐ⁻¹, Iₙ) 𝐱&lt;/p&gt;
+&lt;p&gt;所以 (- ∑_bₐ ∑ₐₐ⁻¹, Iₙ) 就是 A&lt;/p&gt;
+&lt;p&gt;E[x_{b⋅a}] = A𝛍+B = (- ∑_bₐ ∑ₐₐ⁻¹, Iₙ)⋅(𝛍ₐ,\\ 𝛍b)
+= 𝛍b - ∑_bₐ ∑ₐₐ⁻¹⋅𝛍ₐ = 𝛍_{b⋅a}&lt;/p&gt;
+&lt;p&gt;Var[x_{b⋅a}] = AΣAᵀ  &lt;br&gt;
+= (- ∑_bₐ ∑ₐₐ⁻¹, Iₙ) ⋅ (∑ₐₐ , ∑ₐb \\ ∑bₐ , ∑bb) ⋅ ((-∑_bₐ ∑ₐₐ⁻¹)ᵀ,\\ Iₙ)  &lt;br&gt;
+= (- ∑_bₐ ∑ₐₐ⁻¹, Iₙ) ⋅ (∑ₐₐ , ∑ₐb \\ ∑bₐ , ∑bb) ⋅ (-∑ₐₐ⁻¹ ∑_bₐᵀ, \\ I) ，其中 ∑ₐₐ⁻¹ 是对称的，转置没变 &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;= (- ∑_bₐ ∑ₐₐ⁻¹ ⋅ ∑ₐₐ + ∑bₐ, -∑_bₐ ∑ₐₐ⁻¹ ⋅ ∑ₐb + ∑bb) ⋅ (-∑ₐₐ⁻¹ ∑_bₐᵀ, \\ I)&lt;/p&gt;
+&lt;p&gt;在第 1 项中，∑ₐₐ 是可逆，∑ₐₐ⁻¹ ⋅ ∑ₐₐ = I，然后 -∑_bₐ + ∑bₐ = 0：&lt;/p&gt;
+&lt;p&gt;= (0, -∑_bₐ ∑ₐₐ⁻¹ ⋅ ∑ₐb + ∑bb) ⋅ (-∑ₐₐ⁻¹ ∑_bₐᵀ, \\ I)&lt;/p&gt;
+&lt;p&gt;因为两个向量变量的协方差 Cov(X,Y) 与 Cov(Y,X) 互为转置矩阵，但它自身并不是对称矩阵，因此转置并不是它自己: ∑_bₐᵀ ≠ ∑_bₐ&lt;/p&gt;
+&lt;p&gt;= ∑bb - ∑_bₐ ∑ₐₐ⁻¹ ⋅ ∑ₐb ，就是定义的 ∑_{bb⋅a}&lt;/p&gt;
+&lt;p&gt;（弹幕：应该是根据舒尔补反向构造的 x_{b⋅a} 和 𝛍_{b⋅a}。&amp;ldquo;构造型证明&amp;rdquo;?）&lt;/p&gt;
+&lt;p&gt;所以得出结论： x_{b⋅a} ～ N(𝛍_{b⋅a}, ∑_{bb⋅a})&lt;/p&gt;
+&lt;h4 id=&#34;2-证明x_ba-与-xₐ-相互独立&#34;&gt;(2) 证明：x_{b⋅a} 与 xₐ 相互独立&lt;/h4&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/read/cv1869193/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;专栏&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;若 x 为服从高斯分布的随机变量 x～N(μ,Σ)，则相互独立的两变量就不相关： M⋅x ⟂ N⋅x ⇔ M∑N =0。
+其中 M，N 均为矩阵，M⋅x，N⋅x 也服从高斯分布。&lt;/p&gt;
+&lt;p&gt;证：因为 x～N(μ,Σ)，所以 M⋅x～N(Mμ, MΣMᵀ)，N⋅x～N(Nμ, NΣNᵀ)，计算二者的协方差矩阵：&lt;/p&gt;
+&lt;p&gt;Cov(M⋅x，N⋅x) = E[(M⋅x-M⋅μ) (N⋅x-N⋅μ)ᵀ] &lt;br&gt;
+= E[ M ⋅ (x-μ)⋅(x-μ)ᵀ ⋅ N] &lt;br&gt;
+= M⋅E[ (x-μ) (x-μ)ᵀ ]⋅N  &lt;br&gt;
+= MΣNᵀ&lt;/p&gt;
+&lt;p&gt;因为 M⋅x ⟂ N⋅x 且均为高斯分布，所以 Cov(M⋅x，N⋅x) = MΣNᵀ = 0&lt;/p&gt;
+&lt;p&gt;在之前的推导中，引入了 x_{b⋅a} = x_b - ∑_bₐ⋅∑ₐₐ⁻¹ ⋅ xₐ 可以改写为：&lt;/p&gt;
+&lt;p&gt;x_{b⋅a} = (-∑_bₐ⋅∑ₐₐ⁻¹, I) (xₐ,\\ x_b)，这里 (-∑_bₐ⋅∑ₐₐ⁻¹, I) 对应 M，(xₐ,\\ x_b) 是 x&lt;/p&gt;
+&lt;p&gt;xₐ = (I, 0) (xₐ,\\ x_b)，这里(I, 0)对应 N，(xₐ,\\ x_b) 是 x&lt;/p&gt;
+&lt;p&gt;x_{b⋅a} 就是 M⋅x，xₐ 就是N⋅x，
+所以 MΣNᵀ = (-∑_bₐ⋅∑ₐₐ⁻¹, I) (∑ₐₐ , ∑ₐb \\ ∑bₐ , ∑bb) (I,\\ 0)，其中∑是x的方差矩阵 &lt;br&gt;
+= (0, ∑bb-∑_bₐ⋅∑ₐₐ⁻¹) (I,\\ 0) &lt;br&gt;
+= 0&lt;/p&gt;
+&lt;p&gt;所以 x_{b⋅a} 与 xₐ 相互独立可推出 x_{b⋅a} 与 xₐ 不相关：
+x_{b⋅a} ⟂ xₐ ⇒ x_{b⋅a} | xₐ = x_{b⋅a}&lt;/p&gt;
+&lt;p&gt;注意：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;一般情况下两个随机变量之间独立&lt;strong&gt;一定不相关&lt;/strong&gt;，不相关不一定独立（也就是独立的概念更“苛刻”一点，不相关的概率稍微“弱”一点）&lt;/li&gt;
+&lt;li&gt;如果两个随机变量均服从高斯分布，那么“不相关”等价于“独立”&lt;/li&gt;
+&lt;/ol&gt;
+&lt;blockquote&gt;
+&lt;p&gt;随机变量独立是由分布函数定义的，而不相关只是用一阶矩（即数学期望）定义的。分布函数是比矩更高的概念，分布函数能决定矩，而矩未必能决定分布函数。
+&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/53736521&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;独立和互斥是什么关系？独立和不相关是什么关系？ - 武辰的文章 -知乎&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&#34;3-再求-xbxₐ-的分布&#34;&gt;(3) 再求 xb|xₐ 的分布&lt;/h4&gt;
+&lt;p&gt;知道了 x_{b⋅ₐ} 的分布后，可知 x_b：&lt;/p&gt;
+&lt;p&gt;x_b = x_{b⋅a} + ∑_{ba} ∑ₐₐ⁻¹ xₐ&lt;/p&gt;
+&lt;p&gt;因为 x_b 与 xₐ 是相互独立的服从高斯分布的随机变量，所以：&lt;/p&gt;
+&lt;p&gt;x_b|xₐ = x_{b⋅a}|xₐ - ∑_{ba} ∑ₐₐ⁻¹ xₐ | xₐ &lt;br&gt;
+= x_b = x_{b⋅a} - ∑_{ba} ∑ₐₐ⁻¹ xₐ&lt;/p&gt;
+&lt;p&gt;还是同样套用Ax+B，把 x_{b⋅a} 看作 x, A=I, B=∑_bₐ ⋅ ∑ₐₐ⁻¹ ⋅ xₐ&lt;/p&gt;
+&lt;p&gt;E [x_b|xₐ] = 𝛍_{b⋅a} + ∑_bₐ⋅∑ₐₐ⁻¹⋅xₐ&lt;/p&gt;
+&lt;p&gt;Var [x_b|xa] = A⋅Var(x_{b⋅a})⋅Aᵀ = ∑_{bb⋅a}&lt;/p&gt;
+&lt;p&gt;所以 xb|xₐ ～N ( 𝛍_{b⋅a} + ∑_bₐ⋅∑ₐₐ⁻¹⋅xₐ, ∑_{bb⋅a} )&lt;/p&gt;
+&lt;p&gt;用同样的方法，可得 x_b～N(𝛍_b, ∑_{bb})。&lt;/p&gt;
+&lt;p&gt;P(xₐ|x_b) 就是把 P(xb|xₐ) 中的 a,b 对换。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;6-高斯分布6-已知边缘和条件概率求联合概率分布&#34;&gt;6. 高斯分布6-已知边缘和条件概率求联合概率分布&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1RW411m7WE/?p=6&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P6&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;已知（边缘概率分布）p(x) = N(x | μ,Λ⁻¹) 和（条件概率分布）p(y|x) = N(y | Ax+b, L⁻¹)
+（其中 Λ 是精度矩阵=协方差矩阵 ∑ 的逆，Λ⁻¹=∑），
+并且假设 y 的期望与 x 之间有线性关系：μ_y = Ax+b，但二者的方差之间没关系
+求 p(y)，p(x|y)。（类似于贝叶斯定理：p(x|y) = p(y|x)p(x) / p(y)）&lt;/p&gt;
+&lt;p&gt;这个问题经常在线性高斯模型中出现，比如在卡尔曼滤波中，隐状态（高斯分布）与观测变量之间有线性关系：
+z⁽ᵗ⁺¹⁾ = A z⁽ᵗ⁾ + B + ε，ε是噪声，ε～N(0,Q)，ε与z 相互独立，
+x⁽ᵗ⁾= Cz⁽ᵗ⁾+D+δ，δ也是高斯噪声 δ～N(0,R)&lt;/p&gt;
+&lt;p&gt;还比如在概率pca中，把 p 维的 x 降到 q 维的 z 空间，满足线性关系 x = Wz+b+ε，ε 是服从各向同性的高斯分布 ε～N(0, σ²I)，z 的先验可以是标准高斯分布 z～N(0,I)，ε 与 z 相互独立。也是一种线性高斯模型。&lt;/p&gt;
+&lt;p&gt;（在PRML 中仍使用配方法求解，而且比上一节的推导更复杂）&lt;/p&gt;
+&lt;h3 id=&#34;1-求-py&#34;&gt;(1) 求 p(y)&lt;/h3&gt;
+&lt;p&gt;依据两个前提条件，可以把 y 定义为：
+y = Ax + b + ε，令 ε 是一个高斯噪声 ε～N(0, L⁻¹)，x、y、ε 都是随机变量，ε和x相互独立，A和b 都是系数。
+（y 是在 x 给定的情况下发生的，固定了x则它的方差为0，所以方差L⁻¹中不含 x 的方差）&lt;/p&gt;
+&lt;p&gt;E[y] = E[Ax + b + ε] = E [ Ax+b ] + E [ε] ，按照上一节引入的定理&lt;br&gt;
+= Aμ+b ，ε的期望是0&lt;/p&gt;
+&lt;p&gt;Var[y] = Var[Ax + b + ε] = Var[ Ax+b ] + Var [E]  &lt;br&gt;
+= A⋅Λ⁻¹⋅Aᵀ + L⁻¹&lt;/p&gt;
+&lt;p&gt;所以就得到了 y 的分布：
+y～N(Aμ+b, A⋅Λ⁻¹⋅Aᵀ + L⁻¹)&lt;/p&gt;
+&lt;h3 id=&#34;2-求-pz&#34;&gt;(2) 求 p(z)&lt;/h3&gt;
+&lt;p&gt;构造变量 z 是 x 和 y 的联合：z = (x,\ y)。
+（“任意个有限维的高斯分布的联合分布均是高斯分布”，是说两个随机变量合起来的分布还是高斯，并不是GMM（对似然加权）&lt;a class=&#34;link&#34; href=&#34;https://www.zhihu.com/question/26055805/answer/2028018011&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;正态分布随机变量的和还是正态分布吗？ - 江城雨-知乎&lt;/a&gt;。幽冥若炎的评论：不需要两个多维随机变量相互独立？x与y独立，因为x与ε独立）&lt;/p&gt;
+&lt;p&gt;根据上一节的结论，边缘概率分布就相当于仅仅考虑一部分维度，所以z服从的分布的期望和方差就是 x 的μ,∑ 与 y 的μ,∑ 拼起来：&lt;/p&gt;
+&lt;p&gt;E[z] = [μ,\\ Aμ+b]&lt;/p&gt;
+&lt;p&gt;Var[z] = [Λ⁻¹, unknown,\\ unknown,  A⋅Λ⁻¹⋅Aᵀ + L⁻¹]&lt;/p&gt;
+&lt;p&gt;也就是：
+z = (x,\ y) ～ N ( [μ,\\ Aμ+b], [Λ⁻¹, unknown,\\ unknown,  A⋅Λ⁻¹⋅Aᵀ + L⁻¹] )&lt;/p&gt;
+&lt;p&gt;因为方差矩阵本身应该是对称的，所以两个 unknown 是一样的，记为 Δ，它的最后结果里面不应该出现x 和 y。&lt;/p&gt;
+&lt;p&gt;Δ = Cov(x,y) = E[ (x-E[x]) ⋅ (y-E[y])ᵀ ] &lt;br&gt;
+= E [ (x-μ) ⋅ (y-(Aμ+b)ᵀ) ，把 y 的表达式代入 &lt;br&gt;
+= E [ (x-μ) ⋅ (Ax + b + ε -Aμ -b)ᵀ) &lt;br&gt;
+= E [ (x-μ) ⋅ (Ax - Aμ + ε)ᵀ) ，两项里有共同的(x-μ) &lt;br&gt;
+= E [ (x-μ) ⋅ (Ax - Aμ)ᵀ + (x-μ) ⋅ εᵀ) &lt;br&gt;
+= E [ (x-μ) ⋅ (Ax - Aμ)ᵀ ] + E [ (x-μ) ⋅ εᵀ ]&lt;/p&gt;
+&lt;p&gt;因为 x 与 ε 独立：x⟂ε，所以 x-μ 与 ε 独立，所以第2个期望可拆开：
+E [ (x-μ) ⋅ εᵀ ] = E [ (x-μ) ] ⋅ E[ εᵀ ]，又因为 ε 的期望等于0，所以整项都=0，所以就剩第1项&lt;/p&gt;
+&lt;p&gt;Δ = E [ (x-μ) ⋅ (Ax - Aμ)ᵀ ]  &lt;br&gt;
+= E  [ (x-μ) ⋅ (x - μ)ᵀ ⋅ Aᵀ ] ，A不是随机变量 &lt;br&gt;
+= E  [ (x-μ) ⋅ (x - μ)ᵀ ] ⋅ Aᵀ，第1项是x的方差 &lt;br&gt;
+= Var[x] ⋅ Aᵀ
+= Λ⁻¹ ⋅ Aᵀ&lt;/p&gt;
+&lt;p&gt;所以 z 的方差矩阵：
+Var(z) = [Λ⁻¹, Λ⁻¹ ⋅ Aᵀ,\\ Λ⁻¹ ⋅ Aᵀ,  A⋅Λ⁻¹⋅Aᵀ + L⁻¹]&lt;/p&gt;
+&lt;h3 id=&#34;3-求-pxy&#34;&gt;(3) 求 p(x|y)&lt;/h3&gt;
+&lt;p&gt;根据上一节的结论：已知 x=(xₐ,\ x_b)，则有 P(x_b | xₐ) = N(𝛍_{b⋅a} + ∑_bₐ⋅∑ₐₐ⁻¹⋅xₐ, ∑_{bb⋅a})。&lt;/p&gt;
+&lt;p&gt;z 对应 x, xₐ,x_b 对应 x,y，z 的期望和方差已知，代入即可。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;7-不等式1-jensen不等式&#34;&gt;7. 不等式1-Jensen不等式&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1RW411m7WE?p=7&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P7&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;比如在 EM 算法推导时，会用到此不等式&lt;/p&gt;
+&lt;p&gt;假设 f(x) 是凸 convex function 则该函数的期望大于等于期望的函数：
+E(f(x)) ≥ f(E(x))&lt;/p&gt;
+&lt;h3 id=&#34;1-证明&#34;&gt;(1) 证明&lt;/h3&gt;
+&lt;p&gt;（以下是一个构造性证明）&lt;/p&gt;
+&lt;p&gt;有一个&lt;strong&gt;凸函数&lt;/strong&gt; f(x)，在 x 轴上取 x 的期望值 E[x]，它对应的函数值是 f(E[x])，过这个函数值做这个凸函数的切线，将这条切线定义为 l(x) = ax+b。&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/02_Jensen%E4%B8%8D%E7%AD%89%E5%BC%8F%E8%AF%81%E6%98%8E.png width=&gt;
+  
+  
+
+
+&lt;p&gt;f(E[x]) = l(E[x]) = aE(x)+b&lt;/p&gt;
+&lt;p&gt;因为 f(x) 是凸函数，所以对于任意的 x 都有 f(x)≥l(x)，对此式两边同时求期望：
+E[ f(x) ] ≥ E [ l(x) ] = E[ax+b] = E[ax] + E[b] = aE[x] +b = f(E[x])&lt;/p&gt;
+&lt;p&gt;也就是 E[ f(x) ] ≥ f(E[x])&lt;/p&gt;
+&lt;p&gt;死神之名111 的评论：
+“第七节：很不幸，这个推导是错误的，你先说了f=l，你其实只说明了线性函数的jensen不等式成立，真正严格证明你需要做两个积分差，再利用凸性，二阶导＞0，综合一下就是当前结果。”&lt;/p&gt;
+&lt;h3 id=&#34;2-直观理解&#34;&gt;(2) 直观理解&lt;/h3&gt;
+&lt;p&gt;通常的表述：在 x 轴上取两个点 a 和 b，然后在两点之间任意选取一个 c 点，选取时通常先在 [0,1] 上去一个 t 值，然后做“线性插值”：c=ta+(1-t)b。&lt;/p&gt;
+&lt;p&gt;f(a) 和 f(b) 连线为函数 g，则 c 的函数值为 g(c)，可以看到 g(c) ≥ f(c)&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/02_Jensen%E7%9B%B4%E8%A7%82.png width=&gt;
+  
+  
+
+
+&lt;p&gt;设线段ac 的长度是 t，线段 cb 的长度是 1-t（实际应该是ta 和(1-t)b），所以两梯形的斜边之比也是 t:1-t，&lt;/p&gt;
+&lt;p&gt;然后分别过 g(c) 和 f(a) 做水平线，形成相似三角形，则 f(b)-g(c) 与 g(c)-f(a) 之比是 1-t : t。&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/02_Jensen%E7%9B%B4%E8%A7%822.png width=&gt;
+  
+  
+
+
+&lt;p&gt;所以 g(c) = t ⋅ f(a) + (1-t) ⋅ f(b)&lt;/p&gt;
+&lt;p&gt;代入 g(c) ≥ f(c) 就是：
+t ⋅ f(a) + (1-t) ⋅ f(b) ≥ f(t⋅a+(1-t)⋅b)&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 30 | Review of Generative models</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/30-%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B%E7%BB%BC%E8%BF%B0/</link>
+        <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/30-%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B%E7%BB%BC%E8%BF%B0/</guid>
+        <description>&lt;p&gt;总结之前讲过的各种模型，引出之后要讲的生成模型&lt;/p&gt;
+&lt;h2 id=&#34;1-定义&#34;&gt;1. 定义&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1dE411u7TK?p=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P1 - 【机器学习】白板推导系列(三十) ～ 生成模型综述(Generative Model Introduction)&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;生成模型除了生成数据还能做什么任务？&lt;/p&gt;
+&lt;p&gt;GAN 用来生成数据。
+GMM 用来做聚类任务的。
+这2个都是无监督学习（无标签）。
+逻辑回归虽然与概率相关，但它不是生成模型。P(Y=1 | X) = ?, P(Y=0 | X) = ?
+只是对条件概率建模，而不关注样本数据X本身的分布，&lt;/p&gt;
+&lt;p&gt;所以（概率）生成模型关注的是样本的概率分布本身，而与它要解决的任务没有必然的联系。
+既可以解决监督学习的任务（对 P(X,Y) 建模），也可以解决无监督学习的任务，对于隐变量模型，可以构造 P(X,Z) 并建模；或者不用隐变量，比如自回归模型，直接对 P(X) 建模（把P(X) 拆成各个维度之积）。&lt;/p&gt;
+&lt;p&gt;所以关注样本的概率分布的模型就是生成模型&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;2-模型分类&#34;&gt;2. 模型分类&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1dE411u7TK?p=2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P2&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;按照解决的任务：监督 vs. 非监督 （自监督未介绍） 对各种模型分类&lt;/p&gt;
+&lt;p&gt;任务：分类，回归，标记，降维，聚类，特征学习，密度估计，生成数据&lt;/p&gt;
+&lt;p&gt;把机器学习模型分为“概率”与“非概率”一般没太大必要，但是生成模型一定是与概率相关的，所以这里以概率为分类标准&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;监督学习任务&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;概率模型（建模与概率相关）&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;判别模型&lt;/p&gt;
+&lt;p&gt;对”条件概率“的分布建模：逻辑回归(LR)，最大熵(MEMM)，条件随机场(CRF)，（输出为概率分布的参数的）神经网络NN&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;生成模型&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;简单的神经网络只能是判别模型，不是生成模型。但是NN里分步式表示可以和概率图模型结合，就变成了（深度）生成模型&lt;/li&gt;
+&lt;li&gt;具体见下文&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;非概率模型（建模时未考虑概率分布），若要解决分类问题，则大概率是判别模型&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;感知机PLA，（硬间隔）支持向量机SVM，KNN，（输出为类别的）神经网络NN，树模型&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;非监督学习任务&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;概率模型：必然是生成模型，因为非监督里没有标签Y无法判别，只能描述样本X的概率分布。概率图模型中的大部分是生成模型&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;非概率模型：PCA降维（SVD分解），潜语义分析LSA (pLSA, LDA)，K-means，（不带标签的NN）自编码器Auto-Encoder&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;PCA 从概率角度看，它就是P-PCA的一种，就是因子分析Factor Analysis&lt;/li&gt;
+&lt;li&gt;LSA 的概率模式是 pLSA, 再改造就是 LDA&lt;/li&gt;
+&lt;li&gt;K-means 从概率角度看，是特殊的GMM&lt;/li&gt;
+&lt;li&gt;Auto-Encoder 的概率模式就是 VAE&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;各种生成模型&#34;&gt;各种生成模型&lt;/h3&gt;
+&lt;p&gt;生成模型分成监督，非监督不重要&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Naive Bayes&lt;/p&gt;
+&lt;p&gt;朴素贝叶斯是最简单的生成模型，直接描述 x，假设简单：因为它是判别模型，所以它假设是在给定 y 的情况下，样本 x∈ℝᵖ 可以表示成各维度之积&lt;/p&gt;
+&lt;p&gt;P(x|y) = ∏ᵢ₌₁ᵖ p(xᵢ|y)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Mixture model&lt;/p&gt;
+&lt;p&gt;GMM 认为 x 由 z 生成，在给定 z 的情况下，x服从高斯分布。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Time-series model&lt;/p&gt;
+&lt;p&gt;从时间序列角度，从有限到无限，比如 HMM，卡尔曼滤波，粒子滤波&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Non-parametric&lt;/p&gt;
+&lt;p&gt;在参数空间上，从有限到无限：高斯过程 Gaussian process/ Dirichlet process，是非参贝叶斯模型，
+它的参数不再是固定的，未知的常数了。高斯分布是参数模型：通过learning把（mu,sigma）学习出来，&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Mixed Membership Model&lt;/p&gt;
+&lt;p&gt;也是混合模型，比GMM那中复杂些，变量多。LDA 隐含狄利克雷分布，用来做文档聚类&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Factorial Modeel&lt;/p&gt;
+&lt;p&gt;因子模型：因子分析FA，概率PCA P-PCA, ICA, 稀疏编码sparse coding&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;以上 6 种都是结构化的概率图模型，这些模型每一类都有固定的套路，思想比较底层，专家设计的处理特定问题的算法。与下面的“深度”生成模型对应，它们则是“浅层”生成模型。&lt;/p&gt;
+&lt;p&gt;以下是与深度学习神经网络相结合的模型:&lt;/p&gt;
+&lt;ol start=&#34;7&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;Energy-based Model&lt;/p&gt;
+&lt;p&gt;Boltzmann Machine玻尔兹曼机，包括 sigmoid network，deep belif network，
+都是无向图模型&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;VAE&lt;/p&gt;
+&lt;p&gt;自编码器与概率图结合，用变分的手段处理&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GAN&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Auto regressive model&lt;/p&gt;
+&lt;p&gt;自回归网络&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Flow-based model&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;3-模型表示推断学习&#34;&gt;3. 模型表示&amp;amp;推断&amp;amp;学习&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1dE411u7TK?p=3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P3&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;从模型表示，推断，和学习的角度去认识一个生成模型&lt;/p&gt;
+&lt;h3 id=&#34;模型表示&#34;&gt;模型表示&lt;/h3&gt;
+&lt;p&gt;“形神”兼备&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;形&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;节点可以是离散的，有可以是连续的；&lt;/li&gt;
+&lt;li&gt;边可以是有向的，也可以是无向的。如果所有的边是有向的，则为有向图模型      以上写出来的11 种除了 玻尔兹曼机，其他都是有向图模型&lt;/li&gt;
+&lt;li&gt;含有隐变量节点就是隐变量模型，若不使用隐变量就是“fully observed model”&lt;/li&gt;
+&lt;li&gt;概率图的结构：从层次来看，shallow （前6种） 或者 deep（后5种）；
+或者从连接数量来看，就对应 sparse 和 dense 两类，
+比如玻尔兹曼机的层间的连接没有缺失,它是稠密的, 而HMM一个隐变量只有2-3条边&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;神（概率分布本身）&lt;/p&gt;
+&lt;p&gt;对于样本的概率密度函数来讲，它既可以是参数化模型，即它的参数是固定的，未知的常量，也可以是非参数化模型，即非参贝叶斯。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;参数角度 parametric vs. Non-parametric models&lt;/li&gt;
+&lt;li&gt;显性与隐性密度函数 Implicit Density vs. Explicit Density。显性是直接对P(X) 建模，若是隐变量模型，就对P(X,Z)建模，若是fully observed model，就直接对P(X) 分解。
+隐性不直接对 P(X) 建模，因为它的任务不是先估计出概率密度函数，再从中生成样本。只需要确保样本是从 P(X) 中生成的即可。上述的只有 GAN 是Implicit 的，其余10种都是显式的&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;推断&#34;&gt;推断&lt;/h3&gt;
+&lt;p&gt;推断是否 tractable， (intractable)&lt;/p&gt;
+&lt;h3 id=&#34;学习&#34;&gt;学习&lt;/h3&gt;
+&lt;p&gt;Likelihood-based model （极大似然估计) vs.
+Likelihood-free model (GAN 不关心 P(X)，也就不管样本的似然是多少，它有自己的判别器和目标函数）&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;4-模型分类&#34;&gt;4. 模型分类&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1dE411u7TK?p=4&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P4&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;主要关注：无监督的，有向图的，深层结构的，参数化的，模型&lt;/p&gt;
+&lt;p&gt;Likelihood-based model&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;概率密度函数是显式的
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;推断 Tractable&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Fully-observed model 它的概率/似然可直接求出，比如自回归&lt;/li&gt;
+&lt;li&gt;Change of variable model 变量替换，比如 Flow-based 模型不直接求解复杂的P(X)，
+而把x与一个服从简单分布的变量z，用一个连续可逆的复杂函数联系起来，以引入非线性转换，x=g(z)，然后去学习 g(z) ，
+因为 z=g⁻¹(x)，所以 Pₓ(X) = Pz(g⁻¹(x) | ∂g⁻¹(x)/∂x)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;推断 Intractable 就用近似推断Approximate inference&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;基于变分推断，比如VAE&lt;/li&gt;
+&lt;li&gt;基于马尔科夫链，比如 Energy-based model&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Likelihood-free model&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;概率密度函数是隐式的，不直接关心P(X)，
+&lt;ol&gt;
+&lt;li&gt;GAN 直接用generator 生成样本，然后用 判别器 去评价样本好坏。它是直接生成样本，而不是先估计PDF，再从PDF中采样生成样本。&lt;/li&gt;
+&lt;li&gt;不直接生成样本，可以用MC 采样，比如“生成随机网络” GSN，有点类似“去噪自编码器”&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;5-概率图-vs-神经网络&#34;&gt;5. 概率图 vs. 神经网络&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1dE411u7TK?p=5&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P5&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;他俩不是非此即彼的关系，不是互斥的，是独立的，两者都有发生的可能性&lt;/p&gt;
+&lt;p&gt;神经网络里有“计算图”&lt;/p&gt;
+&lt;p&gt;概率图是&lt;strong&gt;概率分布&lt;/strong&gt;的表示，而(前馈)神经网络是&lt;strong&gt;函数逼近器&lt;/strong&gt;，只不过函数可能比较复杂，如果不给神经网络加修正，它与概率没关系。&lt;/p&gt;
+&lt;p&gt;x &amp;ndash;&amp;gt; NN &amp;ndash;&amp;gt; y，y可以是离散的类别，也可以是连续的数值&lt;/p&gt;
+&lt;p&gt;NN 的作用只有一个：逼近函数。输入样本，得到目标函数的值，用此值对 NN 中的参数（权重、偏置）求梯度，然后做梯度下降&lt;/p&gt;
+&lt;p&gt;概率图模型可笼统的分为：有向图模型（贝叶斯网络），无向图模型（比如Boltzmann machine)&lt;/p&gt;
+&lt;p&gt;玻尔兹曼机既属于无向图模型，也属于神经网络，代表“广义连结主义”。&lt;/p&gt;
+&lt;p&gt;神经网络也可分为：确定性神经网络（CNN，RNN），随机性神经网络（比如 Boltzmann machine，sigmoid belief network)&lt;/p&gt;
+&lt;p&gt;所以在讨论概率图与神经网络的区别时，不考虑 Boltzmann machine，
+只比较有向图模型（贝叶斯网络）与确定性神经网络&lt;/p&gt;
+&lt;p&gt;从“表示”，“推断”，“学习” 3个角度对比:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;模型表示&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;贝叶斯网络：结构化的，浅层的，稀疏的（高维问题有各种条件独立性假设），节点有概率意义，具有可解释性，每个节点在建模时被赋予意义，比如LDA和HMM&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;神经网络：深层的，稠密的（无条件独立性假设），节点仅用于计算σ(∑wᵢxᵢ)，没有任何概率意义/物理意义。它的解释性未知也不重要，神经网络每层的意义在建模时并未赋予。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;推断&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;贝叶斯网络：精确推断，近似推断，MC采样推断，变分推断，估计后验分布&lt;/li&gt;
+&lt;li&gt;神经网络：它的推断很容易（前向）但没有意义，参数的分布不重要，只关注输出&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;学习&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;贝叶斯网络：Likelihood-based: EM&lt;/li&gt;
+&lt;li&gt;神经网络：梯度下降（反向传播：一种高效的求导方法，就是链式求导法则+动态规划（递归+Cache））&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;用法&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;概率图描述了模型，适合高级别的推理任务 high-level reasoning&lt;/li&gt;
+&lt;li&gt;神经网络（的计算图）只用来计算，适合低级别简单的推理 low-level reasoning：弱推理，只是分类图像，而没有像人类一样理解；还适合表示学习：声音、图像识别（现在的语言模型是两个的综合）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;6-重参数化技巧随机后向传播&#34;&gt;6. 重参数化技巧（随机后向传播）&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1dE411u7TK?p=6&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P6&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;最基础的神经网络就是一个函数逼近器。用样本 (X,Y) 去逼近函数 y=f(x;θ)。基于 y 构建目标函数，用BP求神经网络的权重和偏置的梯度，通过随机梯度下降修正&lt;/p&gt;
+&lt;p&gt;用神经网络逼近概率分布（概率图），结合到一起就叫随机后向传播 Stochastic Backpropagation 或者叫重参数化技巧 Reparameterization Trick&lt;/p&gt;
+&lt;p&gt;假设 y 是一个&lt;strong&gt;概率分布&lt;/strong&gt;，它的概率密度函数是 P(y)。&lt;/p&gt;
+&lt;p&gt;假定 P(y) = N(μ,σ²)，当对它采样时，先对中间变量 z 采样，再由 z 得到 y，其中 z 服从标准正态分布 z～N(0,1)，那么 y 与 z 的关系就是 y = μ+σ⋅z。&lt;/p&gt;
+&lt;p&gt;因为对标准正态分布是很容易采样的，先采一个 z⁽ᶦ⁾～N(0,1)，那么 y⁽ᶦ⁾=μ+σ⋅z⁽ᶦ⁾&lt;/p&gt;
+&lt;p&gt;给定 z，则 y 也固定，把 μ,σ 看作是未知但确定的参数，所以 y 与 z 之间就是一个线性变换。&lt;/p&gt;
+&lt;p&gt;可以将 y 看作一个函数 y = f(μ,σ,z)，其中 z 是随机变量，除它之外都是确定性变换，可以用神经网络去逼近这个线性函数&lt;/p&gt;
+&lt;p&gt;z &amp;ndash;&amp;gt; NN &amp;ndash;&amp;gt; y，NN 逼近 f；因为 z 是个随机变量，所以 y 也是个随机变量&lt;/p&gt;
+&lt;p&gt;以上假设了 P(y) 是正态分布，所以 y 与 z 之间是线性关系，所以神经网络的参数是 μ, σ，令 θ={μ,σ²}。&lt;/p&gt;
+&lt;p&gt;可以构造关于 y 的目标函数: J(y) ，因为 y 是关于μ, σ 的函数，所以求梯度∇_θ J(y)时：&lt;/p&gt;
+&lt;p&gt;∂J(y)/∂θ = ∂J(y) / ∂y ⋅ ∂y/∂θ&lt;/p&gt;
+&lt;p&gt;如果 目标变量 是个&lt;strong&gt;条件概率分布&lt;/strong&gt;: P(y|x) = N(x; μ,σ²)，然后 z 还是服从一个标准正态分布 z～N(0,1)，那么 y 与 z 的关系是：y = μ(x) + σ(x)⋅z
+其中 x 是输入，所以 μ,σ 都是 x 的函数。&lt;/p&gt;
+&lt;p&gt;仍然可用神经网络去逼近 y 与 z 之间的函数，神经网络的参数是θ：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;x ——&amp;gt; NN ——&amp;gt; y
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      ▲
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;z ————┘
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;更变量之间的关系画得更详细：
+μ, σ 都从神经网络中出来，它们就是 θ 的函数，则 y = μ_θ(x) + σ_θ(x)⋅z&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;x ─&amp;gt; NN-θ ──&amp;gt; μ_θ(x) ──── + ──&amp;gt; y
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        └───&amp;gt; σ_θ(x) ─┐   ▲
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                      ▼   │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                z ──&amp;gt; × ──┘
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;也可以用两个NN 分别逼近 μ, σ : μ(x) = f(x;θ) σ(x) = g(x;θ)&lt;/p&gt;
+&lt;p&gt;然后构造关于 y 的目标函数 J_θ(y) = ∑ᵢ₌₁ᴺ ||y-yⁱ||²，然后对 θ 求梯度：&lt;/p&gt;
+&lt;p&gt;∂J(y)/∂θ = ∂J(y) / ∂y ⋅ ∂y/∂μ ⋅ ∂μ/∂θ + ∂J(y) / ∂y ⋅ ∂y/∂σ ⋅ ∂σ/∂θ&lt;/p&gt;
+&lt;p&gt;所以无论想求一个普通的概率分布，还是要求一个条件概率分布，都可以用神经网络逼近那个概率分布&lt;/p&gt;
+&lt;p&gt;在本节的例子中，都是假设 P(y) 是高斯分布，即它是连续的，可微的，而且要求 y 本身是一个连续的随机变量，因为需要 y 对 μ,σ 求偏导。
+如果 y 是离散随机变量，就不能用这个方法。&lt;/p&gt;
+&lt;p&gt;最后，可以把上面两种情况，合并起来描述： P(y|w)，如果只求 P(y)，则w 就是参数 θ；如果要求 P(y|x)，那 w 就代表 x 和 θ，w={x;θ}，x 无所谓，它是条件概率中的条件，是输入。&lt;/p&gt;
+&lt;p&gt;神经网络的参数 w，用神经网络去逼近概率分布 P(y|w)&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 12 | Variational Inference</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/12-%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD/</link>
+        <pubDate>Tue, 20 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/12-%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD/</guid>
+        <description>&lt;h2 id=&#34;1-背景&#34;&gt;1 背景&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1DW41167vr&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P1&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;频率角度&#34;&gt;频率角度：&lt;/h3&gt;
+&lt;p&gt;解一个优化问题，比如：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;线性回归模型，数据拟合，用数据估计直线的W：f(W) = WᵀX: &lt;br&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;策略(loss func): 最小化所有样本点的误差之和(最小二乘估计，无约束的优化问题):
+L(w) = Σᵢᴺ(wᵀxᵢ-yᵢ)²，Dataset: {(xᵢ,yᵢ)}ᵢᴺ，xᵢ∈ ℝᵖ，yᵢ∈ ℝ。
+最优 w^ = argmin L(w)。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;解法：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;解析解：损失函数对 w 求导=0，则W^ = (XᵀX)⁻¹XᵀY, where X is train set&lt;/li&gt;
+&lt;li&gt;数值解：（随机）梯度下降，&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;SVM 模型，分类问题，估计符号函数：f(w) = sign(wᵀx+b)；&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;策略(loss func): 类间大，类内小（有约束的凸优化问题）：
+L(w) = min 1/2 wᵀw, s.t. yᵢ(wᵀxᵢ+b)≥1, i=1,&amp;hellip;,N&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;解法：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;调用 QP 套件&lt;/li&gt;
+&lt;li&gt;拉格朗日对偶&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;EM 模型，迭代优化模型参数θ，使似然值取得最大：θ^ = argmax log P(X|θ)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;策略：迭代公式：
+$θ⁽ᵗ⁺¹⁾ = argmax_θ ∫_Z log P(X,Z|θ) P(Z|X,θ⁽ᵗ⁾) dZ$ （输入数据和隐变量的完全数据分布按照Z的后验分布求期望（加权和，求积分））&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;贝叶斯角度&#34;&gt;贝叶斯角度：&lt;/h3&gt;
+&lt;p&gt;解一个积分问题&lt;/p&gt;
+&lt;p&gt;贝叶斯定理：P(θ|X) = P(X|θ) P(θ) / P(X)，后验分布 = 似然值⋅先验分布/参数空间的积分∫P(X|θ)P(θ)dθ&lt;/p&gt;
+&lt;p&gt;贝叶斯推断Inference：依据贝叶斯定理求后验分布P(θ|X)。（然后可求分布的期望，方差）&lt;/p&gt;
+&lt;p&gt;贝叶斯决策Decision：借助后验分布P(θ|X)，用已有样本 X &lt;strong&gt;预测&lt;/strong&gt;新样本 x^ 发生的概率：
+$P(\^x|X) =  ∫ P(\^x,θ|X) dθ = ∫_θ P(\^x|θ,X) P(θ|X) dθ = E_{θ|X} [P(\^x|θ)]$，即对似然P(x^|θ)按照θ的后验分布求期望&lt;/p&gt;
+&lt;p&gt;如何求后验分布P(θ|X)：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;精确推断，问题简单（参数空间/隐变量的维度不高）可以直接计算出分母的积分&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;近似推断，参数空间维度高，无法直接求出分母积分&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;确定性近似&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;变分推断&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;随机近似&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;MCMC 马尔科夫链蒙特卡洛方法&lt;/li&gt;
+&lt;li&gt;MH, Metropolis-Hastings&lt;/li&gt;
+&lt;li&gt;Gibbs, 吉布斯采样&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;2-公式推导&#34;&gt;2 公式推导&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1DW41167vr/?p=2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P2&lt;/a&gt;&lt;br&gt;
+Create on 2022-12-16&lt;/p&gt;
+&lt;p&gt;变分推断的目的：找到一个分布 q(Z) 去逼近无法得到解析解(intractable)的后验分布P(Z|X,θ)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;z: latent variable z + parameters θ，把参数也看作随机变量&lt;/li&gt;
+&lt;li&gt;X: observed data 样本数据&lt;/li&gt;
+&lt;li&gt;大Z: 样本的隐变量&lt;/li&gt;
+&lt;li&gt;(X,Z): Complete data&lt;/li&gt;
+&lt;li&gt;P(X,Z) = P(Z|X)P(X)，联合概率&lt;/li&gt;
+&lt;li&gt;P(X) = P(X,Z)/P(Z|X)，“似然” 省略了θ，重点不在θ&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;似然取对数，两概率相除变成相减（类似推导也出现在EM，不过下面省略了θ，因为包含在了Z中）：&lt;br&gt;
+log P(X) = log P(X,Z) - log P(Z|X)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;引入 Z 的分布 q(Z)：&lt;br&gt;
+log P(X) = log (P(X,Z)/q(Z)) - log (P(Z|X)/q(Z))&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;两边同时按照大 Z 的概率密度函数 q(Z) 求似然的期望:&lt;/p&gt;
+&lt;p&gt;$$
+∫_Z q(Z)⋅logP(X) dZ = \\
+∫_Z q(Z)⋅log (\frac{P(X,Z)}{q(Z)}) dZ \\ - ∫_Z q(Z)⋅log (\frac{P(Z|X)}{q(Z)}) dZ \\
+log P(X) = ELBO + KL(q(Z)||P(Z|X))
+$$&lt;/p&gt;
+&lt;p&gt;因为 logP(X) 与 Z 无关，所以等号左边没变，而等号右边变成了下界 ELBO + KL(Z的分布||Z的后验)。
+ELBO 是 q(Z) 的函数，记为 L(q(Z))，是q(Z)的一个变分。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;当X固定，logP(X) 是固定的，又因为 KL 散度≥0，所以 L(q(Z)) 最大为 logP(X)。
+希望 KL 散度最小，让 q(Z) 与 P(Z|X) 最接近，也就是让 L(q(Z) 最大&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;数学表达：
+$\rm \^q(Z) = arg max_{q(Z)} L(q(Z)) = arg min KL(q(Z)||P(Z|X))$&lt;/p&gt;
+&lt;p&gt;求解：&lt;/p&gt;
+&lt;p&gt;z 包含隐变量和参数，所以 q(z) 是一个很大的联合概率，假设 q(z) 可以划分成 M 个相互独立的组（统计物理中的平均场理论）：
+q(z) = ∏ᵢ₌₁ᴹ qᵢ(zᵢ)&lt;/p&gt;
+&lt;p&gt;每次只求 1 组 qⱼ，同时固定其余的组{1,2,&amp;hellip;,j-1,j+1,&amp;hellip;M}，逐个求完后，把M组的 q 连乘起来就是整体的 q(z)&lt;/p&gt;
+&lt;p&gt;L(q(Z)) = ∫z q(Z)⋅log P(X,Z) dZ - ∫z q(Z)⋅log q(Z) dZ ，把 q(Z) 代入 L &lt;br&gt;
+= E1 + E2&lt;/p&gt;
+&lt;p&gt;对于E1：
+∫z q(Z)⋅log P(X,Z) dZ = ∫z log P(X,Z)⋅∏ᵢ₌₁ᴹ qᵢ(Zᵢ) dz₁,z₂,&amp;hellip;, zₘ&lt;/p&gt;
+&lt;p&gt;.
+.
+.
+.&lt;/p&gt;
+&lt;h2 id=&#34;3-再回首&#34;&gt;3. 再回首&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1DW41167vr/?p=3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P3&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;符号修正&lt;/p&gt;
+&lt;p&gt;.
+.
+.
+.&lt;/p&gt;
+&lt;h2 id=&#34;4-随机梯度变分推断-sgvi-1&#34;&gt;4. 随机梯度变分推断-SGVI-1&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1DW41167vr/?p=4&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P4&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;基于平均场理论的变分推断无法解决复杂隐变量 z 的情况，比如 z 是一个神经网络，平均场就失效了，z 可以是任意复杂度的。&lt;/p&gt;
+&lt;div class=&#34;mermaid&#34;&gt;stateDiagram-v2
+  隐变量z --&gt; 观测变量x: Generative model,\n 条件P(x|z),\n Decoder
+  观测变量x --&gt; 隐变量z: Inference model,\n 后验P(z|x),\n Encoder
+&lt;/div&gt;
+
+&lt;p&gt;基于平均场理论的变分推断（classical VI）也是一种坐标上升法Coordinate Ascend：一次迭代需要逐个更新 Z 的每个维度。
+与此相对的，可以用（随机）梯度上升法解决最大化问题，做变分推断就叫做SGVI / SGVB&lt;/p&gt;
+&lt;p&gt;先看下关于 q(z) 的参数的梯度能否求出？&lt;/p&gt;
+&lt;p&gt;基于梯度的参数更新公式：θ⁽ᵗ⁺¹⁾ = θ⁽ᵗ⁾ + λ⁽ᵗ⁾⋅∇θ⁽ᵗ⁾。
+变分推断以最小化两分布（Z 的假设分布与 Z 的后验分布）的KL散度，或者最大化下界ELBO（ L(q(Z)) ）为目标函数： &lt;br&gt;
+q^ = arg min_q KL( q(Z) || P(Z|X,θ) ) = arg max_q L(q)，
+要更新 q，就需要求出 L 对 q 的梯度：∂L/∂q。&lt;/p&gt;
+&lt;p&gt;q(z) 或 q(z|x) 是隐变量 z 的概率分布，x 是观测变量，可以简化掉。
+假设 q(z) 是指数族分布，它就有一个参数形式，因此求 q(z) 就是求它的参数。
+假设 z 的概率分布 q(z) 是以 ϕ 为参数，如果能求出最好的 ϕ，就相当于得到了 q(z)，所以目标变为去求 ϕ：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;L(ϕ) = ELBO = E_qᵩ(z) [ log (P(x⁽ⁱ⁾,z|θ) / qᵩ(z)) ] &lt;br&gt;
+= E_qᵩ(z) [ log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z) ]  &lt;br&gt;
+= ∫_z qᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) dz - log qᵩ(z)) dz  &lt;br&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;样本似然：log P(x⁽ⁱ⁾|θ) = L(ϕ) + KL(q||P)  ≥ L(ϕ)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;目标函数：ϕ^ = arg maxᵩ L(ϕ)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;把期望写成对随机变量 z 的积分:&lt;/p&gt;
+&lt;p&gt;∇ᵩL(ϕ) = ∇ᵩ∫_z qᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) dz - log qᵩ(z)) dz ：求偏导 ∇ᵩ 与积分 ∫_z 可交换  &lt;br&gt;
+= ∫_z [∇ᵩqᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z))]
++ [qᵩ(z) ⋅ ∇ᵩ(log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z))] dz ：对两项之积求导 &lt;br&gt;
+= ∫_z ① dz + ∫_z ② dz ：拆为两项分析 &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;在第 ② 项中的 log P(x⁽ⁱ⁾,z|θ) 与 ϕ 无关，对它求导=0，所以 ② 对应的积分为：&lt;/p&gt;
+&lt;p&gt;∫z qᵩ(z) ⋅ ∇ᵩ(-log qᵩ(z)) dz  &lt;br&gt;
+= -∫z qᵩ(z) ⋅ 1/qᵩ(z) ⋅ ∇ᵩqᵩ(z) dz  &lt;br&gt;
+= -∫z ∇ᵩqᵩ(z) dz = -∇ᵩ∫z qᵩ(z) dz = - ∇ᵩ1 = 0 &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;所以第2项就约去了，L对 ϕ 求梯度就等于第1项：&lt;br&gt;
+∇ᵩL(ϕ) = ∫z ∇ᵩqᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) dz&lt;/p&gt;
+&lt;p&gt;这个式子没办法直接写成期望的形式，如果可以的话，就可以利用蒙特卡罗采样，把未知分布的期望近似出来。&lt;/p&gt;
+&lt;p&gt;技巧：利用 ∇ᵩlog qᵩ(z) = 1/qᵩ(z)⋅∇ᵩqᵩ(z) 做等价变换：∇ᵩqᵩ(z) = qᵩ(z) ⋅ ∇ᵩlog qᵩ(z)，然后就可以写成一个期望：&lt;/p&gt;
+&lt;p&gt;∇ᵩL(ϕ) = ∫z qᵩ(z) ⋅ ∇ᵩlog qᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) dz &lt;br&gt;
+= E_qᵩ(z) [ ∇ᵩlog qᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) ]&lt;/p&gt;
+&lt;p&gt;所以 L 对 ϕ 的梯度 ∇ᵩL(ϕ) 就等于那一坨关于随机变量 z 的函数按照 qᵩ(z) 求期望。可以用蒙特卡罗采样对其估计：&lt;/p&gt;
+&lt;p&gt;假定第 l 个样本 z⁽ˡ⁾~ qᵩ(z), l=1,2,..,L，从分布 qᵩ(z) 中采样 L 个样本，
+则 L 个样本的平均值就是近似期望：
+≈ 1/L ⋅ ∑ₗ₌₁ᴸ [ ∇ᵩlog qᵩ(z⁽ˡ⁾) ⋅ (log P(x⁽ⁱ⁾,z⁽ˡ⁾|θ) - log qᵩ(z⁽ˡ⁾)) ]&lt;/p&gt;
+&lt;p&gt;每一步计算这个期望就是梯度，然后可以用梯度上升法&lt;/p&gt;
+&lt;h2 id=&#34;5-随机梯度变分推断-sgvi-2&#34;&gt;5. 随机梯度变分推断-SGVI-2&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1DW41167vr/?p=5&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P5&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;上面使用 MC 采样是有问题的：&lt;br&gt;
+先对 z 采样，算出 qᵩ(z)，当 qᵩ(z) 很小时（靠近0），对应的 log 值（log qᵩ(z⁽ˡ⁾)）变化剧烈，所以梯度 ∇ᵩlog qᵩ(z⁽ˡ⁾)就非常大，
+造成整个统计量（所求期望的量:∇ᵩlog qᵩ(Z) ⋅ (log P(X⁽ⁱ⁾,Z|θ) - log qᵩ(Z))）的&lt;strong&gt;方差会非常大&lt;/strong&gt;，
+意味着需要更多的样本才能得到比较好的近似，或者如果方差非常大，可能就无法采样，这种直接用MC采样的方法就行不通。&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/12_log_high_var.png width=&gt;
+  
+  
+
+
+&lt;p&gt;而且即便用蒙特卡罗采样得到了近似的期望（方差较大，不够精确），它等于下界 L(ϕ) 的梯度，再用梯度上升求分布 qᵩ(Z) 的参数 ϕ^，这样一环扣一环，不精确的梯度再叠加上梯度上升时引入的误差，误差（方差）会越来越大，所以在实际中不可行。&lt;/p&gt;
+&lt;p&gt;如何降低统计量的方差？Variance Reduction&lt;/p&gt;
+&lt;h3 id=&#34;重参数化技巧-reparameterization-trick&#34;&gt;重参数化技巧 Reparameterization trick&lt;/h3&gt;
+&lt;p&gt;最初，下界 L(ϕ) 的梯度 ∇ᵩL(ϕ) = ∇ᵩE_qᵩ(Z) [ log P(X⁽ⁱ⁾,Z|θ) - log qᵩ(Z) ]，
+在这个期望中，被统计量（似然-Z后验）和“权重”（Z的分布qᵩ(Z)）都与 ϕ 有关，只能像上面那样先展开，比较复杂。&lt;/p&gt;
+&lt;p&gt;如果假定 Z 的分布（概率密度函数）qᵩ(Z) 是已经确定的分布 p(ε)，与 ϕ 无关，然后梯度号就可以直接写到中括号里面，先对似然值求梯度，再按这个确定分布（常量）p(ε)求期望：
+E_p(ε) [ ∇ᵩ(log P(X⁽ⁱ⁾,Z|θ) - log qᵩ(Z)) ]&lt;/p&gt;
+&lt;p&gt;换句话说，z 是分布 qᵩ(Z|X) 中的采样 z～qᵩ(Z|X)，z 是一个随机变量，考虑把 z 和 ϕ 之间的关系解耦，也就是把 z 的随机成分单拎出来。&lt;/p&gt;
+&lt;p&gt;重参数化技巧：假定 z 与 ε 和 x 之间有函数关系：z = gᵩ(ε,x⁽ⁱ⁾)，而且 ε 服从一个给定的（简单的）分布 ε~P(ε)。
+这样 z 是关于随机变量 ε 的函数，z 仍然是一个&lt;strong&gt;随机变量&lt;/strong&gt;，但它的随机性转移到了 ε 上（当ε和x定了，z就定了）:&lt;/p&gt;
+&lt;p&gt;Z～qᵩ(Z|X)   &lt;br&gt;
+↓   “随机性通过函数关系 g 转移” &lt;br&gt;
+ε～p(ε)&lt;/p&gt;
+&lt;p&gt;因为 ∫z qᵩ(z|x⁽ⁱ⁾)⋅dz = 1，∫ p(ε)⋅dε =1，而且 z 是 ε 的一个（线性）变换，
+因此“定性地”认为：|qᵩ(z|x⁽ⁱ⁾)⋅dz| = |p(ε)⋅dε|&lt;/p&gt;
+&lt;p&gt;把 ∇ᵩL(ϕ) 中的 z 代换为变换 gᵩ(ε,x⁽ⁱ⁾):&lt;/p&gt;
+&lt;p&gt;∇ᵩL(ϕ) = ∇ᵩE_qᵩ(z) [ log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z) ] ，写成对Z积分的形式&lt;br&gt;
+= ∇ᵩ ∫z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) ⋅ qᵩ(z|x⁽ⁱ⁾)⋅dz ，代换 &lt;br&gt;
+= ∇ᵩ ∫z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) ⋅ p(ε)⋅dε ，写成期望 &lt;br&gt;
+= ∇ᵩ E_p(ε) [ log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z) ] ，p(ε)与ϕ无关,∇ᵩ写里面&lt;br&gt;
+= E_p(ε) [∇ᵩ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) ] ，先对z求∇，再对ϕ求∇ &lt;br&gt;
+z 是 ϕ 的函数: z=gᵩ(ε,x⁽ⁱ⁾) &lt;br&gt;
+= E_p(ε) [∇_z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z|x⁽ⁱ⁾)) ⋅∇ᵩz] ，链式法则 &lt;br&gt;
+= E_p(ε) [∇_z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z|x⁽ⁱ⁾)) ⋅ ∇ᵩgᵩ(ε,x⁽ⁱ⁾)]&lt;/p&gt;
+&lt;p&gt;其中 p(ε) 与 ϕ 无关，两个 log 是 z 的函数（θ是上一时刻的），z是ε的函数，然后是 g 对 ε 的梯度。
+此时再用蒙特卡罗采样对 ε 采样：ε⁽ˡ⁾～p(ε), l=1,2,..,L，把 ε 带入 中括号里的那个函数算函数值，再求平均值就是近似的期望：&lt;/p&gt;
+&lt;p&gt;∇ᵩL(ϕ) ≈ 1/L ∑ₗ₌₁ᴸ ∇z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z|x⁽ⁱ⁾)) ⋅ ∇ᵩgᵩ(ε⁽ˡ⁾,x⁽ⁱ⁾)]，
+其中 z=gᵩ(ε⁽ˡ⁾,x⁽ⁱ⁾)&lt;/p&gt;
+&lt;p&gt;然就可以把这个近似梯度带入梯度上升公式：ϕ⁽ᵗ⁺¹⁾ = ϕ⁽ᵗ⁾ + λ⁽ᵗ⁾⋅∇ᵩL(ϕ)，
+每一步求个近似期望，得到梯度，再做梯度上升&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 11 | GMM</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/11-gmm/</link>
+        <pubDate>Mon, 19 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/11-gmm/</guid>
+        <description>&lt;p&gt;Gaussian Mixture Model 高斯混合模型&lt;/p&gt;
+&lt;h2 id=&#34;1-模型介绍&#34;&gt;1. 模型介绍&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV13b411w7Xj?p=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P1&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;根据中心极限定理，假设数据服从高斯分布是合理的&lt;/p&gt;
+&lt;p&gt;一维数据:&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/11_%E4%B8%80%E7%BB%B4%E6%95%B0%E6%8D%AE.png width=&gt;
+  
+  
+
+
+&lt;p&gt;横轴是数据点，服从两个高斯分布的叠加，纵轴是概率密度函数值(PDF)，点越密代表该区域出现样本的概率越大。&lt;/p&gt;
+&lt;p&gt;可以认为这些样本点服从一个高斯分布，但并不合理，用两个高斯比较精确，红色曲线是2个分布的叠加（混合）。&lt;/p&gt;
+&lt;h3 id=&#34;1-从几何角度来看&#34;&gt;(1) 从几何角度来看&lt;/h3&gt;
+&lt;p&gt;GMM 的概率密度函数是多个高斯分布的&lt;strong&gt;加权平均&lt;/strong&gt;，并不是直接相加，否则概率密度函数的积分可能大于1。权重是取到各种高斯分布的概率&lt;/p&gt;
+&lt;p&gt;每个高斯有自己的均值 μ 和方差 Σ （如果是多维的，就是协方差矩阵），它们的参数是要学习出来的。&lt;/p&gt;
+&lt;p&gt;GMM 中一个样本 x 的概率密度函数是K个高斯分布的加权平均：
+p(x) = ∑ₖ₌₁ᴷ αₖ N(x|μₖ,Σₖ), where ∑ₖ₌₁ᴷ αₖ = 1，α 是权重&lt;/p&gt;
+&lt;h3 id=&#34;2-从混合模型或概率生成角度来看&#34;&gt;(2) 从混合模型（或概率生成）角度来看&lt;/h3&gt;
+&lt;p&gt;GMM 用&lt;strong&gt;离散的随机变量&lt;/strong&gt; z 代表样本 x 分别属于 K 个高斯分布 概率。N 个样本是重复 N 次生成过程：先从K个高斯分布中选一个，再在这个高斯分布中采样生成一个样本。&lt;/p&gt;
+&lt;p&gt;两维数据的 PDF 是3维的（曲面）:&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/11_%E4%BA%8C%E7%BB%B4%E6%95%B0%E6%8D%AE.png width=&gt;
+  
+  
+
+
+&lt;ul&gt;
+&lt;li&gt;小x 是观测变量observed variable，两维的: x=(x1,x2)&lt;/li&gt;
+&lt;li&gt;引入隐变量latent variable 小z，一个 z 表明了一个样本 x 可能属于哪一个高斯分布，所以 z 是一个离散型的随机变量，
+一个样本 x 属于各个高斯分布的概率分别为：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;z&lt;/th&gt;
+&lt;th&gt;C₁&lt;/th&gt;
+&lt;th&gt;C₂&lt;/th&gt;
+&lt;th&gt;&amp;hellip;&lt;/th&gt;
+&lt;th&gt;Cₖ&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;概率密度&lt;/td&gt;
+&lt;td&gt;p₁&lt;/td&gt;
+&lt;td&gt;p₂&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;pₖ&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1&lt;/p&gt;
+&lt;p&gt;一个样本既可属于C1，也可属于C2&amp;hellip;, 只不过概率不同，所以用一个随机变量表达。
+用隐变量 z 代表一个样本 x 所属的高斯分布比较方便: x ～ z，z是一个离散分布，可以是 C₁，也可以是 C₂,C₃,&amp;hellip;Cₖ,&lt;/p&gt;
+&lt;p&gt;GMM 是一个生成模型（混合模型一般都是生成模型），每个样本都是按照生成过程逐一生成的：
+假设有一个骰子有 K 个面，而且重量分布不均匀，所以各面的概率不同（越重越大）&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;掷一次得到了第 k 面(概率是pₖ)，对应于第 k 个高斯分布&lt;/li&gt;
+&lt;li&gt;在这第 k 个高斯分布中去采样，就生成了一个样本&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;GMM 是最简单的生成模型，它的概率图：&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/11_GMM%E6%A6%82%E7%8E%87%E5%9B%BE.png width=&gt;
+  
+  
+
+
+&lt;p&gt;N 表示生成 N 个样本，小 x 是观测变量，用阴影来表示，小 z 是随机变量，用空心的圈表示，它服从的分布是以 p 为参数: p=(p1,p2,&amp;hellip;,pₖ) 是一个向量，所以用实心点表示参数 p；而 X 服从高斯分布，其参数为 (μ,Σ)&lt;/p&gt;
+&lt;h2 id=&#34;2-极大似然&#34;&gt;2. 极大似然&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV13b411w7Xj?p=2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P2&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;从混合模型角度，写出 GMM 的概率密度函数 p(x): 既然引入了隐变量 𝐳，也是一个随机变量，把它的概率积掉就行了，又因为 𝐳 是离散型的随机变量，所以是把各个可能的取值求和。&lt;/p&gt;
+&lt;p&gt;一个样本 x 的概率密度函数：&lt;br&gt;
+P(x) = ∑_z P(x,z)
+= ∑_ₖ₌₁ᴷ P(x,z=Cₖ)，分别从 K 个高斯分布中采出 x 的概率: P(x,zₖ) 累加 &lt;br&gt;
+= ∑ₖ₌₁ᴷ P(z=Cₖ) P(x|z=Cₖ)，联合概率拆成两项积 &lt;br&gt;
+= ∑ₖ₌₁ᴷ pₖ ⋅ N(x | μₖ,Σₖ)，第k个高斯分布出现的概率 乘以 在第k个高斯分布中采出x的概率&lt;/p&gt;
+&lt;p&gt;所以混合模型的概率密度函数与加权平均是一样的，只不过“权重” aₖ 变成了这里的概率值 pₖ&lt;/p&gt;
+&lt;p&gt;做 N 次随机试验，每次做试验时(扔骰子)，(假设)隐变量 𝐳 是不同的（即K个正态分布出现的概率不同），
+每次生成样本时，依据 𝐳 从 K 个高斯分布中选一个分布，再从被选中的高斯分布中采一个 x，所以每个 x 和一个 𝐳 对应: (xᵢ,𝐳ᵢ)。
+要求 xᵢ 的似然，就把这次试验中的 𝐳ᵢ 从联合概率P(xᵢ,𝐳ᵢ)中积掉。&lt;/p&gt;
+&lt;p&gt;N个样本就是 N 次试验同时发生，发生的概率（似然）就是多次试验的连乘 P(X,Z)=p(x₁,z₁)p(x₂,z₂)&amp;hellip;p(xN,zN))，所以求 P(X)=∫z P(X,Z) dZ 就是多重积分: 先对 z1 积，再对 z2 积，&amp;hellip;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;x observed variable, 观测随机变量&lt;/li&gt;
+&lt;li&gt;z latent variable, 隐变量，服从离散分布: K个类别（高斯分布）C₁,C₂,&amp;hellip;,Cₖ 分别对应概率 p₁,p₂,&amp;hellip;,pK；&lt;/li&gt;
+&lt;li&gt;X observed data, N个观测数据 x1,x2,&amp;hellip;xN, 样本之间相互独立&lt;/li&gt;
+&lt;li&gt;Z &amp;ldquo;latent data&amp;rdquo;,  z1,z2,&amp;hellip;zN, N 个样本 x 对应的生成它的隐变量&lt;/li&gt;
+&lt;li&gt;(X,Z): complete data, “完整数据” (x1,z1),(x2,z2),&amp;hellip;(xN,zN)，每个样本 x 对应一个隐变量&lt;/li&gt;
+&lt;li&gt;为了叙述方便，用 θ 代表参数 = {p₁,p₂,&amp;hellip;,pK, μ₁,Σ₁, μ₂,Σ₂,&amp;hellip;, μK,ΣK}，隐变量中 K 个高斯分布出现的概率 + K 个高斯的均值和方差&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;用极大似然估计参数 θ: θ^ = arg max_θ log P(X)&lt;/p&gt;
+&lt;p&gt;GMM 是没有解析解的，所以直接用 MLE 是做不出来的，只能用数值方法得到近似解。而且 GMM （混合模型）中含有隐变量，所以用 EM 算法（迭代）会更有效率。&lt;/p&gt;
+&lt;p&gt;θ^ = arg max_θ log P(X)
+= arg max_θ log ∏ᵢ₌₁ᴺ P(xᵢ) ，N个样本iid &lt;br&gt;
+= arg max_θ ∑ᵢ₌₁ᴺ log P(xᵢ) ，连乘变连加 &lt;br&gt;
+= arg max_θ ∑ᵢ₌₁ᴺ log ( ∑ₖ₌₁ᴷ pₖ ⋅ N(xᵢ | μₖ,Σₖ) )，将P(xᵢ)代入&lt;/p&gt;
+&lt;p&gt;要求极大值对应的参数，可以对上式中的参数（pk,μₖ,Σₖ）求偏导=0，但是因为 log 里面是多项连加，而且高斯分布可能是高维的（表达式很复杂），无法求出解析解&lt;/p&gt;
+&lt;p&gt;对于单个高斯分布，它的μ,σ² 都可以直接用 MLE 求出来。因为单一个正态分布的表达式简单，log可以把两项之积拆开，也可以把exp去掉，简化之后，对似然求导，可得到解析解。&lt;/p&gt;
+&lt;h2 id=&#34;3-em求解-e-step&#34;&gt;3. EM求解-E-step&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV13b411w7Xj?p=3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P3&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;用 EM 算法通过 MLE 求出 GMM 的参数 θ。&lt;/p&gt;
+&lt;p&gt;EM 是要最大化似然的下界，即似然的期望：θ⁽ᵗ⁺¹⁾ = arg max_θ ∫_Z q(Z) ⋅ log P(X,Z|θ) dZ，
+这个积分的本意是对（每个样本的）似然值 log P(x,z|θ) 按照隐变量 z 的分布 q(z) 求期望。
+因为 z 的分布是离散的，包括 K 个（高斯分布出现的）概率值，所以 logP(x,z|θ) 和 q(z) 也都是离散的，二者相乘的积分就是&lt;strong&gt;加权和&lt;/strong&gt; ∑ q(z)⋅log P(x,z|θ)，就是一个样本的期望。&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/11_GMM_%E9%9A%90%E5%8F%98%E9%87%8F.png width=&gt;
+  
+  
+
+
+&lt;p&gt;因为大 Z 是多个小 z 的联合，是多个”事件“同时发生的联合概率，又因为样本之间独立同分布，大Z的概率就是单个 z 的概率连乘：q(Z)=q(z₁)⋅q(z₂)&amp;hellip;q(zN)，
+所以对大 Z 的积分就是&lt;strong&gt;多重积分&lt;/strong&gt;，即对每个小 z 积分: ∫z₁∫z₂&amp;hellip;∫zN；
+而只做有限 N 次试验的话，就是把 N 次实验的加权和连乘起来：&lt;/p&gt;
+&lt;p&gt;E = ∫_Z q(Z) ⋅ log P(X,Z|θ) dZ ，X和Z都是大写, N个样本集合. (&lt;code&gt;|&lt;/code&gt;也可写成&lt;code&gt;;&lt;/code&gt;: θ是随机变量vs固定值 &lt;a class=&#34;link&#34; href=&#34;CSDN-%e6%9f%9a%e5%ad%90%e7%9a%ae&#34; &gt;¹&lt;/a&gt;)&lt;br&gt;
+= ∫_z₁ ∫_z₂&amp;hellip;∫_zN q(Z) ⋅ log P(X,Z|θ) dz₁ dz₂ dzN，把q(Z)写开&lt;br&gt;
+= ∑_z₁ ∑_z₂&amp;hellip;∑_z$_N$ ∏ᵢ₌₁ᴺ q(zᵢ) ⋅ log ∏ᵢ₌₁ᴺ P(xᵢ,zᵢ|θ)，zᵢ都是离散分布&lt;br&gt;
+= ∑_z₁ ∑_z₂&amp;hellip;∑_z$_N$ ∏ᵢ₌₁ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ⋅ log ∏ᵢ₌₁ᴺ P(xᵢ,zᵢ|θ) ，当 q(zᵢ) 等于Z的后验分布时，KL散度=0，&amp;ldquo;积分&amp;rdquo;（似然的期望）取到最大。 &lt;br&gt;
+= ∑_z₁ ∑_z₂&amp;hellip;∑_z$_N$ [ ∏ᵢ₌₁ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ⋅ ∑ᵢ₌₁ᴺ log P(xᵢ,zᵢ|θ) ]，log连乘变连加&lt;/p&gt;
+&lt;p&gt;把这个期望 E 记为 Q(θ,θ⁽ᵗ⁾)，是关于 θ 的一个函数（log 中的 θ 是变量，而θ⁽ᵗ⁾是常数）。&lt;/p&gt;
+&lt;p&gt;先把 log 的连加展开：&lt;/p&gt;
+&lt;p&gt;Q(θ,θ⁽ᵗ⁾) = ∑_z₁ ∑_z₂&amp;hellip;∑_z$_N$
+∏ᵢ₌₁ᴺP(zᵢ|xᵢ,θ⁽ᵗ⁾) ⋅ [ log P(x₁,z₁|θ) + log P(x₂,z₂|θ) + &amp;hellip; + log P($x_N,z_N$|θ)]&lt;/p&gt;
+&lt;p&gt;多重&amp;quot;积分&amp;quot;，先对 z₁ 积分：先只取出第 1 项 logP(x₁,z₁|θ)，并且只把 z₁ 从联合概率中取出来：&lt;/p&gt;
+&lt;p&gt;∑_z₁ ∑_z₂&amp;hellip;∑_z$_N$ [ log P(x₁,z₁|θ) ⋅ ∏ᵢ₌₁ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ]&lt;/p&gt;
+&lt;p&gt;= ∑_z₁ ∑_z₂&amp;hellip;∑_zN [ log P(x₁,z₁|θ) ⋅ P(z₁|x₁,θ⁽ᵗ⁾) ⋅ ∏ᵢ₌₂ᴺP(zᵢ|xᵢ,θ⁽ᵗ⁾) ] ，把只与 z₁ 相关的项分出来 &lt;br&gt;
+= ∑_z₁ logP(x₁,z₁|θ) ⋅ P(z₁|x₁,θ⁽ᵗ⁾) ⋅ ∑_z₂&amp;hellip;∑_zN [ ∏ᵢ₌₂ᴺP(zᵢ|xᵢ,θ⁽ᵗ⁾) ]&lt;/p&gt;
+&lt;p&gt;对于后半部分的从 2 到 N 的联合概率：&lt;/p&gt;
+&lt;p&gt;∑_z₂&amp;hellip;∑_zN [ ∏ᵢ₌₂ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ] &lt;br&gt;
+= ∑_z₂&amp;hellip;∑_zN [ P(z₂|x₂,θ⁽ᵗ⁾) ⋅ P(z₃|x₃,θ⁽ᵗ⁾) &amp;hellip; ⋅ P(zN|xN,θ⁽ᵗ⁾)] &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;因为每一个累加号都只与一个 z 相关，也就是把每个 z 对应的离散概率分布（p₂,&amp;hellip;,pK）求和，并且概率密度函数积分等于 1: &lt;br&gt;
+= ∑_z₂ P(z₂|x₂,θ⁽ᵗ⁾) ∑_z₃ P(z₃|x₃,θ⁽ᵗ⁾) &amp;hellip; ∑_zN P(zN|xN,θ⁽ᵗ⁾) &lt;br&gt;
+= 1⋅1⋅&amp;hellip;⋅1 = 1&lt;/p&gt;
+&lt;p&gt;所以对 z₁ 积分的结果，除了只与 z1 相关的项: ∑_z₁ logP(x₁,z₁|θ) ⋅ P(z₁|x₁,θ⁽ᵗ⁾)，其余都是1。同理之后对 z2, z3,&amp;hellip;zN积分时，也只保留与自己相关的项&lt;/p&gt;
+&lt;p&gt;Q(θ,θ⁽ᵗ⁾) = ∑_z₁∑_z₂&amp;hellip;∑_zN ∏ᵢ₌₁ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ⋅ [logP(x1,z1|θ) + logP(x2,z2|θ) +&amp;hellip; + logP(x_N,zN|θ)]&lt;/p&gt;
+&lt;p&gt;= ∑_z₁ log P(x₁,z₁|θ) ⋅ P(z₁|x₁,θ⁽ᵗ⁾) +
+∑_z₂ log P(x₂,z₂|θ) ⋅ P(z₂|x₂,θ⁽ᵗ⁾) +
+&amp;hellip; + ∑_zN log P(xN,zN|θ) ⋅ P(zN|xN,θ⁽ᵗ⁾)  &lt;br&gt;
+= ∑ᵢ₌₁ᴺ ∑_zᵢ log P(xᵢ,zᵢ|θ) ⋅ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ，这里xᵢ,zᵢ都是小写，单个样本&lt;/p&gt;
+&lt;p&gt;综上，似然P(X)的期望等于 N 个样本的似然期望的和。&lt;/p&gt;
+&lt;p&gt;其中，单个样本的联合概率（或者说似然）: P(x,z|θ) = P(z|θ) P(x|z,θ) = p_z ⋅ N(x | μ_z,Σ_z)，这里下标 z 表示该样本的隐变量。
+因为 P(x) = ∑ₖ₌₁ᴷ pₖ ⋅ N(x | μₖ,Σₖ)，
+所以单个样本的后验概率：P(z|x,θ) = P(x,z)/P(x) = p_z ⋅ N(x | μ_z,Σ_z) / ∑ₖ₌₁ᴷ pₖ ⋅ N(x | μₖ,Σₖ)&lt;/p&gt;
+&lt;p&gt;把似然和后验代入 Q:&lt;/p&gt;
+&lt;p&gt;Q(θ,θ⁽ᵗ⁾) = ∑ᵢ₌₁ᴺ ∑_zᵢ log (p_zᵢ ⋅ N(xᵢ | μ_zᵢ,Σ_zᵢ)) ⋅ [ p_zᵢ ⋅ N(xᵢ | μ_zᵢ,Σ_zᵢ) / ∑ₖ₌₁ᴷ pₖ ⋅ N(xᵢ | μₖ,Σₖ) ] ，zᵢ是1⋯K中的任意一个&lt;/p&gt;
+&lt;p&gt;以上就是 EM 中的 E-step：把（N个样本的）似然的期望表示出来。M-step 要关于参数 θ 求 Q 的最大值。&lt;/p&gt;
+&lt;h2 id=&#34;4-em求解-m-step&#34;&gt;4. EM求解-M-step&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV13b411w7Xj?p=4&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P4&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;上面得到了 Q 的表达式，对每个样本的似然按照后验求期望，然后N个样本累加。
+M-step 要解一个最优化问题。&lt;/p&gt;
+&lt;p&gt;后验展开是：p_zᵢ ⋅ N(xᵢ | μ_zᵢ⁽ᵗ⁾,Σ_zᵢ⁽ᵗ⁾) / ∑ₖ₌₁ᴷ pₖ⁽ᵗ⁾ ⋅ N(xᵢ | μₖ⁽ᵗ⁾,Σₖ⁽ᵗ⁾)&lt;/p&gt;
+&lt;p&gt;在后续推导中，仍然把一个样本z 的后验简记为： P(zᵢ|xᵢ,θ⁽ᵗ⁾)，因为 θ⁽ᵗ⁾是上一时刻的参数：θ⁽ᵗ⁾={p₁⁽ᵗ⁾,p₂⁽ᵗ⁾,&amp;hellip;,pK⁽ᵗ⁾, μ₁⁽ᵗ⁾,Σ₁⁽ᵗ⁾, μ₂⁽ᵗ⁾,Σ₂⁽ᵗ⁾,&amp;hellip;, μ_K⁽ᵗ⁾,Σ_K⁽ᵗ⁾}，是常数，所以就简单写。
+而似然 logP(xᵢ,zᵢ|θ) 中的θ 是变量，所以似然的期望的累加就表示为：&lt;/p&gt;
+&lt;p&gt;Q(θ,θ⁽ᵗ⁾) = ∑ᵢ₌₁ᴺ ∑_zᵢ log (p_zᵢ ⋅ N(xᵢ | μ_zᵢ, Σ_zᵢ)) ⋅ P(zᵢ|xᵢ, θ⁽ᵗ⁾)&lt;/p&gt;
+&lt;p&gt;交换两个累加符号顺序：&lt;/p&gt;
+&lt;p&gt;Q(θ,θ⁽ᵗ⁾) = ∑_zᵢ ∑ᵢ₌₁ᴺ log (p_zᵢ ⋅ N(xᵢ | μ_zᵢ, Σ_zᵢ)) ⋅ P(zᵢ|xᵢ, θ⁽ᵗ⁾)&lt;/p&gt;
+&lt;p&gt;zᵢ 是一个样本上，K个高斯分布可能的概率，z 在最外面，可以把 zᵢ 替换成小 k（从1到K），∑_zᵢ 替换为 ∑ₖ₌₁ᴷ：&lt;/p&gt;
+&lt;p&gt;Q(θ,θ⁽ᵗ⁾) = ∑ₖ₌₁ᴷ ∑ᵢ₌₁ᴺ log (pₖ ⋅ N(xᵢ | μₖ, Σₖ)) ⋅ P(zᵢ=Cₖ|xᵢ, θ⁽ᵗ⁾) &lt;br&gt;
+= ∑ₖ₌₁ᴷ ∑ᵢ₌₁ᴺ [ log pₖ + log N(xᵢ | μₖ, Σₖ) ] ⋅ P(zᵢ=Cₖ|xᵢ, θ⁽ᵗ⁾)&lt;/p&gt;
+&lt;p&gt;目标函数就为：
+θ⁽ᵗ⁺¹⁾ = arg max_θ Q(θ,θ⁽ᵗ⁾)&lt;/p&gt;
+&lt;p&gt;θ⁽ᵗ⁺¹⁾ 包括 pₖ⁽ᵗ⁺¹⁾={p₁⁽ᵗ⁺¹⁾,p₂⁽ᵗ⁺¹⁾,&amp;hellip;,p_K⁽ᵗ⁺¹⁾},
+μₖ⁽ᵗ⁺¹⁾={μ₁⁽ᵗ⁺¹⁾,μ₂⁽ᵗ⁺¹⁾,&amp;hellip;,μ_K⁽ᵗ⁺¹⁾},
+Σₖ⁽ᵗ⁺¹⁾={Σ₁⁽ᵗ⁺¹⁾,Σ₂⁽ᵗ⁺¹⁾,Σ_K⁽ᵗ⁺¹⁾}，&lt;/p&gt;
+&lt;p&gt;下面只介绍 pₖ 的求法：&lt;/p&gt;
+&lt;p&gt;在 Q(θ,θ⁽ᵗ⁾) 中，只有 log pₖ 与 pₖ 相关：&lt;/p&gt;
+&lt;p&gt;p⁽ᵗ⁺¹⁾ = arg max_pₖ ∑ₖ₌₁ᴷ ∑ᵢ₌₁ᴺ log pₖ ⋅ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾), s.t. ∑ₖ₌₁ᴷpₖ=1&lt;/p&gt;
+&lt;p&gt;求这个带约束的最优化问题，用拉格朗日乘子法求解:&lt;/p&gt;
+&lt;p&gt;写出拉格朗日函数：&lt;/p&gt;
+&lt;p&gt;L(pₖ,λ) = ∑ₖ₌₁ᴷ ∑ᵢ₌₁ᴺ log pₖ ⋅ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + λ(∑ₖ₌₁ᴷpₖ - 1)&lt;/p&gt;
+&lt;p&gt;对 pₖ 求偏导时，后面的z的后验分布是常量，求导后是系数。pₖ 的 k 是从1到K的任一数，只对 pₖ 求导，所以带有 p₁,p₂,&amp;hellip;, pₖ₋₁ 的项都是0，即最外层的累加号没了。&lt;/p&gt;
+&lt;p&gt;∂L/∂pₖ = ∑ᵢ₌₁ᴺ 1/pₖ ⋅ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + λ ≜ 0 ，令其等于0&lt;/p&gt;
+&lt;p&gt;两边同时乘以 pₖ:&lt;/p&gt;
+&lt;p&gt;∑ᵢ₌₁ᴺ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + pₖ ⋅ λ = 0&lt;/p&gt;
+&lt;p&gt;为了利用约束条件，把 k=1,2,&amp;hellip;,K 的式子都加起来：&lt;/p&gt;
+&lt;p&gt;∑ᵢ₌₁ᴺ ∑ₖ₌₁ᴷ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + ∑ₖ₌₁ᴷpₖ ⋅ λ = 0&lt;/p&gt;
+&lt;p&gt;其中 ∑ₖ₌₁ᴷ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) 是对隐变量 zᵢ 的概率密度函数“积分”，为1，所以&lt;/p&gt;
+&lt;p&gt;∑ᵢ₌₁ᴺ 1 + λ = 0 &lt;br&gt;
+λ = -N&lt;/p&gt;
+&lt;p&gt;把 λ=-N 代入上式：&lt;/p&gt;
+&lt;p&gt;∑ᵢ₌₁ᴺ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + pₖ ⋅ (-N) = 0 &lt;br&gt;&lt;/p&gt;
+&lt;p&gt;pₖ⁽ᵗ⁺¹⁾ = 1/N ⋅ ∑ᵢ₌₁ᴺ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾)&lt;/p&gt;
+&lt;p&gt;上式是通项，把 k=1,2,..K，代入就可得到每个 p。&lt;/p&gt;
+&lt;p&gt;求 μₖ 和 Σₖ 的方法类似，只关心 log N(xᵢ | μₖ,Σₖ)，log 可以把高斯分布的概率密度函数简化（两项积拆成两项和，exp也可去掉），而且是无约束，直接（关于矩阵）求导，令其=0就行&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;ref&#34;&gt;Ref&lt;/h2&gt;
+&lt;div id=&#34;CSDN-柚子皮&#34;&gt;&lt;a href=&#34;https://blog.csdn.net/pipisorry/article/details/42715245&#34;&gt;概率论：p(x|theta)和p(x;theta)的区别 - -柚子皮- - CSDN &lt;/a&gt;&lt;/div&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 32 | VAE</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/32-vae/</link>
+        <pubDate>Mon, 19 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/32-vae/</guid>
+        <description>&lt;p&gt;Source videos: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV15E411w7Pz/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;【机器学习】白板推导系列(三十二) ～ 变分自编码器(VAE)】&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-模型表示&#34;&gt;1. 模型表示&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV15E411w7Pz?p=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P1&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Variation 来自概率图模型；
+Auto Encoder 来自神经网络&lt;/p&gt;
+&lt;p&gt;VAE 也是一种 LVM (Latent Variable Model)，最简单的隐变量模型是 GMM，它的概率图模型表示为：&lt;/p&gt;
+&lt;div class=&#34;mermaid&#34;&gt;flowchart TB
+latent((z)) --&gt; observed((x))
+&lt;/div&gt;
+
+&lt;p&gt;小 x 是观测变量，小 z 是假想的服从某种分布的隐变量，先对 z 的分布 P(z) 中采样，再在 z 固定的情况下，从分布 P(x|z) 中采样 x。&lt;/p&gt;
+&lt;h3 id=&#34;gmm&#34;&gt;GMM&lt;/h3&gt;
+&lt;p&gt;K 个高斯分布的混合，样本数据 x 可能来自于这 K 个高斯分布的任一个，只是概率不同。
+而 VAE 是无限个高斯分布的混合。&lt;/p&gt;
+&lt;p&gt;GMM 假设隐变量 z 是服从一维的离散型概率分布：z～Categorical dist，分布列：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;z&lt;/th&gt;
+&lt;th&gt;1&lt;/th&gt;
+&lt;th&gt;2&lt;/th&gt;
+&lt;th&gt;&amp;hellip;&lt;/th&gt;
+&lt;th&gt;K&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;p&lt;/td&gt;
+&lt;td&gt;p₁&lt;/td&gt;
+&lt;td&gt;p₂&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;pₖ&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1。x 在 z 选定的情况下，服从高斯分布：x|zₖ～N(x|μₖ,Σₖ)&lt;/p&gt;
+&lt;p&gt;GMM 顶多可以被用来做聚类任务，但无法解决复杂的任务，比如目标检测，因为它的 z 太简单了，只有 1 维还是离散型的变量，只能对 1 个属性划分 K 类别，&lt;/p&gt;
+&lt;p&gt;比如有一群人作为样本，想学习出一个z 用来表示一个样本。
+GMM 假设了 z 只是一个 1 维K类的变量，就只能把这群人分成 K 类
+（比如按“职业”属性分成：工人，农民，知识份子&amp;hellip;），所以只能表达出一个人是来自于哪类。
+也就是说，GMM 对样本的表达非常肤浅，因为一个人有多个属性，必须用用多个维度表达：
+比如 “性别”z₁={男,女}，“肤色”z₂={黄,白,黑}，“年龄”z₃={ℤ}，“身高”z₄连续的，这么多维度 GMM 无法表达出来。&lt;/p&gt;
+&lt;p&gt;隐变量 z 应该是高维的，连续的随机变量，假设 z 服从高斯分布: z～N(μ=0,Σ=I)，满足高维连续。P(z) 是先验，它并不重要，只是辅助建模，我们最终关心的是 inference 过程：给一个 x 返回它的 z，也就是后验 P(z|x)&lt;/p&gt;
+&lt;p&gt;如果样本 x 本身是连续的，可以假设它的条件概率也服从高斯分布：x|z～N(μ(z),Σ(z))。若是离散的，则仍然用 categorical distribution。&lt;/p&gt;
+&lt;p&gt;条件概率 x|z 的均值和方差都是 z 的函数，也就是先给定了 z，然后求出 μ(z) 和 Σ(z)，相当于得到了 x。所以实际上要学 μ,Σ 与 z 之间函数关系。
+可以用神经网络逼近出来这个函数，所以 μ,Σ 是神经网络（参数θ）的函数，用 μ_θ, Σ_θ 表示。&lt;/p&gt;
+&lt;p&gt;而不直接通过算 Likelihood 求 x|z 的概率分布，是因为 z 的维度太高，不好把 z 积掉：P(x) = ∫_z P(x,z) dz =∫_z P(z) P(x|z) dz。
+因为假设了 z 的维度很高，高到积分算不出来，则 P(x) 是 intractable 的，
+又因为后验分布 P(z|x) = P(x|z)P(z) / P(x)，所以z的后验也算不出来。也就无法从 x 到 z 做inference。
+只能用重参数化技巧和神经网络逼近后验分布。&lt;/p&gt;
+&lt;h2 id=&#34;推断学习&#34;&gt;推断&amp;amp;学习&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV15E411w7Pz/?p=2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P2&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;mermaid&#34;&gt;flowchart TB
+latent((z)) -- &#34;Pᶿ(x|z) \n Decode \n Generation&#34; --&gt; observed((x))
+observed((x)) -. &#34;Pᶿ(z|x) or qᶲ(z|x)\n Encode \n Inference&#34; .-&gt; latent((z))
+&lt;/div&gt;
+
+&lt;p&gt;z 是隐变量假定服从高斯分布 P(z)=N(0,I)，x 是观测变量假定服从高斯分布 P_θ (x|z)=N(μ_θ (z), Σ_θ (z))。
+假如参数 θ 已经训练好了，生成样本时，先从 z 的分布 P(z) 中采样一个 z⁽ⁱ⁾，然后就能从 P_θ( x|z⁽ⁱ⁾) 采样出一个 x⁽ⁱ⁾。&lt;/p&gt;
+&lt;p&gt;因为后验分布 P(z|x) 无法通过贝叶斯公式算出，所以用 q_ϕ(z|x) 不断逼近后验分布P_θ(z|x)。&lt;/p&gt;
+&lt;p&gt;用 EM 求解 GMM 时，是最大化似然，似然可以分成下界 ELBO 和 KL( q_ϕ(z|x) || P_θ(z|x))。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;最原始的 EM 的 E-step 要写出n个样本似然p(x)的（最大的）期望：当 q(z|x)=P(z|x) 时, KL=0, 似然的期望就是 ELBO。&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;M-step 就是解最大化问题：θ = arg max_θ ELBO = arg max_θ E_P(z|x,θ⁽ᵗ⁺¹⁾) [ log P(x,z|θ⁽ᵗ⁾) ].&lt;/li&gt;
+&lt;li&gt;E-M 即“最大的期望 与 期望的最大”&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;VAE 不能用基础的 EM 解决，因为需要 q(z|x) 能取到 P(z|x)，但是这里的后验 P(z|x) 是 intractable 的，所以只能让 KL 散度足够小，找出最好的 q，也就是找出它最好的参数ϕ，让 q_ϕ(z|x) 足够接近 P_θ(z|x)。&lt;/p&gt;
+&lt;p&gt;在EM中，通过引入隐变量 z 和 Z 的分布 q(Z)，对数似然 logP(X) 被拆分成 ELBO + KL散度(q(Z)||P(Z|X))。
+对应到这里的情况，KL 散度中的 q(Z) 应该是后验 qᵩ(z|x)，也就是对似然 P(x|z) 引入的是 qᵩ(z|x)，同样 ELBO 中也是按 q(z|x) 求期望。
+ELBO 把里面的 log 展开，即可写成联合概率P(z,x) + 熵H[q(z|x)]；再把联合概率拆开，其中 z 的先验 P(z) 可与后验的熵 H[q(z|x)] 结合成一个KL散度：z的后验与z的先验要靠近。&lt;/p&gt;
+&lt;p&gt;$&amp;lt;\^θ,\^ϕ&amp;gt;$ = arg min KL( q_ϕ(z|x) || P_θ(z|x) ) &lt;br&gt;
+= arg max ELBO ，等价于最大化似然P(x|z)的下界 &lt;br&gt;
+= arg max E_qᵩ(z|x) [ log (P_θ (z,x)/qᵩ(z|x)) ] ，以 z 的后验加权 &lt;br&gt;
+= arg max E_qᵩ(z|x) [ log P_θ (z,x) - log qᵩ(z|x)) ] &lt;br&gt;
+= arg max E_qᵩ(z|x) [ log P_θ(z,x) ] - E_qᵩ(z|x) [ log q(z|x) ] ，第2项是 q(z|x) 的熵 &lt;br&gt;
+= arg max E_qᵩ(z|x) [ log P_θ(z,x) ] + H[qᵩ(z|x)] ，log里面的联合概率拆开 &lt;br&gt;
+= arg max E_qᵩ(z|x) [ log P_θ(x|z) ] + E_qᵩ(z|x) [ log P(z) ] + H[qᵩ] ，P(z) 是先验分布不带参数&lt;br&gt;
+= arg max E_qᵩ(z|x) [ log P_θ(x|z) ] + E_qᵩ(z|x) [ log P(z)-log q(z|x)] &lt;br&gt;
+= arg max E_qᵩ(z|x) [ log (P_θ(x|z) ] + E_qᵩ(z|x) [ log (P(z) / q(z|x))] &lt;br&gt;
+= arg max E_qᵩ(z|x) [ log P_θ(x|z) ] + ∫_z qᵩ(z|x)⋅log ( P(z) / q(z|x)) dz &lt;br&gt;
+= arg max E_qᵩ(z|x) [ log P_θ(x|z) ] - KL( qᵩ(z|x) || P(z) )&lt;/p&gt;
+&lt;p&gt;目标函数是一个期望减 KL 散度，期望要最大，而KL散度要最小。&lt;/p&gt;
+&lt;p&gt;变分推断用梯度上升求最大化问题，首先求目标函数对 θ,ϕ 的梯度，然后更新&lt;/p&gt;
+&lt;p&gt;采用 SGVI / SGVB / SVI / Armotized Inference （重参数化技巧+神经网络）求后验，解决 Inference 问题。&lt;/p&gt;
+&lt;p&gt;SGVI 假设 z|x 服从高斯分布 z|x～N(μ_ϕ(x),Σ_ϕ(x))，并且与随机高斯噪声 ε～N(0,I) 之间有函数关系 z= μ_ϕ(x) + Σ_ϕ¹ᐟ²(x)⋅ε，协方差矩阵的指数是½，因为 Σ 里面是σ²。&lt;/p&gt;
+&lt;div class=&#34;mermaid&#34;&gt;flowchart LR
+x(&#34;Input x&#34;) --&gt; net(&#34;NN-ϕ&#34;) --&gt; a(&#34;μ(x)&#34;) --&gt; o((&#34;+&#34;)) --&gt; z(&#34;latent z&#34;)
+net --&gt; b(&#34;Σ(x)&#34;) --&gt; m((&#34;×&#34;)) --&gt; o
+ε --&gt; m
+&lt;/div&gt;
+
+&lt;p&gt;对于目标函数中的 E_qᵩ(z|x) [ log P_θ(x|z) ]，中括号里面是给定 z 生成 x，而期望的权重 q(z|x) 是给定 x 时，z 的后验概率。
+整个训练过程就是，先给了样本 x 得到了后验 q_ϕ(z|x)，从中采样得一个 z⁽ⁱ⁾，然后用它算似然 logP(x|z⁽ⁱ⁾)，是一个环路。
+所以在训练过程中，log 里的 z 不是先验 P(z)，而是后验 P(z|x)。
+在训练好之后，得到了θ，生成样本时，就直接从 P(z) 中采样，再代入 P_θ(x|z) 得到 x。&lt;/p&gt;
+&lt;div class=&#34;mermaid&#34;&gt;flowchart LR
+x --&gt; Decoder --&gt; z --&gt; Encoder --&gt; x&#39;
+&lt;/div&gt;
+
+&lt;p&gt;目标函数后面的 KL 散度相当于 正则化项。在训练时，要让 q_ϕ(z|x) 尽量与先验 P(z) 靠近，避免坍缩到一个点上，否则第 1 项似然的期望很可能就过拟合了。
+或者说让 q_ϕ 的熵 H[q_ϕ] 倾向于大。
+熵意味着信息量，信息量大意味着有广泛的可能性，分布更平均，高斯分布越扁方差越大熵越大，钟形曲线越瘦高，说明只在期望那一个点上可能性最大，基本上是确定的，熵就很小，&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zichen34.github.io/writenotes/model/vae/c-sum-vae/&#34; &gt;sumNote&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 01 | Frequentist vs Bayesian</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/01_%E9%A2%91%E7%8E%87%E6%B4%BE-%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%B4%BE/</link>
+        <pubDate>Fri, 16 Dec 2022 13:02:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/01_%E9%A2%91%E7%8E%87%E6%B4%BE-%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%B4%BE/</guid>
+        <description>&lt;h3 id=&#34;先验概率&#34;&gt;先验概率&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;标签的直观分布&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;后验概率：&lt;/strong&gt; 在某一事件先成立的条件下，标签的分布。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;假设已知玩不玩英雄联盟这件事情 (𝐘) 上的概率分布（&lt;strong&gt;先验&lt;/strong&gt;）为：&lt;/p&gt;
+&lt;p&gt;P(Y=玩)=0.6；P(Y=不玩)=0.4&lt;/p&gt;
+&lt;p&gt;另外，已知性别 (𝐗) 分布（&lt;strong&gt;似然&lt;/strong&gt;/类条件概率）：玩LOL人群中:80%是男生,20%女生；不玩LOL的人中有:20%男生,80%女生，也就是：&lt;/p&gt;
+&lt;p&gt;P(X=男性|Y=玩lol)=0.8，P(X=小姐姐|Y=玩lol)=0.2 &lt;br&gt;
+P(X=男性|Y=不玩lol)=0.2，P(X=小姐姐|Y=不玩lol)=0.8&lt;/p&gt;
+&lt;p&gt;求：一个男生他玩LOL的概率（&lt;strong&gt;后验&lt;/strong&gt;，它是在先观察到性别X事件发生后得到的）&lt;/p&gt;
+&lt;p&gt;根据贝叶斯定理 P(Y|X)=(P(X|Y)⋅P(Y))/P(X),
+P(Y=玩 | X=男性) = P(X=男性|Y=玩)⋅P(Y=玩) / (P(X=男性|Y=玩)⋅P(Y=玩) + P(X=男性|Y=不玩)⋅P(Y=不玩))&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;知乎用户V6oo4r 的评论：
+先验概率是以全事件为背景下，A事件发生的概率: P(A|Ω). &lt;br&gt;
+后验概率是以新事件B为背景下，A事件发生的概率: P(A|B).&lt;/p&gt;
+&lt;p&gt;全事件一般是统计获得的，所以成为先验概率，没有做实验前的概率。&lt;br&gt;
+新事件一般是实验，如试验B，此时的事件背景从全事件变成了B，该事件B可能对A的概率有影响，那么需要对A现在的概率进行一个修正，从P(A|Ω) 变成了 P(A|B)，所以成 P(A|B) 为后验概率，也就是试验（事件B发生）之后的概率。
+P(A|B)= P(B|A)⋅P(A|Ω)/P(B|Ω)&lt;/p&gt;
+&lt;p&gt;例子来源：&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/26464206&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;如何理解先验概率与后验概率-昌硕-知乎专栏&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1cW411C7RS&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;机器学习-白板推导系列(一)-开篇&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;频率派&#34;&gt;频率派&lt;/h1&gt;
+&lt;p&gt;参数θ可能不仅是一个，也可能是一组数&lt;/p&gt;
+&lt;h1 id=&#34;贝叶斯派&#34;&gt;贝叶斯派&lt;/h1&gt;
+&lt;p&gt;参数 θ 是随机变量，服从一种概率分布（先验分布）&lt;/p&gt;
+&lt;p&gt;贝叶斯定理把参数的先验分布和后验分布通过似然值联系起来，参数的后验分布= 似然x先验分布/在参数空间对样本数据积分。&lt;/p&gt;
+&lt;p&gt;参数估计的方法：MAP 最大后验估计&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 10 | EM Algorithm</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/10-em%E7%AE%97%E6%B3%95/</link>
+        <pubDate>Fri, 16 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/10-em%E7%AE%97%E6%B3%95/</guid>
+        <description>&lt;h2 id=&#34;1-算法收敛性证明&#34;&gt;1. 算法收敛性证明&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1qW411k7ao?p=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P1&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;EM &amp;ldquo;期望最大&amp;rdquo; 用于解决具有隐变量的混合模型的参数估计，解决极大似然问题。
+对于简单模型的参数估计问题，解析解可以直接求导得到，得不到解析解的用梯度下降或EM求数值解。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;X: random variable, observed data X={x₁,x₂,..xₙ} 各样本独立同分布iid&lt;/li&gt;
+&lt;li&gt;θ: all parameters&lt;/li&gt;
+&lt;li&gt;log P(X|θ): log-likelihood, 对数似然&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;用极大似然估计：
+θ_MLE = arg max_θ P(X|θ) ➔ arg max log P(X|θ)&lt;/p&gt;
+&lt;p&gt;对于含有隐变量的混合模型，直接求解析解非常困难，比如在 GMM （高斯混合模型）中，就很难写&lt;/p&gt;
+&lt;h3 id=&#34;em迭代公式&#34;&gt;EM迭代公式&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Z: Latent variable 隐变量也是随机变量，不同值有不同的出现概率&lt;/li&gt;
+&lt;li&gt;(X,Z): Complete data 完整数据&lt;/li&gt;
+&lt;li&gt;θ⁽ᵗ⁺¹⁾: t+1 时刻的参数&lt;/li&gt;
+&lt;li&gt;P(Z|X,θ): Z出现的后验概率&lt;/li&gt;
+&lt;li&gt;P(X,Z): X 和 Z 同时发生的联合概率。&lt;/li&gt;
+&lt;li&gt;log P(X,Z|θ): 对数联合概率，对数完全数据&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;θ⁽ᵗ⁺¹⁾ = arg max_θ ∫_Z log P(X,Z | θ) ⋅ P(Z|X,θ⁽ᵗ⁾) dZ，（很像最大似然估计 log P(X|θ)，只是这里的数据除了X还有隐变量Z，不用梯度下降而用迭代更新参数）&lt;/p&gt;
+&lt;p&gt;可以看作是按照 Z 的后验分布 (Z|X,θ⁽ᵗ⁾) 求对数联合概率的期望 （&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/%E6%9C%9F%E6%9C%9B%E5%80%BC&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;期望的定义-wiki&lt;/a&gt;）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;第一步 Expectation：求对数完全数据 log P(X,Z|θ) 以后验 P(Z|X,θ⁽ᵗ⁾) 为概率密度函数的期望:&lt;br&gt;
+$E_{Z|X,θ⁽ᵗ⁾}[log P(X,Z|θ)]$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;第二步 Maximization：找到期望最大时对应的参数作为下一时刻的参数: &lt;br&gt;
+$\rm θ⁽ᵗ⁺¹⁾ = arg\ max_θ E_{P(Z|X,θ⁽ᵗ⁾)} [log P(X,Z|θ)]$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;收敛性证明&#34;&gt;收敛性证明&lt;/h3&gt;
+&lt;p&gt;（非严格）只证明一步，从 θ⁽ᵗ⁾ ➔ θ⁽ᵗ⁺¹⁾，似然会增大：log P(X|θ⁽ᵗ⁾) ≤ log P(X|θ⁽ᵗ⁺¹⁾)，事件 X 在新一时刻的参数 θ⁽ᵗ⁺¹⁾ 所代表的概率模型下，发生的可能性变大了，不断迭代最后可取得最大 log-likelihood 对应的参数。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;完全数据的似然：P(X,Z|θ) = P(Z|X,θ) P(X|θ)，θ是起始值可以任意取&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;取对数：log P(X|θ) = log P(X,Z|θ) - log P(Z|X,θ)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;两边关于 Z 的后验分布求积分（求对数似然的期望）：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;左边：&lt;br&gt;
+∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(X|θ) dZ &lt;br&gt;
+= log P(X|θ) ∫z P(Z|X,θ⁽ᵗ⁾) dZ （似然与Z无关提到积分外面）&lt;br&gt;
+= log P(X|θ) （对Z的概率积分为1）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;右边：&lt;br&gt;
+∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(X,Z|θ) dz - ∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(Z|X,θ) dz &lt;br&gt;
+= Q(θ, θ⁽ᵗ⁾) - H(θ,θ⁽ᵗ⁾)，分别分析两项&lt;/p&gt;
+&lt;p&gt;Q 存在于EM迭代公式中，根据EM 的定义：θ⁽ᵗ⁺¹⁾ 对应最大的Q，所以：
+Q(θ⁽ᵗ⁺¹⁾, θ⁽ᵗ⁾) ≥ Q(θ, θ⁽ᵗ⁾) 是成立的。
+上式的θ是初始值，若令θ = θ⁽ᵗ⁾，则 Q(θ⁽ᵗ⁺¹⁾, θ⁽ᵗ⁾) ≥ Q(θ⁽ᵗ⁾, θ⁽ᵗ⁾) 得证&lt;/p&gt;
+&lt;p&gt;因为 H 前面有个负号，所以要证 H(θ⁽ᵗ⁺¹⁾, θ⁽ᵗ⁾) ≤ H(θ⁽ᵗ⁾, θ⁽ᵗ⁾)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;后 - 前时刻的 H：&lt;br&gt;
+H(θ⁽ᵗ⁺¹⁾, θ⁽ᵗ⁾) - H(θ⁽ᵗ⁾, θ⁽ᵗ⁾)  &lt;br&gt;
+= ∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(Z|X,&lt;strong&gt;θ⁽ᵗ⁺¹⁾&lt;/strong&gt;) dz -
+∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(Z|X,&lt;strong&gt;θ⁽ᵗ⁾&lt;/strong&gt;) dz  &lt;br&gt;
+= ∫z P(Z|X,θ⁽ᵗ⁾)⋅log (P(Z|X,θ⁽ᵗ⁺¹⁾ / P(Z|X,θ⁽ᵗ⁾)) dz （合并） &lt;br&gt;
+= - KL( P(Z|X,θ⁽ᵗ⁾) || P(Z|X,θ⁽ᵗ⁺¹⁾)) （相对熵≥0） &lt;br&gt;
+≤ 0&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;(另一种证法) 用Jensen不等式，而不使用相对熵。&lt;/p&gt;
+&lt;p&gt;因为log是 concave （凹）函数：在曲线上任意取两个点，连成的直线小于log函数。concave函数的性质：a,b两点之间的一点c（两端点的线性组合）对应到直线函数上的值一定小于对应到log函数上的值&lt;/p&gt;
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/10_concave%E5%87%BD%E6%95%B0.png width=&gt;
+    
+    
+  
+
+&lt;p&gt;上面的合并为 1个log 之后的式子，可以看作是先求Z的后验的对数，再求&amp;quot;对数值&amp;quot;的期望，一定小于先求（自变量&amp;quot;Z的后验&amp;quot;的）期望再求对数：（E[log x] ≤ log E[x]）&lt;/p&gt;
+&lt;p&gt;∫z P(Z|X,θ⁽ᵗ⁾)⋅log (P(Z|X,θ⁽ᵗ⁺¹⁾ / P(Z|X,θ⁽ᵗ⁾)) dz  &lt;br&gt;
+≤ log ∫z P(Z|X,θ⁽ᵗ⁾)⋅(P(Z|X,θ⁽ᵗ⁺¹⁾ / P(Z|X,θ⁽ᵗ⁾)))  &lt;br&gt;
+= log ∫z (P(Z|X,θ⁽ᵗ⁺¹⁾) dz = log 1 = 0&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2-迭代公式的导出&#34;&gt;2. 迭代公式的导出&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1qW411k7ao?p=2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P2&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;EM 迭代公式来自于将对数似然 logP(X|θ) 分解为 ELBO + KL散度。&lt;/p&gt;
+&lt;p&gt;引入变量Z，则 P(X) 就变成了联合概率：P(X,Z|θ) = P(Z|X,θ)⋅P(X|θ)，
+所以对数似然就变为：&lt;/p&gt;
+&lt;p&gt;logP(X|θ) = log P(X,Z|θ) - log P(Z|X,θ)&lt;/p&gt;
+&lt;p&gt;引入 Z 的概率分布 q(Z): &lt;br&gt;
+logP(X|θ) = log P(X,Z|θ) - log q(Z) - log P(Z|X,θ) + log q(Z)   &lt;br&gt;
+= log (P(X,Z|θ) / q(Z)) - log (P(Z|X,θ) / q(Z))，q(Z)≠0&lt;/p&gt;
+&lt;p&gt;技巧：对等式两边，按照分布 q(Z) 求似然的&lt;strong&gt;期望（积分）&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;左边：&lt;br&gt;
+∫z q(Z)⋅log P(X|θ) dZ = log P(X|θ)⋅∫z q(Z) dZ = log P(X|θ)，q(Z)是概率密度函数积分为1，因此左边求完期望无变化，所以求似然 logP(X|θ) 就变成了求q(Z)。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;右边：&lt;br&gt;
+∫z q(Z)⋅log (P(X,Z|θ)/q(Z)) dz - ∫z q(Z)⋅log (P(Z|X,θ)/q(Z)) dz  &lt;br&gt;
+= ELBO + KL(q(Z) || P(Z|X,θ)) &lt;br&gt;
+其中第1项：Evidence Lower Bound (ELBO,下界)，第2项是Z的概率密度函数q(Z)与Z的后验概率P(Z|X,θ)的相对熵。&lt;/p&gt;
+&lt;p&gt;因为 &lt;strong&gt;KL散度恒≥0&lt;/strong&gt;，所以样本似然 log P(X|θ) ≥ ELBO。只有当 Z 的概率分布 q(Z) 与 Z 的后验分布 P(Z|X,θ) 相等时，KL散度等于0，似然=ELBO。&lt;/p&gt;
+&lt;p&gt;ELBO 是 log (P(Z,X|θ)/q(Z)) 按照 q(Z) 求期望（加权和;求积分）。当对数似然=ELBO，即达到最大时，q(Z)=P(Z|X,θ⁽ᵗ⁾)，也就是先用上一时刻的θ⁽ᵗ⁾ 求出q(Z)，然后ELBO里就只有log里的θ是变量，滑动调整θ使ELBO最大，取对应的θ作为θ⁽ᵗ⁺¹⁾。&lt;/p&gt;
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/10_EM%E8%BF%AD%E4%BB%A3.png width=&gt;
+    
+    
+  
+
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;EM 想让 ELBO 达到最大，先（通过KL散度=0）找到样本对数似然 log P(X|θ) &lt;del&gt;的最大值对应的参数θ，作为新的θ，然后再算它对应的期望并得到ELBO，&lt;/del&gt; 取到最大值时的形式，即 ELBO，
+然后取ELBO最大时对应的参数θ；
+不断提高下界从而让对数似然 log P(X|θ) 也逐渐变大，最终ELBO等于logP(X|θ)，KL散度=0，Z的概率分布与它的后验分布相等，
+最优θ^ 是 ELBO 取最大时的θ&lt;/p&gt;
+&lt;p&gt;θ^ = arg max_θ ELBO &lt;br&gt;
+= arg max_θ ∫z q(Z) ⋅ log (P(X,Z|θ) / q(Z)) dz  ，&lt;strong&gt;代换q(Z)&lt;/strong&gt;&lt;br&gt;
+= arg max_θ ∫_Z P(Z|X,θ⁽ᵗ⁾) ⋅ log (P(X,Z|θ) / P(Z|X,θ⁽ᵗ⁾)) dZ&lt;/p&gt;
+&lt;p&gt;这个式子与 EM 的迭代公式相比，log 里多了一个分母：P(Z|X,θ⁽ᵗ⁾)，展开log：&lt;/p&gt;
+&lt;p&gt;θ^ = arg max_θ ∫_Z P(Z|X,θ⁽ᵗ⁾) ⋅ [log P(X,Z|θ) - log P(Z|X,θ⁽ᵗ⁾)] dZ &lt;br&gt;
+= arg max_θ ∫_Z P(Z|X,θ⁽ᵗ⁾) ⋅ log P(X,Z|θ) dZ - P(Z|X,θ⁽ᵗ⁾) ⋅ log P(Z|X,θ⁽ᵗ⁾)] dZ&lt;/p&gt;
+&lt;p&gt;其中第2项与θ无关，因为 θ⁽ᵗ⁾ 是上一时刻的参数，是个常数，不是变量，而 log 中的 θ 是变量，会变到ELBO 取最大时对应的参数。所以就得到了迭代公式：&lt;/p&gt;
+&lt;p&gt;θ^ = arg max_θ ∫_Z P(Z|X,θ⁽ᵗ⁾) ⋅ log P(X,Z|θ) dz&lt;/p&gt;
+&lt;h2 id=&#34;3-公式导出之elbojensens-inequality&#34;&gt;3. 公式导出之ELBO+Jensen&amp;rsquo;s Inequality&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1qW411k7ao?p=3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P3&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;EM 迭代公式也可来自于将对数似然 logP(X|θ)分解为 ELBO + Jensen&amp;rsquo;s Inequality&lt;/p&gt;
+&lt;p&gt;Jensen&amp;rsquo;s Inequality 结论：对于一个凹concave 函数 f(x)，在定义域x上取两点：a,b 连线小于a,b之间的函数值。
+任意在 a,b 之间取一点 c = t⋅a+(1-t)b, where t∈[0,1]，f(c)=f(t⋅a+(1-t)b) ≥ t⋅f(a) + (1-t)f(b)。&lt;br&gt;
+比如当 t=½ 时，f(a/2+b/2) ≥ f(a)/2 + f(b)/2，两边都是期望（平均数,加权和），简记为:先求期望再求函数值 大于等于 先求函数值再求期望，f(E) ≥ E[f]。当 f(x) 是常函数时，等号成立。&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/10_Jensen%27s_inequality.png width=&gt;
+  
+  
+
+
+&lt;p&gt;log P(X|θ) = log ∫zP(X,Z|θ) dz，在似然中引入隐变量 Z，然后求X的边缘概率，即对Z求积分（“把最终结果中不需要的事件合并成其事件的全概率而消失” &lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/%E6%9D%A1%E4%BB%B6%E6%A6%82%E7%8E%87&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;marginal probability-wiki&lt;/a&gt;）&lt;br&gt;
+= log ∫z ( P(X,Z|θ) / q(Z)) * q(Z) dz，引入 Z 的分布 q(Z) &lt;br&gt;
+= log E_q(z) [P(X,Z|θ)/q(Z)]，把积分看作求期望 &lt;br&gt;
+≥ E_q(z) [ log(P(X,Z|θ)/q(Z)) ]，Jensen不等式等号在 P(X,Z|θ) / q(Z)=C 成立, log C 是常函数&lt;/p&gt;
+&lt;p&gt;这个期望 E_q(z) [ log(P(X,Z|θ)/q(Z)) ] 就是对数似然的下界，就是ELBO。&lt;/p&gt;
+&lt;p&gt;q(Z) = P(X,Z|θ) / C &lt;br&gt;
+∫z q(Z) dZ = 1 = ∫z P(X,Z|θ) / C dZ = 1/C ∫z P(X,Z|θ) dZ = 1/C P(X|θ) （求边缘概率）&lt;br&gt;
+C = P(X|θ) &lt;br&gt;
+把 C 代换：q(Z) = P(X,Z|θ) / P(X|θ) = P(Z|X,θ)&lt;/p&gt;
+&lt;p&gt;所以当 Jensen 不等式取等号时，Z的分布 q(Z) 就是 Z 的后验分布P(Z|X,θ)。&lt;/p&gt;
+&lt;p&gt;所以 EM 第一步先按照上一时刻的参数 θ⁽ᵗ⁾ 和数据 X 求出 Z 的后验分布 P(Z|X,θ⁽ᵗ⁾)，
+再将对数似然 log(P(X,Z|θ)/P(Z|X,θ⁽ᵗ⁾)) 按照 Z 的后验分布求期望，得到对数似然的下界ELBO，
+这个下界是关于 θ 的函数: ∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(X,Z|θ) dZ，所以可找到这个下界最大时对应的θ，作为θ⁽ᵗ⁺¹⁾。不断迭代提高下界（期望），从而提高对数似然&lt;/p&gt;
+&lt;h2 id=&#34;4-再回首&#34;&gt;4. 再回首&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1qW411k7ao?p=4&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P4&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;EM 是解决优化问题的迭代算法（和梯度下降是一个level），而HMM，GMM 是模型&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;从之前狭义的（理想的）EM 推广到广义的（一般的）EM&lt;/li&gt;
+&lt;li&gt;狭义的EM 是广义EM 的一个特例&lt;/li&gt;
+&lt;li&gt;EM 的变种&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;EM 主要用于概率生成模型，数据（随机变量）包括观测数据 X 及其对应的隐变量 Z，所以(X,Z) 叫做完全数据complete data，θ 是概率模型的参数。Z 是建模时引入的，&lt;strong&gt;Z生成了X&lt;/strong&gt;，我们只能观测到X。
+比如GMM 中，假设 z 是一个离散的分布，比如 K 个类别 z=1,2,&amp;hellip;,K，每个类别都有一定的概率：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;隐变量 z&lt;/th&gt;
+&lt;th&gt;1&lt;/th&gt;
+&lt;th&gt;2&lt;/th&gt;
+&lt;th&gt;&amp;hellip;&lt;/th&gt;
+&lt;th&gt;K&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;概率密度&lt;/td&gt;
+&lt;td&gt;p₁&lt;/td&gt;
+&lt;td&gt;p₂&lt;/td&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;pₖ&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;然后在 z 给定的情况下，x 满足高斯分布：P(x|z) ~ Gaussian，因此对完整数据 P(X,Z) 建模&lt;/p&gt;
+&lt;p&gt;还有 HMM 也可以从生成的角度来解释。比如 N 个隐变量: z₁, z₂, &amp;hellip;, zₙ 是马尔科夫链的结构:&lt;/p&gt;
+&lt;p&gt;$$
+s1 ➔ s2 ➔ &amp;hellip; ➔ sₙ \\
+↧   \quad\  ↧ \quad &amp;hellip; \quad ↧ \\
+x1  \quad x2 \quad &amp;hellip; \quad xₙ
+$$&lt;/p&gt;
+&lt;p&gt;可以把 z₁, z₂, &amp;hellip;, zₙ 看成是统一的变量 Z，把 x₁, x₂, &amp;hellip;, xₙ 看成是一个X&lt;/p&gt;
+&lt;p&gt;观测到了 X，假设它的概率模型的参数是θ，就可以用 EM 来估计参数 θ。&lt;/p&gt;
+&lt;p&gt;使用MLE 来估计参数：θ^ = arg max P(X|θ) = arg max ∏ᵢ₌₀ᶰP(xᵢ|θ) ➔
+arg max log P(X|θ)&lt;/p&gt;
+&lt;p&gt;不能直接求解这个最大化问题的原因是，不知道P(X)，因为样本X是非常复杂的，所以“会引入自己的归纳偏置，假定它是服从某个模型的。”&lt;/p&gt;
+&lt;p&gt;生成模型就是假设每个样本 x⁽ⁱ⁾ 都有一个隐变量 z⁽ⁱ⁾，x⁽ⁱ⁾ 是由 z⁽ⁱ⁾ 生成的，所以P(X) 就变成了联合分布 P(X,Z)（即把X分解处理），然后把 Z 积分掉就可以了: P(X) = ∫z P(X,Z) dZ&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zichen34.github.io/writenotes/model/vae/c-sum-vae/&#34; &gt;note-苏剑林-VAE&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;5-广义em&#34;&gt;5. 广义EM&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1qW411k7ao?p=5&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P5&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;EM 用于解决参数估计问题，优化函数使用 MLE ，找到让对数似然 log P(X|θ) 达到最大的参数 θ。
+样本X 的分布 P(X) 未知，所以假设每个 x 是由隐变量 z 生成的。比如 GMM 假设 z 服从离散的概率分布，HMM 假设 z 满足马尔科夫链。然后 P(X) 就等于联合概率分布P(X,Z) 比上Z的后验分布P(Z|X)，也就是未知X分布经过生成模型的假设，把问题具体化了。&lt;/p&gt;
+&lt;p&gt;因为 P(X|θ) = P(Z,X|θ) / P(Z|X,θ)，所以（复杂的未知的）对数似然目标函数可分解为: 下界ELBO+Z的分布q(Z)与Z的后验分布P(Z|X,θ)的KL散度:
+log P(X|θ) = ELBO + KL(q||P)&lt;/p&gt;
+&lt;p&gt;ELBO 是一个期望，它和q(Z) 和 θ 有关，所以将其记为 L(q,θ); KL&amp;gt;=0, 当q=P时，KL=0，所以：log P(X|θ) ≥ L(q,θ)，而且最优参数 θ^ 是在 q^= P(Z|X,θ) 时取到。&lt;/p&gt;
+&lt;p&gt;但是 q^ 并不一定能取到 P(Z|X,θ)，因为这个后验可能是 intractable，是算不出来的。这由生成模型的复杂度决定，
+如果生成模型比较简单，比如GMM的 z 和 HMM 的 z，他们是离散的，结构化的，是tractable，是可以（用EM）计算出来的&lt;/p&gt;
+&lt;p&gt;但是对于绝大多数的 z 是无法求出他的后验 P(z|x)。比如 VAE 的 z 是高维的，无法把它从 P(x,z) 中积掉，就得不到 P(x)，也就无法（用贝叶斯公式）得到后验 P(z|x)，所以最优的 q^(Z) 取不到，所以就需要变分（近似）推断：重参数化技巧+神经网络梯度下降用 q_ϕ(z|x) 逼近 P_θ(z|x)。&lt;/p&gt;
+&lt;h3 id=&#34;数学表达&#34;&gt;数学表达：&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;当 &lt;strong&gt;θ 固定&lt;/strong&gt; 的时候，对数似然 log P(X|θ) 就是固定的，然后当 q(Z) 越接近 Z 的后验分布 P(Z|X,θ)，KL散度就越小，同时 ELBO 就越大。所以求最优的分布 q(Z) 就变成一个优化问题：
+q^(Z) = arg min_q KL(q(Z) || P(Z|X,θ)) = arg max_q L(q,θ)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;当 &lt;strong&gt;q^固定&lt;/strong&gt; 的时候，再做极大似然找 θ，也就是做“狭义”的EM，最优的 θ^= arg maxᶱ L(q^, θ)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;广义EM（两个最大化问题）:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;E-step: q⁽ᵗ⁺¹⁾ = arg max_q L(q,θ⁽ᵗ⁾)，固定θ求最优的q^&lt;/li&gt;
+&lt;li&gt;M-step: θ⁽ᵗ⁺¹⁾ = arg maxᶱ L(q⁽ᵗ⁺¹⁾, θ)，固定q^求最优的θ&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;对 ELBO 做变形（展开log）：&lt;/p&gt;
+&lt;p&gt;L(q,θ) = E_q(z) [log (P(Z,X|θ)/q(Z))] = E_q(z) [ log P(Z,X|θ) - log q(Z) ]&lt;br&gt;
+= E_q(z) [log P(Z,X|θ)] - E_q(z) [log q(Z)]  &lt;br&gt;
+= E_q(z) [log P(Z,X|θ)] + H[q(Z)]&lt;/p&gt;
+&lt;p&gt;其中第2项 H[q(Z)] 是分布 q(Z) 的熵: ∫ q(Z)⋅log (1/q(z)) dz ，
+所以 ELBO = 完全数据似然按照 q(Z) 求期望+ q(Z) 的熵&lt;/p&gt;
+&lt;p&gt;之前的EM 是广义EM 的一个特殊情况。对于 E-step, 狭义EM 默认 q 直接就取到了后验 P(Z|X,θ⁽ᵗ⁾)，因为假定了后验能够求出。对于 M-step, 狭义EM 认为 q^ 已经找到了，那么广义EM 的M-step 中的熵就是确定值，要优化的只有似然。&lt;/p&gt;
+&lt;h2 id=&#34;6-em-的变种&#34;&gt;6. EM 的变种&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1qW411k7ao?p=6&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P6&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;（标准的，一般指的）广义的EM：对似然下界(ELBO联合概率按照z的后验求期望) L(q,θ) 求两次最大化，先固定θ⁽ᵗ⁾求q⁽ᵗ⁺¹⁾，然后固定q⁽ᵗ⁺¹⁾ 求 θ⁽ᵗ⁺¹⁾&lt;/p&gt;
+&lt;p&gt;因为两步都是求 Maximum，所以 EM 也称 MM (Maximation Maximation)&lt;/p&gt;
+&lt;p&gt;对于两个参数，先固定一个求另一个，再反过来，这种算法是坐标上升法，比如SMO。如果参数是多维的，固定其中某一个/两个，然后去求其他的。求参数的顺序没关系。&lt;/p&gt;
+&lt;p&gt;坐标上升法 与 梯度上升法并列&lt;/p&gt;
+&lt;p&gt;损失函数的等高线如下图，梯度上升法的参数路径是沿着梯度的，而坐标上升法类似曼哈顿距离，&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/10_%E5%9D%90%E6%A0%87%E4%B8%8A%E5%8D%87%E6%B3%95.png width=&gt;
+  
+  
+
+
+&lt;p&gt;如果 E-step 中最优的 q^(Z)，也就是Z 的后验P(Z|X,θ) 无法求得，就可以用变分推断求近似最优，比如基于平均场理论的变分法近似后验分布，再做 M-step，称这个组合为VBEM 变分贝叶斯EM。
+如果用蒙特卡罗采样去求近似后验分布，叫作MCEM，蒙特卡罗EM。&lt;/p&gt;
+&lt;p&gt;VI（变分推断） 和 VB （变分贝叶斯）指的是同一个东西&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 04 | Linear Classification</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/04_%E7%BA%BF%E6%80%A7%E5%88%86%E7%B1%BB/</link>
+        <pubDate>Fri, 24 Dec 2021 13:58:00 -0500</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/04_%E7%BA%BF%E6%80%A7%E5%88%86%E7%B1%BB/</guid>
+        <description>&lt;h2 id=&#34;3-线性判别分析-fisher判别分析---模型定义&#34;&gt;3 线性判别分析 (Fisher判别分析) - 模型定义&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=15&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Source Video-P3&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Data:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\text{Samples:}\ &amp;amp;
+\mathbf X = (\mathbf x_1, \mathbf x_2, \cdots, \mathbf x_N)^T_{N\times p} =
+\begin{pmatrix}
+\mathbf x_1^T \ \mathbf x_2^T \ \vdots \ \mathbf x_N^T
+\end{pmatrix}_{N \times p} \\&lt;/p&gt;
+&lt;p&gt;\text{Samples:} \ &amp;amp;
+\mathbf Y =
+\begin{pmatrix}
+y_1 \ y_2 \ \vdots \ y_N
+\end{pmatrix}_{N \times 1} \\&lt;/p&gt;
+&lt;p&gt;\text{Abbreviations:}\ &amp;amp;
+\left{ (\mathbf x_i, y_i) \right}_{i=1}^N, \ \mathbf x_i \in \R^p, \ \underset{(\text{2class: } C_1,C_2)}{y_i \in {+1, -1}}\\&lt;/p&gt;
+&lt;p&gt;\text{2 Group:}\ &amp;amp;\mathbf x_{C_1} = { \mathbf x_i | y_i=+1}
+; \quad \mathbf x_{C_2} = { \mathbf x_i | y_i=-1} \\&lt;/p&gt;
+&lt;p&gt;\text{Number:}\ &amp;amp; |\mathbf x_{C_1}| = N_1, \ |\mathbf x_{C_2}|=N_2, \ N_1 + N_2 = N
+\end{aligned}
+$$&lt;/p&gt;
+&lt;h3 id=&#34;fisher&#34;&gt;Fisher&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;类内小，类间大&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;把p维降到1维，投影到某一个轴上再做分类。&lt;br&gt;
+在投影方向($\mathbf w$)上，类内点的坐标方差足够小，类间距离要大&lt;br&gt;
+投影方向就是分类超平面（$\mathbf w^T \mathbf x$）的法向量。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;记号&lt;/p&gt;
+&lt;p&gt;限定 $| \mathbf w | =1$&lt;/p&gt;
+&lt;p&gt;样本点$\mathbf x_i$ 在投影轴$\mathbf w$上的投影长度: $z_i = \mathbf w^T \mathbf x_i$&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}&lt;/p&gt;
+&lt;p&gt;均值: \overline{z} =&amp;amp; \frac{1}{N} \sum_{i=1}^N z_i = \frac{1}{N} \sum_{i=1}^N \mathbf w^T \mathbf x_i  \&lt;/p&gt;
+&lt;p&gt;协方差矩阵: S_{z} =&amp;amp; \frac{1}{N} \sum_{i=1}^N (z-\overline z)(z-\overline z)^T \&lt;/p&gt;
+&lt;p&gt;=&amp;amp; \frac{1}{N} \sum_{i=1}^N (\mathbf w^T \mathbf x_i-\overline z)(\mathbf w^T \mathbf x_i-\overline z)^T \&lt;/p&gt;
+&lt;p&gt;类C_1:\  \overline{z_1} =&amp;amp; \frac{1}{N_1} \sum_{i=1}^{N_1} \mathbf w^T \mathbf x_i \&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  S_{z_1} =&amp;amp;\frac{1}{N_1} \sum_{i=1}^{N_1} (\mathbf w^T \mathbf x_i-\overline{z_1})(\mathbf w^T \mathbf x_i-\overline{z_1})^T \\
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;类C_2:\  \overline{z_2} =&amp;amp; \frac{1}{N_2} \sum_{i=1}^{N_1} \mathbf w^T \mathbf x_i \&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  S_{z_2} =&amp;amp; \frac{1}{N_2} \sum_{i=1}^{N_2} (\mathbf w^T \mathbf x_i-\overline{z_2})(\mathbf w^T \mathbf x_i-\overline{z_2})^T \\
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;类内距离: &amp;amp; S_{z_1} + S_{z_2} \
+类间距离: &amp;amp; (\overline{z_1} - \overline{z_2})^2 \&lt;/p&gt;
+&lt;p&gt;目标函数: &amp;amp; J(\mathbf w) = \frac{(\overline{z_1} - \overline{z_2})^2}{S_{z_1} + S_{z_2}} \&lt;/p&gt;
+&lt;p&gt;分子：&amp;amp; \left[ \frac{1}{N_1} \sum_{i=1}^{N_1} \mathbf w^T \mathbf x_i-\frac{1}{N_2} \sum_{i=1}^{N_1} \mathbf w^T \mathbf x_i \right]^2 \&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  =&amp;amp; \left[ \mathbf w^T \left( \frac{1}{N_1} \sum_{i=1}^{N_1}\mathbf x_i-\frac{1}{N_2} \sum_{i=1}^{N_1} \mathbf x_i \right) \right]^2\\
+
+  =&amp;amp; \left[ \mathbf w^T (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}}) \right]^2\\
+  =&amp;amp; \mathbf w^T (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}}) (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}})^T \mathbf w^T \\ 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;S_{z_1}=&amp;amp; \frac{1}{N_1} \sum_{i=1}^{N_1} (\mathbf w^T \mathbf x_i   - \frac{1}{N_1} \sum_{j=1}^{N_1} \mathbf w^T \mathbf x_j)(\mathbf w^T \mathbf x_i - \frac{1}{N_1} \sum_{j=1}^{N_1} \mathbf w^T \mathbf x_j)^T \&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  =&amp;amp; \frac{1}{N_1}\sum_{i=1}^{N_1} \mathbf w^T (\mathbf x_i - \overline{\mathbf x_{C_1}}) (\mathbf x_i - \overline{\mathbf x_{C_1}})^T \mathbf w\\
+
+  =&amp;amp; \mathbf w^T \left[ \frac{1}{N}\sum_{i=1}^{N_1}  (\mathbf x_i - \overline{\mathbf x_{C_1}}) (\mathbf x_i - \overline{\mathbf x_{C_1}})^T \right] \mathbf w \\
+
+  =&amp;amp; \mathbf w^T S_{C_1} \mathbf w \\
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;分母：&amp;amp; \mathbf w^T S_{C_1} \mathbf w + \mathbf w^T S_{C_2} \mathbf w\
+=&amp;amp; \mathbf w^T (S_{C_1} + S_{C_2}) \mathbf w \&lt;/p&gt;
+&lt;p&gt;J(\mathbf w) =&amp;amp;
+\frac{\mathbf w^T (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}}) (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}})^T \mathbf w^T} {\mathbf w^T (S_{C_1} + S_{C_2}) \mathbf w} \
+=&amp;amp; \frac{\mathbf w^T S_b \mathbf w}{\mathbf w^T S_{w} \mathbf w} \quad \text{($S_b$: 类间方差; $S_w$: 类内方差)} \
+=&amp;amp; \mathbf w^T S_b \mathbf w \cdot (\mathbf w^T S_{w} \mathbf w)^{-1}&lt;/p&gt;
+&lt;p&gt;\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;求: $\hat{\mathbf w} = \underset{\mathbf w}{\operatorname{arg\ max}}\ J(\mathbf w)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;4-线性判别分析-fisher判别分析---模型求解&#34;&gt;4 线性判别分析 (Fisher判别分析) - 模型求解&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=16&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Video-P4&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\frac{\partial J(\mathbf w)}{\partial \mathbf w}
+&amp;amp;= 0 \&lt;/p&gt;
+&lt;p&gt;2 S_b \mathbf w (\mathbf w^T S_w \mathbf w)^{-1}
+- \mathbf w^T S_b \mathbf w (\mathbf w^T S_w \mathbf w)^{-2} \cdot 2S_w \mathbf w
+&amp;amp;= 0  \&lt;/p&gt;
+&lt;p&gt;S_b \mathbf w (\mathbf w^T S_w \mathbf w)
+- \mathbf w^T S_b \mathbf w S_w \mathbf w
+&amp;amp;= 0  \&lt;/p&gt;
+&lt;p&gt;\underbrace{\mathbf w^T}&lt;em&gt;{1\times p}
+\underset{\in \R}
+{\underbrace{S_b}&lt;/em&gt;{p\times p}
+\underbrace{\mathbf w}&lt;em&gt;{p\times 1}}
+S_w \mathbf w
+&amp;amp;= S_b \mathbf w
+\underset{\in \R}
+{(\underbrace{\mathbf w^T}&lt;/em&gt;{1\times p}
+\underbrace{S_w}&lt;em&gt;{p\times p}
+\underbrace{\mathbf w}&lt;/em&gt;{p\times 1})} \&lt;/p&gt;
+&lt;p&gt;S_w \mathbf w
+&amp;amp;= \frac{\mathbf w^T S_w \mathbf w}{\mathbf w^T S_b \mathbf w}
+S_b \mathbf w \&lt;/p&gt;
+&lt;p&gt;\mathbf w
+&amp;amp;= \frac{\mathbf w^T S_w \mathbf w}{\mathbf w^T S_b \mathbf w}
+S_w^{-1} \cdot S_b \cdot \mathbf w \&lt;/p&gt;
+&lt;p&gt;只关心方向：\mathbf w
+&amp;amp; \propto S_w^{-1} \cdot S_b \cdot \mathbf w \&lt;/p&gt;
+&lt;p&gt;\mathbf w
+&amp;amp; \propto S_w^{-1} \cdot
+(\overline{\mathbf x_{C_1}} - \overline{\mathbf x_{C_2}})
+\underbrace{
+(\overline{\mathbf x_{C_1}} - \overline{\mathbf x_{C_2}})^T
+\mathbf w }_{1\times 1 \in \R} \&lt;/p&gt;
+&lt;p&gt;\mathbf w
+&amp;amp; \propto S_w^{-1} \cdot (\overline{\mathbf x_{C_1}} - \overline{\mathbf x_{C_2}})&lt;/p&gt;
+&lt;p&gt;\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;如果$S_w^-1$ 是对角矩阵，而且是各向同性，则 $S_w^{-1} \propto 单位矩阵I$，所以 $\mathbf w \propto (\overline{\mathbf x_{C_1}} - \overline{\mathbf x_{C_2}})$&lt;/p&gt;
+&lt;h2 id=&#34;5-逻辑回归-logistic-regression&#34;&gt;5 逻辑回归 (Logistic Regression)&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=17&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Video-P5&lt;/a&gt;&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E7%BA%BF%E6%80%A7%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95%E6%A0%91.png width=&gt;
+  
+  
+
+
+&lt;p&gt;硬输出：0 和 1；或者 +-1&lt;/p&gt;
+&lt;p&gt;软输出：概率&lt;/p&gt;
+&lt;h2 id=&#34;9-朴素贝叶斯分类器-naive-bayes-classifer&#34;&gt;9 朴素贝叶斯分类器 (Naive Bayes Classifer)&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=21&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Video-P9&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;核心思想：朴素贝叶斯假设，又叫条件独立性假设，最简单的概率有向图模型&lt;/p&gt;
+&lt;p&gt;在给定类别的情况下，属性（维度）之间是相互独立的&lt;/p&gt;
+&lt;p&gt;随机变量 $y$ 是随机变量，对应 p 维自变量&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E6%9D%A1%E4%BB%B6%E7%8B%AC%E7%AB%8B%E6%80%A7%E5%81%87%E8%AE%BE.png width=&gt;
+  
+  
+
+
+&lt;p&gt;从概率图角度来看，在给定 y 的情况下，从 $x_1$ 到 $x_2$ 的路径被 y 阻断了，所以 $x_1$ 和 $x_2$ 独立。&lt;/p&gt;
+&lt;p&gt;概率表达式：&lt;/p&gt;
+&lt;p&gt;$$
+P(\mathbf x | y) = \prod_{j=1}^p P(x_i | y)
+$$&lt;/p&gt;
+&lt;p&gt;假设的动机：为了简化运算，
+对于 $\mathbf x = (x_1, x_2, \cdots x_p)^T$，忽略了 $x_i$ 与 $x_j$ 之间的关系，如果p非常大，导致计算困难。&lt;/p&gt;
+&lt;p&gt;$$
+P(y|x) = \frac{P(x,y)}{P(x)} = \frac{P(y)\cdot P(x|y)}{P(x)} \propto P(y) \cdot P(x | y)
+$$&lt;/p&gt;
+&lt;p&gt;分类数据：${(x_i, y_i)}_{i=1}^N, \ x_i \in \R^p, \ y_i \in {0,1}$，对于一个给定的 x，对它分类：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\hat y =&amp;amp; \underset{y}{\operatorname{arg\ max}}\ \underset{后验}{\underline{P{(y|x)}}} \&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;=&amp;amp; \underset{y}{\operatorname{arg\ max}}\ \frac{P(x,y)}{P(x)}\\
+
+=&amp;amp; \underset{y}{\operatorname{arg\ max}}\ P(y) \cdot P(x|y)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;\end{aligned}
+$$&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 03 | Linear Regression</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/03-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/</link>
+        <pubDate>Tue, 21 Dec 2021 23:02:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/03-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92/</guid>
+        <description>&lt;h2 id=&#34;1-最小二乘法及其几何意义&#34;&gt;1. 最小二乘法及其几何意义&lt;/h2&gt;
+&lt;p&gt;Source video: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1hW41167iL?p=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P1&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;2-最小二乘法-概率视角-高斯噪声-mle&#34;&gt;2. 最小二乘法-概率视角-高斯噪声-MLE&lt;/h2&gt;
+&lt;h2 id=&#34;3-正则化-岭回归&#34;&gt;3. 正则化-岭回归&lt;/h2&gt;
+&lt;h2 id=&#34;4-正则化-岭回归-概率角度-高斯噪声高斯先验-map&#34;&gt;4. 正则化-岭回归-概率角度-高斯噪声高斯先验-MAP&lt;/h2&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 05 | Dimensionality Reduction</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/05_%E9%99%8D%E7%BB%B4/</link>
+        <pubDate>Thu, 16 Dec 2021 13:33:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/05_%E9%99%8D%E7%BB%B4/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=22&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;1-背景&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;抑制过拟合&#34;&gt;抑制过拟合&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;增加样本数据&lt;/li&gt;
+&lt;li&gt;正则化：增加约束限制参数空间&lt;/li&gt;
+&lt;li&gt;降维&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;维度灾难&#34;&gt;维度灾难&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;数学角度：&lt;/strong&gt;
+比如每增加一个二值属性，要想完全cover样本空间，所需样本数会以2的指数增长&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;几何意义：&lt;/strong&gt;
+在高维空间中，立方体的内切球的体积趋近于零，也就是说把立方体的四个角削掉，只剩下内切球，基本就一点不剩了&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/392491647&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;知乎:机器学习中的维度灾难&lt;/a&gt;&lt;/sup&gt;，四个角所占比例不高，却拥有几乎全部的体积。
+所以如果在高维空间中取一超立方体，其中存在样本的概率很低，因为样本只存在于四个角中，这就是数据的稀疏性，并且分布不均匀。很难做分类。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;维度&lt;/th&gt;
+&lt;th&gt;超立方体体积&lt;/th&gt;
+&lt;th&gt;超内切球体积&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;π (0.5)²&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;4/3 π (0.5)³&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;D&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;K(0.5)ᴰ; 当 D→∞, V(超球体)→0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;几何意义2:&lt;/strong&gt;
+两个同心圆的半径相差 $\varepsilon \ (0&amp;lt;\varepsilon&amp;lt;1)$，内圆的半径为 $1-\varepsilon$，外超球体的体积为：$V_外=K \cdot 1^D = K$；环形带的体积：$V_{环形带} = V_外-V_内 = K - K(1-\varepsilon)^D$。&lt;br&gt;
+两体积之比：$\frac{V_环}{V_外} = \frac{K- K(1-\varepsilon)^D}{K} = 1-(1-\varepsilon)^D$。
+不论$\varepsilon$取多小，当维度趋于无穷，$\underset{D\rightarrow \infin}{lim} (1-\varepsilon)^D = 0$，也就是比值为1，环形带(壳)体积等于外球的体积
+球内的样本只存在与球壳上&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;维度灾难会导致过拟合&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;需要降维&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;降维&#34;&gt;降维&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;避免过拟合，减小泛化误差&lt;/li&gt;
+&lt;li&gt;
+&lt;ol&gt;
+&lt;li&gt;直接降维/特征选择: 只保留重要的维度; LASSO带来系数的系数性，使某些属性对应的系数等于0。&lt;/li&gt;
+&lt;li&gt;线性降维: PCA, MDS&lt;/li&gt;
+&lt;li&gt;非线性降维: 流形（ISOmap, LLE）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=23&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;2-样本均值&amp;amp;样本方差矩阵&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Data:&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf X_{p\times 1} = (\mathbf x_1, \mathbf x_2, \cdots, \mathbf x_N)^T_{N\times p} =
+\begin{pmatrix}
+\mathbf x_1^T \ \mathbf x_2^T \ \vdots \ \mathbf x_N^T
+\end{pmatrix}_{N \times p},\quad&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;\mathbf x_i \in \R^p,\ i=1, 2, \cdots, N
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;$$&lt;/p&gt;
+&lt;p&gt;Sample Mean:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\bar{\mathbf X} &amp;amp;= \frac{1}{N} \sum_{i=1}^N \mathbf x_i \
+&amp;amp; = \frac{1}{N} (\mathbf x_1, \mathbf x_2,\cdots, \mathbf x_N)
+\begin{pmatrix}
+1 \ 1 \ \vdots \ 1
+\end{pmatrix}_{N\times 1} \
+&amp;amp; = \frac{1}{N} \ \mathbf X^T \ \mathbf 1_N&lt;/p&gt;
+&lt;p&gt;\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;Sample Covariance:&lt;/p&gt;
+&lt;p&gt;$$
+S = \frac{1}{N} \sum_{i=1}^N (\mathbf x_i - \bar{\mathbf X})^2 \quad (一维样本)
+$$&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+S_{p\times p} &amp;amp;= \frac{1}{N} \sum_{i=1}^N (\mathbf x_i - \bar{\mathbf X})
+(\mathbf x_i - \bar{\mathbf X})^T \quad (p维样本) \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \frac{1}{N} (\mathbf x_1 - \bar{\mathbf X} \quad \mathbf x_2 - \bar{\mathbf X}\ \cdots \ \mathbf x_N - \bar{\mathbf X})
+\begin{pmatrix}
+(\mathbf x_1 - \bar{\mathbf X})^T \ (\mathbf x_2 - \bar{\mathbf X})^T \ \vdots \ (\mathbf x_N - \bar{\mathbf X})^T
+\end{pmatrix} \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \frac{1}{N} \left[(\mathbf x_1 \ \mathbf x_2 \cdots \mathbf x_N) - \mathbf{\bar{X}} \ (1 \ 1 \cdots 1)\right] (\mathbf x_i - \bar{\mathbf X})^T \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \frac{1}{N} [ \ \mathbf X^T_{p\times N} - \frac{1}{N} \mathbf{X}^T \mathbf 1_N \ \mathbf 1_N^T \ ]\ (\mathbf x_i - \bar{\mathbf X})^T \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \frac{1}{N} [ \ \mathbf X^T (I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T) ]\ (\mathbf x_i - \bar{\mathbf X})^T \quad \text{($I_N$是NxN方阵)} \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \frac{1}{N} [ \ \mathbf X^T \underline{(I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T)} ] \cdot
+[ \underline{(I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T)^T} \mathbf X] \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \frac{1}{N} \mathbf X^T H \cdot H^T \mathbf X \
+&amp;amp; = \frac{1}{N} \mathbf X^T H \mathbf X&lt;/p&gt;
+&lt;p&gt;\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;H 是中心矩阵，把数据的均值移动到原点(中心化).&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+H   &amp;amp;= (\mathbf I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T) \
+H^T &amp;amp;= (\mathbf I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T) =H &amp;amp; (对称性)\
+H^2 &amp;amp;= H \cdot H  &amp;amp; (幂等性)\
+&amp;amp;= (I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T)
+(I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T) \
+&amp;amp;= I_N - \frac{2}{N} \mathbf 1_N \mathbf 1_N^T + \frac{1}{N^2}  1_N \mathbf 1_N^T  1_N \mathbf 1_N^T  \&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;amp;= I_N - \frac{2}{N}
+    \begin{pmatrix}
+    1 &amp;amp; 1 &amp;amp; \cdots &amp;amp; 1 \\
+    \vdots &amp;amp; \vdots &amp;amp; \vdots &amp;amp; \vdots \\
+    1 &amp;amp; 1 &amp;amp; \cdots &amp;amp; 1 \\
+    \end{pmatrix}
+    +
+    \frac{1}{N^2}
+    \begin{pmatrix}
+    N &amp;amp; N &amp;amp; \cdots &amp;amp; N \\
+    \vdots &amp;amp; \vdots &amp;amp; \vdots &amp;amp; \vdots \\
+    N &amp;amp; N &amp;amp; \cdots &amp;amp; N \\
+    \end{pmatrix} \\
+
+&amp;amp;= I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T \\
+&amp;amp;= H \\
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;H^n &amp;amp;= H
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=24&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;3 PCA-最大投影方差&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;经典pca&#34;&gt;经典PCA&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;一个中心，两个基本点&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;核心：将一组可能线性相关的变量，通过正交变换，变换成一组线性无关的变量/基/投影方向（对原始特征空间的重构）&lt;/p&gt;
+&lt;p&gt;基本点：最大投影方差；最小重构距离（两种角度,效果相同）&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;最大投影方差&#34;&gt;最大投影方差&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;最能体现原来样本的分布&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;Steps:
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;中心化：把样本均值移动到原点 ($\mathbf x_i - \bar{\mathbf X}$)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;样本点在 $\mathbf u_1$ 方向上的投影，也是在$\mathbf u_1$方向上的坐标：&lt;/p&gt;
+&lt;p&gt;$$
+(\mathbf x_i - \bar{\mathbf X})^T \mathbf u_1
+$$&lt;/p&gt;
+&lt;p&gt;其中 $| \mathbf u_1| = 1$ (或$\mathbf u_1^T \mathbf u_1 = 1$)，所以内积等于投影。
+两个向量的内积写成一个向量的转置乘以另一个向量，$\mathbf a_{p\times 1} \cdot \mathbf b_{p \times 1} = \mathbf a^T_{1\times p} \ \mathbf b_{p \times 1} = n_{1\times 1}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;投影方差：因为均值已经为0，投影直接平方&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+J &amp;amp;= \frac{1}{N} \sum_{i=1}^N \left( (\mathbf x_i - \bar{\mathbf X})^T \mathbf u_1 \right)^2 \&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \sum_{i=1}^N \ \frac{1}{N} \ \mathbf u_1^T (\mathbf x_i - \bar{\mathbf X})  \ (\mathbf x_i - \bar{\mathbf X})^T \mathbf u_1 \&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \mathbf u_1^T \left(\frac{1}{N} \ \sum_{i=1}^N (\mathbf x_i - \bar{\mathbf X})  \ (\mathbf x_i - \bar{\mathbf X})^T \right) \mathbf u_1 \&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \mathbf u_1^T \cdot S \cdot \mathbf u_1
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;找到使 J 最大的方向 $\mathbf u_1$&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+\hat \mathbf u_1 = \operatorname{arg\ max}\ \mathbf u_1^T \cdot S \cdot \mathbf u_1 \
+s.t. \quad \mathbf u_1^T \mathbf u_1 = 1
+\end{cases}
+$$&lt;/p&gt;
+&lt;p&gt;带约束的优化问题，用拉格朗日乘子法，写出拉格朗日函数：&lt;/p&gt;
+&lt;p&gt;$$
+L(\mathbf u_1, \lambda) = \mathbf u_1^T \cdot S \cdot \mathbf u_1 + \lambda (1 - \mathbf u_1^T \mathbf u_1)
+$$&lt;/p&gt;
+&lt;p&gt;求导：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\frac{\partial L}{\partial \mathbf u_1} = 2 S \cdot \mathbf u_1 &amp;amp;- \lambda \cdot  2 \mathbf u_1 = 0 \
+S \underbrace{\mathbf u_1}&lt;em&gt;{\text{Eigen vector}}  &amp;amp;= \underbrace{\lambda}&lt;/em&gt;{\text{Eigen value}} \mathbf u_1
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=25&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;4-PCA-最小重构代价&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;最小代价重构&#34;&gt;最小代价重构&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;从重构空间恢复到原始空间，代价最小&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;Steps:
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;向量$\mathbf x_i$在新的特征空间中的表示：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\mathbf x_i &amp;amp;= ((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_1)\cdot \mathbf u_1 +
+((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_2)\cdot \mathbf u_2 + \cdots +
+((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_p)\cdot \mathbf u_p \
+&amp;amp;= \sum_{k=1}^p ((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_k) \cdot \mathbf u_k
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;降维：根据特征值，取前q个最大的特征向量(方向)。&lt;/p&gt;
+&lt;p&gt;$$
+\hat{\mathbf x}&lt;em&gt;i =
+\sum&lt;/em&gt;{k=1}^q ((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_k) \cdot \mathbf u_k
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;重构代价: $| \mathbf x_i - \hat{\mathbf x}_i |^2$&lt;/p&gt;
+&lt;p&gt;N个样本的重构代价最小：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+J &amp;amp;= \frac{1}{N} \sum_{i=1}^N | \mathbf x_i - \hat{\mathbf x}&lt;em&gt;i |^2 \
+&amp;amp;= \frac{1}{N} \sum&lt;/em&gt;{i=1}^N | \sum_{k=q+1}^p ((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_k) \cdot \mathbf u_k |^2 \&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \frac{1}{N} \sum_{i=1}^n \sum_{k=q+1}^p  \left( (\mathbf x_i - \bar{\mathbf x})^t \mathbf u_k \right)^2 \quad \text{(向量的模等于坐标的平方和)} \&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \sum_{k=q+1}^p
+\underline{ \sum_{i=1}^n \frac{1}{N} \left( (\mathbf x_i - \bar{\mathbf X})^T \mathbf u_k \right)^2 } \&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \sum_{k=q+1}^p \mathbf u_k^T \cdot S \cdot \mathbf u_k
+\qquad\ \rm s.t.\ \mathbf u_k^T \mathbf u_k = 1 \&lt;/p&gt;
+&lt;p&gt;\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;最优化问题：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+\mathbf u_k = \operatorname{arg\ min} \sum_{k=q+1}^p \mathbf u_k^T \cdot S \cdot \mathbf u_k \
+s.t. \quad \mathbf u_k^T \mathbf u_k = 1
+\end{cases}
+$$&lt;/p&gt;
+&lt;p&gt;因为各特征向量互不相关，所以可以一个一个解，也就是求剩余的每个特征向量的最小重构代价对应的特征值$\lambda$&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+\operatorname{arg\ min} \mathbf u_{q+1} \cdot S \cdot \mathbf u_{q+1}\
+s.t. \quad \mathbf u_{q+1}^T \ \mathbf u_{q+1} = 1
+\end{cases}
+$$&lt;/p&gt;
+&lt;p&gt;$$
+J = \sum_{i=q+1}^p \lambda_i
+$$&lt;/p&gt;
+&lt;p&gt;当J最小时，对应的就是最小的几个特征值&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=26&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;5-SVD角度看PCA和PCoA&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;PCA 找最大的投影方向(特征向量)，就是主成分&lt;/p&gt;
+&lt;p&gt;求解主成分：对方差矩阵做特征值分解：$S = G K G^T$（因为S是对称矩阵，所以它的奇异值分解就是特征值分解），
+其中特征向量是正交的: $G^T G = I$；K是对角矩阵，元素都是特征值，其排列满足： $k_1 &amp;gt; k_2 &amp;gt; \cdots &amp;gt; k_p$。降到q维，就取前 q 个值，作为G的q个列向量。&lt;/p&gt;
+&lt;p&gt;$$
+K=
+\begin{pmatrix}
+k_1 &amp;amp;   0   &amp;amp;   0       &amp;amp; 0 \
+0   &amp;amp;   k_2 &amp;amp;   0       &amp;amp; 0 \
+0   &amp;amp;   0   &amp;amp;   \ddots  &amp;amp; 0 \
+0   &amp;amp;   0   &amp;amp;   0       &amp;amp; k_p
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;探索一下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;对中心化之后的原始数据做SVD奇异值分解：&lt;/p&gt;
+&lt;p&gt;$$
+H X = U \Sigma V^T \rightarrow SVD:
+\begin{cases}
+U^T U = I &amp;amp; \text{(列正交)} \
+V^T V = V V^T = I &amp;amp; \text{(正交)} \
+\Sigma &amp;amp; \text{(对角)}
+\end{cases}
+$$&lt;/p&gt;
+&lt;p&gt;然后代入协方差矩阵（推导省略常数$\frac{1}{N}$）：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+S_{p\times p} &amp;amp;= X^T H X \
+&amp;amp;= X^T H^T H X &amp;amp; \text{(等幂性)} \
+&amp;amp;= V \Sigma \underline{U^T \cdot U} \Sigma V^T \
+&amp;amp;= V \Sigma I \Sigma V^T &amp;amp; \text{(U列正交)}\
+&amp;amp;= V \Sigma^2 V^T   &amp;amp; \text{($\Sigma$对角阵)}
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;就相当于对 S 做了奇异值分解了，对应于上面 S 的特征值分解：&lt;/p&gt;
+&lt;p&gt;$$
+特征向量G = V, 特征值K = \Sigma^2
+$$&lt;/p&gt;
+&lt;p&gt;所以，不用直接对 S做特征值分解，直接对数据做完中心化之后，做奇异值分解，就可以得到特征向量V。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;定义一个矩阵 T（S反过来，对数据内积分解）:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+T_{N\times N} &amp;amp;= H X X^T H^T \
+&amp;amp;= U \Sigma V^T \cdot V \Sigma U^T \
+&amp;amp;= U \Sigma^2 U^T
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;T 和 S 有相同的特征值(eigen value): $\Sigma^2$。&lt;/p&gt;
+&lt;p&gt;PCA：先对 S 做特征值分解，找到了主成分（特征向量/投影方向）；然后样本点 $HX$ 乘以方向向量$V$（投影），得到各方向上的坐标。
+坐标矩阵：$HX \cdot V = U \Sigma \underline{V^T \cdot V} = U \Sigma$&lt;/p&gt;
+&lt;p&gt;而对T做特征分解，可以直接得到坐标，这叫主坐标分析（PCoA）&lt;/p&gt;
+&lt;p&gt;对T两边左乘$U\Sigma$（做一个缩放）：
+$$
+\begin{aligned}
+T &amp;amp;= U \Sigma^2 U^T \
+T U \Sigma &amp;amp;= U \Sigma^2 \underline{U^T U} \Sigma \
+&amp;amp;= U \Sigma^3 \
+T \underbrace{U \Sigma}&lt;em&gt;{特征向量} &amp;amp;= U \Sigma \underbrace{\Sigma^2}&lt;/em&gt;{特征值}
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;也就是说，对T做SVD奇异值分解后，直接得到的特征向量就是坐标。&lt;/p&gt;
+&lt;p&gt;如果数据的维度太高，$S_{p\times p}$ 不好计算，可以对$T_{N\times N}$分解。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;6-Probablistic PCA&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 07 | Kernel Method</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/07_%E6%A0%B8%E6%96%B9%E6%B3%95/</link>
+        <pubDate>Wed, 10 Nov 2021 13:36:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/07_%E6%A0%B8%E6%96%B9%E6%B3%95/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1aE411o7qd?p=36&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P1-背景介绍&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;kernel-method&#34;&gt;Kernel Method&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;把低维空间的非线性问题，转化到高维空间的线性问题求解&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;kernel-trick&#34;&gt;Kernel trick&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;使用核函数减少计算量，避免计算高维特征空间的内积（计算角度）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;kernel-function&#34;&gt;Kernel Function&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;把输入空间𝓧 映射（任意形式$ϕ(x)$）到高维特征空间𝓩&lt;/p&gt;
+&lt;p&gt;$$
+K(x,x&amp;rsquo;)=\phi(x)^T \phi(x&amp;rsquo;)
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;为什么是：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;非线性带来高维转换:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;线性分类最完美的情况:二分类问题严格线性可分，即存在一个或多个线性超平面可以把两类正确分开，不同的初值最终收敛的结果不同。对于非线性输入无法收敛。&lt;/p&gt;
+&lt;p&gt;对于不同的输入数据，采用不同的算法：&lt;/p&gt;
+&lt;table&gt;
+&lt;tr&gt;
+	&lt;td rowspan=&#34;2&#34; align=&#34;center&#34;&gt;线性可分&lt;/td&gt; 
+   &lt;td colspan=&#34;2&#34; align=&#34;center&#34;&gt;线性不可分&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+	&lt;td&gt;存在一点点非线性&lt;/td&gt;
+	&lt;td align=&#34;center&#34;&gt;严格非线性&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+	&lt;td&gt;PLA&lt;/td&gt;
+	&lt;td&gt;Pocket Algorithm&lt;/td&gt;
+	&lt;td&gt;多层感知机(隐藏层数≥1,逼近任一连续函数);&lt;br&gt;
+   非线性转换(Cover Therom: 高维比低维更易线性可分)
+   &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+   &lt;td&gt;Hard-margin SVM&lt;/td&gt;
+   &lt;td&gt;Soft-margin SVM&lt;/td&gt;
+   &lt;td&gt;Kernel SVM(先做非线性转换，再做SVM)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;对偶表示带来内积:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;SVM的思想是最大间隔分类，是一个（凸）优化问题。然后根据拉格朗日对偶性，转化为求解原问题的对偶问题:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{array}{c}
+\begin{array}{cc}
+原问题\
+\begin{cases}
+\underset{\mathbf w,b}{\operatorname{min}}\ \frac{1}{2} \mathbf w^T \mathbf w \
+s.t. \quad y_i(\mathbf w^T x_i + b) \geq 1
+\end{cases}
+\end{array}&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;\Longrightarrow
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;\begin{array}{cc}
+对偶问题\
+\begin{cases}
+\underset{\lambda}{\operatorname{min}}\
+\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N \lambda_i \lambda_j
+y_i y_j \mathbf x_i^T \mathbf x_j - \sum_{i=1}^N \lambda_i \
+s.t.
+\quad \lambda_i \geq 0, \quad \forall i=1,&amp;hellip;,N \
+\ \qquad \sum_{i=1}^N \lambda_i y_i =0
+\end{cases}
+\end{array}&lt;/p&gt;
+&lt;p&gt;\end{array}&lt;/p&gt;
+&lt;p&gt;$$&lt;/p&gt;
+&lt;p&gt;Dual Problem 包含内积: $\mathbf x_i^T \mathbf x_j$，即需要求解任意两个数据之间的内积&lt;/p&gt;
+&lt;p&gt;而对于非线性可分问题，做了非线性转换之后，内积变为：$\phi(x_i)^T \phi(x_j)$，但是对于高维空间的 $\phi(x)$，由于维度太高很难求。
+所以希望找到一个函数直接求内积: $K(\mathbf{x,x&amp;rsquo;})$，而避免求单个特征的 $\phi(x)$&lt;/p&gt;
+&lt;p&gt;数学表示：&lt;/p&gt;
+&lt;p&gt;$$
+\forall \mathbf{x,x&amp;rsquo;} \in \mathcal X,\quad \exist \phi: \mathcal X \rightarrow \mathcal Z
+s.t. \quad K(\mathbf{x,x&amp;rsquo;}) = \phi(\mathbf x)^T \phi(\mathbf x&amp;rsquo;) = &amp;lt;\phi(\mathbf x) \phi(\mathbf x&amp;rsquo;)&amp;gt;
+则称：K(\mathbf{x,x&amp;rsquo;}) 是一个核函数
+$$&lt;/p&gt;
+&lt;p&gt;将(输入空间的)样本代入核函数即可算出(高维空间的)内积，减少了计算量&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 06 | SVM</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/06_svm/</link>
+        <pubDate>Wed, 13 Oct 2021 18:59:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/06_svm/</guid>
+        <description>&lt;h3 id=&#34;svm&#34;&gt;SVM&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;SVM本质上是一个判别模型，解决二分类问题，与概率无关&lt;/li&gt;
+&lt;li&gt;超平面: 𝐰ᵀ𝐱+b=0 &lt;br&gt;
+分类模型：f(𝐰) = sign(𝐰ᵀ𝐱+b)&lt;/li&gt;
+&lt;li&gt;SVM有3宝，间隔对偶核技巧 &lt;br&gt;
+三大分类算法：
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#hard&#34;&gt;Hard-margin SVM （硬间隔）&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#soft&#34;&gt;Soft-margin SVM&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Kernel SVM&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;1-硬间隔svm-模型定义最大间隔分类器&#34;&gt;1 硬间隔SVM-模型定义（最大间隔分类器）&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1Hs411w7ci?p=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Video-P1&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;a-idhardhard-margin-svma&#34;&gt;&lt;a id=&#34;hard&#34;&gt;Hard-margin SVM&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;最大间隔分类器（max margin()）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;几何意义：对于平面上点的分类问题，
+如果分界线两侧的点到线的距离很小，会对噪声很敏感，如果有一点噪声可能就被分到另一侧去了，泛化误差大。所以最好的分界线满足对所有点的距离都足够大。&lt;/p&gt;
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/svm_%E6%B3%9B%E5%8C%96%E8%AF%AF%E5%B7%AE%E5%A4%A7.png width=&gt;
+    
+    
+  
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;从无限条可以正确分类的直线（超平面）中，选择最好的&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;数学表述：&lt;/p&gt;
+&lt;p&gt;使间隔margin函数最大，实现对N个p维的样本点 ${(x_i, y_i)}_{i=1}^{N}, \quad x_i \in \R^p, y\in{-1,1}$正确分类&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp; \rm max , margin(\mathbf w, b) \&lt;/p&gt;
+&lt;p&gt;&amp;amp; s.t.
+\begin{cases}
+\mathbf w^T x_i + b &amp;gt; 0, &amp;amp; y_i = 1 \
+\mathbf w^T x_i + b &amp;lt; 0, &amp;amp; y_i = -1
+\end{cases}&lt;/p&gt;
+&lt;p&gt;\Rightarrow
+y_i(\mathbf w^Tx_i +b )&amp;gt;0, &amp;amp; \text{for $\forall$ i=1,&amp;hellip;,N}（同号）
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;每个&lt;a class=&#34;link&#34; href=&#34;#%e7%82%b9%e5%88%b0%e8%b6%85%e5%b9%b3%e9%9d%a2%e8%b7%9d%e7%a6%bb&#34; &gt;点到直线的距离&lt;/a&gt;:
+$\rm distance(w,b,x_i) = \frac{1}{| w |} |w^T x_i +b|$&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\rm margin(\mathbf w,b)
+&amp;amp; = \rm \underset{\mathbf w,b,x_i,i=1,&amp;hellip;,N}{min}, distance(\mathbf w,b,x_i) \
+&amp;amp; = \rm \underset{\mathbf w,b,x_i,i=1,&amp;hellip;,N}{min}, \frac{1}{| \mathbf w |} |\mathbf w^T x_i +b|&lt;/p&gt;
+&lt;p&gt;\end{aligned}
+$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;因为限制条件 $y_i(\mathbf w^T x_i + b)&amp;gt;0$，而且$y_i={-1,1}$，所以可以替换上式中的绝对值。&lt;br&gt;
+所以最大间隔分类器可写为：&lt;/p&gt;
+&lt;p&gt;$$
+\rm \underset{\mathbf w,b}{max} \frac{1}{| \mathbf w|}; \underset{x_i, i=1,&amp;hellip;,N}{min} ; |\mathbf w^T x_i +b|
+$$&lt;/p&gt;
+&lt;p&gt;(因为min只与$x_i$有关，而$\frac{1}{| \mathbf w|}$与$x$无关，所以移到了前面)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于限制条件  $y_i(\mathbf w^T x_i + b)&amp;gt;0$，说明存在最小值：&lt;/p&gt;
+&lt;p&gt;$$
+\exist , r&amp;gt;0, \quad
+s.t.; \rm \underset{\mathbf w,b,x_i,i=1,&amp;hellip;,N}{min}, y_i (\mathbf w^T x_i +b) = r
+$$&lt;/p&gt;
+&lt;p&gt;所以可以继续简化：&lt;/p&gt;
+&lt;p&gt;$$
+\rm \underset{\mathbf w,b}{max} \frac{1}{| \mathbf w|} r
+$$&lt;/p&gt;
+&lt;p&gt;因为超平面可以同比例缩放（$\mathbf{w^T x} + b = 2\mathbf{w^T x} + 2b$），所以可以设置最小值r为1，相当于把超平面缩放到1，系数乘在前面的$\frac{1}{| \mathbf w|}$里&lt;/p&gt;
+&lt;p&gt;所以问题最终转化为一个凸优化问题：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+\rm \underset{w,b}{max} \frac{1}{| \mathbf w |} \
+s.t. ; \operatorname{min} y_i (\mathbf w^T x_i + b) = 1
+\end{cases}&lt;/p&gt;
+&lt;p&gt;\Rightarrow&lt;/p&gt;
+&lt;p&gt;\begin{cases}
+\rm \underset{w,b}{min} \frac{1}{2} \mathbf{w^T w} &amp;amp; \text{(目标函数是二次)}\
+s.t. ;  y_i (\mathbf w^T x_i + b) ≥ 1, ; i=1,&amp;hellip;,N &amp;amp; \text{(N个线性约束)}
+\end{cases}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;求解QP问题
+(凸二次规划&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Quadratic_programming&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Quadratic programming&lt;/a&gt;问题)&lt;/p&gt;
+&lt;p&gt;在维度不高，样本个数不多的情况下，比较好求解。
+但是对于维度很高，样本很多，或者对数据$x$做$\phi(x)$的特征转换到了新的特征空间$Z$中，而Z的维度比原数据的维度高很多，就没办法直接求解，计算量太大。
+借助拉格朗日乘子，引出它的对偶问题，求解相对容易的对偶问题。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;把目标函数写成拉格朗日函数 $L$，把带约束问题化成无约束问题：拉格朗日函数只有对 λ 的约束，没有对 $𝐰$ 和 $b$ 的约束&lt;/p&gt;
+&lt;p&gt;$$
+L(\mathbf w,b,λ)=
+\frac{1}{2}\mathbf{w^Tw} + \sum_{i=1}^{N} ;
+\underbrace{λ_i}&lt;em&gt;{≥0} ; \underbrace{(1-y_i(𝐰^T x_i + b))}&lt;/em&gt;{≤0}
+$$&lt;/p&gt;
+&lt;p&gt;问题转化为：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+\rm \underset{\mathbf w,b}{min}\ \underset{λ}{max}\ L(\mathbf w,b,λ)\
+s.t. ; λ_i ≥0
+\end{cases}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;原问题的&lt;strong&gt;对偶问题&lt;/strong&gt;：先对𝐰,b求L的最小值，再对 λ 求 L 的最大值&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+\rm \underset{λ}{max}\ \underset{\mathbf w,b}{min}\ L(\mathbf w,b,λ)\
+s.t. ; λ_i ≥0
+\end{cases}
+$$&lt;/p&gt;
+&lt;p&gt;从直观上看，从最大值里面选的最小值一定是大于从最小值里面的最大值（省略证明）,也就是&lt;strong&gt;弱对偶关系&lt;/strong&gt;：&lt;/p&gt;
+&lt;p&gt;$$
+\rm min, max, L ≥ max , min, L
+$$&lt;/p&gt;
+&lt;p&gt;我们还想要&lt;strong&gt;强对偶关系&lt;/strong&gt;，即 $\rm min, max, L = max , min, L$。对于凸二次优化问题，天生满足强对偶关系（证明略），原问题和它的对偶问题是同解的。所以直接求解对偶问题即可。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;先固定 $λ$，对 $𝐰,b$ 求L的最小值，在此对偶问题中没有对𝐰,b的约束条件，所以是一个无约束的优化问题，直接求导：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;先对b求导：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\frac{∂L}{∂b}
+&amp;amp;= \frac{∂}{∂b} \left[ \cancel{\sum_{i=1}^{N} λ_i}
+- \sum_{i=1}^{N} λ_i y_i(\cancel{\mathbf w^T x_i} + b)\right] \
+&amp;amp;= \frac{∂}{∂b} \left[ -\sum_{i=1}^{N} λ_i y_i b \right] \
+&amp;amp;= -\sum_{i=1}^{N} λ_i y_i =0
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;把这个结果带入$L$&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+L(\mathbf w,b,λ) &amp;amp;=
+\frac{1}{2}\mathbf{w^Tw} +
+\sum_{i=1}^{N} ; λ_i ; (1-y_i(\mathbf w^T x_i + b))\
+&amp;amp;=
+\frac{1}{2}\mathbf{w^Tw} +
+\sum_{i=1}^{N} \ λ_i - \sum_{i=1}^{N} ; λ_i y_i(\mathbf w^T x_i + b)\
+&amp;amp;=
+\frac{1}{2}\mathbf{w^Tw} +
+\sum_{i=1}^{N} \ λ_i - \sum_{i=1}^{N} ; λ_i y_i\mathbf w^T x_i&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;\cancel{\sum_{i=1}^{N} ; λ_i y_i b} \&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;再对$𝐰$求导，定义导数为等于0&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp; \frac{∂L}{∂𝐰} = \frac{1}{2} 2𝐰 - \sum_{i=1}^N λ_i y_i x_i ≔ 0 \
+&amp;amp; \Rightarrow 𝐰^* = \sum_{i=1}^{N} λ_i y_i x_i
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;把这个最优$𝐰^*$的表达式再带入$L$，就是L的最小值：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+L(\mathbf w,b,λ)
+&amp;amp; = \frac{1}{2}
+\underbrace{ \left(\sum_{i=1}^{N} λ_i y_i 𝐱_i \right)^T}&lt;em&gt;{\sum&lt;/em&gt;{i=1}^N λ_i y_i 𝐱_i^T }
+\sum_{j=1}^N λ_j y_j 𝐱_j&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;\sum_{i=1}^N \ λ_i y_i \left(\sum_{j=1}^{N} λ_j y_j 𝐱_j \right)^T 𝐱_i&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;\sum_{i=1}^N λ_i \
+&amp;amp; = \frac{1}{2}
+\sum_{i=1}^N \sum_{j=1}^N λ_i λ_j y_i y_j \underline{𝐱_i^T 𝐱_j}&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;\sum_{i=1}^N λ_i y_i \sum_{j=1}^N λ_j y_j \underline{𝐱_j^T 𝐱_i}&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;\sum_{i=1}^N λ_i \
+&amp;amp; = -\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N λ_i λ_j y_i y_j 𝐱_i^T 𝐱_j&lt;/li&gt;
+&lt;li&gt;\sum_{i=1}^N λ_i \
+\end{aligned}
+$$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;所以对偶问题又化为：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+\underset{λ}{\operatorname{min}} ;
+\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N λ_i λ_j y_i y_j 𝐱_i^T 𝐱_j&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;\sum_{i=1}^N λ_i \
+s.t. \ λ_i ≥0; \ \sum_{i=1}^N λ_i y_i =0
+\end{cases}
+$$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;固定 $\mathbf w,b$, 对于向量$λ$求$L$的最小值&lt;/p&gt;
+&lt;p&gt;此时拉格朗日函数只与 $\lambda$ 有关&lt;/p&gt;
+&lt;p&gt;求出 $\lambda$，根据 $\mathbf w = \sum_{i=1}^{m} \lambda_i y^{(i)} x^{(i)}$ 就可求出 $\mathbf w$，再根据 $b^* = -\frac{\rm max\ x_{i:y^{(i)}=-1} \mathbf w^{*T} x^{(i)} + min_{i:y^{(i)}} \mathbf w^{*T} x^{(i)}}{2}$，就可求出 $b$，最终得到分离超平面和分类决策函数。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;kkt条件&#34;&gt;KKT条件&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;原问题与对偶问题具有强对偶关系的充要条件就是满足KKT条件&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+\frac{∂L}{∂𝐰} =0,\frac{∂L}{∂b} =0,\frac{∂L}{∂λ} =0 &amp;amp;\text{拉格朗日函数对w，对b，对λ 求偏导都等于0}\
+λ_i (1-y_i(𝐰^T x_i + b)) = 0 &amp;amp; \text{松弛互补条件slackness complementary} \
+λ_i ≥ 0 \
+1-y_i(𝐰^T x_i + b)≤0
+\end{cases}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;由这些条件就可以求出最优解的$w^&lt;em&gt;$和$b^&lt;/em&gt;$&lt;/p&gt;
+&lt;p&gt;由 ∂L/∂𝐰 可求出𝐰∗=∑ᵢ₌₁ᴺ λᵢ yᵢ xᵢ&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;4-软间隔svm-模型定义&#34;&gt;4 软间隔SVM-模型定义&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1Hs411w7ci?p=4&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Video-P4&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;a-idsoftsoft-margin-svma&#34;&gt;&lt;a id=&#34;soft&#34;&gt;Soft-margin SVM&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;允许一点点错误 loss&lt;/p&gt;
+&lt;p&gt;$$
+min \frac{1}{2} w^T w + loss
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;loss函数:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;违反约束条件的点的个数：$loss = \sum_{i=1}^N I \left{ \underbrace{y_i (w^T x_i + b)&amp;lt;1}_{关于w不连续} \right}$ （I是指示函数）&lt;/p&gt;
+&lt;p&gt;不连续性：
+令$z=y(\mathbf w^T \mathbf x+b)$，则 $loss_{0/1} = \begin{cases} 0, &amp;amp;\text{z&amp;lt;1} \\ 0, &amp;amp;otherwise \end{cases}$&lt;/p&gt;
+&lt;p&gt;在z=1处有跳跃，不连续导致求导有问题。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;用距离&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;超平面&#34;&gt;超平面&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;能把 n 维欧式空间分成两部分的 n-1 维子空间。&lt;/p&gt;
+&lt;p&gt;n 维空间 $\R^n$ 的超平面是由方程：$𝐰^T 𝐱 + b = 0$ 定义的子集。（𝐰 和 𝐱 都是n维向量）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;法向量与超平面内任一向量垂直。假设在三维空间中，水平面内的一个向量 $𝐱-𝐱&amp;rsquo;$ 与法向量 $\mathbf w$ 垂直，如下图(源自&lt;a class=&#34;link&#34; href=&#34;https://www.jianshu.com/p/ba02b92baaaf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;如何理解超平面？&lt;/a&gt;)：&lt;/p&gt;
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E6%B3%95%E5%90%91%E9%87%8F%E4%B8%8E%E8%B6%85%E5%B9%B3%E9%9D%A2%E5%9E%82%E7%9B%B4.png width=&gt;
+    
+    
+  
+
+&lt;p&gt;满足：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+(𝐱-𝐱&amp;rsquo;)\mathbf w &amp;amp;= 0 \
+(x_1 - x_1&amp;rsquo;, x_2 - x_2&amp;rsquo;, x_3 - x_3&amp;rsquo;) \cdot (w_1, w_2, w_3) &amp;amp;= 0 \
+x_1 w_1 + x_2 w_2 + x_3 w_3 &amp;amp;= w_1 x_1&amp;rsquo; + w_2 x_2&amp;rsquo; + w_3 x_3&amp;rsquo; \
+\mathbf w^T \mathbf x &amp;amp;= \mathbf w^T \mathbf x&#39;
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;由于 $\mathbf w^T \mathbf x&amp;rsquo;$ 是常数项，$-\mathbf w^T \mathbf x&amp;rsquo; ≔ b$，
+所以超平面的公式可写为：&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf w^T \mathbf x + b = 0
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;点到超平面距离&#34;&gt;点到超平面距离&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;点到&lt;a class=&#34;link&#34; href=&#34;#%e8%b6%85%e5%b9%b3%e9%9d%a2&#34; &gt;超平面&lt;/a&gt;的&lt;a class=&#34;link&#34; href=&#34;#%e5%87%a0%e4%bd%95%e8%b7%9d%e7%a6%bb%e4%b8%8e%e5%87%bd%e6%95%b0%e8%b7%9d%e7%a6%bb&#34; &gt;函数距离&lt;/a&gt;，除以法向量的范数&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;求平面外一点 $\mathbf x$ 到平面的距离 d。&lt;/p&gt;
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E7%82%B9%E5%88%B0%E8%B6%85%E5%B9%B3%E9%9D%A2%E8%B7%9D%E7%A6%BB.png width=&gt;
+    
+    
+  
+
+&lt;p&gt;根据三角函数：$cos \theta = \frac{d}{| \mathbf x-\mathbf x&amp;rsquo; |}$ (空间中一点向超平面作垂线，$\theta$只能是锐角，不必担心正负)&lt;/p&gt;
+&lt;p&gt;$\mathbf x-\mathbf x&amp;rsquo;$ 与 $\mathbf w$ 的内积为：
+$|(\mathbf x-\mathbf x&amp;rsquo;) \cdot \mathbf w | = |\mathbf x-\mathbf x&amp;rsquo; | \cdot | \mathbf w | \cdot cos \theta$
+（因为法向量可能反向，所以给等式左边加上绝对值）&lt;/p&gt;
+&lt;p&gt;联立可得：&lt;/p&gt;
+&lt;p&gt;$$
+d = \dfrac{|(𝐱 - 𝐱&amp;rsquo;) 𝐰 |}{| 𝐰 |}
+= \dfrac{|𝐰𝐱 - 𝐰𝐱&amp;rsquo;|}{| 𝐰 |}
+$$&lt;/p&gt;
+&lt;p&gt;因为 $𝐱&amp;rsquo;$在超平面内，$𝐰𝐱&amp;rsquo; = -b$，于是最后得到的任意点到超平面的距离公式：&lt;/p&gt;
+&lt;p&gt;$$
+d = \frac{|𝐰𝐱+b|}{| 𝐰 |}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;几何距离与函数距离&#34;&gt;几何距离与函数距离&lt;/h3&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E5%87%A0%E4%BD%95%E8%B7%9D%E7%A6%BB%E4%B8%8E%E5%87%BD%E6%95%B0%E8%B7%9D%E7%A6%BB.png width=&gt;
+  
+  
+
+
+&lt;ul&gt;
+&lt;li&gt;几何距离：点到直线（超平面）距离&lt;/li&gt;
+&lt;li&gt;函数距离：$Δy$，直线（超平面）上的点y=0，所以不在直线上的点到直线的函数距离就是点的y值。&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: ML - 白板 00 | Learning Materials</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99/</link>
+        <pubDate>Thu, 10 Jun 2021 06:52:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99/</guid>
+        <description>&lt;h2 id=&#34;books&#34;&gt;Books&lt;/h2&gt;
+&lt;h3 id=&#34;频率派&#34;&gt;频率派&lt;/h3&gt;
+&lt;p&gt;统计机器学习&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;《&lt;strong&gt;统计学习方法&lt;/strong&gt;》李航&lt;/p&gt;
+&lt;p&gt;12章：1绪论，12总结，中间10个常用算法：感K朴决逻 支提E隐条&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;《&lt;strong&gt;机器学习&lt;/strong&gt;》“西瓜书” 周志华&lt;/p&gt;
+&lt;p&gt;很多学习方法，全面但不深入，基本推导和原理，&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;The Elements of Statistical Learning&lt;/strong&gt;（ESL）&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;贝叶斯派&#34;&gt;贝叶斯派&lt;/h3&gt;
+&lt;p&gt;概率图模型&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Pattern Recognition And Machine Learning&lt;/strong&gt; (PRML)&lt;/p&gt;
+&lt;p&gt;12章算法：回分神核析 图混近采连 顺组&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Machine Learning-A Probabilistic Perspective&lt;/strong&gt; (MLAPP)&lt;/p&gt;
+&lt;p&gt;百科全书，包罗万象&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;深度学习&#34;&gt;深度学习&lt;/h3&gt;
+&lt;p&gt;《DeepLearning》“圣经” 张志华译&lt;/p&gt;
+&lt;h2 id=&#34;videos&#34;&gt;Videos&lt;/h2&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/shuhuai007/Machine-Learning-Session&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;shuhuai007 github&lt;/a&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;《机器学习基石》——台大 林轩田&lt;/p&gt;
+&lt;p&gt;基本理论：VC Theroy，正则化，基础线性模型&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;《机器学习技法》——台大 林轩田&lt;/p&gt;
+&lt;p&gt;各种模型：SVM(好)，决策树，随机森林，神经网络，深度学习（前向网络）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;《机器学习导论》——张志华&lt;/p&gt;
+&lt;p&gt;频率派角度，推导较多&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;《统计机器学习》——张志华&lt;/p&gt;
+&lt;p&gt;一些统计理论，贝叶斯角度：如概率不等式，偏数学，推导较多&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;《斯坦福课堂 CS 229》——吴恩达&lt;/p&gt;
+&lt;p&gt;大量数学推导，好像有2017年的新版添加deepLearning内容&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;概率模型一系列视频——2015 徐亦达&lt;/p&gt;
+&lt;p&gt;深度较深，EM，MCMC，HMM，滤波算法。在github上有notes：概率模型，DeepLearning&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;《ML》(机器学习)——2017 台大 李宏毅&lt;/p&gt;
+&lt;p&gt;CNN，RNN，LSTM&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;《MLDS》——2018 台大 李宏毅&lt;/p&gt;
+&lt;p&gt;深度学习里的优化，正则化，实践方法，NLP模型&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;李宏毅2020机器学习深度学习（附完整课件和源码）[&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1Yf4y1B7Tr&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;b站&lt;/a&gt;]&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>images</title>
+        <link>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/watchvideos/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>

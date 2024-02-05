@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='相机旋转 (2022-05-22)
+坐标系旋转是 point 旋转的逆（点逆时针旋转θ 等效于坐标系顺时针旋转θ）
+点P在初始坐标系下的坐标为 Pₒ，在目标坐标系下的坐标为 Pₜ， 从 Pₒ 到 Pₜ 中间是 target 坐标系在 origin 坐标系下的表示（方向向量）[𝐫ₓ 𝐫ᵧ]ᵀ:
+$$ \begin{bmatrix} xₜ \\ yₜ \end{bmatrix} = \begin{matrix} rₓ: \\ r_y: \end{matrix} \begin{bmatrix} a₁ &amp;amp; b₁ \\ a₂ &amp;amp; b₂ \end{bmatrix} \begin{bmatrix} xₒ \\ yₒ \end{bmatrix} $$
+横着看：行向量 (a₁,b₁) 是 target 系的 x 轴在 origin 系下的方向向量， (a₂,b₂) 是 target 系的 y 轴在 origin 系下的方向向量。 例如，下图中 origin 系是 world，target 系是 camera:
+Original 坐标$[^x_y]$做线性组合，变换到了 Target 坐标系$[^{x_c}_{y_c}]$。 竖着看：列向量 (a₁,a₂) 是 origin 系的 x 轴在 target 系下的方向向量， (b₁,b₂) 是 origin 系的 y 轴在 target 系下的方向向量。'>
+<title>memo: Vis | Camera Matrices</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/vis/camera_matrices/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: Vis | Camera Matrices'>
+<meta property='og:description' content='相机旋转 (2022-05-22)
+坐标系旋转是 point 旋转的逆（点逆时针旋转θ 等效于坐标系顺时针旋转θ）
+点P在初始坐标系下的坐标为 Pₒ，在目标坐标系下的坐标为 Pₜ， 从 Pₒ 到 Pₜ 中间是 target 坐标系在 origin 坐标系下的表示（方向向量）[𝐫ₓ 𝐫ᵧ]ᵀ:
+$$ \begin{bmatrix} xₜ \\ yₜ \end{bmatrix} = \begin{matrix} rₓ: \\ r_y: \end{matrix} \begin{bmatrix} a₁ &amp;amp; b₁ \\ a₂ &amp;amp; b₂ \end{bmatrix} \begin{bmatrix} xₒ \\ yₒ \end{bmatrix} $$
+横着看：行向量 (a₁,b₁) 是 target 系的 x 轴在 origin 系下的方向向量， (a₂,b₂) 是 target 系的 y 轴在 origin 系下的方向向量。 例如，下图中 origin 系是 world，target 系是 camera:
+Original 坐标$[^x_y]$做线性组合，变换到了 Target 坐标系$[^{x_c}_{y_c}]$。 竖着看：列向量 (a₁,a₂) 是 origin 系的 x 轴在 target 系下的方向向量， (b₁,b₂) 是 origin 系的 y 轴在 target 系下的方向向量。'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/vis/camera_matrices/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-05-22T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-05-22T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: Vis | Camera Matrices">
+<meta name="twitter:description" content="相机旋转 (2022-05-22)
+坐标系旋转是 point 旋转的逆（点逆时针旋转θ 等效于坐标系顺时针旋转θ）
+点P在初始坐标系下的坐标为 Pₒ，在目标坐标系下的坐标为 Pₜ， 从 Pₒ 到 Pₜ 中间是 target 坐标系在 origin 坐标系下的表示（方向向量）[𝐫ₓ 𝐫ᵧ]ᵀ:
+$$ \begin{bmatrix} xₜ \\ yₜ \end{bmatrix} = \begin{matrix} rₓ: \\ r_y: \end{matrix} \begin{bmatrix} a₁ &amp;amp; b₁ \\ a₂ &amp;amp; b₂ \end{bmatrix} \begin{bmatrix} xₒ \\ yₒ \end{bmatrix} $$
+横着看：行向量 (a₁,b₁) 是 target 系的 x 轴在 origin 系下的方向向量， (a₂,b₂) 是 target 系的 y 轴在 origin 系下的方向向量。 例如，下图中 origin 系是 world，target 系是 camera:
+Original 坐标$[^x_y]$做线性组合，变换到了 Target 坐标系$[^{x_c}_{y_c}]$。 竖着看：列向量 (a₁,a₂) 是 origin 系的 x 轴在 target 系下的方向向量， (b₁,b₂) 是 origin 系的 y 轴在 target 系下的方向向量。">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/watchvideos/' >
+                
+                
+                
+                <span>WatchVideos</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#相机旋转">相机旋转</a></li>
+    <li><a href="#透视投影">透视投影</a></li>
+    <li><a href="#投影变换">投影变换</a></li>
+    <li><a href="#ndc-空间">NDC 空间</a></li>
+    <li><a href="#相机变换矩阵">相机变换矩阵</a></li>
+    <li><a href="#3个矩阵">3个矩阵</a></li>
+    <li><a href="#uvn-模型">UVN 模型</a></li>
+    <li><a href="#dtu-dataset">DTU dataset</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/vis/camera_matrices/">memo: Vis | Camera Matrices</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 22, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="相机旋转">相机旋转</h2>
+<p>(2022-05-22)</p>
+<p>坐标系旋转是 point 旋转的逆（点逆时针旋转θ 等效于坐标系顺时针旋转θ）</p>
+<p>点P在初始坐标系下的坐标为 Pₒ，在目标坐标系下的坐标为 Pₜ，
+从 Pₒ 到 Pₜ 中间是 <strong>target 坐标系在 origin 坐标系下的表示</strong>（方向向量）[𝐫ₓ 𝐫ᵧ]ᵀ:</p>
+<p>$$
+\begin{bmatrix}  xₜ \\ yₜ  \end{bmatrix} =
+\begin{matrix} rₓ: \\ r_y: \end{matrix}
+\begin{bmatrix} a₁ &amp; b₁ \\ a₂ &amp; b₂ \end{bmatrix}
+\begin{bmatrix}  xₒ \\ yₒ  \end{bmatrix}
+$$</p>
+<ul>
+<li>
+<p>横着看：行向量 (a₁,b₁) 是 target 系的 x 轴在 origin 系下的方向向量，
+(a₂,b₂) 是 target 系的 y 轴在 origin 系下的方向向量。
+例如，下图中 origin 系是 world，target 系是 camera:</p>
+<div align="center">
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/coordinate_transform_uofminnesota.png width=>
+  
+  
+
+</div>
+<ul>
+<li>Original 坐标$[^x_y]$做线性组合，变换到了 Target 坐标系$[^{x_c}_{y_c}]$。</li>
+</ul>
+</li>
+<li>
+<p>竖着看：列向量 (a₁,a₂) 是 origin 系的 x 轴在 target 系下的方向向量，
+(b₁,b₂) 是 origin 系的 y 轴在 target 系下的方向向量。</p>
+<div align="center">
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/coordinate_transform_uofminnesota_2.png width=>
+  
+  
+
+</div>
+</li>
+<li>
+<p>综上，旋转矩阵 R (in w2c) 横着看就是 camera (target) 系在 world 系下的表示，竖着看就是 world (original) 系在 camera 系下的表示。</p>
+<ul>
+<li>(2023-11-05) 所以通过转置就可以把 R in w2c 切换成 R in c2w。
+但是要把 w2c 变成 c2w，需要对 [R|t] 整体求逆。</li>
+</ul>
+</li>
+<li>
+<p>欧几里得变换 [R T]：旋转矩阵 R 加平移向量 T，把点在 origin 系的坐标变成在 target 系下的坐标，或者说把 origin 系变换成 target 系。</p>
+<p>For example, w2c as below.</p>
+<ol>
+<li>
+<p>先旋转后平移：点在 origin (world) 系下的坐标先经过 target (camera) 系在 origin 系下的方向向量 R 的线性组合，即
+<strong>投影</strong>（做内积）到了一个与 target 系坐标轴都平行的新坐标系（虚线）下，
+再加上一段平移向量 T，从而使新坐标是以 target 系的原点开始，所以 T 就是 origin 系的原点在 target 系视角下的坐标。</p>
+<div align="center">
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/coordinate_transform_euclidean.png width=>
+  
+  
+
+</div>
+<ul>
+<li>
+<p>This process is expressed by [R|t]. Conversely,
+[R|t] denotes rotation first then translation.</p>
+</li>
+<li>
+<p>(2024-01-09) 𝐭 is coordinate measured in the target space,
+because 𝐭 is simply <strong>added</strong> onto the target coordiantes without &ldquo;recombination&rdquo; of the elementary vectors in a basis.
+Therefore, 𝐭 is the original center seen from the target space.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>或者先平移后旋转：origin (world) 系下的坐标先减去 target (camera) 系原点在 origin 系下的坐标 C，
+变到了一个新坐标系下（其原点与 target 系原点重合），
+再旋转到与 target 系各轴重合；所以 C 就是 camera 光心在 world 系下的坐标。</p>
+<div align="center">
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/coordinate_transform_euclidean_2.png width=>
+  
+  
+
+</div>
+<ul>
+<li>In this case, R and T can&rsquo;t be written as an augmented matrix, but separate matrices.</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>If the given point&rsquo;s coords are world coords, then apply [R|t].
+While if point is already in camera space, only apply [R].</li>
+</ul>
+</li>
+<li>
+<p>可借助 vanishing points (待定系数)来求旋转矩阵（This point is at infinite but finite in image.）
+<a class="link" href="https://www-users.cse.umn.edu/~hspark/CSci5980/Lec2_ProjectionMatrix.pdf"  target="_blank" rel="noopener"
+    >Camera Projection Matrix-UofMinnesota</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="透视投影">透视投影</h2>
+<p>(2022-05-08)</p>
+<p>透视投影（内参矩阵K）把 camera space 下的坐标投影到焦平面上，X 除以 Z 乘以 f（即以 f/z 为系数对 x,y 做一个缩放）。
+如果焦距(焦平面距离) f 是常数，那就直接是与 z 成反比。</p>
+<ul>
+<li>(2024-01-31) 所以 &ldquo;z&rdquo; 代表的是 &ldquo;Zoom&rdquo; 缩放：近大远小.
+<a class="link" href="https://youtu.be/PGtv-dBi2wE?si=nPkrszDNt7-DCdQS&amp;t=16"  target="_blank" rel="noopener"
+    >Ray Marching for Dummies! - Ytb - The Art of Code</a></li>
+</ul>
+<p>（这里坐标都是绝对值，不考虑坐标系的选取）</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 264 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 40,64 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 176,64 L 184,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,32 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 80,96' fill='none' stroke='currentColor'></path>
+<path d='M 88,80 L 88,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 L 144,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,48 L 128,16' fill='none' stroke='currentColor'></path>
+<path d='M 88,72 L 88,80' fill='none' stroke='currentColor'></path>
+<polygon points='48.000000,64.000000 36.000000,58.400002 36.000000,69.599998' fill='currentColor' transform='rotate(180.000000, 40.000000, 64.000000)'></polygon>
+<polygon points='96.000000,96.000000 84.000000,90.400002 84.000000,101.599998' fill='currentColor' transform='rotate(90.000000, 88.000000, 96.000000)'></polygon>
+<polygon points='152.000000,16.000000 140.000000,10.400000 140.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 144.000000, 16.000000)'></polygon>
+<polygon points='192.000000,64.000000 180.000000,58.400002 180.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 184.000000, 64.000000)'></polygon>
+<text text-anchor='middle' x='0' y='68' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='24' y='68' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='88' y='52' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='96' y='84' fill='currentColor' style='font-size:1em'>/</text>
+<text text-anchor='middle' x='104' y='68' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='104' y='84' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='112' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='112' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='120' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='120' y='84' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>Z</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='128' y='84' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='136' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>Y</text>
+<text text-anchor='middle' x='144' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>因为景物是 <strong>倒置</strong> 的，所以像素坐标系的 y 轴是向下的？</li>
+</ul>
+<p>若采用齐次坐标（用矩阵表达除法）, 对 [X,Y,Z] 做透视投影得到的是 [fX, fY, Z]，则 [u, v, 1] = [fX/Z, fY/Z, 1]。
+再以像素尺寸 dx,dy 缩放并加上(+)光心坐标 cx,cy，把原点从光心移到左上角（像素系的v轴是朝下的，所以还需要加负号？），就变到了像素坐标系下：</p>
+<p>$$
+\begin{bmatrix}  \frac{f}{dx} &amp; 0 &amp; cₓ \\ 0 &amp; \frac{f}{dy} &amp; c_y \\ 0 &amp; 0 &amp; 1 \end{bmatrix}
+\begin{bmatrix}  X \\ Y \\ Z  \end{bmatrix} =
+\begin{bmatrix}  fₓX + cₓZ \\ f_yY + c_yZ \\ Z  \end{bmatrix} =
+\begin{bmatrix} \frac{fₓX}{Z}+cₓ \\ \frac{f_yY}{Z}+c_y \\ 1 \end{bmatrix}
+$$</p>
+<hr>
+<h2 id="投影变换">投影变换</h2>
+<p>投影变换 <code>GL_PROJECTION</code> 是把 <strong>相机空间</strong> 下的点 (xₑ,yₑ,zₑ) 变换到 <strong>屏幕空间</strong> 的 clip 坐标 (xc,yc,zc,wc)：</p>
+<div class="table-wrapper"><table><tr>
+<td><figure><a href="http://www.songho.ca/opengl/gl_projectionmatrix.html"><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix01.png"/></a>
+</figure>
+</td>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_frustumclip.png"/>
+</figure>
+</td>
+</table></div>
+<ol>
+<li>
+<p>先透视投影 (1/Z缩放) 到相机的 near plane (焦距为-n)。</p>
+<div class="table-wrapper"><table><tr>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix03.png"/>
+</figure>
+</td>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix04.png"/>
+</figure>
+</td>
+</table></div>
+透视除法需要除以 -zₑ，所以齐次坐标的 wₑ = -zₑ
+</li>
+<li>
+<p>再把 x,y 的取值范围：[top,bottom],[left,right] 线性变换到[-1,1]。</p>
+<div class="table-wrapper"><table><tr>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix05.png"/>
+</figure>
+</td>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix06.png"/>
+</figure>
+</td>
+</table></div>
+</li>
+<li>
+<p>令相机空间下的 [near, far] 的 NDC 坐标等于 [-1, 1]</p>
+</li>
+<li>
+<p>因为是从三维到三维，要想用矩阵表达透视缩放和平移，就需要使用齐次坐标。</p>
+<p>clip 坐标是 NDC 的齐次形式，所以这个矩阵（<a class="link" href="http://www.songho.ca/opengl/gl_projectionmatrix.html"  target="_blank" rel="noopener"
+    >Projection Matrix</a>）
+完成了 frustum culling 和 NDC 变换。</p>
+</li>
+</ol>
+<p>$$
+\begin{bmatrix} \frac{2}{r-l}⋅n &amp; 0 &amp; \frac{r+l}{r-l} &amp; 0 \\
+0 &amp; \frac{2}{t-b}⋅n &amp; \frac{t+b}{t-b} &amp; 0 \\
+0 &amp; 0 &amp; -\frac{f+n}{f-n} &amp; -\frac{2fn}{f-n} \\
+0 &amp; 0 &amp; -1 &amp; 0 \end{bmatrix}
+\begin{bmatrix} xₑ \\ yₑ \\ zₑ \\ 1 \end{bmatrix} =
+\begin{bmatrix}  \frac{2}{r-l}⋅nxₑ + \frac{r+l}{r-l}⋅zₑ \\
+\frac{2}{t-b}⋅nyₑ + \frac{t+b}{t-b}⋅zₑ \\
+-\frac{f+n}{f-n}⋅zₑ -\frac{2fn}{f-n} \\
+-zₑ \end{bmatrix} =
+\begin{bmatrix}  \frac{2}{r-l}⋅n\frac{xₑ}{-zₑ} + \frac{r+l}{r-l} \\
+\frac{2}{t-b}⋅n\frac{yₑ}{-zₑ} + \frac{t+b}{t-b} \\
+\frac{f+n}{f-n} +\frac{2fn}{(f-n)zₑ} \ 1 \end{bmatrix}
+$$</p>
+<p><a class="link" href="https://www.cs.utexas.edu/~theshark/courses/cs354/lectures/cs354-9.pdf"  target="_blank" rel="noopener"
+    >viewing&amp;project-utexas</a></p>
+<hr>
+<h2 id="ndc-空间">NDC 空间</h2>
+<ul>
+<li>
+<p>屏幕显示的世界深度范围是 near,far 两个焦平面之间的区域。
+openGL 中两焦平面间的 z interval 被映射到 [-1,1]，即 Normalized Device Coordinates，
+变换到 NDC 后就可以根据<code>z_ndc</code>把超出范围外的物体裁剪掉。</p>
+<p>屏幕窗口显示的是近焦平面。可以用 fov 控制近焦平面的边长，可以把屏幕的 t,b,l,r 映射到近焦平面的边长 [-1,1]，这样屏幕显示的空间就是一个立方体。
+<a class="link" href="https://www.bilibili.com/video/BV1LS4y1b7xZ"  target="_blank" rel="noopener"
+    >探秘三维透视投影-齐次坐标的妙用 -奇乐bili</a></p>
+</li>
+<li>
+<p>(2023-11-30) NDC = Perspective projection to the near plane <strong>with depths kept</strong> + Scaling.</p>
+</li>
+</ul>
+<hr>
+<h2 id="相机变换矩阵">相机变换矩阵</h2>
+<p><a class="link" href="https://blog.csdn.net/popy007/article/details/5120158"  target="_blank" rel="noopener"
+    >推导相机变换矩阵-csdn-潘宏</a></p>
+<ul>
+<li>
+<p>(不同基底间的) 坐标转换公式: 𝐯=𝐐 𝐯&rsquo;=𝐑 𝐯&rsquo;&rsquo; ⇒ 𝐯&rsquo;&rsquo;= 𝐑⁻¹𝐐 𝐯&rsquo;，其中𝐐,𝐑 是不同的正交矩阵，代表坐标系，因为正交矩阵的逆等于转置，所以可以写为：𝐯&rsquo;&rsquo;= 𝐑ᵀ𝐐 𝐯'</p>
+</li>
+<li>
+<p>UVN相机模型用向量定义相机朝向：N 是相机观察方向的反方向，U 由辅助向量up与N叉乘确定，辅助向量用于让相机产生偏转（不歪头一般取(0,1,0)）；V=N×U，V 落在 up 与 N 形成的平面上。<br>
+例如nerf的函数<a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L128"  target="_blank" rel="noopener"
+    >viewmatrix()</a> 用于构建平均相机位姿 <code>poses_avg</code> 的UVN相机坐标系 [X|Y|Z]（世界系只有一个，而相机系有多个，取平均相机系作为&rsquo;新世界系&rsquo;）。</p>
+</li>
+<li>
+<p>View transformation: 把物体坐标从世界系变换到相机系下，也就是做一次相机运动的逆变换。变换过程：初始时相机系与世界系重合，(在世界系下)相机做旋转、再平移接近物体，然后相机与物体一起做逆平移、逆旋转，相机又回到初始位置，物体就变到了相机系下。<br>
+逆平移易求(取反)，逆旋转不易求(求逆的顺序)；但是做完逆平移后，相机系与世界系的原点重合了，只是基底不同，利用坐标转换公式就可以求出在相机系下的坐标 𝐯&rsquo;&rsquo;= 𝐑ᵀ𝐐 𝐯&rsquo;，其中𝐑是UVN系统，𝐐 是世界系(对角阵)，𝐯&rsquo;是逆平移后的向量𝐓⁻¹𝐯，故最终的坐标变换矩阵(w2c外参矩阵Extrinsic matrix)：𝐑ᵀ𝐐 𝐓⁻¹</p>
+</li>
+<li>
+<p>doubt: 旋转矩阵求逆 <a class="link" href="https://duckduckgo.com/?q=%e9%80%86%e6%97%8b%e8%bd%ac%e7%9f%a9%e9%98%b5%e4%b8%8d%e5%a5%bd%e6%b1%82&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="3个矩阵">3个矩阵</h2>
+<ol>
+<li>外参矩阵把点的 world space 坐标 Xw 变换到相机系下：Xc=R⋅Xw+T；</li>
+<li>内参矩阵把点的 camera space 坐标 Xc 变换到焦平面(原点在图片中央)（加上缩放因子fx,fy和光心坐标(cx,cy)可以变换到像素坐标系u,v,原点在图片左上角,v轴朝下）上：P=K⋅Xc；</li>
+<li>相机投影矩阵 Projection matrix (Camera matrix)：把世界点直接变换到图像平面上（内参矩阵K₃ₓ₃ ∗ 外参矩阵[R T]₃ₓ₄ = P₃ₓ₄）。</li>
+</ol>
+<p>Ref:</p>
+<ul>
+<li><a class="link" href="https://www.cs.cmu.edu/~16385/s17/Slides/11.1_Camera_matrix.pdf"  target="_blank" rel="noopener"
+    >11.1 Camera matrix-CMU</a></li>
+<li><a class="link" href="https://www.cnblogs.com/wangguchangqing/p/8126333.html#autoid-0-5-0"  target="_blank" rel="noopener"
+    >SLAM入门之视觉里程计(2)：相机模型（内参数，外参数）</a></li>
+<li><a class="link" href="https://www.opencv.org.cn/opencvdoc/2.3.2/html/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html?highlight=findfun"  target="_blank" rel="noopener"
+    >Camera Calibration and 3D Reconstruction-openCV</a></li>
+</ul>
+<hr>
+<h2 id="uvn-模型">UVN 模型</h2>
+<ul>
+<li>
+<p>从外参矩阵Extrinsic matrix₄ₓ₄ 提取出相机的位置和朝向: (最后一行是齐次坐标）最后一列是世界系中心在相机系中的位置，左上3x3是相机在世界系下旋转运动R的转置（列向量是世界系，行向量是相机系）。如果再知道相机的观察方向，借助一个辅助向量up，就能确定UVN系统。
+<a class="link" href="https://math.stackexchange.com/q/82602"  target="_blank" rel="noopener"
+    >StackExchange</a></p>
+</li>
+<li>
+<p>doubt: UVN 相机模型 <a class="link" href="https://www.google.com/search?q=UVN&#43;%e7%9b%b8%e6%9c%ba%e6%a8%a1%e5%9e%8b"  target="_blank" rel="noopener"
+    >Google Search</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="dtu-dataset">DTU dataset</h2>
+<p>(2023-08-17)</p>
+<p><a class="link" href="/home/yi/PrivateHugo/content/WriteNotes/module/Camera_Matrices.md" >DTU Homepage</a>
+Each object are taken from 49 fixed camera positions?</p>
+<p>Each object in &ldquo;rs_dtu_4&rdquo; (pixelNeRF) has 6 matrices. Take the object 0 as an example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span><span class="s1">&#39;scale_mat_0&#39;</span>,
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;scale_mat_inv_0&#39;</span>,
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;world_mat_0&#39;</span>,     <span class="c1"># Projection Matrix, 4x4</span>
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;world_mat_inv_0&#39;</span>, <span class="c1"># Inverse Projection matrix, 4x4</span>
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;camera_mat_0&#39;</span>,    <span class="c1"># ???</span>
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;camera_mat_inv_0&#39;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p>Use <code>cv2.decomposeProjectionMatrix(P)</code> to decompose projection matrix P:
+<a class="link" href="https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#gaaae5a7899faa1ffdf268cd9088940248"  target="_blank" rel="noopener"
+    >Docs</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># code from pixelNeRF</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span> <span class="o">=</span> <span class="n">all_cam</span><span class="p">[</span><span class="s2">&#34;world_mat_0&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span> <span class="o">=</span> <span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>   <span class="c1"># (3,4), projection: Intrinsics * Extrinsics * 3Dpoint</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">K</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">decomposeProjectionMatrix</span><span class="p">(</span><span class="n">P</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>  
+</span></span><span class="line"><span class="cl"><span class="n">K</span> <span class="o">=</span> <span class="n">K</span> <span class="o">/</span> <span class="n">K</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>   <span class="c1"># Not the camera_mat, </span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Xc = extrinsics*Xw</span>
+</span></span><span class="line"><span class="cl"><span class="n">extrinsics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">extrinsics</span><span class="p">[:</span><span class="mi">3</span><span class="p">,:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># The 4th column is the rotated transVec</span>
+</span></span><span class="line"><span class="cl"><span class="n">extrinsics</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">R</span> <span class="o">@</span> <span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">]))[:,</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">extrinsics</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># c2w equals inverse extrinsics</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># The 4th column is the normalized t decomposed by cv2.</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">])[:,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">c2w</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">extrinsics</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>The <code>K</code> (focal) in pixelNeRF is about <strong>twice as large</strong> as the <code>intrinsics</code> of &ldquo;dtu_training&rdquo;, probably
+because the image size of pixelNeRF (300x400) is <strong>twice as small</strong> as MVSNet (MVSNeRF) (512x640) in each dimension.
+When you observe the scene from far away, the image captured gets smaller.</p>
+<p>Since the projection matrix computed from K@(R|Rt) is different, the decomposed intrinsics will be different.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>c2w</code> (3x4) is not the Inverse Projection Matrix (4x4).</p>
+<ul>
+<li>
+<p>Inverse Projection Matrix = <code>np.linalg.inv(Projection Matrix)</code></p>
+</li>
+<li>
+<p>Projection matrix converts a 3D world coords to 2D <strong>pixel</strong> coords;</p>
+</li>
+<li>
+<p>Extrinsics ( <strong>w2c = [R|t] = (R|Rt)</strong> ) converts 3D world coords to 3D camera coords.</p>
+</li>
+<li>
+<p>Inverse Extrinsics ( <strong>c2w</strong> ) converts 3D camera coords to 3D world coords.</p>
+</li>
+<li>
+<p>Give Extrinsics and Intrinsics (of dataset &ldquo;dtu_training&rdquo; from <a class="link" href="https://github.com/YoYo000/MVSNet#camera-files"  target="_blank" rel="noopener"
+    >MVSNet</a>),
+the Projection matrix can be restored as implemented in <a class="link" href="https://github.com/apchenstu/mvsnerf/blob/1fdf6487389d0872dade614b3cea61f7b099406e/data/dtu.py#L82-L96"  target="_blank" rel="noopener"
+    >MVSNeRF</a></p>
+</li>
+</ul>
+</li>
+<li>
+<p>The translation vector also needs rotation. <a class="link" href="https://stackoverflow.com/q/62686618/18003182"  target="_blank" rel="noopener"
+    >OpenCV Decompose projection matrix</a></p>
+<ul>
+<li>
+<p>Projection matrix = Intrinsics@Extrinsics = K@[R|t] = K@(R|Rt) = (KR|KRt)</p>
+</li>
+<li>
+<p>Decomposed <code>t</code> needs normalization, and to be negated sometimes:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">631</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span> <span class="mi">384</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">631</span><span class="p">,</span> <span class="mi">288</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span>  <span class="mi">0</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>   <span class="mi">1</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl"><span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.30164902</span><span class="p">,</span>  <span class="mf">0.68282439</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.66540117</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span><span class="o">-</span><span class="mf">0.63417301</span><span class="p">,</span>  <span class="mf">0.37743435</span><span class="p">,</span>  <span class="mf">0.67480953</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span> <span class="mf">0.71192167</span><span class="p">,</span>  <span class="mf">0.6255351</span> <span class="p">,</span>  <span class="mf">0.3191761</span> <span class="p">]])</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">3.75082481</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.18089565</span><span class="p">,</span>  <span class="mf">1.06138781</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">K</span> <span class="o">@</span> <span class="n">R</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">K</span> <span class="o">@</span> <span class="n">R</span> <span class="o">@</span> <span class="n">t</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">K1</span><span class="p">,</span> <span class="n">R1</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">decomposeProjectionMatrix</span><span class="p">(</span><span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:])[:</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">t</span> <span class="o">==</span> <span class="o">-</span><span class="p">(</span><span class="n">t1</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="n">t1</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The original <code>t</code> can be obtained directly from projection matrix:
+<code>np.linalg.inv(P[:3,:3]) @ P[:3,3]</code>,
+i.e., use the inverse rotation to rotate the transVec back.</p>
+</li>
+</ul>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
