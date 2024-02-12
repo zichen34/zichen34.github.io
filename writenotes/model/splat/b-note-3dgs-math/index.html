@@ -338,7 +338,6 @@
 </ul>
 <hr>
 <h2 id="projection">Projection</h2>
-<h3 id="ndc-mapping">NDC Mapping</h3>
 <details><summary>Old Notes on 2023-12-05</summary>
 <p>NDC is the <strong>de-homogeneous</strong> clip coordinates and ranges [-1,1].</p>
 <p><strong>De-homogeneous</strong> means the <strong>z value</strong> has been divided.</p>
@@ -416,6 +415,7 @@ $$</p>
 $$</p>
 </details>
 <hr>
+<h3 id="ndc-mapping">NDC Mapping</h3>
 <p>(2024-01-01)</p>
 <p>The perspective division (a 3D <strong>pixel</strong> coordinates are divided by the 3rd dimension)
 should be performed as the <strong>final step</strong> in the transformation pipeline, as it&rsquo;s a <strong>non-linear</strong> operation.</p>
@@ -440,7 +440,8 @@ fₓ &amp; 0   &amp; cₓ  &amp; 0 \\
 \begin{bmatrix} x_c \\ y_c \\ z_c \\ w_c \end{bmatrix}
 \end{array}
 $$</p>
-<p>The scaling matrix is built with the goal of mapping the view frustum to a [-1,1] <strong>NDC-space cube</strong> encompassing valid points, whose $-w_c &lt; x_c,y_c,z_c &lt; w_c$.
+<p>The scaling matrix is built with the goal of mapping the view frustum to a [-1,1] <strong>NDC-space cube</strong> encompassing only valid points,
+whose clip coordinates satisfy: $-w_c &lt; x_c,y_c,z_c &lt; w_c$.
 Specifically, the projected coordinates are scaled and then perform perspective division to become the NDC.</p>
 <ol>
 <li>
@@ -755,7 +756,7 @@ $𝐭 = \begin{bmatrix} 𝐑_{w2c} &amp; 𝐭_{w2c} \\ 0 &amp; 1  \end{bmatrix} 
 \end{aligned}
 $$</p>
 <ul>
-<li>$t_w&rsquo;$ is the point&rsquo;s original depth $μ_z$, which is &gt; 0.</li>
+<li>$t_w&rsquo;$ is the point&rsquo;s camera-space depth $t_z$, which is &gt; 0.</li>
 </ul>
 </li>
 <li>
@@ -1019,11 +1020,11 @@ Essentially, it filters points by <strong>comparing</strong> the clip coordinate
 the NDC cube is constrained by bounds where the clip coordinates <strong>divided by</strong> 𝑤 equals 1 (𝑤 is the benchmark),
 such as $\frac{A (f_x x+c_x z) + Bz}{w} = 1$</p>
 <p>In other words, the NDC planes <strong>wrap</strong> around points whose clip coordinates $x_c,y_c,z_c$ <strong>less than or equal to</strong> $w_c$.
-In addition, $w_c$ <strong>must be</strong> the original z for the final perspective division.
+In addition, $w_c$ <strong>must be</strong> the camera-space depth z for the final perspective division.
 Thus, if the clip coordinate of a point is <strong>bigger than w</strong> or less than $-w$,
 the &ldquo;quotient&rdquo; will be outside of [-1,1], i.e., the point is not located in the camera-space view frustum or the NDC-space cube.</p>
 <p>Frustum clipping retains points that satisfy: $-w_c \leq x_c, y_c, z_c \leq w_c$.
-Conversely, those points whose w (i.e., z) is smaller than x,y,z will be filtered out.</p>
+Conversely, those points whose w (equals camera-space depth) is smaller than x,y,z will be filtered out.</p>
 <p>Although ND Coordinates are <strong>also</strong> able to identify points for clipping,
 to reduce the number of perspective divisions (executed at final), clipping is performed in the clip space for <strong>efficiency</strong>.</p>
 </li>
@@ -1045,8 +1046,11 @@ because out-of-the-cube points have been disregared.</p>
 <p>Performing perspective <strong>division</strong> on the clip coordinates resulting in NDC, whose all components ranges in [-1,1]:</p>
 <p>$$ NDC =
 \begin{bmatrix}
-tₓ&rsquo;/t_w&rsquo; \\ t_y&rsquo;/t_w&rsquo; \\ t_z&rsquo;/t_w&rsquo; = 1 \\ 1
+tₓ&rsquo;/t_w&rsquo; \\ t_y&rsquo;/t_w&rsquo; \\ t_z&rsquo;/t_w&rsquo; \\ 1
 \end{bmatrix} ∈ [-1,1] $$</p>
+<ul>
+<li>(2024-02-08) NDC is 3D, including zₙ coord besides the 2D pixel coords.</li>
+</ul>
 </li>
 <li>
 <p>Scaling NDC to obtain pixel coordinates 𝛍&rsquo; (viewport transformation):
@@ -1096,13 +1100,12 @@ $$</p>
 </li>
 <li>
 <p><em>EWA Splatting</em> <strong>doesn&rsquo;t scale</strong> the projected coordinates to the [-1,1] NDC-space cube.
-It directly transforms points from camera space onto screen (or ray space) by dividing z.
+It directly transforms points from camera space onto screen (or viewing-ray space) by dividing z.
 The result coordinates range in [0,W] and [0,H].</p>
 </li>
 <li>
 <p>Projective transformation ϕ(𝐭) in EWA Splatting:
-Converting an <strong>arbitrary</strong> point&rsquo;s coordinates $𝐭=(tₓ,t_y,t_z)ᵀ$ in <strong>camera</strong> space to
-the coordinates in <strong>3D ray space</strong>
+Converting an <strong>arbitrary</strong> point&rsquo;s camera-space coordinates $𝐭=(tₓ,t_y,t_z)ᵀ$ to the coordinates in <strong>3D ray space</strong>
 (pixel coordinates x0,x1 + &ldquo;new depth&rdquo; x2) has 2 steps:</p>
 <ul>
 <li>Pixel coords = perspective projection + perspective division.</li>
@@ -1115,10 +1118,10 @@ $$</p>
 <p>Because <a class="link" href="https://zichen34.github.io/writenotes/model/splat/b-note-ewa_splatting/#projective-transformation-%CF%95"  target="_blank" rel="noopener"
     >EWA Splatting</a> doesn&rsquo;t consider frustum clipping, the approximation is based on the camera coordinates 𝐭.</p>
 <p>However, <code>gsplat</code> uses the clip space to filter points outside the camera frustum.
-So, after perspective projection and scaling for NDC with 𝐏, points are transferred into clip space as 𝐭&rsquo; for clipping.</p>
+So, after perspective projection and scaling for NDC with matrix 𝐏, points are transferred into clip space as 𝐭&rsquo; for clipping.</p>
 <p>After clipping, the nonlinear perspective <strong>division</strong> and x₂ reassignment in ϕ(𝐭),
 are approximated with an affine transformation based on the <strong>clip coordinates</strong> 𝐭&rsquo;.
-Therefore, the projective transformation $ϕ(𝐭)$ that maps camera space to ray space is changed to a mapping from clip space to the ray space $ϕ(𝐭&rsquo;)$.</p>
+Therefore, the projective transformation $ϕ(𝐭)$ that maps camera space to ray space becomes a mapping from clip space to the ray space $ϕ(𝐭&rsquo;)$.</p>
 <p>$$
 \begin{aligned}
 𝐭 &amp;→ 𝐭&rsquo;=𝐏𝐭 =
@@ -1142,7 +1145,7 @@ $𝐭ₖ&rsquo; = (t_{k,x}&rsquo;, t_{k,y}&rsquo;, t_{k,z}&rsquo;)ᵀ$ in the <s
 \begin{aligned}
 &amp; ϕ(𝐭&rsquo;) ≈ ϕₖ(𝐭&rsquo;) = ϕ(𝐭ₖ&rsquo;) + 𝐉_{𝐭ₖ&rsquo;} ⋅ (𝐭&rsquo; - 𝐭ₖ&rsquo;) \\
 &amp; = \begin{bmatrix} t_{k,x}&rsquo;/t_{k,z}&rsquo; \\
-t_{k,y}&rsquo;/t_{k,z}&rsquo; \\ ‖𝐭ₖ&rsquo;‖²\end{bmatrix}
+t_{k,y}&rsquo;/t_{k,z}&rsquo; \\ ‖𝐭ₖ&rsquo;‖²\end{bmatrix} +
 \begin{bmatrix} 1/t_{k,z}&rsquo; &amp; 0 &amp; -t_{k,x}/{t_{k,z}&rsquo;}^2 \\
 0 &amp; 1/t_{k,z}&rsquo; &amp; -t_{k,y}/{t_{k,z}&rsquo;}^2 \\
 t_{k,x}&rsquo;/‖𝐭ₖ&rsquo;‖₂ &amp; t_{k,y}&rsquo;/‖𝐭ₖ&rsquo;‖₂ &amp; t_{k,z}&rsquo;/‖𝐭ₖ&rsquo;‖₂
@@ -1150,6 +1153,7 @@ t_{k,x}&rsquo;/‖𝐭ₖ&rsquo;‖₂ &amp; t_{k,y}&rsquo;/‖𝐭ₖ&rsquo;‖
 (𝐭&rsquo; - 𝐭ₖ&rsquo;)
 \end{aligned}
 $$</p>
+<hr>
 <p>If using the <strong>camera-space</strong> coordinates 𝐭 to express the projective transformation as ϕ(𝐭), focal lengths will be exposed:</p>
 <p>$$
 \begin{aligned}
@@ -1187,7 +1191,7 @@ $$</p>
 <li>
 <p>By expressing the projective transformation ϕₖ() with the camera coordinates 𝐭, the relation between ray-space coordinates and camera-space coordinates is constructed.
 Thereby, the derivative of Gaussian center ϕₖ(𝐭ₖ) in the ray space is derived from camera-space coordinates 𝐭ₖ,
-with the clip coordinates 𝐭ₖ&rsquo; skipped.</p>
+with the clip coordinates 𝐭ₖ&rsquo; <strong>skipped</strong>.</p>
 </li>
 </ul>
 <p><del>For the case of 2D projection, only x and y dimensions of the covariance matrix need consideration, with the 3rd row and column are omitted.</del>
@@ -1195,7 +1199,7 @@ Because of the affine approximation, the projective transformation ϕ(𝐭&rsquo
 Thereby, a 3D Gaussian after perspective division is a <strong>2D Gaussian</strong>.</p>
 <ul>
 <li>Figuratively, points surrounding the 3D Gaussian center in clip space will fall into an ellipse on the 2D screen.</li>
-<li>In the 3DGS code, the 2D ellipse is further simplified as a circle.</li>
+<li>In the 3DGS code, the 2D ellipse is further simplified as a circle to count the overlapped tiles.</li>
 </ul>
 </li>
 <li>
@@ -1304,7 +1308,7 @@ The discrepancy between the approximated and the real projected locations is $ϕ
 <h2 id="rasterizing">Rasterizing</h2>
 <h3 id="sorting-kernels">Sorting Kernels</h3>
 <p>(2024-01-09)</p>
-<p>Sort Gaussians in each 16x16 tile based on depth</p>
+<p>Sort Gaussians within each 16x16 tile based on depth</p>
 
 
 
@@ -1371,7 +1375,7 @@ $$</p>
 <p>Opacity ($qₖ⊗ h$). It results in accu. transmittance oₖ as $∏_{m≤k}(1-\text{opacity}ₘ)$.</p>
 </li>
 <li>
-<p>Position 𝛍: determines the kernel&rsquo;s weight wₖ, as wₖ is an <strong>evaluation</strong> of the projected kernel (2D Gaussian) at the pixel.</p>
+<p>Position 𝛍: determines the kernel&rsquo;s weight wₖ, as wₖ is an <strong>evaluation</strong> of the projected kernel (2D Gaussian distribution) at the pixel.</p>
 </li>
 <li>
 <p>Covariance matrix: the stretching matrix and rotaion matrix (quaternion) jointly determine wₖ as well.</p>
@@ -2536,7 +2540,19 @@ And then the $T_{N-1}$ in front of it is calculated as $T_{N-1} = \frac{T_N}{1-�
 The points in front follow this relation.</p>
 </li>
 </ul>
-</li>
+<p><a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/backward.cu#L503-L504"  target="_blank" rel="noopener"
+    >3DGS Code</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">T</span> <span class="o">=</span> <span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dchannel_dcolor</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">T</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
 <li>
 <p>Alpha αₙ</p>
 <p>To solve the partial derivative of pixel color $C_i$ w.r.t. the kernel Gₙ&rsquo;s αₙ, only consider the kernels that <strong>follow</strong> Gₙ,
@@ -2556,7 +2572,7 @@ $-\frac{cₙ₊₁⋅αₙ₊₁⋅Tₙ₊₁}{1-αₙ}$ .</p>
 <p>$$ Cₙ₊₂ = cₙ₊₂⋅αₙ₊₂⋅Tₙ₊₂ \\
 = cₙ₊₂⋅αₙ₊₂ ⋅\cancel{(1-αₙ₊₁)} (1-αₙ) \frac{Tₙ₊₂}{ \cancel{(1-αₙ₊₁)} (1-αₙ)}$$</p>
 <ul>
-<li>Thus, $\frac{∂Cₙ₊₂}{∂αₙ} = \frac{cₙ₊₂⋅αₙ₊₂⋅Tₙ₊₂}{1-αₙ}$</li>
+<li>Thus, $\frac{∂Cₙ₊₂}{∂αₙ} = -\frac{cₙ₊₂⋅αₙ₊₂⋅Tₙ₊₂}{1-αₙ}$</li>
 </ul>
 <p>Similarly, the subsequent kernel Gₘ, with m&gt;n, also contribute to the overall partial derivative $\frac{∂Cᵢ}{∂αₙ}$.</p>
 <p>Thereby, the ultimate partial derivatives of the pixel color $Cᵢ$ w.r.t. the Gₙ&rsquo;s alpha αₙ is:</p>

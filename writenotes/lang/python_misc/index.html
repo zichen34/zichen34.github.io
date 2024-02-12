@@ -261,6 +261,7 @@
     <li><a href="#convert-class-to-dict">Convert class to dict</a></li>
     <li><a href="#format-digits">Format digits</a></li>
     <li><a href="#files">Files</a></li>
+    <li><a href="#pass-by-assignment">Pass by Assignment</a></li>
   </ol>
 </nav>
         </div>
@@ -317,7 +318,7 @@
 
 
                 <time class="article-time--reading">
-                    11 minute read
+                    12 minute read
                 </time>
             </div>
         
@@ -697,6 +698,10 @@ No values are stored.</p>
 <p>团队开发最好还是用易懂的写法。
 <a class="link" href="https://www.bilibili.com/video/BV1yL411L7M1"  target="_blank" rel="noopener"
     >1_00_00什么意思？x:=y？Python里面的几个有趣特性</a></p>
+<ul>
+<li><a class="link" href="https://realpython.com/python38-new-features/#the-walrus-in-the-room-assignment-expressions"  target="_blank" rel="noopener"
+    >Assignment expression - RealPython</a></li>
+</ul>
 <hr>
 <h2 id="index-value-from-dict">Index value from dict</h2>
 <p>Get value by giving index from a dictionary</p>
@@ -1451,6 +1456,129 @@ Searched by DDG with searching &ldquo;tqdm disable&rdquo;</p>
 </div>
 </div></li>
 </ol>
+<hr>
+<h2 id="pass-by-assignment">Pass by Assignment</h2>
+<p><a class="link" href="https://realpython.com/python-pass-by-reference/"  target="_blank" rel="noopener"
+    >Pass by Reference - RealPython</a></p>
+<p>(2024-02-08)</p>
+<ul>
+<li>
+<p>In Python, passing arguments to a function is <strong>assigning</strong> the incoming objects to new variable name (identifier).
+This can be verified through &ldquo;reference counter&rdquo; and namespace, which is a dictionary,
+including key-value pairs representing a binding between target variable name and object.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># object 2&#39;s refcount+1, namespace add: &#39;x&#39;:&#39;2&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>When an object (value) is assigned to a variable name (identifier),
+the reference counter of the object is incremented.
+If the variable name is reassigned to another value, the pre-bounded object&rsquo;s reference counter is decremented.</p>
+</li>
+<li>
+<p>Each <strong>function</strong> has its own namespace, which can be checked by <code>print(locals())</code></p>
+</li>
+<li>
+<p>If an attribute of the object supports modification,
+and the object is passed to a function argument,
+assigning values to the object&rsquo;s attribute is <strong>in-place</strong> modification.
+<a class="link" href="https://realpython.com/python-pass-by-reference/#best-practice-use-object-attributes"  target="_blank" rel="noopener"
+    >Ref</a></p>
+</li>
+<li>
+<p>Misc:</p>
+<ul>
+<li>
+<p>Use <code>id()</code> to get the address of a variable</p>
+</li>
+<li>
+<p>When Python modifies a variable through a function, the variable is not modified in place,
+but <strong>reassigned</strong> with the returned value.</p>
+</li>
+<li>
+<p>Passing by reference in Python can be replicated with: object&rsquo;s attributes,
+dictionary (mapping type), and list-like data (subscriptable and mutable)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Example refers to <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/train.py#L34-L35"  target="_blank" rel="noopener"
+    >3DGS</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">GaussianModel</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">_xyz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Scene</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gaussian</span><span class="p">:</span> <span class="n">GaussianModel</span><span class="p">,</span> <span class="n">exTen</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">ls</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">gaussian</span> <span class="o">=</span> <span class="n">gaussian</span>  <span class="c1"># a binding created in locals()</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># The attribute _xyz supports assignment as tensor is mutable</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># object&#39;s attribute is modified in place:</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">gaussian</span><span class="o">.</span><span class="n">_xyz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">myTen</span> <span class="o">=</span> <span class="n">exTen</span>  <span class="c1"># exTen&#39;s refcount+1, </span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">myTen</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="c1"># update to new binding</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>  <span class="c1"># a binding between self.color and color</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>    <span class="c1"># new binding</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">ls</span> <span class="o">=</span> <span class="n">ls</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">88</span>  <span class="c1"># affect the original list</span>
+</span></span><span class="line"><span class="cl"><span class="n">gaussian</span> <span class="o">=</span> <span class="n">GaussianModel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">exTensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">color</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">myObj</span> <span class="o">=</span> <span class="n">Scene</span><span class="p">(</span><span class="n">gaussian</span><span class="p">,</span> <span class="n">exTensor</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span><span class="n">ls</span><span class="o">:=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">gaussian</span><span class="o">.</span><span class="n">_xyz</span><span class="p">)</span>   <span class="c1"># changed to ones</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">exTensor</span><span class="p">)</span> <span class="c1"># remain empty</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>    <span class="c1"># unchanged</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span>      <span class="c1"># changed to [88,2]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><a class="link" href="https://realpython.com/python-mutable-vs-immutable-types/"  target="_blank" rel="noopener"
+    >Mutalbe - RealPython</a></p>
+</li>
+<li>
+<p><a class="link" href="https://www.perplexity.ai/search/In-the-following-6C5fwQMARMuirzSfhlbLsA?s=u"  target="_blank" rel="noopener"
+    >perplexity</a></p>
+</li>
+</ul>
 
 </section>
 

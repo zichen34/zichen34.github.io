@@ -245,7 +245,10 @@ Otherwise, the settings won&amp;rsquo;t be loaded."><meta name="twitter:card" co
         <li><a href="#forward-steps">forward Steps</a></li>
         <li><a href="#preprocesscuda">preprocessCUDA</a></li>
         <li><a href="#prepare-tiles">Prepare Tiles</a></li>
-        <li><a href="#render-1">Render</a></li>
+        <li><a href="#render-pixel">Render Pixel</a></li>
+        <li><a href="#back-render">back render</a></li>
+        <li><a href="#bw-cov3d-rayspace">bw cov3D raySpace</a></li>
+        <li><a href="#bw-preprocess">bw preprocess</a></li>
       </ol>
     </li>
   </ol>
@@ -312,7 +315,7 @@ Otherwise, the settings won&amp;rsquo;t be loaded."><meta name="twitter:card" co
 
 
                 <time class="article-time--reading">
-                    12 minute read
+                    21 minute read
                 </time>
             </div>
         
@@ -1071,6 +1074,7 @@ where tensor&rsquo;s <code>resize_</code> method is called.</li>
 \end{algorithm}
 </pre>
 
+<hr>
 <h3 id="preprocesscuda">preprocessCUDA</h3>
 <ol>
 <li>
@@ -1378,11 +1382,35 @@ Specifically, it&rsquo;s the <strong>total number</strong> of touched tiles for 
 <hr>
 <ol start="2">
 <li>
-<p>Iterate <strong>each Gaussian</strong> to pair every touched tile&rsquo;s id and Gaussian&rsquo;s depth:
+<p>Evaluate <strong>each Gaussian</strong> to pair every touched tile&rsquo;s index and Gaussian&rsquo;s depth:
 <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/957bb97582554f2198a07ab01166211a1b79dccf/cuda_rasterizer/rasterizer_impl.cu#L289"  target="_blank" rel="noopener"
     >Code</a></p>
-<p>Iterate each tile that a Gaussian overlaps, and combine the tile index and the Gaussian&rsquo;s depth to form a key</p>
-<ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">duplicateWithKeys</span> <span class="o">&lt;&lt;</span> <span class="o">&lt;</span><span class="p">(</span><span class="n">P</span> <span class="o">+</span> <span class="mi">255</span><span class="p">)</span> <span class="o">/</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span> <span class="o">&gt;&gt;</span> <span class="o">&gt;</span> <span class="p">(</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Iterate each tile that a Gaussian overlaps, and combine the tile index and the Gaussian&rsquo;s depth to form a key</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">rect_min</span><span class="p">.</span><span class="n">y</span><span class="p">;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">rect_max</span><span class="p">.</span><span class="n">y</span><span class="p">;</span> <span class="n">y</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">rect_min</span><span class="p">.</span><span class="n">x</span><span class="p">;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">rect_max</span><span class="p">.</span><span class="n">x</span><span class="p">;</span> <span class="n">x</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gaussian_keys_unsorted</span><span class="p">[</span><span class="n">off</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>
 <p>100x100 image are divided to tiles with size of 16x16, so the thread gridDim: (7,7,1)</p>
 
@@ -1596,10 +1624,10 @@ Specifically, it&rsquo;s the <strong>total number</strong> of touched tiles for 
   
 </div>
 <p>For example, the above small Gaussian covers 9 tiles at: (0,1), (1,1), (2,1), (0,2), (1,2), (2,2), (0,3), (1,3), (2,3)</p>
-<p>The tile id is <code>y*grid.x + x</code>. Therefore, the 9 tiles&rsquo; id are 8,9,10, 15,16,17, 22,23,24</p>
+<p>The tile index is computed as <code>y*grid.x + x</code>. Therefore, the 9 tiles&rsquo; indices are: 8,9,10, 15,16,17, 22,23,24</p>
 </li>
 <li>
-<p>Suppose the tile id is 24 and the Gaussian&rsquo;s depth is 15.7, the key is:</p>
+<p>Suppose the tile id is 24 and the Gaussian&rsquo;s depth is 15.7 (cast to int 15), the corresponding pair&rsquo;s <code>key</code> is:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -1607,14 +1635,14 @@ Specifically, it&rsquo;s the <strong>total number</strong> of touched tiles for 
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">tile id 24:          0000_0000_0001_1000
-</span></span><span class="line"><span class="cl">Shift left <span class="m">32</span> bits:  0001_1000_0000_0000
-</span></span><span class="line"><span class="cl">combine depth:       0001_1000_0000_1111 <span class="c1"># 180F</span>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">tile id 24:          0000_0000_0000_0000_0000_0000_0001_1000
+</span></span><span class="line"><span class="cl">Shift left <span class="m">32</span> bits:  0000_0000_0000_0000_0000_0000_0001_1000_0000_0000_0000_0000_0000_0000_0000_0000
+</span></span><span class="line"><span class="cl">combine depth <span class="o">(</span>15<span class="o">)</span>:  0000_0000_0000_0000_0000_0000_0001_1000_0000_0000_0000_0000_0000_0000_0000_1111
 </span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>
-<p>Because each Gaussian is processed <strong>in parallel</strong>, the prefix sum <code>point_offsets</code> is referenced
+<p>Because each Gaussian is processed by a thread <strong>in parallel</strong>, the prefix sum <code>point_offsets</code> is referenced
 to locate the starting cell for each Gaussian to store <code>key</code>s into corresponding area of the array <code>gaussian_keys_unsorted</code>:</p>
 
 
@@ -1789,6 +1817,21 @@ to locate the starting cell for each Gaussian to store <code>key</code>s into co
   
 </div>
 </li>
+<li>
+<p>The <code>value</code> is the Gaussian&rsquo;s index ranging in [0, 100k-1], i.e., the thread index <code>idx</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">auto</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">cg</span><span class="o">::</span><span class="n">this_grid</span><span class="p">().</span><span class="n">thread_rank</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span>
+</span></span><span class="line"><span class="cl"><span class="n">gaussian_values_unsorted</span><span class="p">[</span><span class="n">off</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
 </ul>
 </li>
 </ol>
@@ -1797,9 +1840,25 @@ to locate the starting cell for each Gaussian to store <code>key</code>s into co
 <li>
 <p>With performing <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/957bb97582554f2198a07ab01166211a1b79dccf/cuda_rasterizer/rasterizer_impl.cu#L303"  target="_blank" rel="noopener"
     ><code>SortPairs</code></a>,
-the tile-Gaussian pairs sequence is arranged based on the tile ID,
+the tile-Gaussian pairs sequence (<code>binningState.point_list_keys</code>) is arranged based on the tile ID,
 and for keys with identical tile id, the depths are then sorted.</p>
-
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">CHECK_CUDA</span><span class="p">(</span><span class="n">cub</span><span class="o">::</span><span class="n">DeviceRadixSort</span><span class="o">::</span><span class="n">SortPairs</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="n">binningState</span><span class="p">.</span><span class="n">point_list_keys_unsorted</span><span class="p">,</span> <span class="n">binningState</span><span class="p">.</span><span class="n">point_list_keys</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">binningState</span><span class="p">.</span><span class="n">point_list_unsorted</span><span class="p">,</span> <span class="n">binningState</span><span class="p">.</span><span class="n">point_list</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
 
 
 <div class="goat svg-container ">
@@ -1995,9 +2054,286 @@ and for keys with identical tile id, the depths are then sorted.</p>
 <hr>
 <ol start="4">
 <li>
-<p>Iterate <strong>each tile</strong> to record the boundaries <code>ranges</code> of each tiles to be rendered.
+<p>Evaluate <strong>each pair</strong> to identify the <strong>boundaries</strong> <code>ranges</code> of each tile for rendering.
 <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/957bb97582554f2198a07ab01166211a1b79dccf/cuda_rasterizer/rasterizer_impl.cu#L313"  target="_blank" rel="noopener"
     >Code</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">identifyTileRanges</span> <span class="o">&lt;&lt;</span> <span class="o">&lt;</span><span class="p">(</span><span class="n">num_rendered</span> <span class="o">+</span> <span class="mi">255</span><span class="p">)</span> <span class="o">/</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span> <span class="o">&gt;&gt;</span> <span class="o">&gt;</span> <span class="p">(</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 504 201"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 72,32 L 104,32' fill='none' stroke='currentColor'></path>
+<path d='M 104,32 L 136,32' fill='none' stroke='currentColor'></path>
+<path d='M 168,32 L 224,32' fill='none' stroke='currentColor'></path>
+<path d='M 224,32 L 280,32' fill='none' stroke='currentColor'></path>
+<path d='M 312,32 L 320,32' fill='none' stroke='currentColor'></path>
+<path d='M 376,32 L 384,32' fill='none' stroke='currentColor'></path>
+<path d='M 384,32 L 416,32' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 72,112' fill='none' stroke='currentColor'></path>
+<path d='M 72,112 L 96,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 120,112' fill='none' stroke='currentColor'></path>
+<path d='M 120,112 L 144,112' fill='none' stroke='currentColor'></path>
+<path d='M 144,112 L 168,112' fill='none' stroke='currentColor'></path>
+<path d='M 168,112 L 192,112' fill='none' stroke='currentColor'></path>
+<path d='M 192,112 L 216,112' fill='none' stroke='currentColor'></path>
+<path d='M 216,112 L 240,112' fill='none' stroke='currentColor'></path>
+<path d='M 240,112 L 264,112' fill='none' stroke='currentColor'></path>
+<path d='M 264,112 L 288,112' fill='none' stroke='currentColor'></path>
+<path d='M 288,112 L 312,112' fill='none' stroke='currentColor'></path>
+<path d='M 312,112 L 336,112' fill='none' stroke='currentColor'></path>
+<path d='M 368,112 L 392,112' fill='none' stroke='currentColor'></path>
+<path d='M 392,112 L 416,112' fill='none' stroke='currentColor'></path>
+<path d='M 416,112 L 440,112' fill='none' stroke='currentColor'></path>
+<path d='M 48,144 L 72,144' fill='none' stroke='currentColor'></path>
+<path d='M 72,144 L 96,144' fill='none' stroke='currentColor'></path>
+<path d='M 96,144 L 120,144' fill='none' stroke='currentColor'></path>
+<path d='M 120,144 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 144,144 L 168,144' fill='none' stroke='currentColor'></path>
+<path d='M 168,144 L 192,144' fill='none' stroke='currentColor'></path>
+<path d='M 192,144 L 216,144' fill='none' stroke='currentColor'></path>
+<path d='M 216,144 L 240,144' fill='none' stroke='currentColor'></path>
+<path d='M 240,144 L 264,144' fill='none' stroke='currentColor'></path>
+<path d='M 264,144 L 288,144' fill='none' stroke='currentColor'></path>
+<path d='M 288,144 L 312,144' fill='none' stroke='currentColor'></path>
+<path d='M 312,144 L 336,144' fill='none' stroke='currentColor'></path>
+<path d='M 368,144 L 392,144' fill='none' stroke='currentColor'></path>
+<path d='M 392,144 L 416,144' fill='none' stroke='currentColor'></path>
+<path d='M 416,144 L 440,144' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 48,144' fill='none' stroke='currentColor'></path>
+<path d='M 64,160 L 64,176' fill='none' stroke='currentColor'></path>
+<path d='M 72,112 L 72,144' fill='none' stroke='currentColor'></path>
+<path d='M 88,160 L 88,176' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 96,144' fill='none' stroke='currentColor'></path>
+<path d='M 104,16 L 104,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,160 L 112,176' fill='none' stroke='currentColor'></path>
+<path d='M 120,112 L 120,144' fill='none' stroke='currentColor'></path>
+<path d='M 136,160 L 136,176' fill='none' stroke='currentColor'></path>
+<path d='M 144,112 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 152,88 L 152,104' fill='none' stroke='currentColor'></path>
+<path d='M 160,160 L 160,176' fill='none' stroke='currentColor'></path>
+<path d='M 168,112 L 168,144' fill='none' stroke='currentColor'></path>
+<path d='M 184,160 L 184,176' fill='none' stroke='currentColor'></path>
+<path d='M 192,112 L 192,144' fill='none' stroke='currentColor'></path>
+<path d='M 208,160 L 208,176' fill='none' stroke='currentColor'></path>
+<path d='M 216,112 L 216,144' fill='none' stroke='currentColor'></path>
+<path d='M 224,16 L 224,32' fill='none' stroke='currentColor'></path>
+<path d='M 232,160 L 232,176' fill='none' stroke='currentColor'></path>
+<path d='M 240,112 L 240,144' fill='none' stroke='currentColor'></path>
+<path d='M 256,160 L 256,176' fill='none' stroke='currentColor'></path>
+<path d='M 264,112 L 264,144' fill='none' stroke='currentColor'></path>
+<path d='M 280,160 L 280,176' fill='none' stroke='currentColor'></path>
+<path d='M 288,112 L 288,144' fill='none' stroke='currentColor'></path>
+<path d='M 296,88 L 296,104' fill='none' stroke='currentColor'></path>
+<path d='M 304,160 L 304,176' fill='none' stroke='currentColor'></path>
+<path d='M 312,112 L 312,144' fill='none' stroke='currentColor'></path>
+<path d='M 328,160 L 328,176' fill='none' stroke='currentColor'></path>
+<path d='M 336,112 L 336,144' fill='none' stroke='currentColor'></path>
+<path d='M 368,112 L 368,144' fill='none' stroke='currentColor'></path>
+<path d='M 384,16 L 384,32' fill='none' stroke='currentColor'></path>
+<path d='M 384,160 L 384,176' fill='none' stroke='currentColor'></path>
+<path d='M 392,112 L 392,144' fill='none' stroke='currentColor'></path>
+<path d='M 408,160 L 408,176' fill='none' stroke='currentColor'></path>
+<path d='M 416,112 L 416,144' fill='none' stroke='currentColor'></path>
+<path d='M 432,88 L 432,104' fill='none' stroke='currentColor'></path>
+<path d='M 432,160 L 432,176' fill='none' stroke='currentColor'></path>
+<path d='M 440,112 L 440,144' fill='none' stroke='currentColor'></path>
+<path d='M 152,96 L 152,104' fill='none' stroke='currentColor'></path>
+<path d='M 296,96 L 296,104' fill='none' stroke='currentColor'></path>
+<path d='M 432,96 L 432,104' fill='none' stroke='currentColor'></path>
+<path d='M 64,152 L 64,160' fill='none' stroke='currentColor'></path>
+<polygon points='80.000000,160.000000 68.000000,154.399994 68.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 64.000000, 160.000000)'></polygon>
+<path d='M 88,152 L 88,160' fill='none' stroke='currentColor'></path>
+<polygon points='104.000000,160.000000 92.000000,154.399994 92.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 88.000000, 160.000000)'></polygon>
+<path d='M 112,152 L 112,160' fill='none' stroke='currentColor'></path>
+<polygon points='128.000000,160.000000 116.000000,154.399994 116.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 112.000000, 160.000000)'></polygon>
+<path d='M 136,152 L 136,160' fill='none' stroke='currentColor'></path>
+<polygon points='152.000000,160.000000 140.000000,154.399994 140.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 136.000000, 160.000000)'></polygon>
+<path d='M 160,152 L 160,160' fill='none' stroke='currentColor'></path>
+<polygon points='176.000000,160.000000 164.000000,154.399994 164.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 160.000000, 160.000000)'></polygon>
+<path d='M 184,152 L 184,160' fill='none' stroke='currentColor'></path>
+<polygon points='200.000000,160.000000 188.000000,154.399994 188.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 184.000000, 160.000000)'></polygon>
+<path d='M 208,152 L 208,160' fill='none' stroke='currentColor'></path>
+<polygon points='224.000000,160.000000 212.000000,154.399994 212.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 208.000000, 160.000000)'></polygon>
+<path d='M 232,152 L 232,160' fill='none' stroke='currentColor'></path>
+<polygon points='248.000000,160.000000 236.000000,154.399994 236.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 232.000000, 160.000000)'></polygon>
+<path d='M 256,152 L 256,160' fill='none' stroke='currentColor'></path>
+<polygon points='272.000000,160.000000 260.000000,154.399994 260.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 256.000000, 160.000000)'></polygon>
+<path d='M 280,152 L 280,160' fill='none' stroke='currentColor'></path>
+<polygon points='296.000000,160.000000 284.000000,154.399994 284.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 280.000000, 160.000000)'></polygon>
+<path d='M 304,152 L 304,160' fill='none' stroke='currentColor'></path>
+<polygon points='320.000000,160.000000 308.000000,154.399994 308.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 304.000000, 160.000000)'></polygon>
+<path d='M 328,152 L 328,160' fill='none' stroke='currentColor'></path>
+<polygon points='344.000000,160.000000 332.000000,154.399994 332.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 328.000000, 160.000000)'></polygon>
+<path d='M 384,152 L 384,160' fill='none' stroke='currentColor'></path>
+<polygon points='400.000000,160.000000 388.000000,154.399994 388.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 384.000000, 160.000000)'></polygon>
+<path d='M 408,152 L 408,160' fill='none' stroke='currentColor'></path>
+<polygon points='424.000000,160.000000 412.000000,154.399994 412.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 408.000000, 160.000000)'></polygon>
+<path d='M 432,152 L 432,160' fill='none' stroke='currentColor'></path>
+<polygon points='448.000000,160.000000 436.000000,154.399994 436.000000,165.600006' fill='currentColor' transform='rotate(270.000000, 432.000000, 160.000000)'></polygon>
+<path d='M 72,32 A 16,16 0 0,0 56,48' fill='none' stroke='currentColor'></path>
+<path d='M 136,32 A 16,16 0 0,1 152,48' fill='none' stroke='currentColor'></path>
+<path d='M 168,32 A 16,16 0 0,0 152,48' fill='none' stroke='currentColor'></path>
+<path d='M 280,32 A 16,16 0 0,1 296,48' fill='none' stroke='currentColor'></path>
+<path d='M 312,32 A 16,16 0 0,0 296,48' fill='none' stroke='currentColor'></path>
+<path d='M 416,32 A 16,16 0 0,1 432,48' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='0' y='164' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='0' y='180' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='8' y='132' fill='currentColor' style='font-size:1em'>K</text>
+<text text-anchor='middle' x='8' y='164' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='8' y='180' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='16' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='164' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='16' y='180' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='24' y='132' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='24' y='164' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='180' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='32' y='132' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='164' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='32' y='180' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='40' y='132' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='40' y='164' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='40' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='48' y='164' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='48' y='180' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='56' y='100' fill='currentColor' style='font-size:1em'>|</text>
+<text text-anchor='middle' x='64' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='72' y='84' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='80' y='84' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='88' y='84' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='96' y='84' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='84' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='128' y='84' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='136' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='68' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='144' y='84' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='152' y='68' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='160' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='168' y='68' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='168' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='68' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='176' y='84' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='184' y='68' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='184' y='84' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='192' y='68' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='192' y='84' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='200' y='84' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='272' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='272' y='84' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='280' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='288' y='68' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='288' y='84' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='296' y='68' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='296' y='84' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='304' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='304' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='312' y='68' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='312' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='320' y='68' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='320' y='84' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='328' y='68' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='328' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='336' y='68' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='336' y='84' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='344' y='68' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='344' y='84' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='352' y='68' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='352' y='84' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='352' y='132' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='400' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='400' y='84' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='408' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='416' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='416' y='84' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='424' y='4' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='424' y='84' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='432' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='440' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='448' y='84' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='456' y='84' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='464' y='84' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='472' y='84' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='480' y='84' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='488' y='84' fill='currentColor' style='font-size:1em'>y</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ol>
+<hr>
+<h3 id="render-pixel">Render Pixel</h3>
+<p>(2024-02-05)</p>
+<p><strong>A block for a tile; A thread for a Gaussian; A pixel is an iterative composition of multiple Gaussian.</strong>
+Ultimately, in the end, a thread in a block corresponds to a pixel.</p>
+<p>A thread syntheses a single <strong>pixel</strong> by performing alpha compositing Gaussian-by-Gaussian.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">renderCUDA</span><span class="o">&lt;</span><span class="n">NUM_CHANNELS</span><span class="o">&gt;</span> <span class="o">&lt;&lt;</span> <span class="o">&lt;</span><span class="n">grid</span><span class="p">,</span> <span class="n">block</span> <span class="o">&gt;&gt;</span> <span class="o">&gt;</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// grid: (7,7,1), block: (16,16,1), 49*256 threads for 100x100 pix
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>A pixel&rsquo;s color is rendered within the tile encompassing it, based on the obtained sorted sequence of Gaussians&rsquo; indices.</p>
+</li>
+<li>
+<p>All pixels in a tile correspond to the same Gaussians, but with different weights,
+as the weights depend on distance from the pixel coordinates to the 2D Gaussian center.</p>
 
 
 
@@ -2007,215 +2343,887 @@ and for keys with identical tile id, the depths are then sorted.</p>
       xmlns="http://www.w3.org/2000/svg"
       font-family="Menlo,Lucida Console,monospace"
       
-        viewBox="0 0 504 137"
+        viewBox="0 0 432 169"
       >
       <g transform='translate(8,16)'>
-<path d='M 48,48 L 72,48' fill='none' stroke='currentColor'></path>
-<path d='M 72,48 L 96,48' fill='none' stroke='currentColor'></path>
-<path d='M 96,48 L 120,48' fill='none' stroke='currentColor'></path>
-<path d='M 120,48 L 144,48' fill='none' stroke='currentColor'></path>
-<path d='M 144,48 L 168,48' fill='none' stroke='currentColor'></path>
-<path d='M 168,48 L 192,48' fill='none' stroke='currentColor'></path>
-<path d='M 192,48 L 216,48' fill='none' stroke='currentColor'></path>
-<path d='M 216,48 L 240,48' fill='none' stroke='currentColor'></path>
-<path d='M 240,48 L 264,48' fill='none' stroke='currentColor'></path>
-<path d='M 264,48 L 288,48' fill='none' stroke='currentColor'></path>
-<path d='M 288,48 L 312,48' fill='none' stroke='currentColor'></path>
-<path d='M 312,48 L 336,48' fill='none' stroke='currentColor'></path>
-<path d='M 368,48 L 392,48' fill='none' stroke='currentColor'></path>
-<path d='M 392,48 L 416,48' fill='none' stroke='currentColor'></path>
-<path d='M 416,48 L 440,48' fill='none' stroke='currentColor'></path>
-<path d='M 48,80 L 72,80' fill='none' stroke='currentColor'></path>
-<path d='M 72,80 L 96,80' fill='none' stroke='currentColor'></path>
-<path d='M 96,80 L 120,80' fill='none' stroke='currentColor'></path>
-<path d='M 120,80 L 144,80' fill='none' stroke='currentColor'></path>
-<path d='M 144,80 L 168,80' fill='none' stroke='currentColor'></path>
-<path d='M 168,80 L 192,80' fill='none' stroke='currentColor'></path>
-<path d='M 192,80 L 216,80' fill='none' stroke='currentColor'></path>
-<path d='M 216,80 L 240,80' fill='none' stroke='currentColor'></path>
-<path d='M 240,80 L 264,80' fill='none' stroke='currentColor'></path>
-<path d='M 264,80 L 288,80' fill='none' stroke='currentColor'></path>
-<path d='M 288,80 L 312,80' fill='none' stroke='currentColor'></path>
-<path d='M 312,80 L 336,80' fill='none' stroke='currentColor'></path>
-<path d='M 368,80 L 392,80' fill='none' stroke='currentColor'></path>
-<path d='M 392,80 L 416,80' fill='none' stroke='currentColor'></path>
-<path d='M 416,80 L 440,80' fill='none' stroke='currentColor'></path>
-<path d='M 48,48 L 48,80' fill='none' stroke='currentColor'></path>
-<path d='M 64,96 L 64,112' fill='none' stroke='currentColor'></path>
-<path d='M 72,48 L 72,80' fill='none' stroke='currentColor'></path>
-<path d='M 88,96 L 88,112' fill='none' stroke='currentColor'></path>
-<path d='M 96,48 L 96,80' fill='none' stroke='currentColor'></path>
-<path d='M 112,96 L 112,112' fill='none' stroke='currentColor'></path>
-<path d='M 120,48 L 120,80' fill='none' stroke='currentColor'></path>
-<path d='M 136,96 L 136,112' fill='none' stroke='currentColor'></path>
-<path d='M 144,48 L 144,80' fill='none' stroke='currentColor'></path>
-<path d='M 152,24 L 152,40' fill='none' stroke='currentColor'></path>
-<path d='M 160,96 L 160,112' fill='none' stroke='currentColor'></path>
-<path d='M 168,48 L 168,80' fill='none' stroke='currentColor'></path>
-<path d='M 184,96 L 184,112' fill='none' stroke='currentColor'></path>
-<path d='M 192,48 L 192,80' fill='none' stroke='currentColor'></path>
-<path d='M 208,96 L 208,112' fill='none' stroke='currentColor'></path>
-<path d='M 216,48 L 216,80' fill='none' stroke='currentColor'></path>
-<path d='M 232,96 L 232,112' fill='none' stroke='currentColor'></path>
-<path d='M 240,48 L 240,80' fill='none' stroke='currentColor'></path>
-<path d='M 256,96 L 256,112' fill='none' stroke='currentColor'></path>
-<path d='M 264,48 L 264,80' fill='none' stroke='currentColor'></path>
-<path d='M 280,96 L 280,112' fill='none' stroke='currentColor'></path>
-<path d='M 288,48 L 288,80' fill='none' stroke='currentColor'></path>
-<path d='M 296,24 L 296,40' fill='none' stroke='currentColor'></path>
-<path d='M 304,96 L 304,112' fill='none' stroke='currentColor'></path>
-<path d='M 312,48 L 312,80' fill='none' stroke='currentColor'></path>
-<path d='M 328,96 L 328,112' fill='none' stroke='currentColor'></path>
-<path d='M 336,48 L 336,80' fill='none' stroke='currentColor'></path>
-<path d='M 368,48 L 368,80' fill='none' stroke='currentColor'></path>
-<path d='M 384,96 L 384,112' fill='none' stroke='currentColor'></path>
-<path d='M 392,48 L 392,80' fill='none' stroke='currentColor'></path>
-<path d='M 408,96 L 408,112' fill='none' stroke='currentColor'></path>
-<path d='M 416,48 L 416,80' fill='none' stroke='currentColor'></path>
-<path d='M 432,24 L 432,40' fill='none' stroke='currentColor'></path>
-<path d='M 432,96 L 432,112' fill='none' stroke='currentColor'></path>
-<path d='M 440,48 L 440,80' fill='none' stroke='currentColor'></path>
-<path d='M 152,32 L 152,40' fill='none' stroke='currentColor'></path>
-<path d='M 296,32 L 296,40' fill='none' stroke='currentColor'></path>
-<path d='M 432,32 L 432,40' fill='none' stroke='currentColor'></path>
-<path d='M 64,88 L 64,96' fill='none' stroke='currentColor'></path>
-<polygon points='80.000000,96.000000 68.000000,90.400002 68.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 64.000000, 96.000000)'></polygon>
-<path d='M 88,88 L 88,96' fill='none' stroke='currentColor'></path>
-<polygon points='104.000000,96.000000 92.000000,90.400002 92.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 88.000000, 96.000000)'></polygon>
-<path d='M 112,88 L 112,96' fill='none' stroke='currentColor'></path>
-<polygon points='128.000000,96.000000 116.000000,90.400002 116.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 112.000000, 96.000000)'></polygon>
-<path d='M 136,88 L 136,96' fill='none' stroke='currentColor'></path>
-<polygon points='152.000000,96.000000 140.000000,90.400002 140.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 136.000000, 96.000000)'></polygon>
-<path d='M 160,88 L 160,96' fill='none' stroke='currentColor'></path>
-<polygon points='176.000000,96.000000 164.000000,90.400002 164.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 160.000000, 96.000000)'></polygon>
-<path d='M 184,88 L 184,96' fill='none' stroke='currentColor'></path>
-<polygon points='200.000000,96.000000 188.000000,90.400002 188.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 184.000000, 96.000000)'></polygon>
-<path d='M 208,88 L 208,96' fill='none' stroke='currentColor'></path>
-<polygon points='224.000000,96.000000 212.000000,90.400002 212.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 208.000000, 96.000000)'></polygon>
-<path d='M 232,88 L 232,96' fill='none' stroke='currentColor'></path>
-<polygon points='248.000000,96.000000 236.000000,90.400002 236.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 232.000000, 96.000000)'></polygon>
-<path d='M 256,88 L 256,96' fill='none' stroke='currentColor'></path>
-<polygon points='272.000000,96.000000 260.000000,90.400002 260.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 256.000000, 96.000000)'></polygon>
-<path d='M 280,88 L 280,96' fill='none' stroke='currentColor'></path>
-<polygon points='296.000000,96.000000 284.000000,90.400002 284.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 280.000000, 96.000000)'></polygon>
-<path d='M 304,88 L 304,96' fill='none' stroke='currentColor'></path>
-<polygon points='320.000000,96.000000 308.000000,90.400002 308.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 304.000000, 96.000000)'></polygon>
-<path d='M 328,88 L 328,96' fill='none' stroke='currentColor'></path>
-<polygon points='344.000000,96.000000 332.000000,90.400002 332.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 328.000000, 96.000000)'></polygon>
-<path d='M 384,88 L 384,96' fill='none' stroke='currentColor'></path>
-<polygon points='400.000000,96.000000 388.000000,90.400002 388.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 384.000000, 96.000000)'></polygon>
-<path d='M 408,88 L 408,96' fill='none' stroke='currentColor'></path>
-<polygon points='424.000000,96.000000 412.000000,90.400002 412.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 408.000000, 96.000000)'></polygon>
-<path d='M 432,88 L 432,96' fill='none' stroke='currentColor'></path>
-<polygon points='448.000000,96.000000 436.000000,90.400002 436.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 432.000000, 96.000000)'></polygon>
-<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>B</text>
-<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>t</text>
-<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>(</text>
-<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>o</text>
-<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>K</text>
-<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>h</text>
-<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>p</text>
-<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>u</text>
-<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>r</text>
-<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>a</text>
-<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>r</text>
-<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>n</text>
-<text text-anchor='middle' x='24' y='68' fill='currentColor' style='font-size:1em'>y</text>
-<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>i</text>
-<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>a</text>
-<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>d</text>
-<text text-anchor='middle' x='32' y='68' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>a</text>
-<text text-anchor='middle' x='32' y='116' fill='currentColor' style='font-size:1em'>r</text>
-<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>n</text>
-<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='40' y='68' fill='currentColor' style='font-size:1em'>:</text>
-<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>d</text>
-<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>g</text>
-<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>:</text>
-<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>:</text>
-<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>)</text>
-<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>|</text>
-<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>[</text>
-<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>0</text>
-<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>]</text>
-<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>.</text>
-<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>x</text>
-<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>r</text>
-<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>r</text>
-<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>a</text>
-<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>a</text>
-<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>n</text>
-<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>n</text>
-<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>g</text>
-<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>g</text>
-<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<path d='M 48,48 L 88,48' fill='none' stroke='currentColor'></path>
+<path d='M 32,96 L 88,96' fill='none' stroke='currentColor'></path>
+<path d='M 16,64 L 16,128' fill='none' stroke='currentColor'></path>
+<path d='M 48,0 L 48,48' fill='none' stroke='currentColor'></path>
+<path d='M 48,48 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,64 L 48,0' fill='none' stroke='currentColor'></path>
+<path d='M 16,128 L 32,96' fill='none' stroke='currentColor'></path>
+<path d='M 32,96 L 48,64' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='8' y='148' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>■</text>
+<text text-anchor='middle' x='24' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='32' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>■</text>
+<text text-anchor='middle' x='40' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='48' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='152' y='100' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>s</text>
 <text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>[</text>
-<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>[</text>
-<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>0</text>
-<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>]</text>
-<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>]</text>
-<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>.</text>
-<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>.</text>
-<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>x</text>
-<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>y</text>
-<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>r</text>
-<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>r</text>
-<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>a</text>
-<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>a</text>
-<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>n</text>
-<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>n</text>
-<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>g</text>
-<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>g</text>
-<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='200' y='100' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='240' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='240' y='100' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='296' y='36' fill='currentColor' style='font-size:1em'>j</text>
+<text text-anchor='middle' x='296' y='52' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='296' y='100' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>s</text>
 <text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>[</text>
-<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>[</text>
-<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='328' y='20' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>]</text>
-<text text-anchor='middle' x='336' y='20' fill='currentColor' style='font-size:1em'>]</text>
-<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>.</text>
-<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>.</text>
-<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>x</text>
-<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>y</text>
-<text text-anchor='middle' x='352' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='344' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='344' y='100' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='384' y='20' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='384' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='392' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='392' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='400' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='400' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='400' y='52' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='400' y='100' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='408' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='408' y='36' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='416' y='36' fill='currentColor' style='font-size:1em'>e</text>
+</g>
+
+    </svg>
+  
+</div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">!</span><span class="n">done</span> <span class="o">&amp;&amp;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">min</span><span class="p">(</span><span class="n">BLOCK_SIZE</span><span class="p">,</span> <span class="n">toDo</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">     <span class="p">...</span>
+</span></span><span class="line"><span class="cl">     <span class="n">float2</span> <span class="n">xy</span> <span class="o">=</span> <span class="n">collected_xy</span><span class="p">[</span><span class="n">j</span><span class="p">];</span> <span class="c1">// pixel coords
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="n">float2</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{</span> <span class="n">xy</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">pixf</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">xy</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">pixf</span><span class="p">.</span><span class="n">y</span> <span class="p">};</span> <span class="c1">// dist
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="n">float4</span> <span class="n">con_o</span> <span class="o">=</span> <span class="n">collected_conic_opacity</span><span class="p">[</span><span class="n">j</span><span class="p">];</span> <span class="c1">// cov
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="kt">float</span> <span class="n">power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="p">(</span><span class="n">con_o</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">con_o</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">con_o</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The coordinates of the pixel to be rendered by a thread is obtained as followes:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 528 233"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 64,64 L 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 L 192,64' fill='none' stroke='currentColor'></path>
+<path d='M 104,96 L 152,96' fill='none' stroke='currentColor'></path>
+<path d='M 152,128 L 192,128' fill='none' stroke='currentColor'></path>
+<path d='M 192,128 L 216,128' fill='none' stroke='currentColor'></path>
+<path d='M 104,144 L 152,144' fill='none' stroke='currentColor'></path>
+<path d='M 64,176 L 192,176' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 64,176' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 L 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 L 88,80' fill='none' stroke='currentColor'></path>
+<path d='M 104,96 L 104,144' fill='none' stroke='currentColor'></path>
+<path d='M 152,96 L 152,128' fill='none' stroke='currentColor'></path>
+<path d='M 152,128 L 152,144' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 192,128' fill='none' stroke='currentColor'></path>
+<path d='M 192,128 L 192,176' fill='none' stroke='currentColor'></path>
+<polygon points='96.000000,32.000000 84.000000,26.400000 84.000000,37.599998' fill='currentColor' transform='rotate(270.000000, 88.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='0' y='132' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='8' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='16' y='132' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='24' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='32' y='132' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='40' y='132' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='48' y='52' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='56' y='52' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='64' y='52' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='72' y='212' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='80' y='212' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='88' y='212' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='96' y='212' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='112' y='132' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='112' y='212' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='120' y='212' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='128' y='132' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='128' y='212' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='136' y='52' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='136' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='136' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='212' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='144' y='52' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='144' y='132' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='144' y='212' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='152' y='212' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='160' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='160' y='212' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='168' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='196' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='176' y='212' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='184' y='196' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='184' y='212' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='192' y='196' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='192' y='212' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='200' y='196' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='200' y='212' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='208' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='208' y='212' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='216' y='196' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='224' y='196' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='232' y='132' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='232' y='148' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='240' y='132' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='240' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='248' y='148' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='256' y='132' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='256' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='264' y='132' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='264' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='272' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='272' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='280' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='132' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='288' y='116' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='288' y='132' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='288' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='304' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='304' y='132' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='304' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='312' y='116' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='312' y='132' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='312' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='320' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='320' y='148' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='328' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='336' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='336' y='116' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='336' y='148' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='344' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='352' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='360' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='368' y='20' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='368' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='376' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='376' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='384' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='384' y='148' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='392' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='400' y='4' fill='currentColor' style='font-size:1em'>+</text>
 <text text-anchor='middle' x='400' y='20' fill='currentColor' style='font-size:1em'>r</text>
-<text text-anchor='middle' x='408' y='20' fill='currentColor' style='font-size:1em'>a</text>
-<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>n</text>
-<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>g</text>
-<text text-anchor='middle' x='432' y='20' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>[</text>
-<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>4</text>
-<text text-anchor='middle' x='464' y='20' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='472' y='20' fill='currentColor' style='font-size:1em'>]</text>
-<text text-anchor='middle' x='480' y='20' fill='currentColor' style='font-size:1em'>.</text>
-<text text-anchor='middle' x='488' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='400' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='408' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='408' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='408' y='148' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='416' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='416' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='424' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='424' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='432' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='432' y='20' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='432' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='440' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='440' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='448' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='448' y='148' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='456' y='4' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='464' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='464' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='472' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='472' y='20' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='480' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='480' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='488' y='4' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='488' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='496' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='496' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='504' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='504' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='512' y='20' fill='currentColor' style='font-size:1em'>)</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li><code>pix_min</code> = (2 * BLOCK_X, 1 * BLOCK_Y) = (32, 16)</li>
+<li><code>pix_max</code> = (max(32+BLOCK_X, W), max(16+BLOCK_Y, H)) = (48, 32)</li>
+<li><code>pix</code> = (48+block.thread_index().x, 32+block.thread_index().y)</li>
+<li><code>pix_id</code> = 100*pix.y + pix.x</li>
+<li>tile id = 1*7 + 2 = 9</li>
+<li><code>range = ranges[9]</code>, number of Gaussians for this tile.</li>
+</ul>
+</li>
+<li>
+<p>After the pixel is fully rendered as the accumulated transmittance <code>T</code> is close to 0.0,
+this thread is assigned to transfer data (Gaussian properties) from the global memory to shared memory.</p>
+</li>
+</ul>
+<hr>
+<p>(2023-02-06)  <a id="repeat-work"></a></p>
+<p><strong>A 16×16 thread block works repeatedly for one tile.</strong></p>
+<p>In NeRF, a rendering batch comprises multiple <strong>rays</strong> emitted from pixels,
+while in 3DGS, a rendering batch is a tile (16x16) of <strong>pixels</strong>.</p>
+<ul>
+<li>
+<p>Different tile has different number of tile-Gaussian pairs (<code>range</code>).
+Thus, each tile requires varying computations.</p>
+</li>
+<li>
+<p>Each pixel in a <strong>tile</strong> results from multiple (<code>range</code>) tile-Gaussian pairs.
+Each tile-Gaussian pair is a &ldquo;filter composition&rdquo; and requires a thread to execute <strong>once</strong>.
+As only a single 16x16 thread block is assigned to render the tile.
+To fulfill all the tile-Gaussian pairs composition, the equal amount (<code>range</code>) of thread executions are needed.
+Thus, the computation for a tile has to re-use the 16x16 thread block several times  repeatedly, i.e., <code>rounds</code> <strong>times</strong>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">uint2</span> <span class="n">range</span> <span class="o">=</span> <span class="n">ranges</span><span class="p">[</span><span class="n">block</span><span class="p">.</span><span class="n">group_index</span><span class="p">().</span><span class="n">y</span> <span class="o">*</span> <span class="n">horizontal_blocks</span> <span class="o">+</span> <span class="n">block</span><span class="p">.</span><span class="n">group_index</span><span class="p">().</span><span class="n">x</span><span class="p">];</span>  <span class="c1">// given tile index, read (starting pair, ending tile-Gaussian pair)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">const</span> <span class="kt">int</span> <span class="n">rounds</span> <span class="o">=</span> <span class="p">((</span><span class="n">range</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">range</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">BLOCK_SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BLOCK_SIZE</span><span class="p">);</span>	<span class="c1">// the number of 16x16 blocks are allocated based on the number of tile-Gaussian pairs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="n">toDo</span> <span class="o">=</span> <span class="n">range</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">range</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>	<span class="c1">// number of tile-Gaussian pairs to render the tile
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>For example, if the tile 0 corresponds to 158 tile-Gaussian pairs in the sorted list: <code>point_list_keys</code>,
+the 16x16 thread block runs only once to render pixels in tile 0.
+And if tile 1&rsquo;s <code>range</code> is 768 tile-Gaussian pairs, 3-round executions are needed.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 520 185"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 24,16 L 104,16' fill='none' stroke='currentColor'></path>
+<path d='M 120,16 L 200,16' fill='none' stroke='currentColor'></path>
+<path d='M 216,16 L 296,16' fill='none' stroke='currentColor'></path>
+<path d='M 312,16 L 392,16' fill='none' stroke='currentColor'></path>
+<path d='M 424,16 L 456,16' fill='none' stroke='currentColor'></path>
+<path d='M 456,16 L 504,16' fill='none' stroke='currentColor'></path>
+<path d='M 24,96 L 104,96' fill='none' stroke='currentColor'></path>
+<path d='M 120,96 L 200,96' fill='none' stroke='currentColor'></path>
+<path d='M 216,96 L 296,96' fill='none' stroke='currentColor'></path>
+<path d='M 312,96 L 392,96' fill='none' stroke='currentColor'></path>
+<path d='M 424,96 L 456,96' fill='none' stroke='currentColor'></path>
+<path d='M 456,96 L 504,96' fill='none' stroke='currentColor'></path>
+<path d='M 24,16 L 24,96' fill='none' stroke='currentColor'></path>
+<path d='M 104,16 L 104,96' fill='none' stroke='currentColor'></path>
+<path d='M 120,16 L 120,96' fill='none' stroke='currentColor'></path>
+<path d='M 200,16 L 200,96' fill='none' stroke='currentColor'></path>
+<path d='M 216,16 L 216,96' fill='none' stroke='currentColor'></path>
+<path d='M 296,16 L 296,96' fill='none' stroke='currentColor'></path>
+<path d='M 312,16 L 312,96' fill='none' stroke='currentColor'></path>
+<path d='M 392,16 L 392,96' fill='none' stroke='currentColor'></path>
+<path d='M 424,16 L 424,96' fill='none' stroke='currentColor'></path>
+<path d='M 456,16 L 456,96' fill='none' stroke='currentColor'></path>
+<path d='M 504,16 L 504,96' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='0' y='132' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='0' y='148' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='0' y='164' fill='currentColor' style='font-size:1em'>H</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='40' y='132' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='40' y='148' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='48' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='56' y='132' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='64' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='64' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='72' y='116' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='72' y='148' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='80' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='88' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='88' y='148' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='136' y='116' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='136' y='132' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='136' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='144' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='132' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='152' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='160' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='160' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='160' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='168' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='168' y='116' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='168' y='148' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='176' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='176' y='132' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='184' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='184' y='148' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='192' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='232' y='132' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='240' y='36' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='240' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='256' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='272' y='132' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='280' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='280' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='344' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='360' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='376' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='408' y='4' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='408' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='424' y='4' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='432' y='4' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='432' y='36' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='440' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='448' y='36' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='456' y='4' fill='currentColor' style='font-size:1em'>W</text>
+<text text-anchor='middle' x='464' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='472' y='36' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='480' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='488' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='488' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='496' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='496' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='504' y='4' fill='currentColor' style='font-size:1em'>2</text>
 </g>
 
     </svg>
   
 </div>
 </li>
+<li>
+<p>Every Gaussian gets added onto <strong>every pixel</strong> (color += color * alpha * T) until a pixel gets fully rendered,
+i.e., T is close to 0:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// Iterate tiles
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">rounds</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">toDo</span> <span class="o">-=</span> <span class="n">BLOCK_SIZE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// if pixels in the tile are all rendered, break
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Iterate Gaussians
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">!</span><span class="n">done</span> <span class="o">&amp;&amp;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">min</span><span class="p">(</span><span class="n">BLOCK_SIZE</span><span class="p">,</span> <span class="n">toDo</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="p">...</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Add a Gaussian to every pixel with specific weight
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ch</span> <span class="o">&lt;</span> <span class="n">CHANNELS</span><span class="p">;</span> <span class="n">ch</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">C</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">+=</span> <span class="n">features</span><span class="p">[</span><span class="n">collected_id</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">CHANNELS</span> <span class="o">+</span> <span class="n">ch</span><span class="p">]</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">T</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The alpha compositing can be calculated <strong>in parallel</strong>,
+as the cumulative summation is definite and independent of the adding sequence.</p>
+</li>
+</ul>
+<hr>
+<h3 id="back-render">back render</h3>
+<p>(2024-02-09)  <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/rasterizer_impl.cu#L390"  target="_blank" rel="noopener"
+    >Calling entry</a></p>
+<p>The partial derivatives of Loss w.r.t. each Gaussian can be computed <strong>in parallel</strong> similar to forward rendering,
+as the contribution is a summation?</p>
+<ul>
+<li>Incoming gradient: <code>dL_dpixels</code></li>
+<li>Accumulated transmittance over all Gaussians is known, so accumulated transmittance of <strong>each</strong> Gaussian can be accquired with:
+$T_{curr} = \frac{T_{curr+1}}{(1-α_{curr})} $</li>
+</ul>
+<p>(2024-02-10)</p>
+<p>For color scalar (R,G,B) in each channel k:</p>
+<ol>
+<li>
+<p>Partial derivative of Loss w.r.t. each Gaussian&rsquo;s color: <code>d</code></p>
+<p>$$\rm \frac{∂C_{pixel}}{∂C_{k}} = α_{curr}⋅ T_{curr}$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">T</span> <span class="o">=</span> <span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dchannel_dcolor</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">T</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ch</span> <span class="o">&lt;</span> <span class="n">C</span><span class="p">;</span> <span class="n">ch</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl">  <span class="k">const</span> <span class="kt">float</span> <span class="n">dL_dchannel</span> <span class="o">=</span> <span class="n">dL_dpixel</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// add to previous dL_dcolors
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">dL_dcolors</span><span class="p">[</span><span class="n">global_id</span> <span class="o">*</span> <span class="n">C</span> <span class="o">+</span> <span class="n">ch</span><span class="p">]),</span> <span class="n">dchannel_dcolor</span> <span class="o">*</span> <span class="n">dL_dchannel</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Partial derivative of Loss w.r.t. each Gaussian&rsquo;s alpha: <code>d</code></p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 296 89"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 32,0 L 56,0' fill='none' stroke='currentColor'></path>
+<path d='M 232,16 L 256,16' fill='none' stroke='currentColor'></path>
+<path d='M 232,48 L 256,48' fill='none' stroke='currentColor'></path>
+<path d='M 232,16 L 232,48' fill='none' stroke='currentColor'></path>
+<path d='M 256,16 L 256,48' fill='none' stroke='currentColor'></path>
+<polygon points='40.000000,0.000000 28.000000,-5.600000 28.000000,5.600000' fill='currentColor' transform='rotate(180.000000, 32.000000, 0.000000)'></polygon>
+<path d='M 16,16 A 16,16 0 0,0 0,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,16 A 16,16 0 0,1 32,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 A 16,16 0 0,0 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 A 16,16 0 0,1 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 A 16,16 0 0,0 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 A 16,16 0 0,1 160,32' fill='none' stroke='currentColor'></path>
+<path d='M 0,32 A 16,16 0 0,0 16,48' fill='none' stroke='currentColor'></path>
+<path d='M 32,32 A 16,16 0 0,1 16,48' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 A 16,16 0 0,0 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 A 16,16 0 0,1 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 128,32 A 16,16 0 0,0 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 A 16,16 0 0,1 144,48' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='68' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='24' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='32' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='40' y='68' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>✚</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='72' y='68' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='88' y='68' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>✚</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='136' y='68' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='144' y='68' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='160' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>✚</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='240' y='68' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='248' y='68' fill='currentColor' style='font-size:1em'>x</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>$$
+\begin{aligned}
+\rm C_{pix} &amp;= \rm  C_{last-1} α_{last-1} T_{curr}(1-α_{curr})(1-α_{last}) +
+C_{last}α_{last}T_{curr}(1-α_{curr}) + C_{curr} α_{curr} T_{curr} + ⋯
+\\
+\rm \frac{∂C_{pix}}{∂α_{curr}} &amp;= \rm  - C_{last-1} α_{last-1} T_{curr}(1-α_{last}) -
+C_{last}α_{last}T_{curr} + C_{curr} T_{curr}
+\\
+&amp;= \rm (C_{curr} - \underbrace{C_{last-1} α_{last-1}}_{\text{accum rec}} (1-α_{last}) - C_{last}α_{last}) ⋅ T_{curr} \\
+\rm \frac{∂L}{∂α_{curr}} &amp;= \rm \frac{∂L}{∂C_{pix}}⋅ \frac{∂C_{pix}}{∂α_{curr}}
+\end{aligned}
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ch</span> <span class="o">&lt;</span> <span class="n">C</span><span class="p">;</span> <span class="n">ch</span><span class="o">++</span><span class="p">)</span>  <span class="c1">// R,G,B 3 chnls
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">const</span> <span class="kt">float</span> <span class="n">c</span> <span class="o">=</span> <span class="n">collected_colors</span><span class="p">[</span><span class="n">ch</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">j</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="n">accum_rec</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_alpha</span> <span class="o">*</span> <span class="n">last_color</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">last_alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">accum_rec</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="n">last_color</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">const</span> <span class="kt">float</span> <span class="n">dL_dchannel</span> <span class="o">=</span> <span class="n">dL_dpixel</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="n">dL_dalpha</span> <span class="o">+=</span> <span class="p">(</span><span class="n">c</span> <span class="o">-</span> <span class="n">accum_rec</span><span class="p">[</span><span class="n">ch</span><span class="p">])</span> <span class="o">*</span> <span class="n">dL_dchannel</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">dL_dalpha</span> <span class="o">*=</span> <span class="n">T</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details><summary>Old notes</summary>
+<p>$$
+\rm \frac{∂C_{pixel}}{∂ α_{curr}} = C_{k} T_{curr} - \frac{∑_{m&gt;curr}cₘ⋅αₘ⋅ Tₘ}{1-α_{curr}}
+$$</p>
+<p>A summation of subsequent Gaussians which are based on the current Gaussian.</p>
+<p>As the solving process starts from the rare Gaussian that depends on all previous Gaussians to,
+when calculating the current Gaussian, the summation of Gaussians affected by it is ready to use.</p>
+</details>
+<p>Consider the contribution of background color to the pixel color finally:</p>
+<p>$$
+\begin{aligned}
+\rm C_{pix} &amp;= \rm C_{gs} + T_{final}C_{bg} \\
+\rm \frac{∂ L}{∂ α_{gs}} &amp;= \rm \frac{∂ L}{∂ C_{pix}} ⋅ ( \frac{∂C_{pix}}{∂α_{gs}} +
+\frac{∂C_{pix}}{∂T_{final}} ⋅ \frac{∂T_{final}}{∂α_{gs}} ) \\
+&amp;= \rm \frac{∂L}{∂α_{gs}} + \frac{∂ L}{∂ C_{pix}} ⋅ C_{bg} ⋅ (-\frac{T_{final}}{(1-α_{gs})})
+\end{aligned}
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">bg_dot_dpixel</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">C</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bg_dot_dpixel</span> <span class="o">+=</span> <span class="n">bg_color</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">dL_dpixel</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">dL_dalpha</span> <span class="o">+=</span> <span class="p">(</span><span class="o">-</span><span class="n">T_final</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">))</span> <span class="o">*</span> <span class="n">bg_dot_dpixel</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Partial derivative of Loss w.r.t. 2D means:</p>
+<p>$$ \begin{aligned}
+G &amp;= e^{-½ (\bm μ-𝐱)ᵀ \bm Σ⁻¹ (\bm μ-𝐱)} \\
+&amp;= exp(-½ ⋅ [μₓ-x \ μ_y-y] ⋅ [^{a \ b}_{d \ c}] ⋅ [^{μₓ-x} _{μ_y-y}])\\
+&amp;= exp(-½⋅ (a⋅Δₓ² + (b+d)⋅ΔₓΔ_y + c⋅Δ_y²)) \\
+α &amp;= o ⋅ G \\
+\frac{∂α}{∂Δₓ} &amp;= o⋅G⋅ (-aΔₓ - bΔ_y) \\
+\frac{∂L}{∂μ_{x(flim)}} &amp;= \frac{∂L}{∂α}⋅ \frac{∂α}{∂Δₓ}⋅ \frac{∂Δₓ}{∂μₓ} ⋅ \frac{∂μₓ}{∂μ_{x (film)}}
+\\
+&amp;= \frac{∂L}{∂α} ⋅o⋅G⋅ (-aΔₓ - bΔ_y) ⋅ 1 ⋅ \frac{W}{2}
+\end{aligned} $$</p>
+<ul>
+<li>where b=d. To be consistent with the derivative ∂L/∂b within a Jacobian matrix, the b and d are separated instead of 2b.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">ddelx_dx</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">W</span><span class="p">;</span> <span class="c1">// viewport transform
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">const</span> <span class="kt">float</span> <span class="n">ddely_dy</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">H</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dL_dG</span> <span class="o">=</span> <span class="n">con_o</span><span class="p">.</span><span class="n">w</span> <span class="o">*</span> <span class="n">dL_dalpha</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">gdx</span> <span class="o">=</span> <span class="n">G</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">gdy</span> <span class="o">=</span> <span class="n">G</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dG_ddelx</span> <span class="o">=</span> <span class="o">-</span><span class="n">gdx</span> <span class="o">*</span> <span class="n">con_o</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">gdy</span> <span class="o">*</span> <span class="n">con_o</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dG_ddely</span> <span class="o">=</span> <span class="o">-</span><span class="n">gdy</span> <span class="o">*</span> <span class="n">con_o</span><span class="p">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">gdx</span> <span class="o">*</span> <span class="n">con_o</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Update gradients w.r.t. 2D mean position of the Gaussian
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dmean2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">x</span><span class="p">,</span> <span class="n">dL_dG</span> <span class="o">*</span> <span class="n">dG_ddelx</span> <span class="o">*</span> <span class="n">ddelx_dx</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dmean2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">y</span><span class="p">,</span> <span class="n">dL_dG</span> <span class="o">*</span> <span class="n">dG_ddely</span> <span class="o">*</span> <span class="n">ddely_dy</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Partial derivative of Loss w.r.t. 2D covariance matrix (a,b,c):</p>
+<p>$$ \frac{∂L}{∂a} = \frac{∂L}{∂α}⋅ \frac{∂α}{∂a}
+= \frac{∂L}{∂α}⋅ o ⋅ G ⋅ (-½Δₓ²) $$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dconic2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="n">gdx</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">dL_dG</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dconic2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="n">gdx</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">dL_dG</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dconic2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">w</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="n">gdy</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">dL_dG</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Partial derivative of Loss w.r.t. opacity</p>
+<p>$$ \frac{∂L}{∂o} = \frac{∂L}{∂α} ⋅ \frac{∂α}{∂o} = \frac{∂L}{∂α}⋅ G $$</p>
+</li>
 </ol>
 <hr>
-<h3 id="render-1">Render</h3>
-<p>(2024-02-04)</p>
-<ol>
-<li>Given a tile (thread block), first determine the indices of pixels that the tile is responsible for.</li>
-</ol>
+<h3 id="bw-cov3d-rayspace">bw cov3D raySpace</h3>
+<p>(2024-02-11)</p>
+<p>The relation between inverse 2D covariance matrix and the 2D covariance matrix will also contribute to derivatives:</p>
+<hr>
+<p>Covariance matrix in the ray space is obtained after performing viewing transform and projective transform:</p>
+<p>$$
+\begin{aligned}
+\bm Σ&rsquo;_{ray} &amp;= 𝐉⋅ 𝐑 ⋅\bm Σ_{world}⋅ 𝐑ᵀ ⋅𝐉ᵀ  \\
+\begin{bmatrix}
+a &amp; b &amp; ∘ \\ b &amp; c &amp; ∘ \\ ∘ &amp; ∘ &amp; ∘
+\end{bmatrix}
+&amp;= \begin{bmatrix}
+\frac{f_x}{t_z} &amp; 0 &amp; -\frac{f_x t_x}{t_z^2} \\
+0 &amp; \frac{f_y}{t_z} &amp; -\frac{f_y t_y}{t_z^2} \\
+\frac{t_x}{‖𝐭‖} &amp; \frac{t_y}{‖𝐭‖} &amp; \frac{t_z}{‖𝐭‖}
+\end{bmatrix}
+\begin{bmatrix}
+R_{11} &amp; R_{12} &amp; R_{13} \\ R_{21} &amp; R_{22} &amp; R_{23} \\ R_{31} &amp; R_{32} &amp; R_{33}
+\end{bmatrix}
+\begin{bmatrix}
+v_0 &amp; v_1 &amp; v_2 \\
+v_1 &amp; v_3 &amp; v_4 \\
+v_2 &amp; v_4 &amp; v_5 \\
+\end{bmatrix}
+\begin{bmatrix}
+R_{11} &amp; R_{21} &amp; R_{31} \\ R_{12} &amp; R_{22} &amp; R_{32} \\ R_{13} &amp; R_{23} &amp; R_{33}
+\end{bmatrix}
+\begin{bmatrix}
+\frac{f_x}{t_z} &amp; 0 &amp; \frac{t_x}{‖𝐭‖} \\
+0 &amp; \frac{f_y}{t_z} &amp; \frac{t_y}{‖𝐭‖} \\
+-\frac{f_x t_x}{t_z^2} &amp; -\frac{f_y t_y}{t_z^2} &amp; \frac{t_z}{‖𝐭‖}
+\end{bmatrix}
+\\
+\frac{∂L}{∂}
+\end{aligned}
+$$</p>
+<h3 id="bw-preprocess">bw preprocess</h3>
 
 </section>
 

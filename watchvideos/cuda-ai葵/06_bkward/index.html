@@ -325,18 +325,18 @@ So only vertices features f₁, f₃, f₅, f₇, f₂, f₄, f₆, f₈ need op
 <p>$$
 \begin{aligned}
 &amp;\frac{∂f}{∂f₁} = (1-u)(1-v)(1-w);
-&amp;\frac{∂f}{∂f₂} = u(1-v)(1-w);
+&amp;\frac{∂f}{∂f₂} &amp;= u(1-v)(1-w);   \\
 &amp;\frac{∂f}{∂f₃} = (1-u)v(1-w);
-&amp;\frac{∂f}{∂f₄} = uv(1-w); \\
+&amp;\frac{∂f}{∂f₄} &amp;= uv(1-w);   \\
 &amp;\frac{∂f}{∂f₅} = (1-u)(1-v)w;
-&amp;\frac{∂f}{∂f₆} = u(1-v)w;
+&amp;\frac{∂f}{∂f₆} &amp;= u(1-v)w;   \\
 &amp;\frac{∂f}{∂f₇} = (1-u)vw
-&amp;\frac{∂f}{∂f₈} = uvw
+&amp;\frac{∂f}{∂f₈} &amp;= uvw
 \end{aligned}
 $$</p>
 </li>
 <li>
-<p>The derivatives of L w.r.t. f₁, f₂, f₃, f₄, f₅, f₆, f₇, f₈</p>
+<p>The derivatives of <code>L</code> w.r.t. features f₁, f₂, f₃, f₄, f₅, f₆, f₇, f₈ are:</p>
 <p>$$
 \frac{∂L}{∂f} \frac{∂f}{∂f₁}; \quad
 \frac{∂L}{∂f} \frac{∂f}{∂f₂}; \quad
@@ -353,7 +353,7 @@ $$</p>
 <h2 id="bw-kernel">Bw Kernel</h2>
 <ol>
 <li>
-<p>Write <code>trilinear_bw_cu</code> based on <code>trilinear_fw_cu</code> in &ldquo;interpolation_kernel.cu&rdquo;</p>
+<p>Write host function <code>trilinear_bw_cu</code> based on <code>trilinear_fw_cu</code> in &ldquo;interpolation_kernel.cu&rdquo;</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -380,32 +380,28 @@ $$</p>
 </span><span class="lnt">22
 </span><span class="lnt">23
 </span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">trilinear_bw_cu</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">dL_dfeat_interp</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">feats</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">dL_dfeat_interp</span><span class="p">,</span>  <span class="c1">// Inputs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">const</span> <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">feats</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">points</span>
 </span></span><span class="line"><span class="cl"><span class="p">){</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="kt">int</span> <span class="n">N</span> <span class="o">=</span> <span class="n">points</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="kt">int</span> <span class="n">F</span> <span class="o">=</span> <span class="n">feats</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">dL_dfeats</span><span class="o">=</span><span class="n">torch</span><span class="o">::</span><span class="n">empty</span><span class="p">({</span><span class="n">N</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="n">F</span><span class="p">},</span> <span class="n">feats</span><span class="p">.</span><span class="n">options</span><span class="p">());</span> <span class="c1">// output data
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
-</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">dim3</span> <span class="nf">threads</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">16</span><span class="p">);</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">const</span> <span class="n">dim3</span> <span class="nf">threads</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">16</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">dim3</span> <span class="nf">blocks</span><span class="p">((</span><span class="n">N</span><span class="o">+</span><span class="n">threads</span><span class="p">.</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">threads</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">F</span><span class="o">+</span><span class="n">threads</span><span class="p">.</span><span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">threads</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">AT_DISPATCH_FLOATING_TYPES</span><span class="p">(</span><span class="n">feats</span><span class="p">.</span><span class="n">type</span><span class="p">(),</span> <span class="s">&#34;trilinear_bw_cu&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Launch kernel function
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">AT_DISPATCH_FLOATING_TYPES</span><span class="p">(</span><span class="n">feats</span><span class="p">.</span><span class="n">type</span><span class="p">(),</span> <span class="s">&#34;trilinear_bw_cu&#34;</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="p">([</span><span class="o">&amp;</span><span class="p">]</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">        <span class="n">trilinear_bw_kernel</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="o">&gt;&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span> <span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">            <span class="n">dL_dfeat_interp</span><span class="p">.</span><span class="n">packed_accessor</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">RestrictPtrTraits</span><span class="p">,</span> <span class="n">size_t</span><span class="o">&gt;</span><span class="p">(),</span>
 </span></span><span class="line"><span class="cl">            <span class="n">feats</span><span class="p">.</span><span class="n">packed_accessor</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">RestrictPtrTraits</span><span class="p">,</span> <span class="n">size_t</span><span class="o">&gt;</span><span class="p">(),</span>
 </span></span><span class="line"><span class="cl">            <span class="n">points</span><span class="p">.</span><span class="n">packed_accessor</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">RestrictPtrTraits</span><span class="p">,</span> <span class="n">size_t</span><span class="o">&gt;</span><span class="p">(),</span>
-</span></span><span class="line"><span class="cl">            <span class="n">dL_dfeats</span><span class="p">.</span><span class="n">packed_accessor</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">RestrictPtrTraits</span><span class="p">,</span> <span class="n">size_t</span><span class="o">&gt;</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">        <span class="p">);</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">dL_dfeats</span><span class="p">.</span><span class="n">packed_accessor</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">RestrictPtrTraits</span><span class="p">,</span> <span class="n">size_t</span><span class="o">&gt;</span><span class="p">()</span> <span class="p">);</span>
+</span></span><span class="line"><span class="cl">         <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="p">)</span>
 </span></span><span class="line"><span class="cl">    <span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">dL_dfeats</span><span class="p">;</span>
@@ -414,7 +410,7 @@ $$</p>
 </div>
 </div></li>
 <li>
-<p>Write <code>trilinear_bw_kernel</code> based on <code>trilinear_fw_kernel</code> in &ldquo;interpolation_kernel.cu&rdquo;:</p>
+<p>Write kernel function <code>trilinear_bw_kernel</code> based on <code>trilinear_fw_kernel</code> in &ldquo;interpolation_kernel.cu&rdquo;:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -448,7 +444,6 @@ $$</p>
 </span><span class="lnt">29
 </span><span class="lnt">30
 </span><span class="lnt">31
-</span><span class="lnt">32
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">scalar_t</span><span class="o">&gt;</span>
@@ -463,18 +458,17 @@ $$</p>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;=</span> <span class="n">points</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">||</span> <span class="n">f</span><span class="o">&gt;=</span> <span class="n">feats</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="k">return</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="c1">// Compute derivatives
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
-</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">scalar_t</span> <span class="n">u</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Define helper variables
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">const</span> <span class="n">scalar_t</span> <span class="n">u</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">scalar_t</span> <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">scalar_t</span> <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">scalar_t</span> <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">w</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">scalar_t</span> <span class="n">b</span> <span class="o">=</span> <span class="n">v</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">w</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">scalar_t</span> <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="n">w</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">scalar_t</span> <span class="n">d</span> <span class="o">=</span> <span class="n">v</span><span class="o">*</span><span class="n">w</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">dL_dfeats</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">dL_dfeat_interp</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">f</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">a</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Compute derivatives
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">dL_dfeats</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">dL_dfeat_interp</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">f</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">a</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">dL_dfeats</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">dL_dfeat_interp</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">f</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">b</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">dL_dfeats</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">dL_dfeat_interp</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">f</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">c</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">dL_dfeats</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">dL_dfeat_interp</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">f</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">d</span><span class="p">;</span>
@@ -487,7 +481,7 @@ $$</p>
 </div>
 </div></li>
 <li>
-<p>Add into header &ldquo;include/utils.h&rdquo;</p>
+<p>Add the function signature into header file &ldquo;include/utils.h&rdquo;</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -506,7 +500,7 @@ $$</p>
 </div>
 </div></li>
 <li>
-<p>Add a cpp function to call <code>trilinear_bw_cu</code> in &ldquo;interpolation.cpp&rdquo;:</p>
+<p>Add a cpp function to call the backward method <code>trilinear_bw_cu</code> in &ldquo;interpolation.cpp&rdquo;:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -535,8 +529,9 @@ $$</p>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>Add <code>trilinear_interpolate_bw</code> into <a class="link" href="https://realpython.com/python-bindings-overview/"  target="_blank" rel="noopener"
-    >PYBIND</a> as a method of the package:</p>
+</div><p>Give the function <code>trilinear_interpolate_bw</code> a name in <a class="link" href="https://realpython.com/python-bindings-overview/"  target="_blank" rel="noopener"
+    >PYBIND</a>
+as a method of the package:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -573,6 +568,7 @@ $$</p>
 </span><span class="lnt">13
 </span><span class="lnt">14
 </span><span class="lnt">15
+</span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">trilinear_interpolate_cuda</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
@@ -583,8 +579,9 @@ $$</p>
 </span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">feat_interp</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="nd">@staticmethod</span>
-</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">dL_dfeat_interp</span><span class="p">):</span> <span class="c1"># number of inputs corresponds to return values of forward pass.</span>
-</span></span><span class="line"><span class="cl">    <span class="c1"># i.e., input vars are gradients of Loss w.r.t the forward&#39;s outcomes.</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">dL_dfeat_interp</span><span class="p">):</span> 
+</span></span><span class="line"><span class="cl">    <span class="c1"># The number of input vars corresponds to return values of forward pass.</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># i.e., inputs are gradients of Loss w.r.t the forward&#39;s outcomes.</span>
 </span></span><span class="line"><span class="cl">        <span class="n">feats</span><span class="p">,</span> <span class="n">points</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">saved_tensors</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">        <span class="n">dL_dfeats</span> <span class="o">=</span> <span class="n">my_cppcuda_pkg</span><span class="o">.</span><span class="n">trilinear_interpolate_bw</span><span class="p">(</span>
@@ -796,9 +793,15 @@ If some input doesn&rsquo;t require grad, return a None.</p>
 
             
                 
-<article class="">
+<article class="has-image">
     <a href="/watchvideos/cuda-ai%E8%91%B5/01_cpp_bridge/">
         
+        
+            <div class="article-image">
+                
+                    <img src="https://img.youtube.com/vi/l_Rpk6CRJYI/maxresdefault.jpg" loading="lazy" data-key="" data-hash="https://img.youtube.com/vi/l_Rpk6CRJYI/maxresdefault.jpg"/>
+                
+            </div>
         
 
         <div class="article-details">
