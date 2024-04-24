@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='(2023-10-15)
+Talk-221121 Source video: 丁霄汉：结构重参数化是怎么来的【深度学习】【直播回放】-bilibili
+RepVGG: (2021)
+VGG has bad performance with fast inference because single stream can run in parallel efficientlly.
+And multiple branches means multiple sets of parameters, which help achieve better precision.
+If a set of parameters can be transformed equivalently to another set of parameters, the corresponding structure would changed naturally.
+Therefore, the multi-branches architecture during training can be transformed to a single branch model in inference period.'>
+<title>sympo: Structural Reparameterization</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/misc/c-symp-struct_reparam/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='sympo: Structural Reparameterization'>
+<meta property='og:description' content='(2023-10-15)
+Talk-221121 Source video: 丁霄汉：结构重参数化是怎么来的【深度学习】【直播回放】-bilibili
+RepVGG: (2021)
+VGG has bad performance with fast inference because single stream can run in parallel efficientlly.
+And multiple branches means multiple sets of parameters, which help achieve better precision.
+If a set of parameters can be transformed equivalently to another set of parameters, the corresponding structure would changed naturally.
+Therefore, the multi-branches architecture during training can be transformed to a single branch model in inference period.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/misc/c-symp-struct_reparam/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-10-13T20:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-10-13T20:00:00&#43;00:00'/>
+<meta name="twitter:title" content="sympo: Structural Reparameterization">
+<meta name="twitter:description" content="(2023-10-15)
+Talk-221121 Source video: 丁霄汉：结构重参数化是怎么来的【深度学习】【直播回放】-bilibili
+RepVGG: (2021)
+VGG has bad performance with fast inference because single stream can run in parallel efficientlly.
+And multiple branches means multiple sets of parameters, which help achieve better precision.
+If a set of parameters can be transformed equivalently to another set of parameters, the corresponding structure would changed naturally.
+Therefore, the multi-branches architecture during training can be transformed to a single branch model in inference period.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#talk-221121">Talk-221121</a></li>
+    <li><a href="#talk-220426">Talk-220426</a>
+      <ol>
+        <li><a href="#repmlpnet">RepMLPNet</a></li>
+      </ol>
+    </li>
+    <li><a href="#blog-210426">Blog-210426</a></li>
+    <li><a href="#blog-210517">Blog-210517</a></li>
+    <li><a href="#papers">Papers</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/misc/c-symp-struct_reparam/">sympo: Structural Reparameterization</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 13, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>(2023-10-15)</p>
+<h2 id="talk-221121">Talk-221121</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1RM411B73M/"  target="_blank" rel="noopener"
+    >丁霄汉：结构重参数化是怎么来的【深度学习】【直播回放】-bilibili</a></p>
+<ol>
+<li>
+<p><strong>RepVGG</strong>: (2021)</p>
+<ol>
+<li>
+<p>VGG has bad performance with fast inference because single stream can run in parallel efficientlly.</p>
+<p>And multiple branches means multiple sets of parameters, which help achieve better precision.</p>
+</li>
+<li>
+<p>If a set of parameters can be transformed <strong>equivalently</strong> to another set of parameters,
+the corresponding structure would changed naturally.</p>
+<p>Therefore, the multi-branches architecture during training can be transformed to a single branch model in inference period.</p>
+</li>
+<li>
+<p>Methodology: Kernel size can vary while computation remains,
+e.g., a 1×1 kernel can be reshaped to 3×3</p>
+<ul>
+<li>Thus, 3 branches with a 3×3 kernel, a 1×1 kernel, and a 3×3 identity kernel can be <strong>added</strong> to a single 3x3 kernel based on
+the property of linearity of convolution:
+$x * K_a + x * K_b = x * (K_a+K_b)$</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Centripetal SGD</strong>: (2017)</p>
+<ol>
+<li>Inception: Compressing (pretrained?) models by pruning <strong>redundent channels</strong> in feature maps.</li>
+<li>To create <strong>identical channels</strong>, let optimizer (SGD) guide some channels to become similar.</li>
+<li>Two same channels merged to a comprehensive channel, model gets concise while performance unchanged.</li>
+</ol>
+</li>
+<li>
+<p><strong>Linear Redundancy Unit</strong> (Obsolete)</p>
+<ol>
+<li>
+<p>Merge <strong>2 feature maps</strong>: Training with two 3×3 kernels and merge the 2 kernels after training.
+This method brought marginal improvement though.</p>
+</li>
+<li>
+<p>This indicates that two models with the <strong>same final structure</strong>, but experienced different training processes in different
+architectures, have <strong>different performances</strong>.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Asymmetic Convolution Block</strong> (2019)</p>
+<ol>
+<li>Branches are different: 3×3 + 1×3 + 3×1</li>
+</ol>
+</li>
+<li>
+<p><strong>Research on Simple Models</strong>: (2020)</p>
+<ol>
+<li>
+<p>Use identity branch to eliminate some shortcuts in ResNet.</p>
+<ul>
+<li>How to make a ultimate simple yet powerful model without shortcut?
+▶ RepVGG</li>
+</ul>
+</li>
+<li>
+<p>Multiple branches like InceptionNet in just a single kernel.</p>
+<ul>
+<li>Why can it work in an arbitrary model?
+▶ Diverse Branch Block (DBB)</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>RepMLP</strong>: (2022)</p>
+<ol>
+<li>Inject locality into MLP (CNN is a special MLP) by transforming an arbitrary conv kernel to a FC kerenel.</li>
+</ol>
+</li>
+<li>
+<p><strong>RepLKNet</strong>: (2022)</p>
+<ol>
+<li>Large kernel: 31x31 + 5x5</li>
+</ol>
+</li>
+<li>
+<p><strong>Misc</strong>:</p>
+<ol>
+<li>
+<p>ResRep for channel pruning.</p>
+<ul>
+<li>Output channels can be controled through a 1x1 kernel after the original 3x3 kernel.
+Such that channel pruning can be performed on the 1x1 kernel.</li>
+</ul>
+</li>
+<li>
+<p>RepOptimizer: generalize to gradient reparameterization for fast training.</p>
+</li>
+</ol>
+<ul>
+<li>Incorperating the prior knowledge (inductive bias) into optimizer instead of model structure.</li>
+</ul>
+<ol start="3">
+<li>RepVGGplus: principles behind RepVGG</li>
+</ol>
+</li>
+</ol>
+<p><strong>Ideas moving forward</strong>:</p>
+<ol>
+<li>
+<p>Connect Structural Rep with every element in a general vision model:</p>
+<p>Topology (RepVGG), Component (ACNet, DBB), Width (ResRep),
+Globality v.s. locality (RepMLP), Kernel size (RepLKNet),
+Optimizer (RepOptimizer)</p>
+</li>
+<li>
+<p>Rethink classical problems.</p>
+<ul>
+<li>Simple model, like VGG, doesn&rsquo;t work? (RepVGG)</li>
+<li>Can&rsquo;t train a super deep model without shortcut? (RepVGGplus)</li>
+<li>Inception Net is too complex to be abandoned? (DBB)</li>
+<li>MLP can&rsquo;t handle image tasks? (RepMLP)</li>
+<li>Large kernels are less effective? (RepLKNet)</li>
+</ul>
+</li>
+</ol>
+<p><strong>Related works</strong>:</p>
+<ul>
+<li>Non-deep Network; RepNAS, YOLO v6&amp;v7, DyRep, Scaling up Kernels in 3D GNNs, <strong>RepUNet</strong>, RepSR (superres), De-IReps.</li>
+</ul>
+<hr>
+<h2 id="talk-220426">Talk-220426</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1bB4y1m7rx/"  target="_blank" rel="noopener"
+    >【论文连讲：用重参数化赋予MLP网络局部性、超大卷积核架构【CVPR2022】【基础模型】】- bilibili</a></p>
+<p>(2023-10-16)</p>
+<h3 id="repmlpnet">RepMLPNet</h3>
+<p>&ldquo;一种采用重参数化技术引入局部性的分层 MLP 网络&rdquo;</p>
+<ul>
+<li><a class="link" href="https://github.com/DingXiaoH/RepMLP"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2112.11081"  target="_blank" rel="noopener"
+    >Arxiv</a></li>
+</ul>
+<p>MLP has no locality, only global capacity, thus it&rsquo;s not favorable to do linear projection on 2D images.</p>
+<ol>
+<li>
+<p><strong>Locality</strong> means the surrounding pixels of a input pixel should have larger contributions due to stronger correlation compared to distant pixels.</p>
+<ul>
+<li>
+<p>However, MLP treats all pixels on the image <strong>equally</strong> without considering relative positions, resulting in that
+MLP is difficult to converge for images data due to high dimensionailty and individually training for each pixel.</p>
+</li>
+<li>
+<p>CNN perserves this inductive bias through kernels.
+But CNN doesn&rsquo;t have <strong>long-range dependencies</strong> because different regions share the same parameters: the kernel.
+Thus, a CNN stacks multiple layers for a large receptive field.
+In contrast, MLP is a function of positions, sensitive to location.</p>
+</li>
+<li>
+<p>Hence, one approach to inject locality is by creating parallel branches with various conv kernels (for different dimensions) alongside the fc layer.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>By supplementing conv kernels, the model is competent both at long-range dependency and locality for 2D images.</p>
+<ul>
+<li>
+<p>The <strong>side effect</strong> is the mutiple disunified branches will hinder computation parallelism,
+and impair the inference efficiency finally.</p>
+</li>
+<li>
+<p>The solution to maintain the inference efficiency and perserve conv branches is <strong>Structural Reparameterization</strong>:</p>
+<p>Merging multiple auxiliary branches to a single FC stream can be <strong>realized by transforming their parameters</strong> after training into one FC kernel,
+such that the inference speed and precision are unchanged.</p>
+<blockquote>
+<p>通过参数的等价转换实现结构的等价转换。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>
+<p>Generic CNNs with conv kernels include <strong>massive parameters</strong>.
+And multiple branch of conv kernels may be unfeasible if without reducing parameters.</p>
+<ul>
+<li>There are three branches: FC3, 3x3 &amp; 1x1 kernels, and &ldquo;Identity&rdquo;
+<img src="https://media.arxiv-vanity.com/render-output/7472831/x1.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="RepMLP Block"
+	
+	
+></li>
+</ul>
+<ol>
+<li>
+<p>Identity branch performs <strong>FC1+FC2 after maxpooling</strong> shrinks (H,W) to only (1,1).</p>
+<p>Thus, the FC layer only need 1 parameter. Plusing 4 parameters in BatchNorm (mean, std, scale factor, bias), this branch only has 5 parameters.</p>
+<p>This branch functions like a SE block (Squeeze-Excitation) providing <strong>channel-wise</strong> &ldquo;overall scaling&rdquo;.</p>
+</li>
+<li>
+<p>3x3 and 1x1 conv layer perform &ldquo;set-sharing&rdquo; <strong>(depth-wise conv + group convolution)</strong>, where total of C channels are split to S groups.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 336 105"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 80,80 L 104,80' fill='none' stroke='currentColor'></path>
+<path d='M 120,80 L 144,80' fill='none' stroke='currentColor'></path>
+<path d='M 160,80 L 184,80' fill='none' stroke='currentColor'></path>
+<path d='M 200,80 L 224,80' fill='none' stroke='currentColor'></path>
+<path d='M 240,80 L 264,80' fill='none' stroke='currentColor'></path>
+<path d='M 280,80 L 304,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 88,16 L 88,32' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 L 88,48' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 96,48' fill='none' stroke='currentColor'></path>
+<path d='M 104,64 L 104,80' fill='none' stroke='currentColor'></path>
+<path d='M 120,64 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 128,16 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 128,32 L 128,48' fill='none' stroke='currentColor'></path>
+<path d='M 136,16 L 136,32' fill='none' stroke='currentColor'></path>
+<path d='M 136,32 L 136,48' fill='none' stroke='currentColor'></path>
+<path d='M 144,64 L 144,80' fill='none' stroke='currentColor'></path>
+<path d='M 160,64 L 160,80' fill='none' stroke='currentColor'></path>
+<path d='M 168,16 L 168,32' fill='none' stroke='currentColor'></path>
+<path d='M 168,32 L 168,48' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 176,32' fill='none' stroke='currentColor'></path>
+<path d='M 176,32 L 176,48' fill='none' stroke='currentColor'></path>
+<path d='M 184,64 L 184,80' fill='none' stroke='currentColor'></path>
+<path d='M 200,64 L 200,80' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 208,32' fill='none' stroke='currentColor'></path>
+<path d='M 208,32 L 208,48' fill='none' stroke='currentColor'></path>
+<path d='M 216,16 L 216,32' fill='none' stroke='currentColor'></path>
+<path d='M 216,32 L 216,48' fill='none' stroke='currentColor'></path>
+<path d='M 224,64 L 224,80' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 240,80' fill='none' stroke='currentColor'></path>
+<path d='M 248,16 L 248,32' fill='none' stroke='currentColor'></path>
+<path d='M 248,32 L 248,48' fill='none' stroke='currentColor'></path>
+<path d='M 256,16 L 256,32' fill='none' stroke='currentColor'></path>
+<path d='M 256,32 L 256,48' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 264,80' fill='none' stroke='currentColor'></path>
+<path d='M 280,64 L 280,80' fill='none' stroke='currentColor'></path>
+<path d='M 288,16 L 288,32' fill='none' stroke='currentColor'></path>
+<path d='M 288,32 L 288,48' fill='none' stroke='currentColor'></path>
+<path d='M 296,16 L 296,32' fill='none' stroke='currentColor'></path>
+<path d='M 296,32 L 296,48' fill='none' stroke='currentColor'></path>
+<path d='M 304,64 L 304,80' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>1</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Then the number of parameters in a conv layer reduced from (C×H×W)² to S×(H×W)².</p>
+</li>
+<li>
+<p>The main branch performs <strong>FC3 after depth-wise convolution</strong> for input feature maps.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>The <strong>equivalent FC layer</strong> for a conv layer is required for <strong>adding</strong> conv layers to FC layer.</p>
+<ul>
+<li>
+<p>FC kernel is the <strong>2D</strong> weight matrix $W_{dₒ×dᵢ}$ in a linear layer.</p>
+</li>
+<li>
+<p>A 3D Conv kernel is a <strong>special FC kernel</strong> represented as a Toeplitz matrix, containing lots of shared parameters,
+so its associated FC kernel must exist.</p>
+<p>Then, 2 FC kernels can <strong>add up</strong> directly based on linearity.</p>
+</li>
+<li>
+<p>A <strong>FC layer</strong> processes a feature map through 4 steps:
+(n,c,h,w) ➔ (n, c×h×w) ➔ FC kernel ➔ (n, o×h×w) ➔ (n,o,h,w), denoted as:
+$\rm MMUL(featmap, W_{dₒ×dᵢ})$, where dᵢ = c×h×w.</p>
+<p>A <strong>Conv layer</strong> with a 3D conv kernel $F$ and padding $p$ processes the feature map is denoted as $\rm CONV(featmap, F,p)$</p>
+<p>Thus, the problem is how to convert a <strong>3D kernel to a 2D kernel</strong>.</p>
+</li>
+<li>
+<p>Given the corresponding FC kernel of a conv kernel $W^{(F,p)}$, two operations are equivalent:
+$\rm MMUL(featmap, W^{(F,p)}) = CONV(featmap,F,p)$</p>
+</li>
+<li>
+<p>Considering a linear layer, it projects <strong>vectors</strong>:
+$\rm V_{n×dₒ} = V_{n×dᵢ} ⋅W^{(F,q)\ T}$</p>
+<p>Insert an <strong>identity matrix I</strong>:</p>
+<p>$$
+V_{n×dₒ} = V_{n×dᵢ} ⋅I ⋅ W^{(F,q)\ T}
+= V_{n, dᵢ} ⋅(I_{dᵢ×dᵢ} ⋅ W^{(F,q)\ T})
+$$</p>
+<p>Then, the term $(I⋅W^{(F,q)\ T})$ can be <strong>regarded as</strong> a convolution operation.</p>
+</li>
+<li>
+<p>A conv operation <strong>must be</strong> a Mat-Mul, but a Mat-Mul <strong>may not be</strong> a conv operation.</p>
+<p>What kind of Mat-Mul (FC layer) is a conv operation?
+It&rsquo;s when the weight matrix is a Toeplitz matrix <strong>transformed</strong> from a conv kernel.</p>
+<p>Because $W^{(F,p)}$ is <strong>transformed</strong> indeed from conv kernel,
+the Mat-Mul $\rm I⋅W^{(F,p)}$ is a <strong>convolution operation</strong> for sure.</p>
+<p>$$\rm I_{dᵢ×dᵢ}⋅W^{(F,p)} ⇔ CONV(F,p,featmap)$$</p>
+<p>In the convolution $I_{dᵢ×dᵢ}⋅W^{(F,p)}$, $I_{dᵢ×dᵢ}$ is convoled.
+Thus, it&rsquo;s supposed to be the featmap in CONV().
+i.e., the $I_{dᵢ×dᵢ}$ is <strong>reshaped</strong> from featmap $I_{(c×h×w, c, h, w)}$</p>
+<p>Additional <strong>reshaping</strong> is needed to match the dimensionality:</p>
+<p>$$\rm I_{dᵢ×dᵢ}⋅W^{(F,p)} = CONV(F,p,featmap).reshape(chw, c, h, w)$$</p>
+</li>
+<li>
+<p>From the above equation, the desired FC kernel $W^{(F,p)}$ is the <strong>result feature map</strong> of
+convolving the kernel F with a <strong>blank featmap</strong>:</p>
+<p>$$\rm W^{(F,p)} = CONV(F,p,I_{(c×h×w, c, h, w)}).reshape(chw, c, h, w)$$</p>
+<p>For example, if the conv kernel F is (c, o, (3,3)),
+then the corresponding FC kernel $W^{(F,p)}$ has shape: (o, h-3+2×p+1, w-3+2×p+1) = (c×h×w, o,h,w).</p>
+<p>This &ldquo;3D FC kernel&rdquo; has finished the &ldquo;sum&rdquo; computation and gets <strong>waiting for</strong> Mat-Mul with the input feature maps.</p>
+<p>To align with the squashed 2D input feature maps (n, c×h×w), it needs to be reshaped to 2D: (c×h×w, o×h×w).</p>
+<p>Finally, a 3D conv kernel becomes a 2D kernel.</p>
+<blockquote>
+<p>The equivalent FC kernel of a conv kernel is the result of convolution on an identity matrix with proper reshaping.</p>
+</blockquote>
+</li>
+<li>
+<p>Fuse the parameters (μ,σ,γ,β) of BatchNorm into convolution layer based on linearity.</p>
+<p>$$M&rsquo; = γ⋅[(MF -μ)/σ] + β = γ⋅(MF)/σ + (β - γ⋅μ/σ)$$</p>
+<p>So new kernel and bias: $F&rsquo; = γ⋅F/σ, \quad b&rsquo; = (β - γ⋅μ/σ)$</p>
+<p>After that, bias-added conv kernels are converted to 2D kernels, which can be added up the main stream: FC3 kernel for inference with only MLP layers.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>ResMLP-Net</p>
+<ol>
+<li>
+<p>Hierarchical design mimic popular vision models</p>
+<figure><img src="https://media.arxiv-vanity.com/render-output/7472831/x2.png" width="450"/>
+      </figure>
+
+<ul>
+<li>
+<p>RepMLPBlock and FFN alternate.</p>
+</li>
+<li>
+<p>Can be used as the backbone for downstream tasks.</p>
+</li>
+<li>
+<p>Adjust the amount of parameters in each stage through &ldquo;set-sharing&rdquo;.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>No need for large datasets (JFT300M) or many epochs (300~400) to train. (IN for 100 epochs).</p>
+</li>
+<li>
+<p>Throughput is higher than conventional CNN models.
+Speed has not much relation with the number of FLOPs.</p>
+<p>RepMLP is suitable for highly parallelized devices (GPU) rather than devices with lower computation capacity, like mobile.</p>
+</li>
+<li>
+<p>&ldquo;Identity&rdquo; branch is necessary for the performance with providing information in different scale and dimensions.</p>
+<p>&ldquo;set-sharing&rdquo; increase the number of groups will bring precision.</p>
+</li>
+<li>
+<p>Locality can be observed on the feature maps.</p>
+</li>
+<li>
+<p>RepMLPNet is robust for discontinuity between split patches from big images.</p>
+<p>The resolution of Cityscapes dataset doesn&rsquo;t match the pretrained model.
+They devided an entire image to small patches.</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">RepMLPNet</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">RepMLPNetUnit</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">RepMLPBlock</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>RepMLPBlock cannot resume training after <code>model.locality_injection()</code> because sub-modules have been deleted.
+Therefore, <code>.locality_injection</code> should be called with a new model before inference.</p>
+</li>
+</ol>
+<hr>
+<h2 id="blog-210426">Blog-210426</h2>
+<p>Source: <a class="link" href="https://zhuanlan.zhihu.com/p/361090497"  target="_blank" rel="noopener"
+    >结构重参数化：利用参数转换解耦训练和推理结构 - 丁霄汉的文章 - 知乎</a></p>
+<hr>
+<h2 id="blog-210517">Blog-210517</h2>
+<p><a class="link" href="https://zhuanlan.zhihu.com/p/370438999"  target="_blank" rel="noopener"
+    >解读模型压缩6：结构重参数化技术：进可暴力提性能，退可无损做压缩 - 科技猛兽的文章 - 知乎</a></p>
+<ol>
+<li>矩阵乘法可以看做卷积：一个 2D 数据矩阵乘以 $W^{(F,p)}$，相当于这个数据矩阵先 reshape 成 4D 的 feature map 做卷积，结果再 reshape 成 2D.</li>
+</ol>
+<hr>
+<h2 id="papers">Papers</h2>
+<ul>
+<li>
+<p><em>FastViT: A Fast Hybrid Vision Transformer using Structural Reparameterization</em></p>
+<p><a class="link" href="https://github.com/apple/ml-fastvit"  target="_blank" rel="noopener"
+    >Code</a></p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

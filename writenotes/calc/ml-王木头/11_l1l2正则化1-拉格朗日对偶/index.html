@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='原视频：“L1和L2正则化”直观理解(之一)，从拉格朗日乘数法角度进行理解 - 王木头学科学 -bilibili
+(2023-01-30) 加上正则化项，就变为求拉格朗日函数的最小值，即求&amp;quot;损失函数&#43;权重模长&amp;quot;整体的最小值。 λ 是个比值，λ不同对应的W的位置不同，即λ确定了W的位置。然后 𝐖 自己不断调整，使 J(𝐖) 与 λ‖𝐖‖ 二者的梯度等大反向(抵消)，从而使 $∇_𝐖 L(𝐖,λ)=0$。λ不同，则最优W就不同。_
+机器学习的两个核心议题：优化与正则化。优化找到最优参数；正则化减少模型的过拟合：对模型权重𝐖（不处理b）进行L1和L2正则化
+从3个角度理解 L1 和 L2 正则化：
+拉格朗日乘数法 权重衰减 贝叶斯概率 正则化 与“正则表达式”没有关系，正则表达式是编程中用来处理字符串的技术。 正则化常常指模型权重的L1和L2范数。Dropout 也是一种正则化，在训练时，随机的让一些神经元失效。
+花书：凡是可以减少泛化误差（过拟合），而不是减少训练误差的方法，都可以称作正则化方法。
+L1, L2 正则化项是加在损失函数上，约束模型参数𝐖的 L1, L2 范数的项。L1范数使W变得稀疏，L2范数使W变得小。
+拟合时一般希望保留更多特征，高次的函数表达能力更强，所以模型倾向于学出高次项的系数，使训练误差更小，但不能很好地预测新数据，没有找到基础规律，出现过拟合 3。
+如果特征（各属性）已知，可以把 polynomials 的高次项系数置为0；否则，需采用与&amp;quot;特征的定义&amp;quot;无关的约束，可以选择模长最小的，误差(mse)也最小的参数。 Problem is now well-posed for any degree。Even very high polynomials, simple function tend to be learned with regularization2 所以对细节特征的系数（θ₃²&#43;θ₄²）增大惩罚力度，bias them not to be large （min ∑ᵢᵐ(y^(xᵢ)-yᵢ)² &#43; 1000θ₃²&#43;1000θ₄²）1
+范数：向量长度。网络权重 𝐖 是高维空间中的一个向量（也可认为W是高维空间一个点，范数即为这个点到原点的距离）。 若使用欧几里得距离（坐标差求平方和再开根号）度量它的模长，就是 L2 范数: ‖𝐖‖₂=√(|w₁|²&#43;|w₂|²&#43;&amp;hellip;&#43;|wᵢ|²)； 若用曼哈顿距离计算（坐标差的绝对值求和），就是 L1 范数: ‖𝐖‖₁=|w₁|&#43;|w₂|&#43;&amp;hellip;&#43;|wᵢ|。'>
+<title>watch: DL - 王木头 11 | L1L2 Reg (1), Larange Multiplier</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/11_l1l2%E6%AD%A3%E5%88%99%E5%8C%961-%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: DL - 王木头 11 | L1L2 Reg (1), Larange Multiplier'>
+<meta property='og:description' content='原视频：“L1和L2正则化”直观理解(之一)，从拉格朗日乘数法角度进行理解 - 王木头学科学 -bilibili
+(2023-01-30) 加上正则化项，就变为求拉格朗日函数的最小值，即求&amp;quot;损失函数&#43;权重模长&amp;quot;整体的最小值。 λ 是个比值，λ不同对应的W的位置不同，即λ确定了W的位置。然后 𝐖 自己不断调整，使 J(𝐖) 与 λ‖𝐖‖ 二者的梯度等大反向(抵消)，从而使 $∇_𝐖 L(𝐖,λ)=0$。λ不同，则最优W就不同。_
+机器学习的两个核心议题：优化与正则化。优化找到最优参数；正则化减少模型的过拟合：对模型权重𝐖（不处理b）进行L1和L2正则化
+从3个角度理解 L1 和 L2 正则化：
+拉格朗日乘数法 权重衰减 贝叶斯概率 正则化 与“正则表达式”没有关系，正则表达式是编程中用来处理字符串的技术。 正则化常常指模型权重的L1和L2范数。Dropout 也是一种正则化，在训练时，随机的让一些神经元失效。
+花书：凡是可以减少泛化误差（过拟合），而不是减少训练误差的方法，都可以称作正则化方法。
+L1, L2 正则化项是加在损失函数上，约束模型参数𝐖的 L1, L2 范数的项。L1范数使W变得稀疏，L2范数使W变得小。
+拟合时一般希望保留更多特征，高次的函数表达能力更强，所以模型倾向于学出高次项的系数，使训练误差更小，但不能很好地预测新数据，没有找到基础规律，出现过拟合 3。
+如果特征（各属性）已知，可以把 polynomials 的高次项系数置为0；否则，需采用与&amp;quot;特征的定义&amp;quot;无关的约束，可以选择模长最小的，误差(mse)也最小的参数。 Problem is now well-posed for any degree。Even very high polynomials, simple function tend to be learned with regularization2 所以对细节特征的系数（θ₃²&#43;θ₄²）增大惩罚力度，bias them not to be large （min ∑ᵢᵐ(y^(xᵢ)-yᵢ)² &#43; 1000θ₃²&#43;1000θ₄²）1
+范数：向量长度。网络权重 𝐖 是高维空间中的一个向量（也可认为W是高维空间一个点，范数即为这个点到原点的距离）。 若使用欧几里得距离（坐标差求平方和再开根号）度量它的模长，就是 L2 范数: ‖𝐖‖₂=√(|w₁|²&#43;|w₂|²&#43;&amp;hellip;&#43;|wᵢ|²)； 若用曼哈顿距离计算（坐标差的绝对值求和），就是 L1 范数: ‖𝐖‖₁=|w₁|&#43;|w₂|&#43;&amp;hellip;&#43;|wᵢ|。'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/11_l1l2%E6%AD%A3%E5%88%99%E5%8C%961-%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-11-07T11:52:00&#43;00:00'/><meta property='article:modified_time' content='2022-11-07T11:52:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: DL - 王木头 11 | L1L2 Reg (1), Larange Multiplier">
+<meta name="twitter:description" content="原视频：“L1和L2正则化”直观理解(之一)，从拉格朗日乘数法角度进行理解 - 王木头学科学 -bilibili
+(2023-01-30) 加上正则化项，就变为求拉格朗日函数的最小值，即求&amp;quot;损失函数&#43;权重模长&amp;quot;整体的最小值。 λ 是个比值，λ不同对应的W的位置不同，即λ确定了W的位置。然后 𝐖 自己不断调整，使 J(𝐖) 与 λ‖𝐖‖ 二者的梯度等大反向(抵消)，从而使 $∇_𝐖 L(𝐖,λ)=0$。λ不同，则最优W就不同。_
+机器学习的两个核心议题：优化与正则化。优化找到最优参数；正则化减少模型的过拟合：对模型权重𝐖（不处理b）进行L1和L2正则化
+从3个角度理解 L1 和 L2 正则化：
+拉格朗日乘数法 权重衰减 贝叶斯概率 正则化 与“正则表达式”没有关系，正则表达式是编程中用来处理字符串的技术。 正则化常常指模型权重的L1和L2范数。Dropout 也是一种正则化，在训练时，随机的让一些神经元失效。
+花书：凡是可以减少泛化误差（过拟合），而不是减少训练误差的方法，都可以称作正则化方法。
+L1, L2 正则化项是加在损失函数上，约束模型参数𝐖的 L1, L2 范数的项。L1范数使W变得稀疏，L2范数使W变得小。
+拟合时一般希望保留更多特征，高次的函数表达能力更强，所以模型倾向于学出高次项的系数，使训练误差更小，但不能很好地预测新数据，没有找到基础规律，出现过拟合 3。
+如果特征（各属性）已知，可以把 polynomials 的高次项系数置为0；否则，需采用与&amp;quot;特征的定义&amp;quot;无关的约束，可以选择模长最小的，误差(mse)也最小的参数。 Problem is now well-posed for any degree。Even very high polynomials, simple function tend to be learned with regularization2 所以对细节特征的系数（θ₃²&#43;θ₄²）增大惩罚力度，bias them not to be large （min ∑ᵢᵐ(y^(xᵢ)-yᵢ)² &#43; 1000θ₃²&#43;1000θ₄²）1
+范数：向量长度。网络权重 𝐖 是高维空间中的一个向量（也可认为W是高维空间一个点，范数即为这个点到原点的距离）。 若使用欧几里得距离（坐标差求平方和再开根号）度量它的模长，就是 L2 范数: ‖𝐖‖₂=√(|w₁|²&#43;|w₂|²&#43;&amp;hellip;&#43;|wᵢ|²)； 若用曼哈顿距离计算（坐标差的绝对值求和），就是 L1 范数: ‖𝐖‖₁=|w₁|&#43;|w₂|&#43;&amp;hellip;&#43;|wᵢ|。">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#正则化">正则化</a></li>
+    <li><a href="#出现过拟合的原因之一w太大会把噪声放大">出现过拟合的原因之一：W太大会把噪声放大</a></li>
+    <li><a href="#w-的可行域范围">w 的可行域范围</a></li>
+    <li><a href="#l1-l2-正则化项">L1, L2 正则化项</a></li>
+    <li><a href="#正则化带来的损失值误差不重要啊">正则化带来的损失值误差？不重要啊</a></li>
+    <li><a href="#-">-</a></li>
+    <li><a href="#正则化的作用">正则化的作用</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/11_l1l2%E6%AD%A3%E5%88%99%E5%8C%961-%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6/">watch: DL - 王木头 11 | L1L2 Reg (1), Larange Multiplier</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 07, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>原视频：<a class="link" href="https://www.bilibili.com/video/BV1Z44y147xA"  target="_blank" rel="noopener"
+    >“L1和L2正则化”直观理解(之一)，从拉格朗日乘数法角度进行理解 - 王木头学科学 -bilibili</a></p>
+<p>(2023-01-30) 加上正则化项，就变为求拉格朗日函数的最小值，即求&quot;损失函数+权重模长&quot;整体的最小值。
+λ 是个比值，λ不同对应的W的位置不同，即λ确定了W的位置。然后 𝐖 自己不断调整，使 J(𝐖) 与 λ‖𝐖‖ 二者的梯度等大反向(抵消)，从而使 $∇_𝐖 L(𝐖,λ)=0$。λ不同，则最优W就不同。_</p>
+<hr>
+<p>机器学习的两个核心议题：优化与正则化。优化找到最优参数；正则化减少模型的过拟合：对模型权重𝐖（不处理b）进行L1和L2正则化</p>
+<p>从3个角度理解 L1 和 L2 正则化：</p>
+<ol>
+<li>拉格朗日乘数法</li>
+<li>权重衰减</li>
+<li>贝叶斯概率</li>
+</ol>
+<h2 id="正则化">正则化</h2>
+<p>与“正则表达式”没有关系，正则表达式是编程中用来处理字符串的技术。
+正则化常常指模型权重的L1和L2范数。Dropout 也是一种正则化，在训练时，随机的让一些神经元失效。</p>
+<p>花书：凡是可以减少泛化误差（过拟合），而不是减少训练误差的方法，都可以称作正则化方法。</p>
+<p>L1, L2 正则化项是加在损失函数上，约束模型参数𝐖的 L1, L2 范数的项。L1范数使W变得稀疏，L2范数使W变得小。</p>
+<p>拟合时一般希望保留更多特征，高次的函数表达能力更强，所以模型倾向于学出高次项的系数，使训练误差更小，但不能很好地预测新数据，没有找到基础规律，出现过拟合 <a class="link" href="#3-%e8%8e%ab%e7%83%a6" ><sup>3</sup></a>。</p>
+<p>如果特征（各属性）已知，可以把 polynomials 的高次项系数置为0；否则，需采用与&quot;特征的定义&quot;无关的约束，可以选择模长最小的，误差(mse)也最小的参数。
+Problem is now well-posed for any degree。Even very high polynomials, simple function tend to be learned with regularization<a class="link" href="#2-UCI" ><sup>2</sup></a>
+所以对细节特征的系数（θ₃²+θ₄²）增大惩罚力度，bias them not to be large （min ∑ᵢᵐ(y^(xᵢ)-yᵢ)² + 1000θ₃²+1000θ₄²）<a class="link" href="#1-%e5%87%a9%e5%ad%90%e7%99%bd" ><sup>1</sup></a></p>
+<p>范数：向量长度。网络权重 𝐖 是高维空间中的一个向量（也可认为W是高维空间一个点，范数即为这个点到原点的距离）。
+若使用欧几里得距离（坐标差求平方和再开根号）度量它的模长，就是 L2 范数: ‖𝐖‖₂=√(|w₁|²+|w₂|²+&hellip;+|wᵢ|²)；
+若用曼哈顿距离计算（坐标差的绝对值求和），就是 L1 范数: ‖𝐖‖₁=|w₁|+|w₂|+&hellip;+|wᵢ|。</p>
+<ul>
+<li>当 Lp 范数的 p 取值大于等于 1 时，有相同距离的点构成的集合是一个凸集；</li>
+<li>当 p 取 0-1 之间，是非凸集。</li>
+<li>当p小于等于1时，会带来稀疏性，所以 the L1 norm is the only norm which both induces some sparsity in the solution and remains convex for easy optimization.</li>
+</ul>
+<p>如果问题对应的函数是一个凸函数，它的取值范围（可行域）是一个凸集，这就是一个凸优化问题，容易求解。L1和L2正则化在某种程度上，就是在利用 L1 和 L2 范数的凸集特性。</p>
+<h2 id="出现过拟合的原因之一w太大会把噪声放大">出现过拟合的原因之一：W太大会把噪声放大</h2>
+<p>神经网络的输出层做了三件事：</p>
+<ol>
+<li>
+<p>接收上一层的激活值 a⁽ˡ⁻¹⁾，乘以权重 Wˡᵀ，加上偏移bᵀ，得到线性叠加后的 zˡ： zˡ= Wˡᵀ⋅a⁽ˡ⁻¹⁾+bᵀ。</p>
+</li>
+<li>
+<p>再做（激活引入非线性/限制取值0-1，然后）softmax 把线性结果 zˡ 变成概率分布: aˡ = softmax (zˡ)。</p>
+</li>
+<li>
+<p>输出层的损失函数：J(aˡ) = MLE (aˡ)。<br>
+极大似然 MLE 与 CrossEntropy 等价，前者最大化重复采样训练样本的概率，后者最小化网络给出的类别概率乘以真实概率对应的信息量。
+（softmax 搭配MLE，等价于最大熵。）</p>
+</li>
+</ol>
+<p>调整 𝐖,𝐛 使损失函数J(𝐖,𝐛)最小，但当损失值最小时，对应的 𝐖,𝐛 不是唯一的。比如:</p>
+<ol>
+<li>
+<p>把前面所有隐藏层的权重和偏置都放大2倍（用ReLu激活），但同时输出层的权重和偏置缩小 1/2⁽ˡ⁻¹⁾倍，得到的线性结果不变，则损失值不变，所以最终优化得到的参数与初始值相关。</p>
+</li>
+<li>
+<p>如果输入放大 2 倍的同时输出层权重缩小 2 倍，线性结果不变，损失值也不变。所以最终优化得到的 𝐖,𝐛 与输入数据相关。</p>
+</li>
+</ol>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/L1L2%E6%AD%A3%E5%88%99%E5%8C%96%E4%B8%80_9-28.png width=>
+  
+  
+
+
+<p>训练神经网络时的目的是找到损失函数 J(W,b) 的最小值，但相同的损失值可能对应多组绝对值（模长）不同的(W,b)。</p>
+<p>绝对值不同的 𝐖,𝐛 可能在训练集上的损失值相同，但在测试集、unseen输入、&ldquo;带噪声的输入&quot;上的表现有差别，不同参数的泛化能力不同。
+绝对值大的参数会把噪声放大，从而影响预测结果。</p>
+<p>正则化就是人为的设定参数𝐖 的取值范围（可行域），让W不能超出该范围，从而<strong>在可行域范围内，求损失函数的最小值</strong>。带条件的优化问题可以用拉格朗日乘数法求解。
+我们只需要规定 𝐖 的范围（多项式各未知数的系数），因为 W 直接决定了模型曲线是什么样子，而 b 与最终拟合的曲线的形状（过拟合与否）无关，b只影响平移，因此只要𝐖 被约束好了，b在训练时会自动调整好，所以不需额外做约束。</p>
+<h2 id="w-的可行域范围">w 的可行域范围</h2>
+<p>在求损失函数最小值时，权重 𝐖 的模长不要超过C：</p>
+<ul>
+<li>
+<p>若采用曼哈顿距离度量模长，即计算向量的L1范数，则优化问题为：<br>
+min J(𝐖 , 𝐛, 𝐗), s.t. ‖𝐖‖₁-C≤0</p>
+</li>
+<li>
+<p>若采用欧几里得距离计算模长（向量的L2范数），则优化问题为：<br>
+min J(𝐖 , 𝐛, 𝐗), s.t. ‖𝐖‖₂-C≤0</p>
+</li>
+</ul>
+<p>把优化问题写成<strong>拉格朗日函数</strong> = 目标函数 + 约束条件乘以拉格朗日乘子 λ： <br>
+L(𝐖, λ) = J(𝐖) + λ(‖𝐖‖₁ - C), <br>
+然后求解：$\rm min_𝐖 \ max_λ L(𝐖,λ), s.t. λ≥0$ （不考虑b,X）</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/L1L2%E6%AD%A3%E5%88%99%E5%8C%96%E4%B8%80_14-14.png width=>
+  
+  
+
+
+<p>上图坐标轴是 𝐖 的各个维度，椭圆是损失函数J(𝐖)的等高线，中心是损失函数的最小值对应的 𝐖，绿色框代表可行域范围（𝐖 的模长限制），蓝色点是在满足约束条件时，损失函数能取到的最小值，对应的𝐖 ；或者说在可行域范围内找损失函数梯度+𝐖可行域梯度=0的点。</p>
+<p>“当目标函数是一个凸函数或是一个凹函数，并且对应的约束条件是一个凸集，那么整个问题（目标函数+λ⋅约束条件）就是一个凸优化问题”。
+约束条件采用L1或L2范数时，可行域是一个凸集。对应于凸集的约束条件并不会改变原来问题的性质，
+即如果原来的问题本身是一个凸问题，加上这个约束条件后，仍然是凸问题，如果原来的问题是非凸问题，加上这个约束条件也不会让这个问题变得更糟糕。</p>
+<p>(2022-11-07) 损失函数与正则化项都画在二维平面上，是因为研究的只是“两个对象”：输入X和输出Y之间的关系？<br>
+不，因为是要限制w的模长，二维平面只表示了二维w。加了正则化项，相当于修改了初始时的w，缩短它到那条虚线的距离，但不考虑它对应的损失值变大还是变小了，虚线总是沿着损失函数的梯度方向，而且连接着损失值最小的那个w，不过那条虚线上的w是等比的，等比例缩放的 w 能收敛到的最值是相同的</p>
+<p>(2023-01-30) 正则化项 λ‖𝐖‖ 的作用是持久的。在 λ‖𝐖‖ 的基础上，𝐖 做调整以使损失值最小，也就是使 J(𝐖) 与 λ(‖𝐖‖₁ - C) 两项的梯度抵消（等大反向）。&ldquo;在原始最小二乘的结果上做了缩放&rdquo;<a class="link" href="#book%e7%8e%8b%e5%a4%a9%e4%b8%80" >4</a>。</p>
+<h2 id="l1-l2-正则化项">L1, L2 正则化项</h2>
+<p>把拉格朗日函数展开：</p>
+<p>L(𝐖,λ)  = J(𝐖) + λ(‖𝐖‖₂-C) = J(𝐖) + λ‖𝐖‖₂ - λC</p>
+<p>但是常见的 “损失函数+ L2正则化项” 的表达式是 拉格朗日函数+λC：</p>
+<p>L&rsquo;(𝐖,λ) = L(𝐖,λ) + λC = J(𝐖) + λ‖𝐖‖₂</p>
+<p>在求L&rsquo; 和 L 这两个拉格朗日函数最小值时，虽然最小值可能不一样，但对应的 𝐖 是一样的
+（因为只要求解 $∇_𝐖 L&rsquo;(𝐖,λ) =∇_𝐖 L(𝐖,λ)=0$）：</p>
+<p>$arg_𝐖 (min_𝐖\ max_λ L&rsquo;(𝐖,λ), s.t.\ λ≥0) = arg_𝐖 (min_𝐖\ max_λ L(𝐖,λ), s.t.\ λ≥0)$</p>
+<p>如何直观理解 L&rsquo; 呢？
+或者说：为什么&quot;常用的L2正则化表达式&quot;比&quot;损失函数加上 𝐖 约束条件写成的拉格朗日函数&rdquo;，少一个 λC 呢？</p>
+<p>C 决定了 𝐖 的模长，不指定 C 是因为 λ 可以控制模长的范围。拉格朗日乘子λ的作用是调节&quot;约束条件λ‖𝐖‖的梯度&quot;的大小，使之与&quot;目标函数J(𝐖)的梯度&quot;等大反向抵消（求导=0就是求梯度=0的点）。
+当λ=0时，相当于没有约束；而当λ=inf时，W会趋于0，失去拟合能力了。λ 可以用cross validation 来选择</p>
+<p>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/L1L2%E6%AD%A3%E5%88%99%E5%8C%96%E4%B8%80_20-06.png width=>
+  
+  
+
+<center style="font-size 12px">红色是损失函数的等高线，绿色是约束条件的等高线，箭头表示梯度</center></p>
+<p>λ 的绝对值等于&quot;损失函数J(𝐖)的梯度大小&quot;除以&quot;约束条件对应函数λ‖𝐖‖的梯度大小&quot;，所以空间中各点处的λ就能算出来，反过来不同的 λ 对应的点的位置不同。只有在恰当的位置J(W)与λ‖𝐖‖的梯度之和才等于0。
+~~不同的 λ 对应的梯度=0的点的位置不同，损失函数J(𝐖)最小值不同，但对应的（拉格朗日函数的最优）W是相同的??? ~~</p>
+<p>λ和C之中只有一个超参数：在拉格朗日函数中，C是超参数，人为指定模长范围C后，λ 也就跟着确定了；而在 L&rsquo; 中，λ 是超参数，人为指定后，就能唯一确定梯度=0的点的位置。</p>
+<p>L2正则化（给定λ后）确定的最值点（最优𝐖）基本不会落在坐标轴上（可行域是圆形），
+而L1正则化找到的满足约束条件与目标函数的梯度之和=0的点（可行域范围与损失函数等高线相切的点）容易取在坐标轴上（可行域有尖角且落在坐标轴上，容易与损失函数相切），
+当最优 𝐖 落在某一坐标轴上时，只有那一维不是0，其他维度的坐标都是0。</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/L1L2%E6%AD%A3%E5%88%99%E5%8C%96%E4%B8%80_24-56.png width=>
+  
+  
+
+
+<p>比如依据两个特征做判断时，最优 𝐖 不落在坐标轴上，则两个特征都有一定的决定作用，
+而通过调整 λ 使最优W落在坐标轴上时，则只会关注该轴特征的有无，所以使用 L1 可以使决策变得简单，使 W 向量变得稀疏（只有某个“重要”维度(对结果贡献大)有值，其他维都是0），把特征之间的关系去耦合了，把模型复杂度降低了，从而减少过拟合。
+但是L1 的解不太稳定，训练时各批次数据的损失函数不同，椭圆会变化，切点可能从一个轴换到另一个轴上，对应的W变化大。<a class="link" href="3-%e8%8e%ab%e7%83%a6" ><sup>3</sup></a></p>
+<p>L1 和 L2 都是对 W 进行约束，但效果不同，可以把二者结合起来一起用。L2正则化只是限制模长，L1 正则化还带来了稀疏性</p>
+<h2 id="正则化带来的损失值误差不重要啊">正则化带来的损失值误差？不重要啊</h2>
+<p><del>评论：上图绘制的椭圆对应的损失函数J(𝐖)的接收的输入是整个实数域，而在神经网络中，损失函数接收的是网络的输出值，网络不同的权重可能对应相同的输出值，损失值也就相同</del></p>
+<p>因为不同的初始参数 𝐖 最终收敛到的损失函数最小值可能是相等的，比如等比缩放参数时，min J(𝐖 ,𝐛) = min J(a𝐖 ,a𝐛)， (𝐖 ,𝐛) 与 (a𝐖 ,a𝐛) 共线（虚线），</p>
+<p>加约束条件λ‖𝐖‖与不加约束条件(λ=0)，通过最小化拉格朗日函数L(𝐖,λ)收敛到的 W 不同（W由λ决定），但是如果两个向量W是共线的，<del>它们对应的 L(W,λ) 能够收敛到的最小值（where L(W,λ)的梯度=0）是相同的，只不过λ取的不好，还没走到最小值，还没平衡好 J(W) 和 ||W||之间的权重比例。</del></p>
+<p>同一虚线上的 W 最终能够收敛到的拉格朗日函数值是相同的。虚线上的点是本可能收敛到的最值</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/L1L2%E6%AD%A3%E5%88%99%E5%8C%96%E4%B8%80_25-17.png width=>
+  
+  
+
+
+<p>如果不加约束条件，初始的较大的 W 本可以收敛到J(W)椭圆中心（损失最小值），但是因为指定了约束条件λ，模长被限制了，被拉向原点了，找到的最优W与椭圆中心离得很远，损失值J(W)变大了，看起来就带来了误差。
+但是（最小化拉格朗日函数过程中的）误差并不是到椭圆中心的距离，而是到“虚线”的距离，虚线上的 W 已经调整到能使 J(W) 与 ||W||的梯度共线，因为 λ 是人为设置的，所以W还要继续调整，最终虚线上的W使 L(W,λ)的梯度=0。</p>
+<p>在虚线上的不同 W 对应的拉格朗日函数值L(W,λ)的梯度是相同的（在虚线上的点，方向共线已满足，只是λ不同），
+虽然可行域越小，对损失函数J(W)的最小值偏离的误差就越大，因为W初始值决定了最终能收敛到哪个J(W)，但关注的不是它J(W)。</p>
+<p>W调整到最后：J(W)的梯度方向与||W||梯度方向共线，并且对于超参数缩放因子λ，有L(W,λ)的梯度=0。</p>
+<p>所以真正关注的到最优解的偏差，是到虚线的距离，超参数λ选的好与坏，带来的偏差不大，所以能用正则化就用。</p>
+<h2 id="-">-</h2>
+<p>例子：只有两个分量的W 与对应的损失值 绘制的图像为：</p>
+<p>同心椭圆是损失函数 J 的等高线，即每一圈椭圆上，损失值是相同的，中间的灰色图形的最外沿的一圈代表 W 的范数。正方形代表 L1 范数的图像，圆形代表 L2 范数的图像</p>
+<hr>
+<p>看下这篇：<a class="link" href="https://www.cnblogs.com/jianxinzhou/p/4083921.html"  target="_blank" rel="noopener"
+    >机器学习之正则化（Regularization）- Acjx -博客园</a></p>
+<p>DDG搜索：entropy regularization 熵正则化</p>
+<hr>
+<p>(2023-01-30) <br>
+DDG search: &ldquo;正则化项&rdquo;</p>
+<h2 id="正则化的作用">正则化的作用</h2>
+<p>原文链接：<a class="link" href="https://blog.csdn.net/gshgsh1228/article/details/52199870"  target="_blank" rel="noopener"
+    >正则化及正则化项的理解 - guuuuu - CSDN</a></p>
+<ol>
+<li>
+<p>防止过拟合：𝐖 越小，拟合的函数曲线越简单光滑，越不容易过拟合；</p>
+</li>
+<li>
+<p>正则化项代表先验信息：试验之前的对‖𝐖‖的认知，λ 是对先验信息的相信程度。<br>
+频率派直接对参数𝐖进行分析（而贝叶斯派是对参数出现的概率P(𝐖)进行分析）；
+参数 𝐖 直接出现在损失函数中，所以频率派对损失函数做修正：加上了先验部分知识，即正则化项。</p>
+<blockquote>
+<p>对于模型：y = θ₀ + θ₁x₁ + &hellip; + θⱼxⱼ + &hellip; + θₙxₙ，解最优化问题：<br>
+$arg\ min_{θ₀,θ₁,&hellip;,θₙ}\ J(θ) = 1/2m ⋅(∑ᵢ₌₁ᵐ(h_θ(xⁱ)-yⁱ)² + λ∑ⱼ₌₁ⁿ(θⱼ-\^θⱼ)²)$，
+其中 ^θⱼ 为先验解。 <br>
+λ 不同大小的选择，体现了这个先验解 ^θⱼ 的可信程度。如果 λ 是一个很小的整数，那正则化项将不起什么作用，说明给的先验解有很大的不确定性，在一定程度上是不可信的；<br>
+如果 λ 很大，则正则化项占支配地位，最后的解将靠近于 ^θⱼ。</p>
+</blockquote>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th></th>
+<th>频率派</th>
+<th>贝叶斯派</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>找最优𝐖</td>
+<td>直接对参数 𝐖 本身下手</td>
+<td>对参数出现的概率 P(𝐖) 下手</td>
+</tr>
+<tr>
+<td>思路</td>
+<td>最优 𝐖 使训练误差最小</td>
+<td>最优 𝐖 出现的后验概率 P(𝐖</td>
+</tr>
+<tr>
+<td>优化公式</td>
+<td>损失函数</td>
+<td>贝叶斯公式</td>
+</tr>
+<tr>
+<td>先验</td>
+<td>正则化项（对𝐖 的先验认知）</td>
+<td>自带先验概率（P(𝐖)）</td>
+</tr>
+<tr>
+<td>修正</td>
+<td>加上一部分先验信息</td>
+<td>对似然值做 &ldquo;P(𝐖)/配分函数&rdquo; 的缩放</td>
+</tr>
+<tr>
+<td>超参数</td>
+<td>λ; L1 or L2范数</td>
+<td>先验概率的分布: Laplace, Gaussian</td>
+</tr>
+</tbody>
+</table></div>
+</li>
+<li>
+<p>有助于处理<strong>条件数</strong>（condition number）不好的情况下，矩阵求逆困难的问题。</p>
+<ul>
+<li>概念：如果方阵 A 是非奇异的（A的行列式不等于0，正定矩阵一定是非奇异的），那么 A 的 condition number 定义为：𝜅(A) = ‖A‖ ‖A⁻¹‖</li>
+<li>
+<blockquote>
+<p>可以看出：如果 A 是奇异的，那么 A 的条件数为无穷大。条件数越小，所获得的解越可靠，模型鲁棒性越好，抗干扰能力越强。
+例如对于模型 AX=b，A 的条件数越小（A的行列式远不接近于0），那么 A，b 的稍微的变化对解 X 的影响越小，对 X 的求解对样本集（A，b）中引入的干扰的抵抗能力越强，即所求解 X 越可靠。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>DDG search: &ldquo;正则化项 pytorch&rdquo;</p>
+<ul>
+<li><a class="link" href="https://zhuanlan.zhihu.com/p/147579819"  target="_blank" rel="noopener"
+    >PyTorch 12.正则化-科技猛兽-知乎</a>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># optimizer w and w/o regularization</span>
+</span></span><span class="line"><span class="cl"><span class="n">optim_normal</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">net_normal</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr_init</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">optim_wdecay</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">net_weight_decay</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr_init</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<hr>
+<p>DDG search: &ldquo;pytorch optimizer weight decay&rdquo;
+<a class="link" href="https://pytorch.org/docs/stable/generated/torch.optim.SGD.html"  target="_blank" rel="noopener"
+    >SGD-pytorch docs</a></p>
+<hr>
+<p>(2023-02-26)
+DDG serach: &ldquo;正则化项 可以完全避免过拟合吗&rdquo;</p>
+<p><a class="link" href="https://www.zhihu.com/question/389848505"  target="_blank" rel="noopener"
+    >在机器学习中，L2正则化为什么能够缓过拟合？ - 知乎</a></p>
+<hr>
+<h2 id="ref">Ref</h2>
+<ol>
+<li>
+<div id="1-凩子白"><a href="https://www.bilibili.com/video/BV1Kq4y1K7hZ">[知识梳理-03] Regularization 正则化-凩子白-bilibili</a></div>
+</li>
+<li>
+<div id="2-UCI"><a href="https://www.youtube.com/watch?v=sO4ZirJh9ds">Linear regression (6): Regularization (UCI cs273a) - Alexander Ihler</a></div>
+</li>
+<li>
+<div id="3-莫烦"><a href="https://www.youtube.com/watch?v=TmzzQoO8mr4">什么是 L1 L2 正规化 正则化 Regularization (深度学习 deep learning)</a></div>
+</li>
+<li>
+<div id="book王天一"></div>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

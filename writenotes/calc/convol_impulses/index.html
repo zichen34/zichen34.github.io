@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Source video: Continuous time convolution with impulses - ProfKathleen
+Convolution For example, there is a man keep eating all the time. $f(t)$ is the food eaten at time t, and $h(t)$ is the food mass changing function for a period of digestion time t. For example, after the duration $(t-τ)$ of digestion, the amount of food eaten at time $τ$ becomes $h(t-τ)$.
+Therefore, the total food reamined in stomach at time t is f convolving with h:'>
+<title>memo: Calc | Convolution with Impulses</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/convol_impulses/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: Calc | Convolution with Impulses'>
+<meta property='og:description' content='Source video: Continuous time convolution with impulses - ProfKathleen
+Convolution For example, there is a man keep eating all the time. $f(t)$ is the food eaten at time t, and $h(t)$ is the food mass changing function for a period of digestion time t. For example, after the duration $(t-τ)$ of digestion, the amount of food eaten at time $τ$ becomes $h(t-τ)$.
+Therefore, the total food reamined in stomach at time t is f convolving with h:'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/convol_impulses/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-11-20T11:40:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-20T11:40:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: Calc | Convolution with Impulses">
+<meta name="twitter:description" content="Source video: Continuous time convolution with impulses - ProfKathleen
+Convolution For example, there is a man keep eating all the time. $f(t)$ is the food eaten at time t, and $h(t)$ is the food mass changing function for a period of digestion time t. For example, after the duration $(t-τ)$ of digestion, the amount of food eaten at time $τ$ becomes $h(t-τ)$.
+Therefore, the total food reamined in stomach at time t is f convolving with h:">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#convolution">Convolution</a></li>
+    <li><a href="#delta-function">Delta function</a></li>
+    <li><a href="#convolve-with-impulse">Convolve with Impulse</a></li>
+    <li><a href="#box-function">Box function</a></li>
+    <li><a href="#two-impulses">Two impulses</a></li>
+    <li><a href="#impulse-train">Impulse train</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/convol_impulses/">memo: Calc | Convolution with Impulses</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 20, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Source video: <a class="link" href="https://youtu.be/1pJ5ie2hX1M"  target="_blank" rel="noopener"
+    >Continuous time convolution with impulses - ProfKathleen</a></p>
+<h2 id="convolution">Convolution</h2>
+<p>For example, there is a man keep eating all the time.
+$f(t)$ is the food eaten at time t, and $h(t)$ is the food mass changing function for a period of digestion time t.
+For example, after the duration $(t-τ)$ of digestion, the amount of food eaten at time $τ$ becomes $h(t-τ)$.</p>
+<p>Therefore, the <strong>total food reamined</strong> in stomach at time t is f convolving with h:</p>
+<p>$$
+y(t) = f(t) * h(t) = ∫_{-∞}^{+∞}f(τ)⋅h(t-τ) dτ
+$$</p>
+<p>Intuitively, the value $x(τ)$ is scaled by a factor from τ time ago.
+Thus, the function $h(t)$ looks like in reverse.</p>
+<p>Given $f = x(t)$ and $h = δ(t)$, the existing amount at time t is:</p>
+<p>$$
+y(t) = f * h = ∫_{-∞}^{+∞} x(τ) h(t-τ) dτ
+$$</p>
+<hr>
+<h2 id="delta-function">Delta function</h2>
+<ol>
+<li>
+<p>$δ(τ)$:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 240 73"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,32 L 48,32' fill='none' stroke='currentColor'></path>
+<path d='M 48,32 L 104,32' fill='none' stroke='currentColor'></path>
+<path d='M 48,0 L 48,32' fill='none' stroke='currentColor'></path>
+<polygon points='56.000000,0.000000 44.000000,-5.600000 44.000000,5.600000' fill='currentColor' transform='rotate(270.000000, 48.000000, 0.000000)'></polygon>
+<polygon points='112.000000,32.000000 100.000000,26.400000 100.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 104.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='48' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>τ</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>$δ(τ-3)$: Right shift $δ(τ)$ by 3.</p>
+<p>Where the 0 was becomes -3. Therefore, all the coordinates minus 3, i.e., τ becomes τ-3.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 264 73"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,32 L 72,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,32 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,0 L 72,32' fill='none' stroke='currentColor'></path>
+<polygon points='80.000000,0.000000 68.000000,-5.600000 68.000000,5.600000' fill='currentColor' transform='rotate(270.000000, 72.000000, 0.000000)'></polygon>
+<polygon points='136.000000,32.000000 124.000000,26.400000 124.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 128.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>τ</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>$δ(-τ-3)$: Rverse $δ(τ-3)$:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 264 73"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,32 L 16,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,0 L 16,32' fill='none' stroke='currentColor'></path>
+<polygon points='24.000000,0.000000 12.000000,-5.600000 12.000000,5.600000' fill='currentColor' transform='rotate(270.000000, 16.000000, 0.000000)'></polygon>
+<polygon points='136.000000,32.000000 124.000000,26.400000 124.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 128.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>τ</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>$δ(t-τ-3)$: Shift $δ(τ-3)$ to t, which is a constant.</p>
+<p>Where the τ-3 = 0 becomes t, so all coordinate plus t:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 264 73"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,32 L 16,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,0 L 16,32' fill='none' stroke='currentColor'></path>
+<polygon points='24.000000,0.000000 12.000000,-5.600000 12.000000,5.600000' fill='currentColor' transform='rotate(270.000000, 16.000000, 0.000000)'></polygon>
+<polygon points='136.000000,32.000000 124.000000,26.400000 124.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 128.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='88' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>τ</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ol>
+<h2 id="convolve-with-impulse">Convolve with Impulse</h2>
+<p>Given $x(t)$</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 280 73"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,32 L 48,32' fill='none' stroke='currentColor'></path>
+<path d='M 0,48 L 96,48' fill='none' stroke='currentColor'></path>
+<path d='M 48,32 L 64,0' fill='none' stroke='currentColor'></path>
+<polygon points='104.000000,48.000000 92.000000,42.400002 92.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 96.000000, 48.000000)'></polygon>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>The existing amount of a system containing two functions x(t) and δ(t-3) at time t is:</p>
+<p>$$
+y(t) = x(t) * δ(t-3) = ∫_{-∞}^{+∞} x(τ) δ(t-τ-3) dτ
+$$</p>
+<p>Multiply x(τ) by the reversed impluse:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 296 89"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,32 L 16,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 0,48 L 16,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,48 L 112,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,16 L 16,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 16,48' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 80,0' fill='none' stroke='currentColor'></path>
+<polygon points='24.000000,16.000000 12.000000,10.400000 12.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 16.000000, 16.000000)'></polygon>
+<polygon points='120.000000,48.000000 108.000000,42.400002 108.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 112.000000, 48.000000)'></polygon>
+<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='24' y='68' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>τ</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Delta function is 0 except for τ = t-3, therefore, only x(t-3) will be computed:</p>
+<p>$$
+y(t) = x(t) * δ(t-3) = ∫_{-∞}^{+∞} x(t-3) δ(t-τ-3) dτ
+$$</p>
+<p>And in that integral, x(t-3) has nothing to do with τ, so it can be pulled outside the integral:</p>
+<p>$$
+y(t) = x(t) * δ(t-3) = x(t-3) ∫_{-∞}^{+∞}  δ(t-τ-3) dτ \\
+= x(t-3)*1 \\
+= x(t-3)
+$$</p>
+<p>By convolving with an impulse function, x(t) is shifted (based on the origin) to where the impulse is.</p>
+<p>This conclusion can be generalized to any f.</p>
+<h2 id="box-function">Box function</h2>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 472 105"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 32,0 L 80,0' fill='none' stroke='currentColor'></path>
+<path d='M 368,0 L 416,0' fill='none' stroke='currentColor'></path>
+<path d='M 0,32 L 32,32' fill='none' stroke='currentColor'></path>
+<path d='M 32,32 L 80,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,32 L 120,32' fill='none' stroke='currentColor'></path>
+<path d='M 176,32 L 208,32' fill='none' stroke='currentColor'></path>
+<path d='M 208,32 L 240,32' fill='none' stroke='currentColor'></path>
+<path d='M 304,32 L 336,32' fill='none' stroke='currentColor'></path>
+<path d='M 336,32 L 368,32' fill='none' stroke='currentColor'></path>
+<path d='M 368,32 L 416,32' fill='none' stroke='currentColor'></path>
+<path d='M 416,32 L 432,32' fill='none' stroke='currentColor'></path>
+<path d='M 32,0 L 32,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,0 L 80,32' fill='none' stroke='currentColor'></path>
+<path d='M 208,0 L 208,32' fill='none' stroke='currentColor'></path>
+<path d='M 368,0 L 368,32' fill='none' stroke='currentColor'></path>
+<path d='M 416,0 L 416,32' fill='none' stroke='currentColor'></path>
+<polygon points='128.000000,32.000000 116.000000,26.400000 116.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 120.000000, 32.000000)'></polygon>
+<polygon points='216.000000,0.000000 204.000000,-5.600000 204.000000,5.600000' fill='currentColor' transform='rotate(270.000000, 208.000000, 0.000000)'></polygon>
+<polygon points='248.000000,32.000000 236.000000,26.400000 236.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 240.000000, 32.000000)'></polygon>
+<polygon points='440.000000,32.000000 428.000000,26.400000 428.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 432.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='0' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='64' y='84' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>✶</text>
+<text text-anchor='middle' x='184' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>δ</text>
+<text text-anchor='middle' x='216' y='84' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='224' y='84' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='232' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='240' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='248' y='84' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='304' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='336' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='360' y='84' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='368' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='368' y='84' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='376' y='84' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='384' y='84' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='416' y='52' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='448' y='36' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<h2 id="two-impulses">Two impulses</h2>
+<p>Convolution is linear. Compute separately and <strong>sum</strong> together.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 536 137"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,64 L 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 112,64' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 192,64' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 264,64' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 288,64' fill='none' stroke='currentColor'></path>
+<path d='M 336,64 L 360,64' fill='none' stroke='currentColor'></path>
+<path d='M 360,64 L 408,64' fill='none' stroke='currentColor'></path>
+<path d='M 408,64 L 440,64' fill='none' stroke='currentColor'></path>
+<path d='M 440,64 L 464,64' fill='none' stroke='currentColor'></path>
+<path d='M 192,16 L 192,64' fill='none' stroke='currentColor'></path>
+<path d='M 264,32 L 264,64' fill='none' stroke='currentColor'></path>
+<path d='M 360,16 L 360,64' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 56,16' fill='none' stroke='currentColor'></path>
+<path d='M 360,64 L 384,16' fill='none' stroke='currentColor'></path>
+<path d='M 408,64 L 424,32' fill='none' stroke='currentColor'></path>
+<path d='M 56,16 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 384,16 L 408,64' fill='none' stroke='currentColor'></path>
+<path d='M 424,32 L 440,64' fill='none' stroke='currentColor'></path>
+<polygon points='120.000000,64.000000 108.000000,58.400002 108.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 112.000000, 64.000000)'></polygon>
+<polygon points='200.000000,16.000000 188.000000,10.400000 188.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 192.000000, 16.000000)'></polygon>
+<polygon points='272.000000,32.000000 260.000000,26.400000 260.000000,37.599998' fill='currentColor' transform='rotate(270.000000, 264.000000, 32.000000)'></polygon>
+<polygon points='296.000000,64.000000 284.000000,58.400002 284.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 288.000000, 64.000000)'></polygon>
+<polygon points='368.000000,16.000000 356.000000,10.400000 356.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 360.000000, 16.000000)'></polygon>
+<polygon points='472.000000,64.000000 460.000000,58.400002 460.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 464.000000, 64.000000)'></polygon>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='80' y='84' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>✶</text>
+<text text-anchor='middle' x='168' y='84' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='192' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>δ</text>
+<text text-anchor='middle' x='208' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='264' y='84' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>/</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='304' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='320' y='52' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='336' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='360' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='392' y='116' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='400' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='408' y='84' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='408' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='416' y='116' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='440' y='84' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>/</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='480' y='68' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<h2 id="impulse-train">Impulse train</h2>
+<p>Convolving with a infinite sum of delta function: $Σ_{n=-∞}^{+∞} δ(t-n)$</p>
+<p>The replicas of the signal overlaps:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 368 313"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 32,32 L 48,32' fill='none' stroke='currentColor'></path>
+<path d='M 0,64 L 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 176,64' fill='none' stroke='currentColor'></path>
+<path d='M 176,64 L 192,64' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 208,64' fill='none' stroke='currentColor'></path>
+<path d='M 208,64 L 224,64' fill='none' stroke='currentColor'></path>
+<path d='M 224,64 L 240,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 32,208 L 48,208' fill='none' stroke='currentColor'></path>
+<path d='M 48,208 L 64,208' fill='none' stroke='currentColor'></path>
+<path d='M 64,208 L 80,208' fill='none' stroke='currentColor'></path>
+<path d='M 80,208 L 96,208' fill='none' stroke='currentColor'></path>
+<path d='M 0,240 L 32,240' fill='none' stroke='currentColor'></path>
+<path d='M 32,240 L 48,240' fill='none' stroke='currentColor'></path>
+<path d='M 48,240 L 64,240' fill='none' stroke='currentColor'></path>
+<path d='M 64,240 L 80,240' fill='none' stroke='currentColor'></path>
+<path d='M 80,240 L 96,240' fill='none' stroke='currentColor'></path>
+<path d='M 96,240 L 112,240' fill='none' stroke='currentColor'></path>
+<path d='M 184,240 L 216,240' fill='none' stroke='currentColor'></path>
+<path d='M 216,240 L 232,240' fill='none' stroke='currentColor'></path>
+<path d='M 232,240 L 248,240' fill='none' stroke='currentColor'></path>
+<path d='M 248,240 L 264,240' fill='none' stroke='currentColor'></path>
+<path d='M 264,240 L 280,240' fill='none' stroke='currentColor'></path>
+<path d='M 280,240 L 336,240' fill='none' stroke='currentColor'></path>
+<path d='M 32,32 L 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 32,208 L 32,240' fill='none' stroke='currentColor'></path>
+<path d='M 48,208 L 48,240' fill='none' stroke='currentColor'></path>
+<path d='M 64,0 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,176 L 64,208' fill='none' stroke='currentColor'></path>
+<path d='M 64,208 L 64,240' fill='none' stroke='currentColor'></path>
+<path d='M 80,176 L 80,208' fill='none' stroke='currentColor'></path>
+<path d='M 80,208 L 80,240' fill='none' stroke='currentColor'></path>
+<path d='M 96,176 L 96,208' fill='none' stroke='currentColor'></path>
+<path d='M 96,208 L 96,240' fill='none' stroke='currentColor'></path>
+<path d='M 176,32 L 176,64' fill='none' stroke='currentColor'></path>
+<path d='M 192,32 L 192,64' fill='none' stroke='currentColor'></path>
+<path d='M 208,32 L 208,64' fill='none' stroke='currentColor'></path>
+<path d='M 224,32 L 224,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,32 L 240,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,144 L 240,192' fill='none' stroke='currentColor'></path>
+<path d='M 264,144 L 264,192' fill='none' stroke='currentColor'></path>
+<path d='M 288,144 L 288,192' fill='none' stroke='currentColor'></path>
+<path d='M 312,144 L 312,192' fill='none' stroke='currentColor'></path>
+<path d='M 48,32 L 64,0' fill='none' stroke='currentColor'></path>
+<path d='M 48,208 L 64,176' fill='none' stroke='currentColor'></path>
+<path d='M 64,208 L 80,176' fill='none' stroke='currentColor'></path>
+<path d='M 80,208 L 96,176' fill='none' stroke='currentColor'></path>
+<path d='M 216,192 L 240,144' fill='none' stroke='currentColor'></path>
+<path d='M 240,192 L 264,144' fill='none' stroke='currentColor'></path>
+<path d='M 264,192 L 288,144' fill='none' stroke='currentColor'></path>
+<path d='M 288,192 L 312,144' fill='none' stroke='currentColor'></path>
+<polygon points='104.000000,64.000000 92.000000,58.400002 92.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 96.000000, 64.000000)'></polygon>
+<polygon points='120.000000,240.000000 108.000000,234.399994 108.000000,245.600006' fill='currentColor' transform='rotate(0.000000, 112.000000, 240.000000)'></polygon>
+<polygon points='184.000000,32.000000 172.000000,26.400000 172.000000,37.599998' fill='currentColor' transform='rotate(270.000000, 176.000000, 32.000000)'></polygon>
+<polygon points='200.000000,32.000000 188.000000,26.400000 188.000000,37.599998' fill='currentColor' transform='rotate(270.000000, 192.000000, 32.000000)'></polygon>
+<polygon points='216.000000,32.000000 204.000000,26.400000 204.000000,37.599998' fill='currentColor' transform='rotate(270.000000, 208.000000, 32.000000)'></polygon>
+<polygon points='232.000000,32.000000 220.000000,26.400000 220.000000,37.599998' fill='currentColor' transform='rotate(270.000000, 224.000000, 32.000000)'></polygon>
+<polygon points='248.000000,32.000000 236.000000,26.400000 236.000000,37.599998' fill='currentColor' transform='rotate(270.000000, 240.000000, 32.000000)'></polygon>
+<polygon points='280.000000,64.000000 268.000000,58.400002 268.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 272.000000, 64.000000)'></polygon>
+<polygon points='344.000000,240.000000 332.000000,234.399994 332.000000,245.600006' fill='currentColor' transform='rotate(0.000000, 336.000000, 240.000000)'></polygon>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='0' y='260' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='32' y='260' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='40' y='292' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='48' y='260' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='48' y='292' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='56' y='292' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='64' y='84' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='64' y='260' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='64' y='292' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='112' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='128' y='244' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='136' y='52' fill='currentColor' style='font-size:1em'>✶</text>
+<text text-anchor='middle' x='136' y='212' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='144' y='212' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='152' y='212' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='168' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='176' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='184' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='184' y='196' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='184' y='260' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='192' y='84' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>δ</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='208' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='260' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='224' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='232' y='260' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='232' y='292' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='240' y='84' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='240' y='292' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='248' y='260' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='248' y='292' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='256' y='292' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='288' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='296' y='36' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='352' y='244' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

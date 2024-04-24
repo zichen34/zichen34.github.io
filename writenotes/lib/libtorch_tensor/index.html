@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Basic APIs about tensors in LibTorch.'>
+<title>memo: LibTorch | Tensor APIs and Examples</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/lib/libtorch_tensor/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: LibTorch | Tensor APIs and Examples'>
+<meta property='og:description' content='Basic APIs about tensors in LibTorch.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/lib/libtorch_tensor/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-11-09T19:40:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-09T19:40:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: LibTorch | Tensor APIs and Examples">
+<meta name="twitter:description" content="Basic APIs about tensors in LibTorch.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#create-tensor">Create Tensor</a>
+      <ol>
+        <li><a href="#shape">shape</a></li>
+        <li><a href="#create-from-factory-func">Create from factory func</a></li>
+        <li><a href="#create-with-4-properties">Create with 4 Properties</a></li>
+        <li><a href="#convert-tensor-by-to">Convert tensor by .to</a></li>
+        <li><a href="#options-alteration">Options Alteration</a></li>
+        <li><a href="#size-of-a-tensor">size of a tensor</a></li>
+      </ol>
+    </li>
+    <li><a href="#manipulate-tensor">Manipulate Tensor</a>
+      <ol>
+        <li><a href="#resize">Resize</a></li>
+        <li><a href="#flatten">Flatten</a></li>
+        <li><a href="#get-value">Get value</a></li>
+      </ol>
+    </li>
+    <li><a href="#empty-tensor">empty tensor</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/lib/libtorch_tensor/">memo: LibTorch | Tensor APIs and Examples</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Basic APIs about tensors in LibTorch.
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 09, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    11 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="create-tensor">Create Tensor</h2>
+<h3 id="shape">shape</h3>
+<p>(2024-01-24)</p>
+<ol>
+<li>
+<p><a class="link" href="https://pytorch.org/cppdocs/notes/tensor_creation.html#factory-functions"  target="_blank" rel="noopener"
+    ><code>.sizes()</code></a>
+is an &ldquo;vector-like&rdquo; object of class: <a class="link" href="https://pytorch.org/cppdocs/api/typedef_namespacec10_1ae2c46d838a1de023ea17ade42f417669.html"  target="_blank" rel="noopener"
+    ><code>IntArrayRef</code></a>.
+It can be <a class="link" href="https://pytorch.org/cppdocs/notes/tensor_creation.html#specifying-a-size"  target="_blank" rel="noopener"
+    >created</a> with curly braces,
+e.g., <code>{5.2}</code>, or an <code>std::vector&lt;int64_t&gt;{1,2,4}</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;cassert&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int64_t</span><span class="o">&gt;</span> <span class="n">myVec</span> <span class="o">=</span> <span class="p">{</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="n">assert</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">ones</span><span class="p">({</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">}).</span><span class="n">sizes</span><span class="p">()</span> <span class="o">==</span> <span class="n">myVec</span><span class="p">);</span> <span class="c1">// pass
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Equal&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">c10</span><span class="o">::</span><span class="n">IntArrayRef</span> <span class="n">myArrRef</span> <span class="o">=</span> <span class="p">{</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="n">assert</span><span class="p">(</span><span class="n">myVec</span> <span class="o">==</span> <span class="n">myArrRef</span><span class="p">);</span>    <span class="c1">// pass
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>&ldquo;Create vector <strong>out of</strong> the <code>IntArrayRef</code> constructor, , otherwise the vector is destroyed immediately afterward.&rdquo;
+<a class="link" href="https://stackoverflow.com/q/63542742/18003182"  target="_blank" rel="noopener"
+    >How to compare a torch::tensor shape against some other shapes? - SO</a></li>
+</ul>
+</li>
+<li>
+<p>Use <code>tensor.size(i)</code> (better than <code>tensor.sizes()[i]</code>) to access one of dimensions.
+<a class="link" href="https://pytorch.org/cppdocs/notes/tensor_creation.html#specifying-a-size"  target="_blank" rel="noopener"
+    >Docs</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">torch</span><span class="o">::</span><span class="n">ones</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="n">sizes</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>    <span class="c1">// [5]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">torch</span><span class="o">::</span><span class="n">ones</span><span class="p">({</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">}).</span><span class="n">sizes</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// [5, 2]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">myTensor</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>    <span class="c1">// 2
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Use a Lambda function to reshape a tensor and return the updated shape:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">c10</span><span class="o">::</span><span class="n">IntArrayRef</span><span class="p">(</span><span class="n">c10</span><span class="o">::</span><span class="n">IntArrayRef</span> <span class="n">newSize</span><span class="p">)</span><span class="o">&gt;</span><span class="n">getResizedShape</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">auto</span> <span class="n">lambda</span> <span class="o">=</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">t</span><span class="p">](</span><span class="n">c10</span><span class="o">::</span><span class="n">IntArrayRef</span> <span class="n">newSize</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">t</span><span class="p">.</span><span class="n">resize_</span><span class="p">(</span><span class="n">newSize</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">t</span><span class="p">.</span><span class="n">sizes</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">lambda</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">myTensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">rand</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">myTensor</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">auto</span> <span class="n">getNewSize</span> <span class="o">=</span> <span class="n">getResizedShape</span><span class="p">(</span><span class="n">myTensor</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">getNewSize</span><span class="p">({</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">})</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details><summary>Output:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>1,.,.<span class="o">)</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">  0.9838  0.7854  0.6991
+</span></span><span class="line"><span class="cl">  0.8325  0.1196  0.3780
+</span></span><span class="line"><span class="cl"><span class="o">[</span> CPUFloatType<span class="o">{</span>1,2,3<span class="o">}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>3, 2<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ol>
+<hr>
+<h3 id="create-from-factory-func">Create from factory func</h3>
+<ul>
+<li><a class="link" href="https://pytorch.org/cppdocs/notes/tensor_creation.html"  target="_blank" rel="noopener"
+    >Tensor Creation API — PyTorch main documentation</a></li>
+<li><a class="link" href="https://github.com/zichen34/LibTorch_Study"  target="_blank" rel="noopener"
+    >Test repo</a></li>
+</ul>
+<p><strong>General schema</strong>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">torch::&lt;factory-func-name&gt; <span class="o">(</span>&lt;func-specific-args&gt;, &lt;sizes&gt;, &lt;tensor-opt&gt;<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><a class="link" href="https://pytorch.org/cppdocs/notes/tensor_creation.html#picking-a-factory-function"  target="_blank" rel="noopener"
+    ><code>&lt;factory-func-name&gt;</code></a>
+e.g., <code>arange</code>, <code>empty</code>, &hellip;</li>
+</ul>
+<ol>
+<li>
+<p>Create a tensor from the factory function <code>torch::rand()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;torch/torch.h&gt;  // unzipped to /usr/local/libtorch</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span><span class="s">&#34;size:&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">a</span><span class="p">.</span><span class="n">sizes</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>CMakeLists.txt</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cmake_minimum_required<span class="o">(</span>VERSION 3.18 FATAL_ERROR<span class="o">)</span>
+</span></span><span class="line"><span class="cl">project<span class="o">(</span>MyLibTorchApp<span class="o">)</span>    <span class="c1"># name</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">find_package<span class="o">(</span>Torch REQUIRED<span class="o">)</span>
+</span></span><span class="line"><span class="cl">set<span class="o">(</span>CMAKE_CXX_FLAGS <span class="s2">&#34;</span><span class="si">${</span><span class="nv">CMAKE_CXX_FLAGS</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">TORCH_CXX_FLAGS</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">add_executable<span class="o">(</span><span class="si">${</span><span class="nv">PROJECT_NAME</span><span class="si">}</span> main.cpp<span class="o">)</span>
+</span></span><span class="line"><span class="cl">target_link_libraries<span class="o">(</span><span class="si">${</span><span class="nv">PROJECT_NAME</span><span class="si">}</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">TORCH_LIBRARIES</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">set_property<span class="o">(</span>TARGET <span class="si">${</span><span class="nv">PROJECT_NAME</span><span class="si">}</span> PROPERTY CXX_STANDARD 17<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Build:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir -p build
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> build
+</span></span><span class="line"><span class="cl">cmake -DCMAKE_PREFIX_PATH<span class="o">=</span>/usr/local/libtorch ..
+</span></span><span class="line"><span class="cl">cmake --build . --config Release
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Or in a modern way (under the workspace; no need cd to ./build):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cmake -B build -DCMAKE_PREFIX_PATH<span class="o">=</span>/usr/local/libtorch -GNinja
+</span></span><span class="line"><span class="cl">cmake --build build  <span class="c1"># build in ./build</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Execute it: <code>./MyLibTorchApp</code></p>
+<details><summary>Output:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>1,.,.<span class="o">)</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">  <span class="m">8</span>  <span class="m">7</span>  <span class="m">6</span>
+</span></span><span class="line"><span class="cl">  <span class="m">2</span>  <span class="m">7</span>  <span class="m">2</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span> CPUFloatType<span class="o">{</span>1,2,3<span class="o">}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl">size: <span class="o">[</span>1, 2, 3<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ol>
+<hr>
+<h3 id="create-with-4-properties">Create with 4 Properties</h3>
+<ol>
+<li>
+<p>Pass an instance <code>TensorOptions</code> to the factory function:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">TensorOptions</span> <span class="n">options</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">TensorOptions</span><span class="p">().</span><span class="n">dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kFloat32</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                                     <span class="p">.</span><span class="n">layout</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kStrided</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                                     <span class="p">.</span><span class="n">device</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kCUDA</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                                     <span class="p">.</span><span class="n">requires_grad</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">full</span><span class="p">({</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">},</span> <span class="mi">123</span><span class="p">,</span> <span class="n">options</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">a</span><span class="p">.</span><span class="n">device</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">a</span><span class="p">.</span><span class="n">requires_grad</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Only float and complex can <code>.requires_grad</code>.</li>
+<li><code>full(...)</code> is not implemented for sparse layout</li>
+</ul>
+<details><summary>Output:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"> <span class="m">123</span>  <span class="m">123</span>  <span class="m">123</span>  <span class="m">123</span>
+</span></span><span class="line"><span class="cl"> <span class="m">123</span>  <span class="m">123</span>  <span class="m">123</span>  <span class="m">123</span>
+</span></span><span class="line"><span class="cl"> <span class="m">123</span>  <span class="m">123</span>  <span class="m">123</span>  <span class="m">123</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span> CUDAFloatType<span class="o">{</span>3,4<span class="o">}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl">cuda:0
+</span></span><span class="line"><span class="cl"><span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>Omitting <code>torch::TensorOptions()</code>, which will be pre-configured and returned
+if <strong>calling the 4 properties directly</strong> from <code>torch::</code> namespace.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kInt32</span><span class="p">).</span><span class="n">device</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kCUDA</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>If only <strong>one property</strong> needs to be specified, its property name (<code>torch::dtype()</code>) can be omitted even further.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">arange</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">kInt32</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h3 id="convert-tensor-by-to">Convert tensor by .to</h3>
+<p>Use <code>TensorOptions</code> and <code>.to()</code> to create a <strong>new</strong> tensor on new memory based on a source tensor.</p>
+<ol>
+<li>
+<p>Convert dtype:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">src_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">randn</span><span class="p">({</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">a</span> <span class="o">=</span> <span class="n">src_tensor</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kInt32</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// combinational
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">a</span> <span class="o">=</span> <span class="n">src_tensor</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kInt32</span><span class="p">).</span><span class="n">device</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kCUDA</span><span class="p">,</span><span class="mi">0</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">auto</span> <span class="n">opts</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">options</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">opts</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<ul>
+<li>What does &ldquo;new&rdquo; mean?</li>
+</ul>
+<hr>
+<h3 id="options-alteration">Options Alteration</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// change the property of dtype in the TensorOptions object
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">auto</span> <span class="n">int_opts</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">options</span><span class="p">().</span><span class="n">dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kInt32</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">auto</span> <span class="n">float_opts</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">options</span><span class="p">().</span><span class="n">dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kFloat32</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="size-of-a-tensor">size of a tensor</h3>
+<p>(2024-01-24)</p>
+<p><a class="link" href="https://stackoverflow.com/a/71109385/18003182"  target="_blank" rel="noopener"
+    >LibTorch sizeof tensor - SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">myTensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">rand</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">},</span> <span class="n">torch</span><span class="o">::</span><span class="n">kFloat32</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">sizeOfFloat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">elementSize</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">typeMetaToScalarType</span><span class="p">(</span><span class="n">myTensor</span><span class="p">.</span><span class="n">dtype</span><span class="p">()));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;size of the kFloat32 type: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">sizeOfFloat</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Number of elements in the tensor: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">myTensor</span><span class="p">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Bytes occupied by the tensor: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">myTensor</span><span class="p">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">*</span> <span class="n">sizeOfFloat</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details><summary>Output:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">size of the kFloatt32 type: <span class="m">4</span>
+</span></span><span class="line"><span class="cl">Number of elements in the tensor: <span class="m">6</span>
+</span></span><span class="line"><span class="cl">Bytes occupied by the tensor: <span class="m">24</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<hr>
+<h2 id="manipulate-tensor">Manipulate Tensor</h2>
+<p><code>ATen</code> means &ldquo;A Tensor Library&rdquo;. The <code>Tensor</code> class under its namespace <code>at::</code> lays the base for all tensor operations.
+<a class="link" href="http://blog.ezyang.com/2019/05/pytorch-internals/"  target="_blank" rel="noopener"
+    >ezyang&rsquo;s blog</a></p>
+<hr>
+<h3 id="resize">Resize</h3>
+<p>(2023-11-12)</p>
+<p>API: <a class="link" href="https://pytorch.org/cppdocs/api/classat_1_1_tensor.html#exhale-class-classat-1-1-tensor"  target="_blank" rel="noopener"
+    >Class Tensor in Namespace ATen - Docs</a></p>
+<ol>
+<li>
+<p>Reshape a tensor in place:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">).</span><span class="n">resize_</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">t</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="p">.</span><span class="n">resize_</span><span class="p">({</span><span class="mi">6</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">t</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details><summary>Output:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="p">(</span><span class="mi">1</span><span class="p">,.,.)</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">  <span class="mi">0</span>  <span class="mi">1</span>  <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">  <span class="mi">3</span>  <span class="mi">4</span>  <span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span> <span class="n">CPULongType</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">}</span> <span class="p">]</span>
+</span></span><span class="line"><span class="cl"> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"> <span class="mi">3</span>
+</span></span><span class="line"><span class="cl"> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl"> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span> <span class="n">CPULongType</span><span class="p">{</span><span class="mi">6</span><span class="p">}</span> <span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>It can be resized to <strong>more than</strong> its elements:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"> <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">).</span><span class="n">resize_</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl"> <span class="n">t</span><span class="p">.</span><span class="n">resize_</span><span class="p">({</span><span class="mi">10</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl"> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Allocated bytes:&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">t</span><span class="p">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">*</span> <span class="n">torch</span><span class="o">::</span><span class="n">elementSize</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">typeMetaToScalarType</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">dtype</span><span class="p">()))</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"> <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">.</span><span class="n">numel</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">     <span class="p">}</span>
+</span></span><span class="line"><span class="cl"> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details><summary>Output</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Allocated bytes:80
+</span></span><span class="line"><span class="cl"><span class="m">0</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">1</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">2</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">3</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">4</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">5</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">0</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">0</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">0</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">0</span> <span class="o">[</span> CPULongType<span class="o">{}</span> <span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ol>
+<hr>
+<h3 id="flatten">Flatten</h3>
+<p>Reshape a tensor to 1D and return the pointer to it.
+Code from <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/tree/main"  target="_blank" rel="noopener"
+    >3DGS</a></p>
+<ol>
+<li>
+<p>Use a lambda function to resize the tensor and return the data pointer.</p>
+</li>
+<li>
+<p><code>.data_ptr()</code> points to data of the tensor <code>x</code>, while <code>x</code> doesn&rsquo;t point to data directly.</p>
+</li>
+<li>
+<p><code>reinterpret_cast&lt;char*&gt;</code> converts the tensor-type pointer <code>.data_ptr()</code> to a char-type pointer <code>pResizedX</code>,
+which will read memory byte by byte.</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;torch/torch.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;functional&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;cstdio&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">*</span><span class="p">(</span><span class="n">size_t</span> <span class="n">N</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">resizeFunctional</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;size of the reference of the input tensor: &#34;</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">auto</span> <span class="n">lambda</span> <span class="o">=</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">t</span><span class="p">](</span><span class="n">size_t</span> <span class="n">N</span><span class="p">){</span>    <span class="c1">// Number of elements
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">t</span><span class="p">.</span><span class="n">resize_</span><span class="p">({</span> <span class="p">(</span><span class="kt">long</span> <span class="kt">long</span><span class="p">)</span> <span class="n">N</span><span class="p">});</span> <span class="c1">// shape: {N}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;N is: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">N</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;size of t: &#34;</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;dtype of t: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">t</span><span class="p">.</span><span class="n">dtype</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">contiguous</span><span class="p">().</span><span class="n">data_ptr</span><span class="p">());</span>  <span class="c1">// read memory byte by byte
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">lambda</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">arange</span><span class="p">(</span><span class="mi">33</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">kByte</span><span class="p">).</span><span class="n">resize_</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Test tensor: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Tensor is a ptr, so its size is: &#34;</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">auto</span> <span class="n">resizer</span> <span class="o">=</span> <span class="n">resizeFunctional</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="c1">// lambda expression
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span><span class="o">*</span> <span class="n">pTensor</span> <span class="o">=</span> <span class="n">resizer</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">numel</span><span class="p">());</span> <span class="c1">// pointer to tensor&#39;s data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Memory address
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;char*: %p </span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">pTensor</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;size of pointer of a char: &#34;</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">pTensor</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// The return address is the data_ptr()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;data_ptr(): %p </span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">data_ptr</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Print out the data stored in the returned address
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// Since a data is only 1 byte, the 1st byte is the 1st data.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span> <span class="n">data</span> <span class="o">=</span> <span class="o">*</span><span class="n">pTensor</span><span class="p">;</span>   <span class="c1">// the first byte. 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Note: unicode of 0-31 are invisible, so I test char 33-40
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;The first byte: %c </span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">data</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   <span class="c1">// Convert value (char) to integer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Decimal: %d </span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>  <span class="c1">// 33
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Convert 1st byte to int: &#34;</span> <span class="o">&lt;&lt;</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">pTensor</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Indexing elements like an array:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Use [0]: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">pTensor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>  <span class="c1">// !
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="p">(</span><span class="n">pTensor</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<details><summary>Output</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi:~/Downloads/LibTorch_Study$ ./build/MyLibTorchApp 
+</span></span><span class="line"><span class="cl">Test tensor: <span class="o">(</span>1,.,.<span class="o">)</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl">  <span class="m">33</span>  <span class="m">34</span>  <span class="m">35</span>
+</span></span><span class="line"><span class="cl">  <span class="m">36</span>  <span class="m">37</span>  <span class="m">38</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span> CPUByteType<span class="o">{</span>1,2,3<span class="o">}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl">Tensor is a ptr, so its size is: <span class="m">8</span>
+</span></span><span class="line"><span class="cl">size of the reference of the input tensor: <span class="m">8</span>
+</span></span><span class="line"><span class="cl">N is: <span class="m">6</span>
+</span></span><span class="line"><span class="cl">size of t: <span class="m">8</span>
+</span></span><span class="line"><span class="cl">dtype of t: unsigned char
+</span></span><span class="line"><span class="cl">char*: 0x55f202301640 
+</span></span><span class="line"><span class="cl">size of pointer of a char: <span class="m">8</span>
+</span></span><span class="line"><span class="cl">data_ptr<span class="o">()</span>: 0x55f202301640 
+</span></span><span class="line"><span class="cl">The first byte: !
+</span></span><span class="line"><span class="cl">!
+</span></span><span class="line"><span class="cl">Decimal: <span class="m">33</span> 
+</span></span><span class="line"><span class="cl">Convert 1st byte to int: <span class="m">33</span>
+</span></span><span class="line"><span class="cl">Use <span class="o">[</span>0<span class="o">]</span>: !
+</span></span><span class="line"><span class="cl">! <span class="s2">&#34; # </span>$<span class="s2"> % &amp; 
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ul>
+<ul>
+<li>
+<p><code>N</code> is the total number of elements in the tensor <code>t</code>.</p>
+</li>
+<li>
+<p><a class="link" href="https://pytorch.org/cppdocs/api/classat_1_1_tensor.html#_CPPv4NK2at6Tensor7resize_EN2at11IntArrayRefEN3c108optionalIN2at12MemoryFormatEEE"  target="_blank" rel="noopener"
+    ><code>resize_</code></a>
+requires the shape argument <code>size</code> to be <a class="link" href="https://pytorch.org/cppdocs/api/typedef_namespacec10_1ae2c46d838a1de023ea17ade42f417669.html"  target="_blank" rel="noopener"
+    ><code>c10::IntArrayRef</code></a> type,
+which is an array of <code>int64_t</code>, i.e., signed 8-byte integer.</p>
+<p>Therefore, from the <strong>unsigned</strong> long int <a class="link" href="https://en.cppreference.com/w/c/types/size_t"  target="_blank" rel="noopener"
+    ><code>size_t</code></a>
+(<code>N</code>) to a <strong>signed</strong> <code>int64_t</code> is a narrowing conversion.</p>
+<p><a class="link" href="https://en.cppreference.com/w/cpp/language/types#Integer_types"  target="_blank" rel="noopener"
+    ><code>long</code></a>
+is at least 32-bit. In my computer, <code>long</code> is 8-byte.
+And <code>long long</code> is at least 64-bit.
+Because the signedness modifier is <strong>omitted</strong>, both <code>long</code> and <code>long long</code> are <code>signed</code>.
+Thus, the type casting <code>(long long) N</code> is equivalent to <code>(int64_t) N</code></p>
+</li>
+<li>
+<p><a class="link" href="https://en.cppreference.com/w/cpp/types/integer"  target="_blank" rel="noopener"
+    ><code>int64_t</code></a>
+is exact 8 bytes for <strong>all</strong> compilers, unlike <code>long</code> somewhere is 4-bytes.
+<a class="link" href="https://stackoverflow.com/a/13604190/18003182"  target="_blank" rel="noopener"
+    >Definition of int64_t - SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">size_t</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>    <span class="c1">// 8
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">signed</span> <span class="kt">long</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>   <span class="c1">// 8
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>   <span class="c1">// 8
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>   <span class="c1">// 8
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">long</span> <span class="kt">long</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>   <span class="c1">// 8
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int64_t</span><span class="p">)</span> <span class="o">&lt;&lt;</span>  <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>   <span class="c1">// 8
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<hr>
+<ol>
+<li>
+<p><strong>Attributes</strong> of tensor <code>x</code>:</p>
+<div class="mermaid">---
+title: tensor x
+---
+classDiagram
+    direction RL
+    class T["at::TensorBase"]{
+    + c10::intrusive_ptr impl_ 
+    }
+    class P["c10::intrusive_ptr"]{
+    + c10::TensorImpl* target_
+    }
+    note for P "0x555557729610"
+    P  --> T
+</div>
+
+</li>
+<li>
+<p><strong>View the memory</strong> via GDB command <code>-exec</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">-exec x/64xb 0x555557729610
+</span></span><span class="line"><span class="cl">0x555557729610:	0x60	0x35	0xfb	0xf7	0xff	0x7f	0x00	0x00
+</span></span><span class="line"><span class="cl">0x555557729618:	0x01	0x00	0x00	0x00	0x00	0x00	0x00	0x00
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>0x7FFFF7FB3560</code> is not the address storing <code>x</code>&rsquo;s data.</li>
+</ul>
+<p>Char pointer <code>pResizedX</code> = <code>0x555557729500</code> points to the memory storing the <code>x</code>&rsquo;s data:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">-exec x/64b 0x555557729500
+</span></span><span class="line"><span class="cl">0x555557729500:	3	0	0	0	0	0	0	<span class="m">0</span>
+</span></span><span class="line"><span class="cl">0x555557729508:	3	0	0	0	0	0	0	<span class="m">0</span>
+</span></span><span class="line"><span class="cl">0x555557729510:	3	0	0	0	0	0	0	<span class="m">0</span>
+</span></span><span class="line"><span class="cl">0x555557729518:	3	0	0	0	0	0	0	<span class="m">0</span>
+</span></span><span class="line"><span class="cl">0x555557729520:	0	0	0	0	0	0	0	<span class="m">0</span>
+</span></span><span class="line"><span class="cl">0x555557729528:	81	0	0	0	0	0	0	<span class="m">0</span>
+</span></span><span class="line"><span class="cl">0x555557729530:	0	0	0	0	0	0	0	<span class="m">0</span>
+</span></span><span class="line"><span class="cl">0x555557729538:	16	80	87	85	85	85	0	<span class="m">0</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>There are four 3. A tensor takes 8-byte integer?</li>
+</ul>
+</li>
+<li>
+<p><strong>DEBUG CONSOLE</strong> panel:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">x.data_ptr
+</span></span><span class="line"><span class="cl"><span class="o">{</span>void *<span class="o">(</span>const at::TensorBase * const<span class="o">)}</span> 0x55555555b392 &lt;at::TensorBase::data_ptr<span class="o">()</span> const&gt;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Don&rsquo;t know what that address is?</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="get-value">Get value</h3>
+<p>(2023-11-12)</p>
+<ol>
+<li>
+<p>Return the <strong>pointer</strong> to data: <code>Tensor.data&lt;T&gt;()</code>, which is deprecated and changed to <code>Tensor.data_ptr&lt;T&gt;()</code> internally.
+<a class="link" href="https://github.com/pytorch/pytorch/blob/567db94d876eaf2d238307ffbfd5d15ce1e47b65/aten/src/ATen/templates/TensorBody.h#L248"  target="_blank" rel="noopener"
+    >Source code</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">full</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">},</span> <span class="mi">2</span><span class="p">,</span> <span class="n">torch</span><span class="o">::</span><span class="n">dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kFloat</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">.</span><span class="n">contiguous</span><span class="p">().</span><span class="n">data</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">.</span><span class="n">contiguous</span><span class="p">().</span><span class="n">data_ptr</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details><summary>Output:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">~/l/build$ ./MyLibTorchApp
+</span></span><span class="line"><span class="cl"> <span class="m">2</span>  <span class="m">2</span>  <span class="m">2</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span> CPUFloatType<span class="o">{</span>1,3<span class="o">}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl">0x557d9beab500
+</span></span><span class="line"><span class="cl">0x557d9beab500
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p><code>.item&lt;dtype&gt;()</code> can get <strong>scalar</strong> data, not vector.
+<a class="link" href="https://stackoverflow.com/a/54208912/18003182"  target="_blank" rel="noopener"
+    >Torch C++: Getting the value of a int tensor by using *.data<int>() - SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">randn</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">});</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">].</span><span class="n">item</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">].</span><span class="n">item</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details><summary>Output:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">~/l/build$ ./MyLibTorchApp
+</span></span><span class="line"><span class="cl">-0.6926 -0.2304  1.2920
+</span></span><span class="line"><span class="cl"><span class="o">[</span> CPUFloatType<span class="o">{</span>1,3<span class="o">}</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="m">0</span>
+</span></span><span class="line"><span class="cl">-0.692582
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>Use a vector to hold result tensor after inference:
+<a class="link" href="https://g-airborne.com/bringing-your-deep-learning-model-to-production-with-libtorch-part-2-tracing-your-pytorch-model#end-of-page"  target="_blank" rel="noopener"
+    >Part-2 Garry&rsquo;s Blog</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// Extract size of output (of the first and only batch)
+</span></span></span><span class="line"><span class="cl"><span class="c1">// and preallocate a vector with that size 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">auto</span> <span class="n">output_size</span> <span class="o">=</span> <span class="n">output</span><span class="p">.</span><span class="n">sizes</span><span class="p">()[</span><span class="mi">1</span><span class="p">];</span> 
+</span></span><span class="line"><span class="cl"><span class="k">auto</span> <span class="n">output_vector</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">output_size</span><span class="p">);</span>  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Fill result vector with tensor items using `Tensor::item`
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">output_size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">output_vector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">].</span><span class="n">item</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Copy <code>cv::Mat</code> to a tensor:
+<a class="link" href="https://g-airborne.com/bringing-your-deep-learning-model-to-production-with-libtorch-part-3-advanced-libtorch/#converting-between-raw-data-and-tensor-and-back"  target="_blank" rel="noopener"
+    >Part-3 Garry&rsquo;s Blog</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">::</span><span class="n">empty</span><span class="p">({</span><span class="n">mat</span><span class="p">.</span><span class="n">row</span><span class="p">,</span> <span class="n">mat</span><span class="p">.</span><span class="n">cols</span><span class="p">,</span> <span class="n">mat</span><span class="p">.</span><span class="n">channels</span><span class="p">()},</span> 
+</span></span><span class="line"><span class="cl">        <span class="n">torch</span><span class="o">::</span><span class="n">TensorOptions</span><span class="p">().</span><span class="n">dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kByte</span><span class="p">).</span><span class="n">device</span><span class="p">(</span><span class="n">torch</span><span class="o">::</span><span class="n">kCPU</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">memcpy</span><span class="p">(</span><span class="n">tensor</span><span class="p">.</span><span class="n">data_ptr</span><span class="p">(),</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">mat</span><span class="p">.</span><span class="n">data</span><span class="p">),</span> <span class="n">tensor</span><span class="p">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">at</span><span class="o">::</span><span class="n">kByte</span><span class="p">));</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>A more detailed post: <a class="link" href="https://www.simonwenkel.com/notes/software_libraries/pytorch/data_transfer_to_and_from_pytorch.html"  target="_blank" rel="noopener"
+    >Data Transfer to and from PyTorch - SimonWenkel.com</a></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><a class="link" href="https://www.cnblogs.com/yanghailin/p/12901586.html"  target="_blank" rel="noopener"
+    >libtorch 常用api函数示例（史上最全、最详细） - 博客园</a></p>
+<p><a class="link" href="https://github.com/AllentDan/LibtorchTutorials"  target="_blank" rel="noopener"
+    >AllentDan/LibtorchTutorials</a></p>
+<p><a class="link" href="https://medium.com/crim/from-pytorch-to-libtorch-tips-and-tricks-dc45b6c1b1ac"  target="_blank" rel="noopener"
+    >From PyTorch to Libtorch: tips and tricks - Marc Lalonde - Medium</a></p>
+<p><a class="link" href="https://krshrimali.github.io/posts/2019/07/announcing-a-series-of-blogs-on-pytorch-c-api/"  target="_blank" rel="noopener"
+    >Announcing a series of blogs on PyTorch C++ API - Kushashwa Ravi Shrimali</a></p>
+<hr>
+<h2 id="empty-tensor">empty tensor</h2>
+<p>(2024-01-28)</p>
+<p>In 3DGS, the project <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization"  target="_blank" rel="noopener"
+    ><code>diff-gaussian-rasterization</code></a>
+is built as an <a class="link" href="https://pytorch.org/tutorials/advanced/cpp_extension.html"  target="_blank" rel="noopener"
+    >cpp extension</a>
+according to <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/main/setup.py"  target="_blank" rel="noopener"
+    >setup.py</a>, which is called in <strong>Python</strong> program.
+Whereas the <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/main/CMakeLists.txt"  target="_blank" rel="noopener"
+    >CMakeList.txt</a>
+serves for building the project as a static library (.so) to be inserted into the <strong>C++</strong> executable application.</p>
+<p>Originally, I want to debug the diff-gaussian-rasterization as a static library,
+so I need to construct input tensors that mimic those passed from Python,
+where some tensors are assigned as <code>None</code>, such as <code>cov3D_precomp</code>.</p>
+<p>However, I don&rsquo;t know how to create a &ldquo;None&rdquo; tensor in the C++ program
+(Perplexity said: &ldquo;You can&rsquo;t directly set a tensor to NULL as you would do in Python by setting a variable to None.&rdquo;).</p>
+<p><del>I have tried <code>torch::empty({0})</code>, but its <code>data_ptr()</code> is not the desired <code>nullptr</code>.
+Consequently, a <code>if</code> judge statement later won&rsquo;t enter into the branch that would happened when the extension is called by Python.</del></p>
+<ul>
+<li>
+<p>(2024-01-31) It turns out that I forgot the re-build and make the application again.
+So, CUDA-GDB still steps through the old application.</p>
+</li>
+<li>
+<p>The <code>.data_ptr()</code> of <code>torch::empty({0})</code> and <code>torch::full({0},0)</code> both are <code>nullptr</code>.</p>
+</li>
+</ul>
+<hr>
+<div id="none-tensor"></div>
+<p>(2024-01-30)</p>
+<p>Just found the <code>None</code> Python tensors in <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/diff_gaussian_rasterization/__init__.py#L197"  target="_blank" rel="noopener"
+    >3DGS</a>
+are <strong>reassigned</strong> with <code>torch.Tensor([])</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">cov3D_precomp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cov3D_precomp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The <code>torch.Tensor([])</code> will be passed into the C++ package function: <code>_C.rasterize_gaussians()</code> (i.e., the forward method <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/rasterize_points.cu#L44"  target="_blank" rel="noopener"
+    ><code>RasterizeGaussiansCUDA</code></a>)</p>
+<p>A demo where Python calls C++ package referring to AIkui&rsquo;s CUDA extension tutorial:</p>
+<details><summary>Expand codes </summary>
+<script src="https://gist.github.com/zichen34/bb6fb6fce2b9e99b0baa8ebc4733de95.js"></script>
+</details>
+<ul>
+<li>The code can be evaluated by commands:  <code>chmod +x test.sh</code> and <code>./test.sh</code></li>
+</ul>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 512 41"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 136,16 L 160,16' fill='none' stroke='currentColor'></path>
+<path d='M 328,16 L 352,16' fill='none' stroke='currentColor'></path>
+<polygon points='168.000000,16.000000 156.000000,10.400000 156.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 160.000000, 16.000000)'></polygon>
+<polygon points='360.000000,16.000000 348.000000,10.400000 348.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 352.000000, 16.000000)'></polygon>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>L</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>{</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>}</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='376' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='384' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='392' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='400' y='4' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='400' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='408' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='408' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='416' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='424' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='432' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='432' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='440' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='464' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='472' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='480' y='20' fill='currentColor' style='font-size:1em'>[</text>
+<text text-anchor='middle' x='488' y='20' fill='currentColor' style='font-size:1em'>]</text>
+<text text-anchor='middle' x='496' y='20' fill='currentColor' style='font-size:1em'>)</text>
+</g>
+
+    </svg>
+  
+</div>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script>
+        mermaid.initialize({ startOnLoad: true });
+      </script>
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Elliot Waite Source video: PyTorch Autograd Explained - In-depth Tutorial-Elliot Waite
+Two tensors are created with the values of 2 and 3 and assigned to variables a and b. Then the product of a and b is assigned to variable c.
+In the following diagram, each struct is a tensor containing several attributes.
+data holds the data of the tensor grad holds the calculated gradient value grad_fn, gradient function points to a node in the backwards graph is_leaf marks is this tensor a leaf of a graph requires_grad is False by default for all tensors that are being input (like a,b) into or output (like c) from an operation.'>
+<title>memo: PyTorch | Autograd</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/lib/pytorch_autograd/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: PyTorch | Autograd'>
+<meta property='og:description' content='Elliot Waite Source video: PyTorch Autograd Explained - In-depth Tutorial-Elliot Waite
+Two tensors are created with the values of 2 and 3 and assigned to variables a and b. Then the product of a and b is assigned to variable c.
+In the following diagram, each struct is a tensor containing several attributes.
+data holds the data of the tensor grad holds the calculated gradient value grad_fn, gradient function points to a node in the backwards graph is_leaf marks is this tensor a leaf of a graph requires_grad is False by default for all tensors that are being input (like a,b) into or output (like c) from an operation.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/lib/pytorch_autograd/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-10-19T21:17:00-05:00'/><meta property='article:modified_time' content='2022-10-19T21:17:00-05:00'/>
+<meta name="twitter:title" content="memo: PyTorch | Autograd">
+<meta name="twitter:description" content="Elliot Waite Source video: PyTorch Autograd Explained - In-depth Tutorial-Elliot Waite
+Two tensors are created with the values of 2 and 3 and assigned to variables a and b. Then the product of a and b is assigned to variable c.
+In the following diagram, each struct is a tensor containing several attributes.
+data holds the data of the tensor grad holds the calculated gradient value grad_fn, gradient function points to a node in the backwards graph is_leaf marks is this tensor a leaf of a graph requires_grad is False by default for all tensors that are being input (like a,b) into or output (like c) from an operation.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#elliot-waite">Elliot Waite</a>
+      <ol>
+        <li><a href="#simple-example">Simple example</a></li>
+        <li><a href="#avoid-in-place-operation">Avoid In-place operation</a></li>
+        <li><a href="#unbind-operation">Unbind operation</a></li>
+        <li><a href="#complicated-example">Complicated example</a></li>
+        <li><a href="#retain_grad">retain_grad()</a></li>
+        <li><a href="#detach">detach()</a></li>
+        <li><a href="#grad_fn--grad">grad_fn &amp; grad</a></li>
+        <li><a href="#ctx">ctx</a></li>
+        <li><a href="#output-dont-have-grad-by-default">output don&rsquo;t have grad by default</a></li>
+        <li><a href="#detach-1">detach()</a></li>
+      </ol>
+    </li>
+    <li><a href="#freeze-params">Freeze params</a></li>
+    <li><a href="#requires_grad_-vs-requires_grad">requires_grad_ vs requires_grad</a></li>
+    <li><a href="#twice-nnparameter">Twice nn.Parameter</a></li>
+    <li><a href="#graph-in-for-loop">Graph in For Loop</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/lib/pytorch_autograd/">memo: PyTorch | Autograd</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 19, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    14 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="elliot-waite">Elliot Waite</h2>
+<p>Source video: <a class="link" href="https://youtu.be/MswxJw-8PvE"  target="_blank" rel="noopener"
+    >PyTorch Autograd Explained - In-depth Tutorial-Elliot Waite</a></p>
+<p>Two tensors are created with the values of 2 and 3 and assigned to variables <code>a</code> and <code>b</code>.
+Then the product of <code>a</code> and <code>b</code> is assigned to variable <code>c</code>.</p>
+<p>In the following diagram, each struct is a tensor containing several attributes.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-A%201.svg width=>
+  
+  
+
+
+<ul>
+<li><code>data</code> holds the data of the tensor</li>
+<li><code>grad</code> holds the calculated gradient value</li>
+<li><code>grad_fn</code>, gradient function points to a node in the backwards graph</li>
+<li><code>is_leaf</code> marks is this tensor a leaf of a graph</li>
+<li><code>requires_grad</code> is False by default for all tensors that are being input (like a,b) into or output (like c) from an operation. Such that no backwards graph will be created.</li>
+</ul>
+<p>However, if the attribute <code>requires_grad</code> of <code>a</code> is set to True and <code>a</code> is passed into any operation (<code>Mul</code>),
+the output tensor (<code>c</code>) will also have <code>requires_grad=True</code> and be apart of the backwards graph,
+because <code>c</code> is no longer a leaf. <br>
+And <code>c</code>&rsquo;s <code>grad_fn</code> points to <code>MulBackward</code>, which calculates the gardient of its operation w.r.t. input tensor <code>a</code>: ∂c/∂a = ∂(a∗b)/∂a = b</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-A%202.svg width=>
+  
+  
+
+
+<p>The blue contents are the <strong>backwards graph</strong> behind the tensors and their operations.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-A%203.svg width=>
+  
+  
+
+
+<ul>
+<li>
+<p>When the <code>Mul</code> function is called, the <code>ctx</code> context variable will save the values to be used in the backwards pass: <code>MulBackward</code> operation.</p>
+</li>
+<li>
+<p>Specifically, the input tensor <code>a</code> is stored by the method <code>ctx.save_for_backward(...)</code> and referenced by the property <code>ctx.saved_tensors</code> in the backward pass.</p>
+</li>
+<li>
+<p>The <code>MulBackward</code> has another attribute <code>next_functions</code> is a list of tuples, each one associated with an input tensor that were passed to the <code>Mul</code> operation.</p>
+<ul>
+<li><code>(AccumulatedGrad, 0)</code> corresponds to the input tensor <code>a</code> meaning the gradient of <code>a</code> will be calculated continuously by <code>AccumulatedGrad</code> operation.</li>
+<li><code>(None, 0)</code> is associated with input tensor <code>b</code>, no further calculation is needed for its gradient.</li>
+</ul>
+</li>
+<li>
+<p>The <code>AccumulateGrad</code> operation is used to sum the gradients (from multiple operations) for the input tensor <code>a</code>.</p>
+</li>
+</ul>
+<p>When executing <code>c.backward()</code>, the backward pass of gradients starts. The initial gradient is 1.0 and then passed into <code>MulBackward</code>, where it times <code>b</code> getting 3.0.
+Then by looking at the <code>next_functions</code>, it needs to get into <code>AccumulatedGrad</code> to obtain the gradient w.r.t. tensor <code>a</code>.
+Finally, the attribute <code>grad</code> of <code>a</code> comes from <code>AccumulateGrad</code>.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-A%204.svg width=>
+  
+  
+
+
+<h3 id="simple-example">Simple example</h3>
+<p>Two input tensors are both <code>requires_grad=True</code>.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Simple%201.svg width=>
+  
+  
+
+</p>
+<p>They&rsquo;re multiplied together to get <code>c</code>.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Simple%202.svg width=>
+  
+  
+
+</p>
+<p>If here executing <code>c.backward()</code>, the initial gradient 1.0 will start the backward pass from its <code>grad_fn</code>.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Simple%202.2.svg width=>
+  
+  
+
+</p>
+<p>Then tensor <code>d</code> is created to multiply with <code>c</code> to get <code>e</code>.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Simple%204.svg width=>
+  
+  
+
+</p>
+<p>If executing <code>e.backward()</code> here, to calculate the gradient of <code>e</code> w.r.t. the leaft nodes on the graph,
+the backward pass is as follows:
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Simple%205.svg width=>
+  
+  
+
+</p>
+<ul>
+<li>
+<p>The initial gradient 1.0 is first passed into <code>e.grad_fn</code>, i.e., <code>MulBackward</code>, where it multiplies with gradient of the operation w.r.t. the leaf nodes: ∂(c∗d)/∂d (=c=6.0). <br>
+(Since <code>c</code> is not a leaf, ∂e/∂c doesn&rsquo;t need to compute.)</p>
+</li>
+<li>
+<p>Then by looking at property <code>next_functions</code>, the gradients go continuously into <code>MulBackward</code> and <code>AccumulateGrad</code> separately.</p>
+<ul>
+<li>In <code>MulBackward</code>, to get ∂e/∂a, the incoming gradient ∂e/∂c multiplies with gradient of the <code>Mul</code> operation w.r.t. <code>a</code>: ∂(a∗b)/∂a, so the gradient of leaf <code>a</code> is ∂e/∂a = ∂e/∂c × ∂(a∗b)/∂a = 4×3=12. <br>
+Also to get ∂e/∂b, the incoming gradient ∂e/∂c multiplies with ∂(a∗b)/∂b, ∂e/∂b = ∂e/∂c × ∂(a∗b)/∂b = 4×2 = 8</li>
+<li>While ∂e/∂c gets into <code>AccumulateGrad</code>, no other operations needed to calculate the gradients w.r.t. d, the <code>grad</code> of leaf node <code>d</code> is 6.0.</li>
+</ul>
+</li>
+</ul>
+<h3 id="avoid-in-place-operation">Avoid In-place operation</h3>
+<p>When the <code>MulBackward</code> operation retrieve input tensors through <code>ctx.saved_tensors</code>, it is necessary to ensure that the correct values are referenced.
+Therefore, each tensor must maintains its attribute <code>_version</code>, which will be increamented (+1) when performing in-place operation (e.g., c+=1) each time.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-In%20Place%201.svg width=>
+  
+  
+
+
+<p>Thus, if calling <code>e.backward()</code> after <code>c+=1</code>, the <code>ctx.saved_tensors</code> will get an error, beacuse the attribute <code>_version</code> of the input tensor <code>c</code> is not matched with the previously saved one.
+In this way, the input tensors to be used are ensured haven&rsquo;t changed in the time since the operation was performed in the forward pass.</p>
+<p>However, the <code>Add</code> function doesn&rsquo;t affect the graidents, so it doesn&rsquo;t need to save any its input tensors for the backward pass.
+Hence, the <code>ctx</code> will not store its input tensors.
+And the initial gradient will directly looking at the <code>next_functions</code> after getting into <code>AddBackward</code> node.
+In this case, doing <code>c+=1</code> before <code>e.backward()</code>, no errors will occur because the input tensor <code>c</code> is not retrieved by <code>ctx.saved_tensors</code>.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-In%20Place%202.svg width=>
+  
+  
+
+</p>
+<h3 id="unbind-operation">Unbind operation</h3>
+<p>A tensor is created with 1-D list holding 3 values and assigned to variable a.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Unbind%201.svg width=>
+  
+  
+
+</p>
+<p>Then by executing <code>b,c,d = a.unbind()</code>, tensor <code>a</code> is split along the 1st dimension and tensors <code>b, c, d</code> are created.
+This operation will generate the graph as follows:
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Unbind%202.svg width=>
+  
+  
+
+</p>
+<p>All of the <code>grad_fn</code> of <code>b, c, d</code> point to the same <code>UnbindBackward</code> function.</p>
+<p>If <code>b, c, d</code> are multiplied together to get <code>e</code>, there will be two Mul operation in the forward pass and two <code>MulBackward</code> is the backward pass.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Unbind%203.svg width=>
+  
+  
+
+</p>
+<p>The property <code>next_functions</code> of those 2 <code>MulBackward</code> functions both have tuple <code>(UnbindBackward, i )</code>, but their indecies are different, where <code>i</code> is 0, 1, 2 corresponding to the 3 outputs from the <code>Unbind</code> function.</p>
+<ul>
+<li><code>(UnbindBackward, 0</code>) means the current gradient is associated with the first input tensor <code>b</code> of the (1st) <code>Mul</code> operation, which is also the first output from the <code>Unbind</code> function.</li>
+<li><code>(UnbindBackward, 1)</code> is saying this is the gradient for the second output fromt he <code>Unbind</code> function.</li>
+<li><code>(UnbindBackward, 2)</code> indicates this gradient is for the third output of the <code>Unbind</code> function.</li>
+</ul>
+<p>The index value is used to inform the <code>UnbindBackward</code> which output tensor the gradient is calculated for. Such that the <code>UnbindBackward</code> can output a list of gradients.</p>
+<p>The gradient of the leat node can be calculated by calling <code>e.backward()</code>. The backward pass is started off with the initial gradient of 1.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-Unbind%203.svg width=>
+  
+  
+
+</p>
+<h3 id="complicated-example">Complicated example</h3>
+<p>The following scalar tensor can be replaced with any vector or matrix or any n-dimension array.</p>
+<p>The tensors are created with the same value of 2 and they both don&rsquo;t require grad.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-C%201.svg width=>
+  
+  
+
+</p>
+<p><code>a</code> and <code>b</code> are multiplied together to get <code>c</code>, which doesn&rsquo;t require grad too.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-C%202.svg width=>
+  
+  
+
+</p>
+<p>Then by executing <code>c.requires_grad = True</code>, the tensor <code>c</code> will be a port of the backwards graph.
+So that any future operations done using <code>c</code> as an input will start to build the backwards graph.</p>
+<p>The full forward graph is build as:</p>
+<ul>
+<li>Another tensor <code>d</code> is created with <code>requires_grad=False</code>.</li>
+<li>Multiply <code>d</code> with <code>c</code> to get <code>e</code>.</li>
+<li>Another leaf <code>f</code> is constructed with <code>requires_grad=False</code> (not on the graph).</li>
+<li>Multiply <code>f</code> with <code>e</code> to get <code>g</code></li>
+<li>Another tensor <code>h</code> is created with <code>requires_grad=True</code> (a leaf on the graph).</li>
+<li>Devide <code>g</code> by <code>h</code> to get <code>i</code>;</li>
+<li>Add <code>i</code> and <code>h</code> together to get <code>j</code>. (h is leaf and fed into 2 operations, so its <code>AccumulteGrad</code> has two inputs from <code>DivBackward</code> and <code>AddBackward</code>.</li>
+<li>Multiply <code>j</code> and <code>i</code> together to get <code>k</code>. (i is passed into both <code>Add</code> and <code>Mul</code>, so its (<code>grad_fn</code>) <code>DivBackward</code> has 2 streams from <code>AddBackward</code> and <code>MulBackward</code>. <br>
+Unlike <code>h</code> has its 2 backward streams converge at <code>AccumulateGrad</code>, the 2 backward streams of <code>i</code> instead converge at the <code>DivBackward</code> that corresponds to the operation <code>Div</code> generating the <code>i</code>.</li>
+</ul>
+<p>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-C%2011.svg width=>
+  
+  
+
+
+(Yellow means the leaf that doesn&rsquo;t on the graph. Green means the leaf on the graph. Brown means the non-leaf)</p>
+<p>At the end, by executing <code>k.backward()</code>, the backward pass will start with a gradient of 1.0, which will times the gradient of each operation w.r.t. local input tensors sequentially from bottom to top.
+If an operation&rsquo;s input is a leaf, the <code>next_functions</code> will point to the <code>AccumulateGrad</code> for this leaf node. Once all gradients streams are accumulated, the sum is put into the attribute <code>grad</code> of the left node.
+Finally, ∂k/∂leaf will obtained.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-C%2012.svg width=>
+  
+  
+
+</p>
+<h3 id="retain_grad">retain_grad()</h3>
+<p>By default, the gradients will only calculated for the leaf nodes, and the <code>grad</code> of the intermediate nodes are kept <code>None</code>.
+But an intermediate tensor can retain their gradient by calling its <code>retain_grad()</code> method.
+For example, <code>i.retain_grad()</code>, which will set up a hook
+&ldquo;that gets called in the backward pass that will basically tell the <code>DivBackward</code> function that any gradients passed into it should be saved on the <code>grad</code> attribute of tensor <code>i</code>.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-C%2012_2.svg width=>
+  
+  
+
+</p>
+<h3 id="detach">detach()</h3>
+<p><code>m = k.detach()</code> will create a new tensor sharing the same underlying data as <code>k</code>, but <code>m</code> will no longer require gradients. <code>m</code> will be a leaft node but not on the graph because its <code>grad_fn</code> is None without pointing any node on the graph.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PyTorch%20Autograd%20%28E.W.%29-C%2013.svg width=>
+  
+  
+
+
+<p>Usually, the backwards graph is expected to get garbage collected after finishing the training loop.
+Once the <code>k.backward()</code> is executed, some values have no references (get freed) in the graph.
+Specifically, the references to the <code>saved_tensors</code>.
+But the actual graph still exists in memory.
+If the output tensor <code>k</code> is needed to kept for longer than the training loop, <code>k</code> can be detached from the graph.</p>
+<p>Similar functions:</p>
+<ul>
+<li><code>k.numpy()</code> : ndarray</li>
+<li><code>k.item()</code> : python int or python float</li>
+<li><code>k.tolist()</code> : original tensor that holds multiple values will be converted to python list</li>
+</ul>
+<hr>
+<p>(old summary on 2022-10-19)</p>
+<p>Those tensors whose attribute <code>requires_grad=True</code> will be nodes on a backwards graph.
+Any <strong>output tensor</strong> yielded from any operation is <strong>not</strong> leaf node.</p>
+<h3 id="grad_fn--grad">grad_fn &amp; grad</h3>
+<p>The <code>grad_fn</code> of the &rsquo;non-leaf&rsquo; (intermediate) node points to a node (like <code>MulBackward</code>) which will multiply the incoming gradient by the gradient of this operation w.r.t. its inputs (leaf nodes with <code>requires_grad=True</code>),
+or pass the <code>grad</code> of the &rsquo;non-leaf&rsquo; node up to next gradient-computing node for other leaf nodes before.
+This&rsquo;s like the divergence of ∂L/∂wᶦ and ∂L/∂wᶦ⁻¹.</p>
+<p>If an <strong>&ldquo;non-leaf&rdquo; node</strong> is passed into multiple operations, its gradient equals the sum of the gradients coming from each operation.
+Its gradient will be fed into the &ldquo;gradient-computing&rdquo; node as the incoming gradient of the operation that generates it.</p>
+<p>While if a <strong>leaf node</strong> is used by multiple functions, its gradient equals to the sum of the gradients comeing from the &ldquo;gradient-computeing&rdquo; nodes of every operation.
+Hence, the <code>grad</code> of the leaf node is accumulated by <code>AccumulateGrad</code> function.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/Autograd_Elliot_Waite_3-15.png width=>
+  
+  
+
+
+<h3 id="ctx">ctx</h3>
+<p><code>ctx</code> (context) stores the operators doing the operation for computing the gradient in backward graph.
+The gradients at different time are different, so the version of variables needs to be recorded.
+The in-place operation will increment the version of the variable, and then calling the <code>backward</code> method will cause an error due the mismatch of the <code>_version</code> value.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/Autograd_Elliot_Waite_5-30.png width=>
+  
+  
+
+</p>
+<p>However, if an operation doesn&rsquo;t bring gradients (like <code>Add</code>), its operators are not necessary to store. The incoming gradient will not change when passing through its corresponding backwards function (<code>AddBackward</code>).
+In this case, modifying its operators before calling <code>.backward()</code> is okay, becaue they are not involved with gradient.
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/Autograd_Elliot_Waite_6-11.png width=>
+  
+  
+
+</p>
+<p>Gradient for a one-dim tensor is a list of partial derivative. The second value in the tuple is the index among the mutliple outputs of the operation, indicating to who the gradient belongs</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/Autograd_Elliot_Waite_7-49.png width=>
+  
+  
+
+
+<h3 id="output-dont-have-grad-by-default">output don&rsquo;t have grad by default</h3>
+<p>The &ldquo;non-leaf&rdquo; node will not store <code>grad</code> by default, unless set its <code>.retain_grad()</code>, from which a hook can be set up to make its <code>grad_fn</code> to save any gradient passed to it into <code>grad</code> of this node.</p>
+<h3 id="detach-1">detach()</h3>
+<p><code>m=k.detach()</code> will create a leaf node <code>m</code> sharing the same data as k, but will no longer require gradient. Its <code>grad_fn=None</code> meaning it doesn&rsquo;t have a reference to the backwards graph. This operation is used to store a output value separately, but free the backwards graph after a training loop (forward+backward).
+Alternatives for detaching from the graph:</p>
+<ol>
+<li><code>k.numpy()</code>,</li>
+<li><code>k.item()</code> convert one-element tensor to python scalar.</li>
+<li><code>k.tolist()</code>.</li>
+</ol>
+<hr>
+<p>(2022-11-01)</p>
+<ul>
+<li><code>gradient</code> is the upstream gradients until this calling tensor (from the intermediate node to the network ouput). <br>
+Since the explicit expression of output is unknown, the derivative $\rm\frac{ d(output) }{ d(input) }$ cannot be calculated directly.
+But the derivative $\rm\frac{ d(output) }{ d(intermediate) }$ and $\rm\frac{ d(intermediate) }{ d(input) }$ are all known.
+Therefore, by passing the d(output)/d(intermediate), say 0.05, to <code>gradient</code>, the d(output)/d(input) is the returned value of <code>intermeidate.backward(gradient=0.05,)</code>.
+<a class="link" href="https://devpranjal.github.io/gradient-argument-pytorch-backward"  target="_blank" rel="noopener"
+    >The gradient argument in PyTorch backward - devpranjal Blog</a></li>
+</ul>
+<hr>
+<p>(2023-08-02)</p>
+<h2 id="freeze-params">Freeze params</h2>
+<ol>
+<li>
+<p><code>module.requires_grad_(False)</code> will change all its parameters.
+<a class="link" href="https://discuss.pytorch.org/t/how-the-pytorch-freeze-network-in-some-layers-only-the-rest-of-the-training/7088/2"  target="_blank" rel="noopener"
+    >PyTorch Forum</a></p>
+<ul>
+<li>
+<p>If I explicitly add the learnable params one-by-one, like <a class="link" href="https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html#testing-forward-method-optional:~:text=%23%20construct%20an-,optimizer,-params%20%3D%20%5B"  target="_blank" rel="noopener"
+    >this tutorial</a> (<code>if p.requires_grad</code>),
+only the <strong>ordinal</strong> of the layers in the state dict <code>ckpt['optimizer]['state']</code> changed,
+while the total number of states remains the number of layers to be performing gradient descent.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Test in GNT with multiple encoders:</span>
+</span></span><span class="line"><span class="cl"><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">add_param_group</span><span class="p">({</span><span class="s2">&#34;params&#34;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiEncoders</span><span class="o">.</span><span class="n">parameters</span><span class="p">()})</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Saved `ckpt[&#39;optimizer&#39;][&#39;state&#39;]` has a max index: 1390, but total 262 layers.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiEncoders</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">add_param_group</span><span class="p">({</span><span class="s2">&#34;params&#34;</span><span class="p">:</span> <span class="n">params</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#`ckpt[&#39;optimizer&#39;][&#39;state&#39;]` has a max index: 281, but total 262 layers too.</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li>
+<p><code>with torch.no_grad():</code> will stop backward-propagation for a block of operations wrapped in its region (in a context).
+This is equivalent to <code>module.requires_grad_(False)</code>.
+<a class="link" href="https://stackoverflow.com/a/51753038"  target="_blank" rel="noopener"
+    >Demo-SO</a></p>
+<ul>
+<li>Inference mode is similar with <code>no_grad</code>, but even faster.</li>
+</ul>
+</li>
+<li>
+<p><code>module.eval()</code> = <code>module.train(False)</code> affects the settings of <code>nn.Dropout</code> and <code>nn.BatchNorm2d</code>.
+And it has <strong>nothing</strong> to do with <code>grad</code>.
+<a class="link" href="https://pytorch.org/docs/master/notes/autograd.html"  target="_blank" rel="noopener"
+    >Docs - Autograd</a></p>
+<ul>
+<li>In pixelNeRF, <code>self.net.eval()</code> and <code>self.net.train()</code> will jump to <code>SwinTransformer2D_Adapter.train(mode=True)</code></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="requires_grad_-vs-requires_grad">requires_grad_ vs requires_grad</h2>
+<p><code>requires_grad_</code> can do for non-leaf node, while <code>requires_grad</code> will have error.
+<a class="link" href="https://discuss.pytorch.org/t/is-there-any-difference-between-calling-requires-grad-method-and-manually-set-requires-grad-attribute/122971/2"  target="_blank" rel="noopener"
+    >PyTorch Forum</a></p>
+<hr>
+<h2 id="twice-nnparameter">Twice nn.Parameter</h2>
+<p>(2024-04-11)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchviz</span> <span class="kn">import</span> <span class="n">make_dot</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">w</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">w</span> <span class="o">@</span> <span class="n">x</span><span class="p">)</span> <span class="c1"># shape (3,3)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># dot = make_dot(loss, params={&#39;w&#39;: w, &#39;x&#39;: x})</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># dot.render(&#39;computational_graph&#39;, format=&#39;png&#39;)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/Autograd_twice_nnParam.png width=>
+  
+  
+
+
+<p>As shown above, once &ldquo;re-convert&rdquo; the <code>w@x</code> as the <code>nn.Parameter</code>,
+the forward graph doesn&rsquo;t include <code>w</code> and the operation Matrixmultiplication.
+The graph is starting from <code>f</code> instead.</p>
+<p>Therefore, even though <code>w</code> is a leaf node and <code>require_grad</code> is True, it won&rsquo;t obtain <code>.grad</code>: <code>w.grad</code> is None.</p>
+<p>In contrast, do not re-set the nn.Parameter won&rsquo;t change the leaf tensors.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">w</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span> <span class="o">=</span> <span class="n">w</span> <span class="o">@</span> <span class="n">x</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>In this way, the leaf tensors are <strong>prepared</strong> outside the <code>for</code> loop (specifally <code>forward()</code>).
+And the leaf tensors (i.e., <code>w</code>) will be added onto the graph correctly during each iteration rebuilding.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/Autograd_twice_nnParam_2.png width=>
+  
+  
+
+
+<hr>
+<h2 id="graph-in-for-loop">Graph in For Loop</h2>
+<p>(2024-04-11)</p>
+<p>The computational graph (of PyTorch 1.x) is build in each iteration,
+as the previous graph has been destroyed after executing <code>.backward()</code></p>
+<p>Therefore, the tensors to be optimized, i.e., the leaf node of the graph,
+have to be present within the for loop as the starting point of the graph.</p>
+<p>In the following code, <code>w</code> needs to be optimized.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">w</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">([</span><span class="n">w</span><span class="p">],</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">x</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The forward graph can be plotted as:</p>
+<center>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/Autograd_forward_graph.png width=22%>
+  
+  
+
+</center>
+<ul>
+<li>The endpoint (green box) is the tensor <code>loss</code></li>
+<li>The <code>w</code> has performed Multiplication and Sum to get <code>loss</code></li>
+<li>The graph will be rebuilt in each iteration, with the <code>w</code> and <code>x</code> as the <strong>starting</strong> points.
+And the graph will be freed after <code>loss.backward()</code></li>
+<li><code>optimizer.step()</code> updates leaf tensors that require grad.
+<a class="link" href="https://pytorch.org/docs/stable/notes/autograd.html#setting-requires-grad"  target="_blank" rel="noopener"
+    >Docs</a></li>
+</ul>
+<details><summary>Code</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchviz</span> <span class="kn">import</span> <span class="n">make_dot</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">w</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">([</span><span class="n">w</span><span class="p">],</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">x</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dot</span> <span class="o">=</span> <span class="n">make_dot</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;w&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dot</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;computational_graph&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<hr>
+<p>However, if moving the operation <code>f=w*x</code> outside the for loop,
+the graph only contain an operation: <code>f.sum()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>   <span class="c1"># leaf</span>
+</span></span><span class="line"><span class="cl"><span class="n">w</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># leaf</span>
+</span></span><span class="line"><span class="cl"><span class="n">f</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">x</span>   <span class="c1"># non-leaf tensor won&#39;t have .grad</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>From the second run, the rebuilt graph only includes &ldquo;Sum&rdquo;, and no longer includes <code>w</code> (out of this graph).
+In other words, the <code>w</code> doesn&rsquo;t belong to this newly rebuilt graph.</p>
+<p>Therefore, the <code>.backward()</code> method cannot be completed for <code>w</code>.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 336 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 88,16 L 104,16' fill='none' stroke='currentColor'></path>
+<path d='M 192,16 L 208,16' fill='none' stroke='currentColor'></path>
+<path d='M 128,48 L 176,48' fill='none' stroke='currentColor'></path>
+<path d='M 176,48 L 232,48' fill='none' stroke='currentColor'></path>
+<path d='M 96,-8 L 96,8' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 176,48 L 176,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,0 L 96,8' fill='none' stroke='currentColor'></path>
+<path d='M 96,24 L 96,32' fill='none' stroke='currentColor'></path>
+<polygon points='112.000000,16.000000 100.000000,10.400000 100.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 104.000000, 16.000000)'></polygon>
+<polygon points='216.000000,16.000000 204.000000,10.400000 204.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 208.000000, 16.000000)'></polygon>
+<path d='M 112,32 A 16,16 0 0,0 128,48' fill='none' stroke='currentColor'></path>
+<path d='M 248,32 A 16,16 0 0,1 232,48' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>∗</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='136' y='100' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='152' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='160' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='168' y='84' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='176' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='184' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='184' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='192' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='192' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='208' y='100' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='216' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='224' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='232' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='240' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='256' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='264' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='272' y='100' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='280' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='296' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='304' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='312' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='320' y='100' fill='currentColor' style='font-size:1em'>r</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>In the second iteration, the graph doesn&rsquo;t include <code>w</code>. So, when the gradient backpropagates, the gradient cannot reach <code>w</code>.</p>
+<p>On the other hand, the <code>w</code> still points to the previous graph, without updating.</p>
+<p>Error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">  File <span class="s2">&#34;/home/yi/Downloads/CppCudaExt_PT_Tut_AIkui/test_debug.py&#34;</span>, line 8, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    loss.backward<span class="o">()</span>
+</span></span><span class="line"><span class="cl">RuntimeError: Trying to backward through the graph a second <span class="nb">time</span> 
+</span></span><span class="line"><span class="cl"><span class="o">(</span>or directly access saved tensors after they have already been freed<span class="o">)</span>. 
+</span></span><span class="line"><span class="cl">Saved intermediate values of the graph are freed when you call .backward<span class="o">()</span> or autograd.grad<span class="o">()</span>. 
+</span></span><span class="line"><span class="cl">Specify <span class="nv">retain_graph</span><span class="o">=</span>True <span class="k">if</span> you need to backward through the graph a second <span class="nb">time</span> 
+</span></span><span class="line"><span class="cl">or <span class="k">if</span> you need to access saved tensors after calling backward.
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='1-背景
+抑制过拟合 增加样本数据 正则化：增加约束限制参数空间 降维 维度灾难 数学角度： 比如每增加一个二值属性，要想完全cover样本空间，所需样本数会以2的指数增长
+几何意义： 在高维空间中，立方体的内切球的体积趋近于零，也就是说把立方体的四个角削掉，只剩下内切球，基本就一点不剩了知乎:机器学习中的维度灾难，四个角所占比例不高，却拥有几乎全部的体积。 所以如果在高维空间中取一超立方体，其中存在样本的概率很低，因为样本只存在于四个角中，这就是数据的稀疏性，并且分布不均匀。很难做分类。
+维度 超立方体体积 超内切球体积 2 1 π (0.5)² 3 1 4/3 π (0.5)³ D 1 K(0.5)ᴰ; 当 D→∞, V(超球体)→0 几何意义2: 两个同心圆的半径相差 $\varepsilon \ (0&amp;lt;\varepsilon&amp;lt;1)$，内圆的半径为 $1-\varepsilon$，外超球体的体积为：$V_外=K \cdot 1^D = K$；环形带的体积：$V_{环形带} = V_外-V_内 = K - K(1-\varepsilon)^D$。
+两体积之比：$\frac{V_环}{V_外} = \frac{K- K(1-\varepsilon)^D}{K} = 1-(1-\varepsilon)^D$。 不论$\varepsilon$取多小，当维度趋于无穷，$\underset{D\rightarrow \infin}{lim} (1-\varepsilon)^D = 0$，也就是比值为1，环形带(壳)体积等于外球的体积 球内的样本只存在与球壳上
+维度灾难会导致过拟合
+需要降维
+降维 避免过拟合，减小泛化误差 直接降维/特征选择: 只保留重要的维度; LASSO带来系数的系数性，使某些属性对应的系数等于0。 线性降维: PCA, MDS 非线性降维: 流形（ISOmap, LLE） 2-样本均值&amp;amp;样本方差矩阵'>
+<title>watch: ML - 白板 05 | Dimensionality Reduction</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/05_%E9%99%8D%E7%BB%B4/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: ML - 白板 05 | Dimensionality Reduction'>
+<meta property='og:description' content='1-背景
+抑制过拟合 增加样本数据 正则化：增加约束限制参数空间 降维 维度灾难 数学角度： 比如每增加一个二值属性，要想完全cover样本空间，所需样本数会以2的指数增长
+几何意义： 在高维空间中，立方体的内切球的体积趋近于零，也就是说把立方体的四个角削掉，只剩下内切球，基本就一点不剩了知乎:机器学习中的维度灾难，四个角所占比例不高，却拥有几乎全部的体积。 所以如果在高维空间中取一超立方体，其中存在样本的概率很低，因为样本只存在于四个角中，这就是数据的稀疏性，并且分布不均匀。很难做分类。
+维度 超立方体体积 超内切球体积 2 1 π (0.5)² 3 1 4/3 π (0.5)³ D 1 K(0.5)ᴰ; 当 D→∞, V(超球体)→0 几何意义2: 两个同心圆的半径相差 $\varepsilon \ (0&amp;lt;\varepsilon&amp;lt;1)$，内圆的半径为 $1-\varepsilon$，外超球体的体积为：$V_外=K \cdot 1^D = K$；环形带的体积：$V_{环形带} = V_外-V_内 = K - K(1-\varepsilon)^D$。
+两体积之比：$\frac{V_环}{V_外} = \frac{K- K(1-\varepsilon)^D}{K} = 1-(1-\varepsilon)^D$。 不论$\varepsilon$取多小，当维度趋于无穷，$\underset{D\rightarrow \infin}{lim} (1-\varepsilon)^D = 0$，也就是比值为1，环形带(壳)体积等于外球的体积 球内的样本只存在与球壳上
+维度灾难会导致过拟合
+需要降维
+降维 避免过拟合，减小泛化误差 直接降维/特征选择: 只保留重要的维度; LASSO带来系数的系数性，使某些属性对应的系数等于0。 线性降维: PCA, MDS 非线性降维: 流形（ISOmap, LLE） 2-样本均值&amp;amp;样本方差矩阵'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/05_%E9%99%8D%E7%BB%B4/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2021-12-16T13:33:00&#43;00:00'/><meta property='article:modified_time' content='2021-12-16T13:33:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: ML - 白板 05 | Dimensionality Reduction">
+<meta name="twitter:description" content="1-背景
+抑制过拟合 增加样本数据 正则化：增加约束限制参数空间 降维 维度灾难 数学角度： 比如每增加一个二值属性，要想完全cover样本空间，所需样本数会以2的指数增长
+几何意义： 在高维空间中，立方体的内切球的体积趋近于零，也就是说把立方体的四个角削掉，只剩下内切球，基本就一点不剩了知乎:机器学习中的维度灾难，四个角所占比例不高，却拥有几乎全部的体积。 所以如果在高维空间中取一超立方体，其中存在样本的概率很低，因为样本只存在于四个角中，这就是数据的稀疏性，并且分布不均匀。很难做分类。
+维度 超立方体体积 超内切球体积 2 1 π (0.5)² 3 1 4/3 π (0.5)³ D 1 K(0.5)ᴰ; 当 D→∞, V(超球体)→0 几何意义2: 两个同心圆的半径相差 $\varepsilon \ (0&amp;lt;\varepsilon&amp;lt;1)$，内圆的半径为 $1-\varepsilon$，外超球体的体积为：$V_外=K \cdot 1^D = K$；环形带的体积：$V_{环形带} = V_外-V_内 = K - K(1-\varepsilon)^D$。
+两体积之比：$\frac{V_环}{V_外} = \frac{K- K(1-\varepsilon)^D}{K} = 1-(1-\varepsilon)^D$。 不论$\varepsilon$取多小，当维度趋于无穷，$\underset{D\rightarrow \infin}{lim} (1-\varepsilon)^D = 0$，也就是比值为1，环形带(壳)体积等于外球的体积 球内的样本只存在与球壳上
+维度灾难会导致过拟合
+需要降维
+降维 避免过拟合，减小泛化误差 直接降维/特征选择: 只保留重要的维度; LASSO带来系数的系数性，使某些属性对应的系数等于0。 线性降维: PCA, MDS 非线性降维: 流形（ISOmap, LLE） 2-样本均值&amp;amp;样本方差矩阵">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#抑制过拟合">抑制过拟合</a></li>
+    <li><a href="#维度灾难">维度灾难</a></li>
+    <li><a href="#降维">降维</a>
+      <ol>
+        <li><a href="#经典pca">经典PCA</a></li>
+        <li><a href="#最大投影方差">最大投影方差</a></li>
+        <li><a href="#最小代价重构">最小代价重构</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/05_%E9%99%8D%E7%BB%B4/">watch: ML - 白板 05 | Dimensionality Reduction</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 16, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=22"  target="_blank" rel="noopener"
+    >1-背景</a></p>
+<h2 id="抑制过拟合">抑制过拟合</h2>
+<ol>
+<li>增加样本数据</li>
+<li>正则化：增加约束限制参数空间</li>
+<li>降维</li>
+</ol>
+<h2 id="维度灾难">维度灾难</h2>
+<ul>
+<li>
+<p><strong>数学角度：</strong>
+比如每增加一个二值属性，要想完全cover样本空间，所需样本数会以2的指数增长</p>
+<p><strong>几何意义：</strong>
+在高维空间中，立方体的内切球的体积趋近于零，也就是说把立方体的四个角削掉，只剩下内切球，基本就一点不剩了<sup><a class="link" href="https://zhuanlan.zhihu.com/p/392491647"  target="_blank" rel="noopener"
+    >知乎:机器学习中的维度灾难</a></sup>，四个角所占比例不高，却拥有几乎全部的体积。
+所以如果在高维空间中取一超立方体，其中存在样本的概率很低，因为样本只存在于四个角中，这就是数据的稀疏性，并且分布不均匀。很难做分类。</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>超立方体体积</th>
+<th>超内切球体积</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>π (0.5)²</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1</td>
+<td>4/3 π (0.5)³</td>
+</tr>
+<tr>
+<td>D</td>
+<td>1</td>
+<td>K(0.5)ᴰ; 当 D→∞, V(超球体)→0</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>几何意义2:</strong>
+两个同心圆的半径相差 $\varepsilon \ (0&lt;\varepsilon&lt;1)$，内圆的半径为 $1-\varepsilon$，外超球体的体积为：$V_外=K \cdot 1^D = K$；环形带的体积：$V_{环形带} = V_外-V_内 = K - K(1-\varepsilon)^D$。<br>
+两体积之比：$\frac{V_环}{V_外} = \frac{K- K(1-\varepsilon)^D}{K} = 1-(1-\varepsilon)^D$。
+不论$\varepsilon$取多小，当维度趋于无穷，$\underset{D\rightarrow \infin}{lim} (1-\varepsilon)^D = 0$，也就是比值为1，环形带(壳)体积等于外球的体积
+球内的样本只存在与球壳上</p>
+</li>
+<li>
+<p>维度灾难会导致过拟合</p>
+</li>
+<li>
+<p>需要降维</p>
+</li>
+</ul>
+<h2 id="降维">降维</h2>
+<ul>
+<li></li>
+<li></li>
+<li>避免过拟合，减小泛化误差</li>
+<li>
+<ol>
+<li>直接降维/特征选择: 只保留重要的维度; LASSO带来系数的系数性，使某些属性对应的系数等于0。</li>
+<li>线性降维: PCA, MDS</li>
+<li>非线性降维: 流形（ISOmap, LLE）</li>
+</ol>
+</li>
+</ul>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=23"  target="_blank" rel="noopener"
+    >2-样本均值&amp;样本方差矩阵</a></p>
+<p>Data:</p>
+<p>$$
+\mathbf X_{p\times 1} = (\mathbf x_1, \mathbf x_2, \cdots, \mathbf x_N)^T_{N\times p} =
+\begin{pmatrix}
+\mathbf x_1^T \ \mathbf x_2^T \ \vdots \ \mathbf x_N^T
+\end{pmatrix}_{N \times p},\quad</p>
+<pre><code>\mathbf x_i \in \R^p,\ i=1, 2, \cdots, N
+</code></pre>
+<p>$$</p>
+<p>Sample Mean:</p>
+<p>$$
+\begin{aligned}
+\bar{\mathbf X} &amp;= \frac{1}{N} \sum_{i=1}^N \mathbf x_i \
+&amp; = \frac{1}{N} (\mathbf x_1, \mathbf x_2,\cdots, \mathbf x_N)
+\begin{pmatrix}
+1 \ 1 \ \vdots \ 1
+\end{pmatrix}_{N\times 1} \
+&amp; = \frac{1}{N} \ \mathbf X^T \ \mathbf 1_N</p>
+<p>\end{aligned}
+$$</p>
+<p>Sample Covariance:</p>
+<p>$$
+S = \frac{1}{N} \sum_{i=1}^N (\mathbf x_i - \bar{\mathbf X})^2 \quad (一维样本)
+$$</p>
+<p>$$
+\begin{aligned}
+S_{p\times p} &amp;= \frac{1}{N} \sum_{i=1}^N (\mathbf x_i - \bar{\mathbf X})
+(\mathbf x_i - \bar{\mathbf X})^T \quad (p维样本) \</p>
+<p>&amp; = \frac{1}{N} (\mathbf x_1 - \bar{\mathbf X} \quad \mathbf x_2 - \bar{\mathbf X}\ \cdots \ \mathbf x_N - \bar{\mathbf X})
+\begin{pmatrix}
+(\mathbf x_1 - \bar{\mathbf X})^T \ (\mathbf x_2 - \bar{\mathbf X})^T \ \vdots \ (\mathbf x_N - \bar{\mathbf X})^T
+\end{pmatrix} \</p>
+<p>&amp; = \frac{1}{N} \left[(\mathbf x_1 \ \mathbf x_2 \cdots \mathbf x_N) - \mathbf{\bar{X}} \ (1 \ 1 \cdots 1)\right] (\mathbf x_i - \bar{\mathbf X})^T \</p>
+<p>&amp; = \frac{1}{N} [ \ \mathbf X^T_{p\times N} - \frac{1}{N} \mathbf{X}^T \mathbf 1_N \ \mathbf 1_N^T \ ]\ (\mathbf x_i - \bar{\mathbf X})^T \</p>
+<p>&amp; = \frac{1}{N} [ \ \mathbf X^T (I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T) ]\ (\mathbf x_i - \bar{\mathbf X})^T \quad \text{($I_N$是NxN方阵)} \</p>
+<p>&amp; = \frac{1}{N} [ \ \mathbf X^T \underline{(I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T)} ] \cdot
+[ \underline{(I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T)^T} \mathbf X] \</p>
+<p>&amp; = \frac{1}{N} \mathbf X^T H \cdot H^T \mathbf X \
+&amp; = \frac{1}{N} \mathbf X^T H \mathbf X</p>
+<p>\end{aligned}
+$$</p>
+<p>H 是中心矩阵，把数据的均值移动到原点(中心化).</p>
+<p>$$
+\begin{aligned}
+H   &amp;= (\mathbf I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T) \
+H^T &amp;= (\mathbf I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T) =H &amp; (对称性)\
+H^2 &amp;= H \cdot H  &amp; (幂等性)\
+&amp;= (I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T)
+(I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T) \
+&amp;= I_N - \frac{2}{N} \mathbf 1_N \mathbf 1_N^T + \frac{1}{N^2}  1_N \mathbf 1_N^T  1_N \mathbf 1_N^T  \</p>
+<pre><code>&amp;= I_N - \frac{2}{N}
+    \begin{pmatrix}
+    1 &amp; 1 &amp; \cdots &amp; 1 \\
+    \vdots &amp; \vdots &amp; \vdots &amp; \vdots \\
+    1 &amp; 1 &amp; \cdots &amp; 1 \\
+    \end{pmatrix}
+    +
+    \frac{1}{N^2}
+    \begin{pmatrix}
+    N &amp; N &amp; \cdots &amp; N \\
+    \vdots &amp; \vdots &amp; \vdots &amp; \vdots \\
+    N &amp; N &amp; \cdots &amp; N \\
+    \end{pmatrix} \\
+
+&amp;= I_N - \frac{1}{N} \mathbf 1_N \mathbf 1_N^T \\
+&amp;= H \\
+</code></pre>
+<p>H^n &amp;= H
+\end{aligned}
+$$</p>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=24"  target="_blank" rel="noopener"
+    >3 PCA-最大投影方差</a></p>
+<h3 id="经典pca">经典PCA</h3>
+<ul>
+<li>
+<p>一个中心，两个基本点</p>
+</li>
+<li>
+<p>核心：将一组可能线性相关的变量，通过正交变换，变换成一组线性无关的变量/基/投影方向（对原始特征空间的重构）</p>
+<p>基本点：最大投影方差；最小重构距离（两种角度,效果相同）</p>
+</li>
+</ul>
+<h3 id="最大投影方差">最大投影方差</h3>
+<ul>
+<li></li>
+<li>最能体现原来样本的分布</li>
+<li></li>
+<li>Steps:
+<ol>
+<li>
+<p>中心化：把样本均值移动到原点 ($\mathbf x_i - \bar{\mathbf X}$)</p>
+</li>
+<li>
+<p>样本点在 $\mathbf u_1$ 方向上的投影，也是在$\mathbf u_1$方向上的坐标：</p>
+<p>$$
+(\mathbf x_i - \bar{\mathbf X})^T \mathbf u_1
+$$</p>
+<p>其中 $| \mathbf u_1| = 1$ (或$\mathbf u_1^T \mathbf u_1 = 1$)，所以内积等于投影。
+两个向量的内积写成一个向量的转置乘以另一个向量，$\mathbf a_{p\times 1} \cdot \mathbf b_{p \times 1} = \mathbf a^T_{1\times p} \ \mathbf b_{p \times 1} = n_{1\times 1}$</p>
+</li>
+<li>
+<p>投影方差：因为均值已经为0，投影直接平方</p>
+<p>$$
+\begin{aligned}
+J &amp;= \frac{1}{N} \sum_{i=1}^N \left( (\mathbf x_i - \bar{\mathbf X})^T \mathbf u_1 \right)^2 \</p>
+<p>&amp;= \sum_{i=1}^N \ \frac{1}{N} \ \mathbf u_1^T (\mathbf x_i - \bar{\mathbf X})  \ (\mathbf x_i - \bar{\mathbf X})^T \mathbf u_1 \</p>
+<p>&amp;= \mathbf u_1^T \left(\frac{1}{N} \ \sum_{i=1}^N (\mathbf x_i - \bar{\mathbf X})  \ (\mathbf x_i - \bar{\mathbf X})^T \right) \mathbf u_1 \</p>
+<p>&amp;= \mathbf u_1^T \cdot S \cdot \mathbf u_1
+\end{aligned}
+$$</p>
+<p>找到使 J 最大的方向 $\mathbf u_1$</p>
+<p>$$
+\begin{cases}
+\hat \mathbf u_1 = \operatorname{arg\ max}\ \mathbf u_1^T \cdot S \cdot \mathbf u_1 \
+s.t. \quad \mathbf u_1^T \mathbf u_1 = 1
+\end{cases}
+$$</p>
+<p>带约束的优化问题，用拉格朗日乘子法，写出拉格朗日函数：</p>
+<p>$$
+L(\mathbf u_1, \lambda) = \mathbf u_1^T \cdot S \cdot \mathbf u_1 + \lambda (1 - \mathbf u_1^T \mathbf u_1)
+$$</p>
+<p>求导：</p>
+<p>$$
+\begin{aligned}
+\frac{\partial L}{\partial \mathbf u_1} = 2 S \cdot \mathbf u_1 &amp;- \lambda \cdot  2 \mathbf u_1 = 0 \
+S \underbrace{\mathbf u_1}<em>{\text{Eigen vector}}  &amp;= \underbrace{\lambda}</em>{\text{Eigen value}} \mathbf u_1
+\end{aligned}
+$$</p>
+</li>
+</ol>
+</li>
+</ul>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=25"  target="_blank" rel="noopener"
+    >4-PCA-最小重构代价</a></p>
+<h3 id="最小代价重构">最小代价重构</h3>
+<ul>
+<li></li>
+<li>从重构空间恢复到原始空间，代价最小</li>
+<li></li>
+<li>Steps:
+<ol>
+<li>
+<p>向量$\mathbf x_i$在新的特征空间中的表示：</p>
+<p>$$
+\begin{aligned}
+\mathbf x_i &amp;= ((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_1)\cdot \mathbf u_1 +
+((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_2)\cdot \mathbf u_2 + \cdots +
+((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_p)\cdot \mathbf u_p \
+&amp;= \sum_{k=1}^p ((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_k) \cdot \mathbf u_k
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>降维：根据特征值，取前q个最大的特征向量(方向)。</p>
+<p>$$
+\hat{\mathbf x}<em>i =
+\sum</em>{k=1}^q ((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_k) \cdot \mathbf u_k
+$$</p>
+</li>
+<li>
+<p>重构代价: $| \mathbf x_i - \hat{\mathbf x}_i |^2$</p>
+<p>N个样本的重构代价最小：</p>
+<p>$$
+\begin{aligned}
+J &amp;= \frac{1}{N} \sum_{i=1}^N | \mathbf x_i - \hat{\mathbf x}<em>i |^2 \
+&amp;= \frac{1}{N} \sum</em>{i=1}^N | \sum_{k=q+1}^p ((\mathbf x_i - \bar{\mathbf X})^T \mathbf u_k) \cdot \mathbf u_k |^2 \</p>
+<p>&amp;= \frac{1}{N} \sum_{i=1}^n \sum_{k=q+1}^p  \left( (\mathbf x_i - \bar{\mathbf x})^t \mathbf u_k \right)^2 \quad \text{(向量的模等于坐标的平方和)} \</p>
+<p>&amp;= \sum_{k=q+1}^p
+\underline{ \sum_{i=1}^n \frac{1}{N} \left( (\mathbf x_i - \bar{\mathbf X})^T \mathbf u_k \right)^2 } \</p>
+<p>&amp;= \sum_{k=q+1}^p \mathbf u_k^T \cdot S \cdot \mathbf u_k
+\qquad\ \rm s.t.\ \mathbf u_k^T \mathbf u_k = 1 \</p>
+<p>\end{aligned}
+$$</p>
+<p>最优化问题：</p>
+<p>$$
+\begin{cases}
+\mathbf u_k = \operatorname{arg\ min} \sum_{k=q+1}^p \mathbf u_k^T \cdot S \cdot \mathbf u_k \
+s.t. \quad \mathbf u_k^T \mathbf u_k = 1
+\end{cases}
+$$</p>
+<p>因为各特征向量互不相关，所以可以一个一个解，也就是求剩余的每个特征向量的最小重构代价对应的特征值$\lambda$</p>
+<p>$$
+\begin{cases}
+\operatorname{arg\ min} \mathbf u_{q+1} \cdot S \cdot \mathbf u_{q+1}\
+s.t. \quad \mathbf u_{q+1}^T \ \mathbf u_{q+1} = 1
+\end{cases}
+$$</p>
+<p>$$
+J = \sum_{i=q+1}^p \lambda_i
+$$</p>
+<p>当J最小时，对应的就是最小的几个特征值</p>
+</li>
+</ol>
+</li>
+</ul>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=26"  target="_blank" rel="noopener"
+    >5-SVD角度看PCA和PCoA</a></p>
+<p>PCA 找最大的投影方向(特征向量)，就是主成分</p>
+<p>求解主成分：对方差矩阵做特征值分解：$S = G K G^T$（因为S是对称矩阵，所以它的奇异值分解就是特征值分解），
+其中特征向量是正交的: $G^T G = I$；K是对角矩阵，元素都是特征值，其排列满足： $k_1 &gt; k_2 &gt; \cdots &gt; k_p$。降到q维，就取前 q 个值，作为G的q个列向量。</p>
+<p>$$
+K=
+\begin{pmatrix}
+k_1 &amp;   0   &amp;   0       &amp; 0 \
+0   &amp;   k_2 &amp;   0       &amp; 0 \
+0   &amp;   0   &amp;   \ddots  &amp; 0 \
+0   &amp;   0   &amp;   0       &amp; k_p
+\end{pmatrix}
+$$</p>
+<p>探索一下：</p>
+<ol>
+<li>
+<p>对中心化之后的原始数据做SVD奇异值分解：</p>
+<p>$$
+H X = U \Sigma V^T \rightarrow SVD:
+\begin{cases}
+U^T U = I &amp; \text{(列正交)} \
+V^T V = V V^T = I &amp; \text{(正交)} \
+\Sigma &amp; \text{(对角)}
+\end{cases}
+$$</p>
+<p>然后代入协方差矩阵（推导省略常数$\frac{1}{N}$）：</p>
+<p>$$
+\begin{aligned}
+S_{p\times p} &amp;= X^T H X \
+&amp;= X^T H^T H X &amp; \text{(等幂性)} \
+&amp;= V \Sigma \underline{U^T \cdot U} \Sigma V^T \
+&amp;= V \Sigma I \Sigma V^T &amp; \text{(U列正交)}\
+&amp;= V \Sigma^2 V^T   &amp; \text{($\Sigma$对角阵)}
+\end{aligned}
+$$</p>
+<p>就相当于对 S 做了奇异值分解了，对应于上面 S 的特征值分解：</p>
+<p>$$
+特征向量G = V, 特征值K = \Sigma^2
+$$</p>
+<p>所以，不用直接对 S做特征值分解，直接对数据做完中心化之后，做奇异值分解，就可以得到特征向量V。</p>
+</li>
+<li>
+<p>定义一个矩阵 T（S反过来，对数据内积分解）:</p>
+<p>$$
+\begin{aligned}
+T_{N\times N} &amp;= H X X^T H^T \
+&amp;= U \Sigma V^T \cdot V \Sigma U^T \
+&amp;= U \Sigma^2 U^T
+\end{aligned}
+$$</p>
+<p>T 和 S 有相同的特征值(eigen value): $\Sigma^2$。</p>
+<p>PCA：先对 S 做特征值分解，找到了主成分（特征向量/投影方向）；然后样本点 $HX$ 乘以方向向量$V$（投影），得到各方向上的坐标。
+坐标矩阵：$HX \cdot V = U \Sigma \underline{V^T \cdot V} = U \Sigma$</p>
+<p>而对T做特征分解，可以直接得到坐标，这叫主坐标分析（PCoA）</p>
+<p>对T两边左乘$U\Sigma$（做一个缩放）：
+$$
+\begin{aligned}
+T &amp;= U \Sigma^2 U^T \
+T U \Sigma &amp;= U \Sigma^2 \underline{U^T U} \Sigma \
+&amp;= U \Sigma^3 \
+T \underbrace{U \Sigma}<em>{特征向量} &amp;= U \Sigma \underbrace{\Sigma^2}</em>{特征值}
+\end{aligned}
+$$</p>
+<p>也就是说，对T做SVD奇异值分解后，直接得到的特征向量就是坐标。</p>
+<p>如果数据的维度太高，$S_{p\times p}$ 不好计算，可以对$T_{N\times N}$分解。</p>
+</li>
+</ol>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=27"  target="_blank" rel="noopener"
+    >6-Probablistic PCA</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

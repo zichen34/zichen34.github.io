@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Multilayer Extreme Learning Machine With Subnetwork Nodes for Representation Learning (Cybernet 2015)'>
+<title>read: Multilayer Subnetwork Nodes</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/subnetwork/b-note-elm-mltlyr/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: Multilayer Subnetwork Nodes'>
+<meta property='og:description' content='Multilayer Extreme Learning Machine With Subnetwork Nodes for Representation Learning (Cybernet 2015)'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/subnetwork/b-note-elm-mltlyr/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-01-18T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-01-18T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="read: Multilayer Subnetwork Nodes">
+<meta name="twitter:description" content="Multilayer Extreme Learning Machine With Subnetwork Nodes for Representation Learning (Cybernet 2015)">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#i-introduction">I. Introduction</a></li>
+    <li><a href="#ii-preliminaries-and-basic-elm">II. Preliminaries and Basic-ELM</a>
+      <ol>
+        <li><a href="#a-notations">A. Notations</a></li>
+        <li><a href="#b-basic-elm">B. Basic-ELM</a></li>
+      </ol>
+    </li>
+    <li><a href="#iii-proposed-method">III. Proposed Method</a>
+      <ol>
+        <li><a href="#a-elm-with-subnetwork-nodes">A. ELM With Subnetwork Nodes</a></li>
+        <li><a href="#b-proposed-method-for-representation-learning">B. Proposed Method for Representation Learning</a>
+          <ol>
+            <li><a href="#1-optimal-projecting-parameters-and-optimal-feature-data">1) Optimal Projecting Parameters and Optimal Feature Data</a></li>
+            <li><a href="#2-learning-steps">2) Learning Steps</a></li>
+          </ol>
+        </li>
+        <li><a href="#c-proof-of-the-proposed-method">C. Proof of the Proposed Method</a></li>
+        <li><a href="#d-proposed-method-with-multinetwork-structures">D. Proposed Method With Multinetwork Structures</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/subnetwork/b-note-elm-mltlyr/">read: Multilayer Subnetwork Nodes</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Multilayer Extreme Learning Machine With Subnetwork Nodes for Representation Learning (Cybernet 2015)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 18, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    14 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Authors: <a class="link" href="https://scholar.google.com/citations?view_op=view_citation&amp;hl=en&amp;user=fFP4b9kAAAAJ&amp;citation_for_view=fFP4b9kAAAAJ:-mN3Mh-tlDkC"  target="_blank" rel="noopener"
+    >Yimin Yang</a>, and Q. M. Jonathan Wu <br></p>
+<p><a class="link" href="https://ieeexplore.ieee.org/abstract/document/7295596"  target="_blank" rel="noopener"
+    >IEEE Cybernetics</a>; Publish Date: 2015-10-09.</p>
+<p>This is the 2nd paper in his series, and the first paper is <a class="link" href="https://zichen34.github.io/writenotes/model/subnetwork/b-note-elm-subnet/" >this</a>.</p>
+<p>(感觉Intro写得不错，逻辑性强，信息量大；但后面method部分好多typo)</p>
+<h2 id="abstract">Abstract</h2>
+<p>Representation learning of multilayer ELM with subnetwork nodes outperform conventional feature learning methods.</p>
+<h2 id="i-introduction">I. Introduction</h2>
+<p>model performance ➔ data representaiton/features ➔ processing pipelines design and data transformations ➔ data representation ➔ effective learning</p>
+<ol>
+<li>
+<p>Feature reduction and extraction techniques can be conducted in a supervised, unsupervised or semi-supervised manner.</p>
+</li>
+<li>
+<p>ELMs learn representations of data to extract useful information when building classifiers or predictors.</p>
+</li>
+<li>
+<p>ELMs provide a unified learning framework for &ldquo;generalized&rdquo; single-hidden layer feedforward NNs (SLFNs).</p>
+<ul>
+<li>In ELM methods, the hidden layer parameters of NN need not be tuned during training, but generated randomly.</li>
+</ul>
+</li>
+<li>
+<p>ML-ELM is adding (multiple) general hidden nodes (subnetwork nodes) to existing single-hidden-layer ELM networks.</p>
+<ol>
+<li>A versatile platform with faster speed and better generalization performance on feature extraction.</li>
+<li>Its generalization performance is not sensitive to the parameters of the networks in the learning process.</li>
+<li>ML-ELM has universal approximation capability and representation learning.</li>
+</ol>
+</li>
+</ol>
+<h2 id="ii-preliminaries-and-basic-elm">II. Preliminaries and Basic-ELM</h2>
+<h3 id="a-notations">A. Notations</h3>
+<ul>
+<li>𝐑 : set of real numbers</li>
+<li>{(𝐱ᵢ,𝐲ᵢ)ᵢ₌₁ᴹ} (𝐱ᵢ∈ 𝐑ⁿ,𝐲ᵢ∈ 𝐑ᵐ) : M arbitrary distinct samples,</li>
+<li>𝐱 : an input data matrix 𝐱∈ 𝐑ⁿᕁᴹ</li>
+<li>𝐲 : desired output data matrix 𝐲∈ 𝐑ᵐᕁᴹ</li>
+<li>𝛂ᵢ : weight vector connecting the 𝑖th hidden nodes and the input nodes</li>
+<li>♭ᵢ : bias of the 𝑖th hidden nodes</li>
+<li>βᵢ : output weight between the 𝑖th hidden node and the output node</li>
+<li>𝐞 : residual error of current network output, i.e., 𝐞=𝐲-𝐟</li>
+<li>𝐈 : unit matrix</li>
+<li>sum(𝐞) : the sum of all elements of the matrix 𝐞</li>
+<li>g : sigmoid or sine activation function</li>
+</ul>
+<p>(TABLE 1)</p>
+<ul>
+<li>(𝛂,♭) : a hidden node (in basic ELM)</li>
+<li>(𝐚,𝑏) : a general hidden node (or subnetwork node)</li>
+<li>^𝐚ʲ_f : input weight of the jth general hidden node in feature mapping layer. ^𝐚ʲ_f∈ 𝐑ᵈᕁⁿ</li>
+<li>^bʲ_f : bias of the 𝑗th general hidden node in feature mapping layer ^bʲ_f∈ 𝐑</li>
+<li>(𝛂ᵢʲ_f,♭ʲ_f) : the 𝑖th general hidden node in the 𝑗th general hidden node.</li>
+<li>(^𝐚ₕ,^𝑏ₕ) : hidden nodes in ELM learning layer and ^𝐚ₕ∈ 𝐑 ᵐᕁᵈ</li>
+<li>uⱼ : normalized function in the 𝑗th general node, uⱼ(⋅):𝐑 ➔ (0,1], uⱼ⁻¹ represent its reverse function</li>
+<li>𝐇ʲ_f : feature data generated by 𝑗general nodes in a feature mapping layer,
+i.e., 𝐇ʲ_f = ∑ᵢ₌₁ʲ uᵢ⁻¹ ⋅ g(𝐱, ^𝐚ⁱ_f, ^bⁱ_f), 𝐇ʲ_f∈ 𝐑ᵈᕁᴹ</li>
+<li>𝐇ʲⁱ_f : feature data generated by the 𝑖th feature mapping layer</li>
+<li>M : number of training samples</li>
+<li>n : input data dimension</li>
+<li>m : output data dimension</li>
+<li>d : feature data dimension</li>
+<li>𝐞_L : the residual error of current two-layer network (L general nodes in the first layer and (𝐚ₕ,𝑏ₕ) in the second layer)</li>
+<li>𝐞ʲ_L : the residual error of current two-layer network (L general nodes in the first layer and 𝑗general nodes in the second layer)</li>
+<li>L : the numbers of general hidden nodes</li>
+</ul>
+<h3 id="b-basic-elm">B. Basic-ELM</h3>
+<p>The output function of ELM for SLFNs fed with input matrix 𝐱 is: <br>
+fₙ(𝐱)=∑ᵢ₌₁ⁿ βᵢ g(𝐱, 𝛂ᵢ, ♭ᵢ).</p>
+<p>&ldquo;ELM theory aims to reach the smallest training error but also the smallest norm of output weights&rdquo; (regularization term?), so the objective is to minimize: <br>
+‖βᵢ‖ₚᶣ¹ + C⋅‖∑ᵢ₌₁ⁿ βᵢ g(𝐱, 𝛂ᵢ, ♭ᵢ) - 𝐲‖ᶣ²_q, i=1,&hellip;,n.   (ᶣ signifies μ)</p>
+<p>where μ₁&gt;0, μ₂&gt;0, p,q = 0, ½, 1, 2, &hellip;, +∞, C is a positive value, g(𝐱, 𝛂, ♭) is referred to as ELM feature mapping (linear projection+activation) or Huang&rsquo;s transform.</p>
+<p>(Convergence proved by Huang et al.)</p>
+<blockquote>
+<p><strong>Lemma 1</strong>: Given M aribitrary distinct samples {(𝐱, 𝐲)}, 𝐱∈ 𝐑ⁿᕁᴹ, 𝐲∈ 𝐑ᵐᕁᴹ sampled from a continuous system, an activation function g,
+then for any continous target function 𝐲 and any function sequence g(𝐱, 𝛂ₙʳ, ♭ₙʳ) randomly generated based on any continuous sampling distribution,
+lim_{n➝∞} ‖𝐲-（fₙ₋₁ + g(𝐱, 𝛂ₙʳ, ♭ₙʳ)）‖=0 holds with probabiltiy one if <br>
+βₙ = ⟨𝐞ₙ₋₁, g(𝐱, 𝛂ₙʳ, ♭ₙʳ)⟩ / ‖g(𝐱, 𝛂ₙʳ, ♭ₙʳ)‖²,</p>
+</blockquote>
+<p>where (𝛂ₙʳ, ♭ₙʳ) represesnts the 𝑛th random hidden node, and 𝐞ₙ₋₁ = 𝐲-fₙ₋₁</p>
+<h2 id="iii-proposed-method">III. Proposed Method</h2>
+<h3 id="a-elm-with-subnetwork-nodes">A. ELM With Subnetwork Nodes</h3>
+<p>A hidden node can be a subnetwork formed by several hidden nodes. Hence, a single mapping layer can contain multiple networks.</p>
+<p>Comparision of the feature mapping layer:</p>
+<div class="mermaid">flowchart LR
+subgraph A[basic ELM]
+direction BT
+x1["x₁"]--> h1(("𝛂₁,♭₁, β₁")) & he1((...)) & hL(("𝛂L,♭L, βL")) 
+xe[x...]--> h1(("𝛂₁,♭₁, β₁")) & he1((...)) & hL(("𝛂L,♭L, βL")) 
+xn["xₙ"]--> h1(("𝛂₁,♭₁, β₁")) & he1((...)) & hL(("𝛂L,♭L, βL")) 
+
+h1 --> y1["y₁"] & ye[...] & ym["yₘ"]
+he1--> y1["y₁"] & ye[...] & ym["yₘ"]
+hL --> y1["y₁"] & ye[...] & ym["yₘ"]
+
+subgraph A1["ELM feature mapping layer"]
+h1 & he1 & hL
+end
+end
+
+subgraph A1["ELM feature mapping layer"]
+h1 & he1 & hL
+end
+
+subgraph B[ELM with subnetwork nodes]
+direction BT
+x1_["x₁"] --> ghn1 & ghne((...)) & ghnL
+xe_[x...] --> ghn1 & ghne((...)) & ghnL
+xn_["xₙ"] --> ghn1 & ghne((...)) & ghnL
+
+ghn1--> y1_["y₁"] & ye_[...] & ym_["yₘ"]
+ghne--> y1_["y₁"] & ye_[...] & ym_["yₘ"]
+ghnL--> y1_["y₁"] & ye_[...] & ym_["yₘ"]
+end
+
+subgraph ghn1["^𝛂¹_f, ^♭¹_f, with weight u₁⁻¹"]
+direction TB
+n11(("𝛂¹_f1,\n ♭¹_f1")) & n1e((...)) & n1m(("𝛂¹_fm,\n ♭¹_fm"))
+end
+
+subgraph ghne["general hidden nodes"]
+direction TB
+ne1((1)) & nee((...)) & nem((m))
+end
+
+subgraph ghnL["^𝛂ᴸ_f, ^♭_f, with weight u\_L⁻¹"]
+direction TB
+nL1(("𝛂ᴸ_f1,\n ♭ᴸ_f1")) & nLe((...)) & nLm(("𝛂ᴸ_fm,\n ♭ᴸ_fm"))
+end
+</div>
+
+<p>Three differences between ELM feature mapping layer and this feature mapping layer.</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>Difference</th>
+<th>Standard ELM</th>
+<th>ELM with subnetwork nodes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hidden node</td>
+<td>single hidden node generated<br> one by one</td>
+<td>general hidden node having subnetwork</td>
+</tr>
+<tr>
+<td># hidden node</td>
+<td>Independent to the output dim 𝑚</td>
+<td>In a subnetwork, it equals to the output dim</td>
+</tr>
+<tr>
+<td>relation</td>
+<td>A special case of the subnetwork case</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="b-proposed-method-for-representation-learning">B. Proposed Method for Representation Learning</h3>
+<h4 id="1-optimal-projecting-parameters-and-optimal-feature-data">1) Optimal Projecting Parameters and Optimal Feature Data</h4>
+<div class="mermaid">flowchart LR
+x1["x₁"]--> h1(("^𝛂¹_f,^♭¹_f, β¹")) & h2(("^𝛂²_f,^♭²_f, β²")) & he1(("⋮")) & hL(("^𝛂ᴸ_f,^♭ᴸ_f, ^βᴸ")) 
+xe[x...]--> h1(("^𝛂¹_f,^♭¹_f, β¹")) & h2(("^𝛂²_f,^♭²_f, β²")) & he1(("⋮")) & hL(("^𝛂ᴸ_f,^♭ᴸ_f, ^βᴸ")) 
+xn["xₙ"]--> h1(("^𝛂¹_f,^♭¹_f, β¹")) & h2(("^𝛂²_f,^♭²_f, β²")) & he1(("⋮")) & hL(("^𝛂ᴸ_f,^♭ᴸ_f, ^βᴸ")) 
+
+h1 & h2 & he1 & hL --> feat["d-dimension\n Feature data"]
+feat --> n1 & n2 & ne & nm --> y1_["y₁"] & ye_["⋮"] & ym_["yₘ"]
+
+subgraph A1["ELM feature mapping layer"]
+h1 & h2 & he1 & hL
+end
+
+subgraph elm["ELM-learning layer"]
+n1(("𝛂ₕ₁,^♭ₕ")) & n2(("𝛂ₕ₂,^♭ₕ")) & ne(("⋮")) & nm(("𝛂ₕₘ,^♭ₕ"))
+end
+</div>
+
+<p>Objective of representation learning: Represent the input features meaningfully in several different representations as follows.</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>Represen-<br>tation</th>
+<th>feat dim (𝑑) vs<br> in-dim (𝑛)</th>
+<th>feature</th>
+<th>target output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dimension Reduction</td>
+<td>𝑑 &lt; 𝑛</td>
+<td>H_f ∈ 𝐑ᵈᕁᴹ</td>
+<td>𝐲=label (Supervise)<br>or 𝐲=𝐱 (Unsp~)</td>
+</tr>
+<tr>
+<td>Expanded Dimension</td>
+<td>𝑑 &gt; 𝑛</td>
+<td>H_f ∈ 𝐑ᵈᕁᴹ</td>
+<td>𝐲=label (Supervise)<br>or 𝐲=𝐱 (Unsp~)</td>
+</tr>
+</tbody>
+</table></div>
+<p>The feature data is 𝐇_f(𝐱ₖ, ^𝐚_f, ^b_f), where the weights of feature mapping layer ^𝐚ʲ_f, j=1,&hellip;,L belongs to 𝐑ᵈᕁⁿ.</p>
+<blockquote>
+<p><strong>Definition 1</strong>: Given a nonlinear piecewise continous activation function g, we call <br>
+{(^𝐚ʲ_f, ^bʲ_f)ⱼ₌₁ᴸ} (^𝐚ʲ_f ∈ 𝐑ᵈᕁⁿ) the 𝐿 optimal general hidden nodes <br>
+and 𝐇⃰ ⃰_f= ∑ᵢ₌₁ᴸ g(𝐱, ^𝐚ʲ_f, ^bʲ_f) the optimal feature data if it satisfies: <br>
+‖𝐞_L‖ ≤ min_{𝐇⃰ᴸ_f∈ 𝐑ᵈᕁᴹ} ( min_{𝐚ₕ∈ 𝐑 ᵐᕁᵈ} ‖𝐲-uₕ⁻¹ g(𝐇⃰ᴸ_f, 𝐚ₕ, bₕ)‖ )    (4)</p>
+</blockquote>
+<p>where 𝐞_L = ‖𝐲-uₕ⁻¹ g(𝐇⃰ᴸ ⃰_f, ^𝐚ₕ, ^bₕ)‖ and sequence ‖𝐞_L‖ is decreasing and bounded below by zero.</p>
+<blockquote>
+<p><strong>Remark 1</strong>: If the optimal projecting parameters are obtained in the feature mapping layer
+{(^𝐚ʲ_f, ^bʲ_f)ⱼ₌₁ᴸ} (where ^𝐚_f ∈ 𝐑ᵈᕁⁿ), <br>
+the original n-dimension data points 𝐱 will be converted to d-dimension data points:
+𝐇⃰_f= ∑ⱼ₌₁ᴸ g(𝐱ₖ, ^𝐚ʲ_f, ^bʲ_f), which satisfy the inequality (4).</p>
+</blockquote>
+<p>Thus the purpose is to find optimal projecting parameters that make the inequality (4) true for all data points.</p>
+<h4 id="2-learning-steps">2) Learning Steps</h4>
+<p>Based on the inverse of the activation function.</p>
+<p>Given M arbitrary distinct training samples {(𝐱ₖ,𝐲ₖ)ₖ₌₁ᴹ}, 𝐱ₖ∈ 𝐑ⁿ, 𝐲ₖ∈ 𝐑ᵐ, which are sampled from a continuous system.</p>
+<ol>
+<li>
+<p>Set j=1 to initialize a <strong>general node</strong> of the feature mapping layer randomly as: <br>
+𝐇⃰ʲ_f = g(^𝐚ʲ_f⋅𝐱 + ^bʲ_f), (^𝐚ʲ_f)ᵀ⋅^𝐚ʲ_f=𝐈, (^bʲ_f)ᵀ⋅^bʲ_f=1,</p>
+<p>where ^𝐚ʲ∈ 𝐑ᵈᕁⁿ, ^bʲ_f∈ 𝐑 is the orthogonal random weight and bias of feature mapping layer. 𝐇⃰ʲ_f is current feature data.</p>
+</li>
+<li>
+<p>Given a sigmoid or sine activation function g, for any continous desired outputs 𝐲, the parameters in the (general) ELM learning layer are obtained as:</p>
+<ul>
+<li>^𝐚ₕ = g⁻¹(uₙ(𝐲)) ⋅ (𝐇⃰ʲ_f)⁻¹, ^𝐚ʲₕ∈ 𝐑ᵈᕁᵐ,</li>
+<li>^bₕ = √mse(^𝐚ₕʲ ⋅ 𝐇⃰ʲ_f - g⁻¹(uₙ(𝐲)) ), ^bʲₙ∈ 𝐑,</li>
+<li>$g⁻¹(⋅) = \{^{arcsin(⋅) \quad if\ g(⋅)=sin(⋅)}_{-log(1/(⋅)-1) \quad if\ g(⋅) = 1/(1+e⁻⁽˙⁾)}$, _</li>
+</ul>
+<p>where 𝐇⃰⁻¹ = 𝐇⃰ᵀ( (C/𝐈) + 𝐇⃰ 𝐇⃰ᵀ)⁻¹; C is a positive value; uₙ is a normalized function
+uₙ(𝐲): 𝐑➔(0,1]; g⁻¹ and uₙ⁻¹ represent their reverse function.</p>
+</li>
+<li>
+<p>Update the output error 𝐞ⱼ as <br>
+𝐞ⱼ = 𝐲 - uₙ⁻¹ g(𝐇⃰ʲ_f, ^𝐚ₕ, ^bₕ)  <br>
+So the error feedback data is 𝐏ⱼ = g⁻¹(uₙ(𝐞ⱼ))⋅(^𝐚ₕ)⁻¹</p>
+</li>
+<li>
+<p>Set j=j+1, add a new general node (^𝐚ʲ_f, ^bʲ_f) in the feature mapping layer by</p>
+<ul>
+<li>^𝐚ʲ_f = g⁻¹( uⱼ(𝐏ⱼ₋₁) ) ⋅ 𝐱⁻¹, ^𝐚ʲ_f∈ 𝐑ⁿᕁᵈ</li>
+<li>^bʲ_f = √mse(^𝐚ʲ_f ⋅ 𝐱 - 𝐏ⱼ₋₁), ^bʲ∈ 𝐑</li>
+</ul>
+<p>and update the feature data 𝐇⃰ʲ_f = ∑ᵢ₌₁ʲ uₗ⁻¹ g(𝐱, ^𝐚ˡ_f, ^bˡ_f)</p>
+</li>
+<li>
+<p>Repeat step 2-4 𝐿-1 times. (Finally, 𝐿 nodes are added into feature mapping layer.)
+The set of parameters {^𝐚ʲ_f,^bʲ_f}ⱼ₌₁ᴸ are the optimal projecting parameters
+and the feature data 𝐇⃰ᴸ_f = ∑ⱼ₌₁ᴸ uⱼ⁻¹ g(𝐱, ^𝐚ʲ_f, ^bʲ_f) = 𝐇⃰ ⃰_f are the optimal feature data.</p>
+</li>
+</ol>
+<h3 id="c-proof-of-the-proposed-method">C. Proof of the Proposed Method</h3>
+<p>(Proof of Convergence)</p>
+<p>Given M arbitrary distinct samples {(𝐱ₖ,𝐲ₖ)}ₖ₌₁ᴹ (𝐱ₖ∈ 𝐑ⁿ, 𝐲ₖ∈ 𝐑ᵐ)</p>
+<blockquote>
+<p><strong>Lemma 2</strong>: Given a bounded nonconstant piecewise continuous activation function g, we have <br>
+lim_{(𝛂,♭)→(^𝛂,^♭)} ‖g(𝐱,𝛂,♭) - g(𝐱,^𝛂,^♭)‖ = 0
+where the (^𝛂,^♭) is one of the least-squares solutions of a general linear system 𝛂⋅𝐱+♭.</p>
+</blockquote>
+<p>Remark 2:</p>
+<ol>
+<li>
+<p>Lemma 2 shows that SLFN training problem can be considered as finding optimal hidden parameters which satisfy:
+g(^𝛂₁,^♭₁) + &hellip; + g(^𝛂_L,^♭_L) → 𝐲.   𝛂 (alpha) stands for basic ELM hidden node.</p>
+</li>
+<li>
+<p>Thus training an SLFN is equivalent to finding a least-square general input weight ^𝐚ₕ of the (linear+activation) system g(^𝐚ₕ⋅𝐱) = 𝐲.</p>
+</li>
+<li>
+<p>If activation function g is invertible, the input weights matrix can be obtained by pulling back the residual error to the hidden layer.</p>
+</li>
+</ol>
+<p>For example, if g is a sine function,</p>
+<ul>
+<li>The output of the hidden layer matrix is 𝐲=sin(𝐚ₕ ⋅ 𝐱).</li>
+<li>Thus, 𝐚ₕ⋅𝐱 = arcsin(𝐲), 𝐲∈ (0,1].</li>
+<li>The smallest norm least-squares solution of the linear system sin(𝐚ₕ⋅𝐱)=𝐲 is: <br>
+^𝐚ₕ = arcsin(𝐲)⋅𝐱⁻¹,
+where 𝐱⁻¹ is the Moore-Penrose generalized inverse of matrix 𝐱. 𝐱⁻¹ = 𝐱ᵀ( (C/𝐈) + 𝐱𝐱ᵀ)⁻¹</li>
+</ul>
+<blockquote>
+<p><strong>Theorem 1</strong>: Given M arbitrary distinct samples {(𝐱ᵢ,𝐲ᵢ)ᵢ₌₁ᴹ}, (𝐱ᵢ∈ 𝐑ⁿ, 𝐲ᵢ∈ 𝐑ᵐ) and a sigmoid or sine activation function g, for any continuous desired outputs 𝐲, we have:<br>
+the optimal weights ^𝐚ₕ = argmin_{𝐚ₕ∈ 𝐑ᵐᕁⁿ} ‖u⁻¹(g(𝐱,𝐚ₕ)) - 𝐲‖ <br>
+least square error ‖g(𝐱,^𝐚ₕ,^bₕ) - 𝐲‖ ≤ min_{𝐚ₕ∈ 𝐑ᵐᕁⁿ} ‖u⁻¹(g(𝐚ₕ⋅𝐱)) - 𝐲‖  <br>
+if the parameters are obtained by (similar to Algorithm step-2):</p>
+<ul>
+<li>^𝐚ₕ = g⁻¹( u(𝐲))⋅𝐱⁻¹, ^𝐚ₕ ∈ 𝐑ᵐᕁⁿ</li>
+<li>^bₕ = √mse(^𝐚ₕ⋅𝐱 - g⁻¹(u(𝐲))), ^bₕ∈ 𝐑</li>
+<li>$g⁻¹(⋅) = \{^{arcsin(⋅) \quad if\ g(⋅)=sin(⋅)}_{-log(1/(⋅)-1) \quad if\ g(⋅) = 1/(1+e⁻⁽˙⁾)}$, _</li>
+</ul>
+</blockquote>
+<p>Proof:</p>
+<ol>
+<li>
+<p>Let 𝛌=𝐚ₕ⋅𝐱, and 𝛌 satisfy g(𝛌) = 𝐲. Normalizing 𝐲 to (0,1] by u(𝐲) to let 𝛌∈ 𝐑. <br>
+Thus, for a sine hidden node, 𝛌 = g⁻¹(u(𝐲)) = arcsin(u(𝐲)).
+While for a sigmoid hidden node, 𝛌 = g⁻¹(u(𝐲)) = -log(1/u(𝐲) - 1).</p>
+</li>
+<li>
+<p>^𝐚ₕ is the solution for the linear system (g(𝐚ₕ⋅𝐱)=𝐲). <br>
+For sine activation: ^𝐚ₕ = g⁻¹( u(𝐲) )⋅𝐱⁻¹ = arcsin(u(𝐲))⋅𝐱⁻¹.
+For sigmoid activation: ^𝐚ₕ = g⁻¹( u(𝐲) )⋅𝐱⁻¹ = -log(1/u(𝐲) - 1)⋅𝐱⁻¹</p>
+</li>
+<li>
+<p>One of the least-squares solutions of a general linear system 𝐚ₕ⋅𝐱=𝛌 is ^𝐚ₕ = g⁻¹( u(𝐲) )⋅𝐱⁻¹, which means the smallest error can be reached by this solution:
+‖^𝐚ₕ⋅𝐱 -𝛌ₙ‖ = min_{𝐚ₕ∈ 𝐑ᵐᕁⁿ} ‖𝐚ₕ⋅𝐱 - g⁻¹( u(𝐲) )‖     (18)</p>
+</li>
+<li>
+<p>The special solution ^𝐚ₕ = g⁻¹( u(𝐲) )⋅𝐱⁻¹ has the smallest norm among all the least-squares solutions of 𝐚ₕ⋅𝐱 = 𝛌.
+The error can be further reduced by adding bias bₙ:
+^bₕ = √mse(^𝐚ₕ⋅𝐱 - h⁻¹( u(𝐲) ))</p>
+</li>
+<li>
+<p>Based on eq. (18) and Lemma2, optimization by minimizing the L2-loss can be reformulated as:
+min_{𝐚ₕ∈ 𝐑ᵐᕁⁿ} ‖u⁻¹( g(𝐚ₕ⋅𝐱) ) - u⁻¹( g(𝛌))‖
+= ‖u⁻¹( g(^𝐚ₕ⋅𝐱) ) - u⁻¹( g(𝛌))‖
+≥ ‖u⁻¹( g(^𝐚ₕ⋅𝐱 + ^bₕ) ) - 𝐲‖      (20)</p>
+</li>
+<li>
+<p>Based on eq. (18) and eq. (20), the optimal weights is proved as:
+^aₕ = arg min_{𝐚ₕ∈ 𝐑ᵐᕁⁿ} ‖g(𝐱,𝐚ₕ) - 𝐲‖ <br>
+And it satisfy: ‖g(𝐱,^𝐚ₕ,^bₕ) - 𝐲‖ ≤ min_{𝐚ₕ∈ 𝐑ᵐᕁⁿ} ‖u⁻¹( g(^𝐚ₕ⋅𝐱) ) - 𝐲 ‖</p>
+</li>
+</ol>
+<p>Based on Lemma 2 and Theorem 1, Theorem 2 is given:</p>
+<blockquote>
+<p><strong>Theorem 2</strong>: Given M arbitrary distinct samples (𝐱, 𝐲), 𝐱∈ 𝐑ⁿᕁᴹ, 𝐲∈ 𝐑ᵐᕁᴹ, a sigmoid or sine activation function g,
+and the initial orthogonal random weights ^𝐚¹_f and bias ^b¹_f.
+For any continuous desired output 𝐲, the optimal feature data is: <br>
+𝐇⃰ᴸ⃰ _f(𝐱, (^𝐚¹_f, &hellip;, ^𝐚ᴸ_f), (^b¹_f,&hellip;,^bᴸ_f))
+= ∑ⱼ₌₁ᴸ uⱼ⁻¹ g(^𝐚ʲ_f ⋅ 𝐱 + ^bʲ_f)
+which satisfy: <br>
+‖𝐞_L‖ ≤ min_{^𝐚ʲ_f∈ 𝐑ⁿᕁᵈ} ( min_{𝐚ₕ∈ 𝐑 ᵐᕁᵈ} ‖𝐲-uₙ⁻¹ g(𝐇⃰ᴸ_f, 𝐚ₕ, bₕ)‖)    (21)</p>
+<p>and ‖𝐞_L‖ is decreasing and bounded below by zero if these parameters are obtained by:</p>
+<ul>
+<li>𝐇⃰ʲ_f = ∑ᵢ₌₁ʲ uᵢ⁻¹ g(𝐱, ^𝐚ⁱ_f, ^bⁱ_f),</li>
+<li>^𝐚ₕ = g⁻¹(uₙ(𝐲)) ⋅ (𝐇⃰ʲ_f)⁻¹, ^𝐚ₕ∈ 𝐑 ᵐᕁᵈ,</li>
+<li>^bₕ = √mse(^𝐚ₕ⋅𝐇⃰ʲ_f - g⁻¹( u(𝐲) )), ^bₕ∈ 𝐑</li>
+<li>g⁻¹(⋅) = \{^{arcsin(⋅) \quad if\ g(⋅)=sin(⋅)}_{-log(1/(⋅)-1) \quad if\ g(⋅) = 1/(1+e⁻⁽˙⁾)}$, _</li>
+<li>𝐞ⱼ = 𝐲 - uₙ⁻¹( g(𝐇⃰ʲ_f, ^𝐚ₕ, ^bₕ), 𝐏ⱼ = g⁻¹(uₙ(𝐞ⱼ))⋅(^𝐚ₕ)⁻¹ ),</li>
+<li>^𝐚ʲ_f = g⁻¹(uⱼ(𝐏ⱼ₋₁)) ⋅ 𝐱⁻¹, ^𝐚ʲ∈ 𝐑ⁿᕁᵈ</li>
+<li>^bʲ_f = √mse(^𝐚ʲ_f ⋅ 𝐱 - 𝐏ⱼ₋₁), ^bʲ_f∈ 𝐑</li>
+</ul>
+</blockquote>
+<p>Proof:</p>
+<p>Base on Theorem 1, the validity of (21) is obvious. So here, we just prove that the error ‖𝐞_L‖ is decreasing and bounded below by zero.</p>
+<ol>
+<li>
+<p>Let Δ = ‖eⱼ₋₁‖² - ‖𝐲 - uₙ⁻¹g(𝐇⃰ʲ_f, ^𝐚ₕ, ^bₕ)‖² (last error-current output), and take the newest item apart: <br>
+= ‖eⱼ₋₁‖² - ‖𝐲 - uₙ⁻¹g( (∑ᵢ₌₁ʲ⁻¹ uᵢ⁻¹ g(𝐱, ^𝐚ʲ_f, ^bʲ_f) + uᵢ⁻¹g(𝐱, ^𝐚ʲ_f, ^bʲ_f) ), ^𝐚ₕ, ^bₕ) ‖²      (24)</p>
+</li>
+<li>
+<p>Let ^Tʲ = uₙ⁻¹g(uⱼ⁻¹g(𝐱, ^𝐚ʲ_f, ^bʲ_f), ^𝐚ₕ, ^bₕ). Because activation function is sigmoid or sine function, eq. (24) can be simplified as: <br>
+Δ ≥ ‖𝐞ⱼ₋₁‖² - ‖𝐲 - uₙ⁻¹g( (∑ᵢ₌₁ʲ⁻¹ uᵢ⁻¹ g(𝐱, ^𝐚ʲ_f, ^bʲ_f) ), ^𝐚ₕ, ^bₕ) - ^Tʲ‖² <br>
+= ‖𝐞ⱼ₋₁‖² - ‖𝐞ⱼ₋₁ - ^Tʲ‖²    (unfold)   <br>
+= ‖𝐞ⱼ₋₁‖² - (‖𝐞ⱼ₋₁‖² - 2&lt;eⱼ₋₁, ‖^Tʲ‖&gt; + ‖^Tʲ‖²)   (&quot;&lt;&gt;&quot; is dot product of 2 matrices: Frobenius inner product)<br>
+= 2&lt;𝐞ⱼ₋₁, ‖^Tʲ‖&gt; - ‖^Tʲ‖²   <br>
+= ‖^Tʲ‖² ( 2&lt;𝐞ⱼ₋₁, ‖^Tʲ‖&gt; / ‖^Tʲ‖² - 1 )     (25)</p>
+</li>
+<li>
+<p>We set ^Tʲ = uₙ⁻¹g(uⱼ⁻¹g( 𝐱, ^𝐚ʲ_f, ^bʲ_f) ), ^𝐚ₕ, ^bₕ ) = 𝐞ⱼ₋₁ ± σ. (σ is variance, and 𝐞ⱼ₋₁ is the expectation) <br>
+So 𝐞ⱼ₋₁ = ^Tʲ ± σ. <br>
+Then &lt;𝐞ⱼ₋₁, ‖^Tʲ‖&gt; = &lt;^Tʲ± σ, ‖^Tʲ‖&gt; = &lt;‖^Tʲ‖² ± &lt;‖^Tʲ‖,σ&gt; &gt;</p>
+<p>Hence, eq. (25) can be reformulated: <br>
+Δ ≥ ‖^Tʲ‖² ( 2&lt; ‖^Tʲ‖² ± &lt;‖^Tʲ‖,σ&gt; &gt; / ‖^Tʲ‖² - 1 ) <br>
+= ‖^Tʲ‖² ( 1 ± 2‖σ⋅(^Tʲ)ᵀ‖/‖^Tʲ‖²)  (Wandong thinks there should be a 2.) <br>
+≥</p>
+</li>
+<li>
+<p>In addition, based on Theorem 1 and eq. (7), there will be:</p>
+<ul>
+<li>‖^Tʲ - 𝐞ⱼ₋₁‖ ≤ min_{^𝐚ʲ_f∈ 𝐑ᵈᕁⁿ} ‖uₙ⁻¹g(uⱼ⁻¹g( 𝐱, ^𝐚ʲ_f, ^bʲ_f), ^𝐚ₕ, ^bₕ) -𝐞ⱼ₋₁‖</li>
+<li>‖σ‖ ≤ ‖^Tʲ‖</li>
+</ul>
+<p>Thus Δ ≥ 0 can be proved as:
+Δ ≥ ‖^Tʲ‖² (1 ± ‖σ‖ / ‖^Tʲ‖) ≥ 0    (28)</p>
+<p>Eq. (28) means ‖𝐞ⱼ₋₁‖ ≥ ‖𝐞ⱼ‖ and ‖𝐞‖ is decreasing and bounded below by zero.</p>
+</li>
+</ol>
+<p>Based on Theorem 2, Theorem 3 is given:</p>
+<blockquote>
+<p><strong>Theorem 3</strong>: Given M arbitrary distinct samples (𝐱, 𝐲), 𝐱∈ 𝐑ⁿᕁᴹ, 𝐲∈ 𝐑ᵐᕁᴹ, a sigmoid or sine activation function g,
+and optimal feature data 𝐇⃰ᴸ_f obtained by Algorithm 1, <br>
+then lim_{j➝+∞} ‖𝐲 - β₁⋅u₁⁻¹g(𝐇⃰ᴸ_f, 𝐚₁, 𝑏₁) - &hellip; - βⱼ⋅uⱼ⁻¹g(𝐇⃰ᴸ_f, 𝐚ⱼ, 𝑏ⱼ)‖ = 0
+holds with probability one if :</p>
+<ul>
+<li>𝐚ⱼ = g⁻¹( u(𝐲) ) ⋅ (𝐇⃰ᴸ_f)⁻¹, ^𝐚ⱼ∈ 𝐑ᵐᕁⁿ</li>
+<li>bⱼ = √mse(^𝐚ⱼ⋅(𝐇⃰ᴸ_f) - g⁻¹(u(𝐲))), ^bⱼ∈ 𝐑</li>
+<li>βⱼ = ⟨𝐞ⱼ₋₁, g(𝐇⃰ᴸ_f, 𝐚ⱼ, bⱼ)⟩ / ‖g(𝐇⃰ᴸ_f, 𝐚ⱼ, bⱼ)‖², βⱼ∈ 𝐑</li>
+</ul>
+</blockquote>
+<p>Proof:</p>
+<p>First prove that the sequence ‖𝐞ⱼᴸ‖ is decreasing and bounded below by zero.
+Then prove that the lim_{j➝+∞} ‖𝐞ⱼᴸ‖ = 0</p>
+<ol>
+<li>
+<p>Based on Theorem 1 and Lemma 1, the network output error satisfies:
+‖𝐞ⱼᴸ‖ = ‖𝐲 - β₁⋅u₁⁻¹g(𝐇⃰ᴸ_f, 𝐚₁, 𝑏₁) - &hellip; - βⱼ⋅uⱼ⁻¹g(𝐇⃰ᴸ_f, 𝐚ⱼ, 𝑏ⱼ)‖  <br>
+≤ ‖𝐲 -u₁⁻¹g(𝐇⃰ᴸ_f, 𝐚₁, 𝑏₁)‖  <br>
+= ‖𝐞₁ᴸ‖</p>
+</li>
+<li>
+<p>Based on Theorem 2, there will be: <br>
+‖𝐞ⱼᴸ‖ ≤ ‖𝐞ⱼᴸ⁻¹‖ ≤ &hellip; ≤ ‖𝐞ⱼ¹‖</p>
+</li>
+<li>
+<p>Thus, ‖𝐞ⱼᴸ‖ ≤ ‖𝐞ⱼᴸ⁻¹‖ ≤ &hellip; ≤ ‖𝐞ⱼ¹‖ ≤ &hellip; ≤ ‖𝐞₁¹‖ and ‖𝐞ⱼᴸ‖ is decreasing and bounded below by 0.</p>
+</li>
+<li>
+<p>Based on Lemma 1, when all hidden nodes randomly generated based on any continuous sampling distribution,
+lim_{n➝∞} ‖f - (fₙ₋₁ + βₙ⋅g(𝐱, 𝛂ₙʳ, ♭ₙʳ) )‖ = 0 holds with probability one if
+βₙ = ⟨𝐞ₙ₋₁, g(𝐇⃰ᴸⱼ, 𝛂ₙʳ, ♭ₙʳ)⟩ / ‖g(𝐇⃰ᴸⱼ, 𝛂ₙʳ, ♭ₙʳ)‖².</p>
+</li>
+<li>
+<p>In addition, ELM theories have shown that almost any nonlinear piecewise continuous random hidden node can be use in ELM, and the resultant networks have universal approximation capbilities. <br>
+According to the definition of general hidden neurons, (a general hidden node contains m (basic) hidden node),
+a general hidden node (𝐚,b) = (𝛂ʳ₁, &hellip;, 𝛂ʳₘ, bʳ₁, &hellip;, bʳₘ), . <br>
+Thus its output is g(𝐇⃰ᴸ_f, 𝐚ⱼʳ, ♭ⱼʳ) ≡ ∑ᵢ₌₁ᵐ g(𝐇⃰ᴸ_f, 𝛂ʳᵢ, bʳᵢ).</p>
+<p>Therefore, lim_{j➝∞} ‖ 𝐲 - β₁⋅u₁⁻¹g(𝐇⃰ᴸ_f, 𝐚₁, 𝑏₁) - &hellip; - βⱼ⋅uⱼ⁻¹g(𝐇⃰ᴸ_f, 𝐚ⱼ, 𝑏ⱼ)‖<br>
+= lim_{n➝∞} ‖f- (fₙ₋₁ + βⱼ⋅uⱼ⁻¹g(𝐇⃰ᴸ_f, 𝐚ⱼʳ, 𝑏ⱼʳ)) ‖ = 0</p>
+</li>
+</ol>
+<h3 id="d-proposed-method-with-multinetwork-structures">D. Proposed Method With Multinetwork Structures</h3>
+<div class="mermaid">%%{ init: { 'flowchart': { 'curve': 'basis' } } }%%
+flowchart LR
+subgraph in["input feature"]
+x1((x1)) & xe(("⋮")) & xn((xn))
+end
+subgraph net1["Layer 1"]
+l11((a,b)) & l1e(("⋮")) & l1L((a,b))
+end
+subgraph net2["Layer 2"]
+l21((a,b)) & l2e(("⋮")) & l2L((a,b))
+end
+subgraph netC["Layer C"]
+lC1((a,b)) & lCe(("⋮")) & lCL((a,b))
+end
+x1 & xn --> l11 & l1L
+l11 & l1L --> l21 & l2L
+l21 & l2L -.-> lC1 & lCL
+
+subgraph out["output y"]
+direction LR
+y1((1)) & ye(("⋮")) & ym((m))
+end
+subgraph belm1["Basic ELM 1"]
+direction LR
+b11(("aₕ,bₕ")) & b1e(("⋮")) & b1m((aₕ,bₕ))
+end
+subgraph belm2["Basic ELM 2"]
+direction LR
+b21((aₕ,bₕ)) & b2e(("⋮")) & b2m((aₕ,bₕ))
+end
+
+net1 --> feat1["Feature\n data\n 𝐇¹<sub>f</sub>"] --> belm1 --> out
+feat1 --> net2 --> feat2["Feature\n data\n 𝐇²<sub>f</sub>"] --> belm2 --> out
+netC --> featC["Feature\n data\n 𝐇ᶜ<sub>f</sub>"]
+
+subgraph MultiLayer ELM
+in & net1 & net2 & netC
+end
+%% inverse for initialization weights
+linkStyle 12,13,14,16,17,18 stroke:#f0f
+</div>
+
+<p><font color="#f0f">Pink links</font> will do inverse to calculate the weights for corresponding layers.</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script>
+        mermaid.initialize({ startOnLoad: true });
+      </script>
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

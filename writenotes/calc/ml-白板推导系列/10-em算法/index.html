@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='1. 算法收敛性证明 Source video: P1
+EM &amp;ldquo;期望最大&amp;rdquo; 用于解决具有隐变量的混合模型的参数估计，解决极大似然问题。 对于简单模型的参数估计问题，解析解可以直接求导得到，得不到解析解的用梯度下降或EM求数值解。
+X: random variable, observed data X={x₁,x₂,..xₙ} 各样本独立同分布iid θ: all parameters log P(X|θ): log-likelihood, 对数似然 用极大似然估计： θ_MLE = arg max_θ P(X|θ) ➔ arg max log P(X|θ)
+对于含有隐变量的混合模型，直接求解析解非常困难，比如在 GMM （高斯混合模型）中，就很难写
+EM迭代公式 Z: Latent variable 隐变量也是随机变量，不同值有不同的出现概率 (X,Z): Complete data 完整数据 θ⁽ᵗ⁺¹⁾: t&#43;1 时刻的参数 P(Z|X,θ): Z出现的后验概率 P(X,Z): X 和 Z 同时发生的联合概率。 log P(X,Z|θ): 对数联合概率，对数完全数据 θ⁽ᵗ⁺¹⁾ = arg max_θ ∫_Z log P(X,Z | θ) ⋅ P(Z|X,θ⁽ᵗ⁾) dZ，（很像最大似然估计 log P(X|θ)，只是这里的数据除了X还有隐变量Z，不用梯度下降而用迭代更新参数）'>
+<title>watch: ML - 白板 10 | EM Algorithm</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/10-em%E7%AE%97%E6%B3%95/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: ML - 白板 10 | EM Algorithm'>
+<meta property='og:description' content='1. 算法收敛性证明 Source video: P1
+EM &amp;ldquo;期望最大&amp;rdquo; 用于解决具有隐变量的混合模型的参数估计，解决极大似然问题。 对于简单模型的参数估计问题，解析解可以直接求导得到，得不到解析解的用梯度下降或EM求数值解。
+X: random variable, observed data X={x₁,x₂,..xₙ} 各样本独立同分布iid θ: all parameters log P(X|θ): log-likelihood, 对数似然 用极大似然估计： θ_MLE = arg max_θ P(X|θ) ➔ arg max log P(X|θ)
+对于含有隐变量的混合模型，直接求解析解非常困难，比如在 GMM （高斯混合模型）中，就很难写
+EM迭代公式 Z: Latent variable 隐变量也是随机变量，不同值有不同的出现概率 (X,Z): Complete data 完整数据 θ⁽ᵗ⁺¹⁾: t&#43;1 时刻的参数 P(Z|X,θ): Z出现的后验概率 P(X,Z): X 和 Z 同时发生的联合概率。 log P(X,Z|θ): 对数联合概率，对数完全数据 θ⁽ᵗ⁺¹⁾ = arg max_θ ∫_Z log P(X,Z | θ) ⋅ P(Z|X,θ⁽ᵗ⁾) dZ，（很像最大似然估计 log P(X|θ)，只是这里的数据除了X还有隐变量Z，不用梯度下降而用迭代更新参数）'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/10-em%E7%AE%97%E6%B3%95/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-12-16T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-16T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: ML - 白板 10 | EM Algorithm">
+<meta name="twitter:description" content="1. 算法收敛性证明 Source video: P1
+EM &amp;ldquo;期望最大&amp;rdquo; 用于解决具有隐变量的混合模型的参数估计，解决极大似然问题。 对于简单模型的参数估计问题，解析解可以直接求导得到，得不到解析解的用梯度下降或EM求数值解。
+X: random variable, observed data X={x₁,x₂,..xₙ} 各样本独立同分布iid θ: all parameters log P(X|θ): log-likelihood, 对数似然 用极大似然估计： θ_MLE = arg max_θ P(X|θ) ➔ arg max log P(X|θ)
+对于含有隐变量的混合模型，直接求解析解非常困难，比如在 GMM （高斯混合模型）中，就很难写
+EM迭代公式 Z: Latent variable 隐变量也是随机变量，不同值有不同的出现概率 (X,Z): Complete data 完整数据 θ⁽ᵗ⁺¹⁾: t&#43;1 时刻的参数 P(Z|X,θ): Z出现的后验概率 P(X,Z): X 和 Z 同时发生的联合概率。 log P(X,Z|θ): 对数联合概率，对数完全数据 θ⁽ᵗ⁺¹⁾ = arg max_θ ∫_Z log P(X,Z | θ) ⋅ P(Z|X,θ⁽ᵗ⁾) dZ，（很像最大似然估计 log P(X|θ)，只是这里的数据除了X还有隐变量Z，不用梯度下降而用迭代更新参数）">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-算法收敛性证明">1. 算法收敛性证明</a>
+      <ol>
+        <li><a href="#em迭代公式">EM迭代公式</a></li>
+        <li><a href="#收敛性证明">收敛性证明</a></li>
+      </ol>
+    </li>
+    <li><a href="#2-迭代公式的导出">2. 迭代公式的导出</a></li>
+    <li><a href="#3-公式导出之elbojensens-inequality">3. 公式导出之ELBO+Jensen&rsquo;s Inequality</a></li>
+    <li><a href="#4-再回首">4. 再回首</a></li>
+    <li><a href="#5-广义em">5. 广义EM</a>
+      <ol>
+        <li><a href="#数学表达">数学表达：</a></li>
+      </ol>
+    </li>
+    <li><a href="#6-em-的变种">6. EM 的变种</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/10-em%E7%AE%97%E6%B3%95/">watch: ML - 白板 10 | EM Algorithm</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 16, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="1-算法收敛性证明">1. 算法收敛性证明</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1qW411k7ao?p=1"  target="_blank" rel="noopener"
+    >P1</a></p>
+<p>EM &ldquo;期望最大&rdquo; 用于解决具有隐变量的混合模型的参数估计，解决极大似然问题。
+对于简单模型的参数估计问题，解析解可以直接求导得到，得不到解析解的用梯度下降或EM求数值解。</p>
+<ul>
+<li>X: random variable, observed data X={x₁,x₂,..xₙ} 各样本独立同分布iid</li>
+<li>θ: all parameters</li>
+<li>log P(X|θ): log-likelihood, 对数似然</li>
+</ul>
+<p>用极大似然估计：
+θ_MLE = arg max_θ P(X|θ) ➔ arg max log P(X|θ)</p>
+<p>对于含有隐变量的混合模型，直接求解析解非常困难，比如在 GMM （高斯混合模型）中，就很难写</p>
+<h3 id="em迭代公式">EM迭代公式</h3>
+<ul>
+<li>Z: Latent variable 隐变量也是随机变量，不同值有不同的出现概率</li>
+<li>(X,Z): Complete data 完整数据</li>
+<li>θ⁽ᵗ⁺¹⁾: t+1 时刻的参数</li>
+<li>P(Z|X,θ): Z出现的后验概率</li>
+<li>P(X,Z): X 和 Z 同时发生的联合概率。</li>
+<li>log P(X,Z|θ): 对数联合概率，对数完全数据</li>
+</ul>
+<p>θ⁽ᵗ⁺¹⁾ = arg max_θ ∫_Z log P(X,Z | θ) ⋅ P(Z|X,θ⁽ᵗ⁾) dZ，（很像最大似然估计 log P(X|θ)，只是这里的数据除了X还有隐变量Z，不用梯度下降而用迭代更新参数）</p>
+<p>可以看作是按照 Z 的后验分布 (Z|X,θ⁽ᵗ⁾) 求对数联合概率的期望 （<a class="link" href="https://zh.wikipedia.org/wiki/%E6%9C%9F%E6%9C%9B%E5%80%BC"  target="_blank" rel="noopener"
+    >期望的定义-wiki</a>）：</p>
+<ul>
+<li>
+<p>第一步 Expectation：求对数完全数据 log P(X,Z|θ) 以后验 P(Z|X,θ⁽ᵗ⁾) 为概率密度函数的期望:<br>
+$E_{Z|X,θ⁽ᵗ⁾}[log P(X,Z|θ)]$</p>
+</li>
+<li>
+<p>第二步 Maximization：找到期望最大时对应的参数作为下一时刻的参数: <br>
+$\rm θ⁽ᵗ⁺¹⁾ = arg\ max_θ E_{P(Z|X,θ⁽ᵗ⁾)} [log P(X,Z|θ)]$</p>
+</li>
+</ul>
+<h3 id="收敛性证明">收敛性证明</h3>
+<p>（非严格）只证明一步，从 θ⁽ᵗ⁾ ➔ θ⁽ᵗ⁺¹⁾，似然会增大：log P(X|θ⁽ᵗ⁾) ≤ log P(X|θ⁽ᵗ⁺¹⁾)，事件 X 在新一时刻的参数 θ⁽ᵗ⁺¹⁾ 所代表的概率模型下，发生的可能性变大了，不断迭代最后可取得最大 log-likelihood 对应的参数。</p>
+<ul>
+<li>
+<p>完全数据的似然：P(X,Z|θ) = P(Z|X,θ) P(X|θ)，θ是起始值可以任意取</p>
+</li>
+<li>
+<p>取对数：log P(X|θ) = log P(X,Z|θ) - log P(Z|X,θ)</p>
+</li>
+<li>
+<p>两边关于 Z 的后验分布求积分（求对数似然的期望）：</p>
+<ul>
+<li>
+<p>左边：<br>
+∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(X|θ) dZ <br>
+= log P(X|θ) ∫z P(Z|X,θ⁽ᵗ⁾) dZ （似然与Z无关提到积分外面）<br>
+= log P(X|θ) （对Z的概率积分为1）</p>
+</li>
+<li>
+<p>右边：<br>
+∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(X,Z|θ) dz - ∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(Z|X,θ) dz <br>
+= Q(θ, θ⁽ᵗ⁾) - H(θ,θ⁽ᵗ⁾)，分别分析两项</p>
+<p>Q 存在于EM迭代公式中，根据EM 的定义：θ⁽ᵗ⁺¹⁾ 对应最大的Q，所以：
+Q(θ⁽ᵗ⁺¹⁾, θ⁽ᵗ⁾) ≥ Q(θ, θ⁽ᵗ⁾) 是成立的。
+上式的θ是初始值，若令θ = θ⁽ᵗ⁾，则 Q(θ⁽ᵗ⁺¹⁾, θ⁽ᵗ⁾) ≥ Q(θ⁽ᵗ⁾, θ⁽ᵗ⁾) 得证</p>
+<p>因为 H 前面有个负号，所以要证 H(θ⁽ᵗ⁺¹⁾, θ⁽ᵗ⁾) ≤ H(θ⁽ᵗ⁾, θ⁽ᵗ⁾)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>后 - 前时刻的 H：<br>
+H(θ⁽ᵗ⁺¹⁾, θ⁽ᵗ⁾) - H(θ⁽ᵗ⁾, θ⁽ᵗ⁾)  <br>
+= ∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(Z|X,<strong>θ⁽ᵗ⁺¹⁾</strong>) dz -
+∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(Z|X,<strong>θ⁽ᵗ⁾</strong>) dz  <br>
+= ∫z P(Z|X,θ⁽ᵗ⁾)⋅log (P(Z|X,θ⁽ᵗ⁺¹⁾ / P(Z|X,θ⁽ᵗ⁾)) dz （合并） <br>
+= - KL( P(Z|X,θ⁽ᵗ⁾) || P(Z|X,θ⁽ᵗ⁺¹⁾)) （相对熵≥0） <br>
+≤ 0</p>
+</li>
+<li>
+<p>(另一种证法) 用Jensen不等式，而不使用相对熵。</p>
+<p>因为log是 concave （凹）函数：在曲线上任意取两个点，连成的直线小于log函数。concave函数的性质：a,b两点之间的一点c（两端点的线性组合）对应到直线函数上的值一定小于对应到log函数上的值</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/10_concave%E5%87%BD%E6%95%B0.png width=>
+    
+    
+  
+
+<p>上面的合并为 1个log 之后的式子，可以看作是先求Z的后验的对数，再求&quot;对数值&quot;的期望，一定小于先求（自变量&quot;Z的后验&quot;的）期望再求对数：（E[log x] ≤ log E[x]）</p>
+<p>∫z P(Z|X,θ⁽ᵗ⁾)⋅log (P(Z|X,θ⁽ᵗ⁺¹⁾ / P(Z|X,θ⁽ᵗ⁾)) dz  <br>
+≤ log ∫z P(Z|X,θ⁽ᵗ⁾)⋅(P(Z|X,θ⁽ᵗ⁺¹⁾ / P(Z|X,θ⁽ᵗ⁾)))  <br>
+= log ∫z (P(Z|X,θ⁽ᵗ⁺¹⁾) dz = log 1 = 0</p>
+</li>
+</ul>
+<h2 id="2-迭代公式的导出">2. 迭代公式的导出</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1qW411k7ao?p=2"  target="_blank" rel="noopener"
+    >P2</a></p>
+<p>EM 迭代公式来自于将对数似然 logP(X|θ) 分解为 ELBO + KL散度。</p>
+<p>引入变量Z，则 P(X) 就变成了联合概率：P(X,Z|θ) = P(Z|X,θ)⋅P(X|θ)，
+所以对数似然就变为：</p>
+<p>logP(X|θ) = log P(X,Z|θ) - log P(Z|X,θ)</p>
+<p>引入 Z 的概率分布 q(Z): <br>
+logP(X|θ) = log P(X,Z|θ) - log q(Z) - log P(Z|X,θ) + log q(Z)   <br>
+= log (P(X,Z|θ) / q(Z)) - log (P(Z|X,θ) / q(Z))，q(Z)≠0</p>
+<p>技巧：对等式两边，按照分布 q(Z) 求似然的<strong>期望（积分）</strong>：</p>
+<ul>
+<li>
+<p>左边：<br>
+∫z q(Z)⋅log P(X|θ) dZ = log P(X|θ)⋅∫z q(Z) dZ = log P(X|θ)，q(Z)是概率密度函数积分为1，因此左边求完期望无变化，所以求似然 logP(X|θ) 就变成了求q(Z)。</p>
+</li>
+<li>
+<p>右边：<br>
+∫z q(Z)⋅log (P(X,Z|θ)/q(Z)) dz - ∫z q(Z)⋅log (P(Z|X,θ)/q(Z)) dz  <br>
+= ELBO + KL(q(Z) || P(Z|X,θ)) <br>
+其中第1项：Evidence Lower Bound (ELBO,下界)，第2项是Z的概率密度函数q(Z)与Z的后验概率P(Z|X,θ)的相对熵。</p>
+<p>因为 <strong>KL散度恒≥0</strong>，所以样本似然 log P(X|θ) ≥ ELBO。只有当 Z 的概率分布 q(Z) 与 Z 的后验分布 P(Z|X,θ) 相等时，KL散度等于0，似然=ELBO。</p>
+<p>ELBO 是 log (P(Z,X|θ)/q(Z)) 按照 q(Z) 求期望（加权和;求积分）。当对数似然=ELBO，即达到最大时，q(Z)=P(Z|X,θ⁽ᵗ⁾)，也就是先用上一时刻的θ⁽ᵗ⁾ 求出q(Z)，然后ELBO里就只有log里的θ是变量，滑动调整θ使ELBO最大，取对应的θ作为θ⁽ᵗ⁺¹⁾。</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/10_EM%E8%BF%AD%E4%BB%A3.png width=>
+    
+    
+  
+
+</li>
+</ul>
+<p>EM 想让 ELBO 达到最大，先（通过KL散度=0）找到样本对数似然 log P(X|θ) <del>的最大值对应的参数θ，作为新的θ，然后再算它对应的期望并得到ELBO，</del> 取到最大值时的形式，即 ELBO，
+然后取ELBO最大时对应的参数θ；
+不断提高下界从而让对数似然 log P(X|θ) 也逐渐变大，最终ELBO等于logP(X|θ)，KL散度=0，Z的概率分布与它的后验分布相等，
+最优θ^ 是 ELBO 取最大时的θ</p>
+<p>θ^ = arg max_θ ELBO <br>
+= arg max_θ ∫z q(Z) ⋅ log (P(X,Z|θ) / q(Z)) dz  ，<strong>代换q(Z)</strong><br>
+= arg max_θ ∫_Z P(Z|X,θ⁽ᵗ⁾) ⋅ log (P(X,Z|θ) / P(Z|X,θ⁽ᵗ⁾)) dZ</p>
+<p>这个式子与 EM 的迭代公式相比，log 里多了一个分母：P(Z|X,θ⁽ᵗ⁾)，展开log：</p>
+<p>θ^ = arg max_θ ∫_Z P(Z|X,θ⁽ᵗ⁾) ⋅ [log P(X,Z|θ) - log P(Z|X,θ⁽ᵗ⁾)] dZ <br>
+= arg max_θ ∫_Z P(Z|X,θ⁽ᵗ⁾) ⋅ log P(X,Z|θ) dZ - P(Z|X,θ⁽ᵗ⁾) ⋅ log P(Z|X,θ⁽ᵗ⁾)] dZ</p>
+<p>其中第2项与θ无关，因为 θ⁽ᵗ⁾ 是上一时刻的参数，是个常数，不是变量，而 log 中的 θ 是变量，会变到ELBO 取最大时对应的参数。所以就得到了迭代公式：</p>
+<p>θ^ = arg max_θ ∫_Z P(Z|X,θ⁽ᵗ⁾) ⋅ log P(X,Z|θ) dz</p>
+<h2 id="3-公式导出之elbojensens-inequality">3. 公式导出之ELBO+Jensen&rsquo;s Inequality</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1qW411k7ao?p=3"  target="_blank" rel="noopener"
+    >P3</a></p>
+<p>EM 迭代公式也可来自于将对数似然 logP(X|θ)分解为 ELBO + Jensen&rsquo;s Inequality</p>
+<p>Jensen&rsquo;s Inequality 结论：对于一个凹concave 函数 f(x)，在定义域x上取两点：a,b 连线小于a,b之间的函数值。
+任意在 a,b 之间取一点 c = t⋅a+(1-t)b, where t∈[0,1]，f(c)=f(t⋅a+(1-t)b) ≥ t⋅f(a) + (1-t)f(b)。<br>
+比如当 t=½ 时，f(a/2+b/2) ≥ f(a)/2 + f(b)/2，两边都是期望（平均数,加权和），简记为:先求期望再求函数值 大于等于 先求函数值再求期望，f(E) ≥ E[f]。当 f(x) 是常函数时，等号成立。</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/10_Jensen%27s_inequality.png width=>
+  
+  
+
+
+<p>log P(X|θ) = log ∫zP(X,Z|θ) dz，在似然中引入隐变量 Z，然后求X的边缘概率，即对Z求积分（“把最终结果中不需要的事件合并成其事件的全概率而消失” <a class="link" href="https://zh.wikipedia.org/wiki/%E6%9D%A1%E4%BB%B6%E6%A6%82%E7%8E%87"  target="_blank" rel="noopener"
+    >marginal probability-wiki</a>）<br>
+= log ∫z ( P(X,Z|θ) / q(Z)) * q(Z) dz，引入 Z 的分布 q(Z) <br>
+= log E_q(z) [P(X,Z|θ)/q(Z)]，把积分看作求期望 <br>
+≥ E_q(z) [ log(P(X,Z|θ)/q(Z)) ]，Jensen不等式等号在 P(X,Z|θ) / q(Z)=C 成立, log C 是常函数</p>
+<p>这个期望 E_q(z) [ log(P(X,Z|θ)/q(Z)) ] 就是对数似然的下界，就是ELBO。</p>
+<p>q(Z) = P(X,Z|θ) / C <br>
+∫z q(Z) dZ = 1 = ∫z P(X,Z|θ) / C dZ = 1/C ∫z P(X,Z|θ) dZ = 1/C P(X|θ) （求边缘概率）<br>
+C = P(X|θ) <br>
+把 C 代换：q(Z) = P(X,Z|θ) / P(X|θ) = P(Z|X,θ)</p>
+<p>所以当 Jensen 不等式取等号时，Z的分布 q(Z) 就是 Z 的后验分布P(Z|X,θ)。</p>
+<p>所以 EM 第一步先按照上一时刻的参数 θ⁽ᵗ⁾ 和数据 X 求出 Z 的后验分布 P(Z|X,θ⁽ᵗ⁾)，
+再将对数似然 log(P(X,Z|θ)/P(Z|X,θ⁽ᵗ⁾)) 按照 Z 的后验分布求期望，得到对数似然的下界ELBO，
+这个下界是关于 θ 的函数: ∫z P(Z|X,θ⁽ᵗ⁾)⋅log P(X,Z|θ) dZ，所以可找到这个下界最大时对应的θ，作为θ⁽ᵗ⁺¹⁾。不断迭代提高下界（期望），从而提高对数似然</p>
+<h2 id="4-再回首">4. 再回首</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1qW411k7ao?p=4"  target="_blank" rel="noopener"
+    >P4</a></p>
+<p>EM 是解决优化问题的迭代算法（和梯度下降是一个level），而HMM，GMM 是模型</p>
+<ol>
+<li>从之前狭义的（理想的）EM 推广到广义的（一般的）EM</li>
+<li>狭义的EM 是广义EM 的一个特例</li>
+<li>EM 的变种</li>
+</ol>
+<p>EM 主要用于概率生成模型，数据（随机变量）包括观测数据 X 及其对应的隐变量 Z，所以(X,Z) 叫做完全数据complete data，θ 是概率模型的参数。Z 是建模时引入的，<strong>Z生成了X</strong>，我们只能观测到X。
+比如GMM 中，假设 z 是一个离散的分布，比如 K 个类别 z=1,2,&hellip;,K，每个类别都有一定的概率：</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>隐变量 z</th>
+<th>1</th>
+<th>2</th>
+<th>&hellip;</th>
+<th>K</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>概率密度</td>
+<td>p₁</td>
+<td>p₂</td>
+<td>&hellip;</td>
+<td>pₖ</td>
+</tr>
+</tbody>
+</table></div>
+<p>然后在 z 给定的情况下，x 满足高斯分布：P(x|z) ~ Gaussian，因此对完整数据 P(X,Z) 建模</p>
+<p>还有 HMM 也可以从生成的角度来解释。比如 N 个隐变量: z₁, z₂, &hellip;, zₙ 是马尔科夫链的结构:</p>
+<p>$$
+s1 ➔ s2 ➔ &hellip; ➔ sₙ \\
+↧   \quad\  ↧ \quad &hellip; \quad ↧ \\
+x1  \quad x2 \quad &hellip; \quad xₙ
+$$</p>
+<p>可以把 z₁, z₂, &hellip;, zₙ 看成是统一的变量 Z，把 x₁, x₂, &hellip;, xₙ 看成是一个X</p>
+<p>观测到了 X，假设它的概率模型的参数是θ，就可以用 EM 来估计参数 θ。</p>
+<p>使用MLE 来估计参数：θ^ = arg max P(X|θ) = arg max ∏ᵢ₌₀ᶰP(xᵢ|θ) ➔
+arg max log P(X|θ)</p>
+<p>不能直接求解这个最大化问题的原因是，不知道P(X)，因为样本X是非常复杂的，所以“会引入自己的归纳偏置，假定它是服从某个模型的。”</p>
+<p>生成模型就是假设每个样本 x⁽ⁱ⁾ 都有一个隐变量 z⁽ⁱ⁾，x⁽ⁱ⁾ 是由 z⁽ⁱ⁾ 生成的，所以P(X) 就变成了联合分布 P(X,Z)（即把X分解处理），然后把 Z 积分掉就可以了: P(X) = ∫z P(X,Z) dZ</p>
+<p><a class="link" href="https://zichen34.github.io/writenotes/model/imagen/vae/c-sum-vae/" >note-苏剑林-VAE</a></p>
+<h2 id="5-广义em">5. 广义EM</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1qW411k7ao?p=5"  target="_blank" rel="noopener"
+    >P5</a></p>
+<p>EM 用于解决参数估计问题，优化函数使用 MLE ，找到让对数似然 log P(X|θ) 达到最大的参数 θ。
+样本X 的分布 P(X) 未知，所以假设每个 x 是由隐变量 z 生成的。比如 GMM 假设 z 服从离散的概率分布，HMM 假设 z 满足马尔科夫链。然后 P(X) 就等于联合概率分布P(X,Z) 比上Z的后验分布P(Z|X)，也就是未知X分布经过生成模型的假设，把问题具体化了。</p>
+<p>因为 P(X|θ) = P(Z,X|θ) / P(Z|X,θ)，所以（复杂的未知的）对数似然目标函数可分解为: 下界ELBO+Z的分布q(Z)与Z的后验分布P(Z|X,θ)的KL散度:
+log P(X|θ) = ELBO + KL(q||P)</p>
+<p>ELBO 是一个期望，它和q(Z) 和 θ 有关，所以将其记为 L(q,θ); KL&gt;=0, 当q=P时，KL=0，所以：log P(X|θ) ≥ L(q,θ)，而且最优参数 θ^ 是在 q^= P(Z|X,θ) 时取到。</p>
+<p>但是 q^ 并不一定能取到 P(Z|X,θ)，因为这个后验可能是 intractable，是算不出来的。这由生成模型的复杂度决定，
+如果生成模型比较简单，比如GMM的 z 和 HMM 的 z，他们是离散的，结构化的，是tractable，是可以（用EM）计算出来的</p>
+<p>但是对于绝大多数的 z 是无法求出他的后验 P(z|x)。比如 VAE 的 z 是高维的，无法把它从 P(x,z) 中积掉，就得不到 P(x)，也就无法（用贝叶斯公式）得到后验 P(z|x)，所以最优的 q^(Z) 取不到，所以就需要变分（近似）推断：重参数化技巧+神经网络梯度下降用 q_ϕ(z|x) 逼近 P_θ(z|x)。</p>
+<h3 id="数学表达">数学表达：</h3>
+<ol>
+<li>
+<p>当 <strong>θ 固定</strong> 的时候，对数似然 log P(X|θ) 就是固定的，然后当 q(Z) 越接近 Z 的后验分布 P(Z|X,θ)，KL散度就越小，同时 ELBO 就越大。所以求最优的分布 q(Z) 就变成一个优化问题：
+q^(Z) = arg min_q KL(q(Z) || P(Z|X,θ)) = arg max_q L(q,θ)</p>
+</li>
+<li>
+<p>当 <strong>q^固定</strong> 的时候，再做极大似然找 θ，也就是做“狭义”的EM，最优的 θ^= arg maxᶱ L(q^, θ)</p>
+</li>
+</ol>
+<p>广义EM（两个最大化问题）:</p>
+<ol>
+<li>E-step: q⁽ᵗ⁺¹⁾ = arg max_q L(q,θ⁽ᵗ⁾)，固定θ求最优的q^</li>
+<li>M-step: θ⁽ᵗ⁺¹⁾ = arg maxᶱ L(q⁽ᵗ⁺¹⁾, θ)，固定q^求最优的θ</li>
+</ol>
+<p>对 ELBO 做变形（展开log）：</p>
+<p>L(q,θ) = E_q(z) [log (P(Z,X|θ)/q(Z))] = E_q(z) [ log P(Z,X|θ) - log q(Z) ]<br>
+= E_q(z) [log P(Z,X|θ)] - E_q(z) [log q(Z)]  <br>
+= E_q(z) [log P(Z,X|θ)] + H[q(Z)]</p>
+<p>其中第2项 H[q(Z)] 是分布 q(Z) 的熵: ∫ q(Z)⋅log (1/q(z)) dz ，
+所以 ELBO = 完全数据似然按照 q(Z) 求期望+ q(Z) 的熵</p>
+<p>之前的EM 是广义EM 的一个特殊情况。对于 E-step, 狭义EM 默认 q 直接就取到了后验 P(Z|X,θ⁽ᵗ⁾)，因为假定了后验能够求出。对于 M-step, 狭义EM 认为 q^ 已经找到了，那么广义EM 的M-step 中的熵就是确定值，要优化的只有似然。</p>
+<h2 id="6-em-的变种">6. EM 的变种</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1qW411k7ao?p=6"  target="_blank" rel="noopener"
+    >P6</a></p>
+<p>（标准的，一般指的）广义的EM：对似然下界(ELBO联合概率按照z的后验求期望) L(q,θ) 求两次最大化，先固定θ⁽ᵗ⁾求q⁽ᵗ⁺¹⁾，然后固定q⁽ᵗ⁺¹⁾ 求 θ⁽ᵗ⁺¹⁾</p>
+<p>因为两步都是求 Maximum，所以 EM 也称 MM (Maximation Maximation)</p>
+<p>对于两个参数，先固定一个求另一个，再反过来，这种算法是坐标上升法，比如SMO。如果参数是多维的，固定其中某一个/两个，然后去求其他的。求参数的顺序没关系。</p>
+<p>坐标上升法 与 梯度上升法并列</p>
+<p>损失函数的等高线如下图，梯度上升法的参数路径是沿着梯度的，而坐标上升法类似曼哈顿距离，</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/10_%E5%9D%90%E6%A0%87%E4%B8%8A%E5%8D%87%E6%B3%95.png width=>
+  
+  
+
+
+<p>如果 E-step 中最优的 q^(Z)，也就是Z 的后验P(Z|X,θ) 无法求得，就可以用变分推断求近似最优，比如基于平均场理论的变分法近似后验分布，再做 M-step，称这个组合为VBEM 变分贝叶斯EM。
+如果用蒙特卡罗采样去求近似后验分布，叫作MCEM，蒙特卡罗EM。</p>
+<p>VI（变分推断） 和 VB （变分贝叶斯）指的是同一个东西</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

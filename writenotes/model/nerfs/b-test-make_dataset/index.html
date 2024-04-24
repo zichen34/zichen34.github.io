@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='NeRF Synthetic The dataset nerf/data/nerf_synthetic/lego composes of 3 things:
+RGB images (train/),
+point cloud (points3d.ply),
+associated camera poses (transforms_train.json), where each frame contains 3 attributes: file_path, rotation, and c2w transform_matrix
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 { &amp;#34;camera_angle_x&amp;#34;: 0.6911112070083618, &amp;#34;frames&amp;#34;: [ { &amp;#34;file_path&amp;#34;: &amp;#34;.'>
+<title>test: NeRF | Make Datasets</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/nerfs/b-test-make_dataset/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='test: NeRF | Make Datasets'>
+<meta property='og:description' content='NeRF Synthetic The dataset nerf/data/nerf_synthetic/lego composes of 3 things:
+RGB images (train/),
+point cloud (points3d.ply),
+associated camera poses (transforms_train.json), where each frame contains 3 attributes: file_path, rotation, and c2w transform_matrix
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 { &amp;#34;camera_angle_x&amp;#34;: 0.6911112070083618, &amp;#34;frames&amp;#34;: [ { &amp;#34;file_path&amp;#34;: &amp;#34;.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/nerfs/b-test-make_dataset/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='NeRF' /><meta property='article:published_time' content='2024-03-20T12:31:00&#43;00:00'/><meta property='article:modified_time' content='2024-03-20T12:31:00&#43;00:00'/>
+<meta name="twitter:title" content="test: NeRF | Make Datasets">
+<meta name="twitter:description" content="NeRF Synthetic The dataset nerf/data/nerf_synthetic/lego composes of 3 things:
+RGB images (train/),
+point cloud (points3d.ply),
+associated camera poses (transforms_train.json), where each frame contains 3 attributes: file_path, rotation, and c2w transform_matrix
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 { &amp;#34;camera_angle_x&amp;#34;: 0.6911112070083618, &amp;#34;frames&amp;#34;: [ { &amp;#34;file_path&amp;#34;: &amp;#34;.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#nerf-synthetic">NeRF Synthetic</a></li>
+    <li><a href="#colmap-sparse">Colmap Sparse</a></li>
+    <li><a href="#blender-add-on">Blender Add-On</a></li>
+    <li><a href="#nerfstudio">NeRFStudio</a></li>
+    <li><a href="#dtu">DTU</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/test/" >
+                test
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/nerfs/b-test-make_dataset/">test: NeRF | Make Datasets</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 20, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="nerf-synthetic">NeRF Synthetic</h2>
+<p>The dataset <code>nerf/data/nerf_synthetic/lego</code> composes of 3 things:</p>
+<ol>
+<li>
+<p>RGB images (train/),</p>
+</li>
+<li>
+<p>point cloud (points3d.ply),</p>
+</li>
+<li>
+<p>associated camera poses (<a class="link" href="https://drive.google.com/drive/folders/1lrDkQanWtTznf48FCaW5lX9ToRdNDF1a"  target="_blank" rel="noopener"
+    >transforms_train.json</a>),
+where each frame contains 3 attributes: <code>file_path</code>, <code>rotation</code>, and c2w <code>transform_matrix</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;camera_angle_x&#34;</span><span class="p">:</span> <span class="mf">0.6911112070083618</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;frames&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;file_path&#34;</span><span class="p">:</span> <span class="s2">&#34;./train/r_0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;rotation&#34;</span><span class="p">:</span> <span class="mf">0.012566370614359171</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;transform_matrix&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">-0.9999021887779236</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">0.004192245192825794</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">-0.013345719315111637</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">-0.05379832163453102</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">-0.013988681137561798</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">-0.2996590733528137</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">0.95394366979599</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">3.845470428466797</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">-4.656612873077393e-10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">0.9540371894836426</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">0.29968830943107605</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">1.2080823183059692</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">0.0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="mf">1.0</span>
+</span></span><span class="line"><span class="cl">              <span class="p">]</span>
+</span></span><span class="line"><span class="cl">          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="colmap-sparse">Colmap Sparse</h2>
+<p>(2024-03-14)</p>
+<hr>
+<h2 id="blender-add-on">Blender Add-On</h2>
+<p>(2024-03-20)</p>
+<ul>
+<li><a class="link" href="https://github.com/maximeraafat/BlenderNeRF"  target="_blank" rel="noopener"
+    >maximeraafat/BlenderNeRF - Github</a> Found by DDG searching &ldquo;how to make nerf blender&rdquo;</li>
+<li><a class="link" href="https://youtu.be/C8YuDoU11cg?si=eK_mqSPpmXMhqxny"  target="_blank" rel="noopener"
+    >AI RENDERING from Blender to NeRF | BlenderNeRF Tutorial - Youtube</a></li>
+</ul>
+<hr>
+<h2 id="nerfstudio">NeRFStudio</h2>
+<ul>
+<li><a class="link" href="https://docs.nerf.studio/extensions/blender_addon.html"  target="_blank" rel="noopener"
+    >Nerfstudio-Docs</a></li>
+<li><a class="link" href="https://youtu.be/vDhj6j7kfWM?si=fMKJNBBqyU_DAG74"  target="_blank" rel="noopener"
+    >Creating VFX with NeRFs - Nerfstudio Blender Add-On Tutorial - Youtube</a></li>
+</ul>
+<hr>
+<h2 id="dtu">DTU</h2>
+<p>(2024-03-21)</p>
+<p>Adapt the DTU dataset to the NeRF synthetic style dataset format.
+Concretely, the extrinsics (w2c) in DTU (aligned with OpenCV) are required to be modified to c2w of OpenGL.</p>
+<p>DTU dataset already provides point cloud (ply) and multi-view images.</p>
+<p>(2024-04-02)</p>
+<ul>
+<li>
+<p>The extrinsics in DTU is w2c. So, <code>c2w = np.linalg.inv(extrinsics)</code></p>
+</li>
+<li>
+<p>And because the camera coordinate system in OpenCV (used by DTU) is RDF,
+the 4 columns in the c2w are [Right | Down | Front | CamCenter]</p>
+<p>However, in OpenGL, the c2w matrix should be:
+[Right | Up | Back | CamCenter]</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">Trsfm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mf">9.70263e-01</span><span class="p">,</span> <span class="mf">7.47983e-03</span><span class="p">,</span> <span class="mf">2.41939e-01</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.91020e+02</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="o">-</span><span class="mf">1.47429e-02</span><span class="p">,</span> <span class="mf">9.99493e-01</span><span class="p">,</span> <span class="mf">2.82234e-02</span><span class="p">,</span>  <span class="mf">3.28832e+00</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="o">-</span><span class="mf">2.41605e-01</span><span class="p">,</span><span class="o">-</span><span class="mf">3.09510e-02</span><span class="p">,</span> <span class="mf">9.69881e-01</span><span class="p">,</span>  <span class="mf">2.25401e+01</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span> <span class="mf">0.00000e+00</span><span class="p">,</span> <span class="mf">0.00000e+00</span><span class="p">,</span> <span class="mf">0.00000e+00</span><span class="p">,</span>  <span class="mf">1.00000e+00</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w_opencv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Trsfm</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">c2w_opencv</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w_opengl</span> <span class="o">=</span> <span class="n">c2w_opencv</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w_opengl</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">c2w_opencv</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w_opengl</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">c2w_opencv</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<details><summary> The other way is adjusting w2c: </summary>
+<p>Each <strong>row</strong> in the rotation matrix of w2c is a camera axes.
+And the 4-th column is $-R_{c2w}^{-1} t_{c2w} = - R_{w2c} C$, where the C is the camera center.</p>
+<p>To align with the OpenGL camera coord. system (from RDF to RUB),
+the 2nd and 3rd rows in w2c need flips:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">w2c_opencv</span> <span class="o">=</span> <span class="n">Trsfm</span>
+</span></span><span class="line"><span class="cl"><span class="n">w2c_opencv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="n">w2c_opencv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*=-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w_opengl_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">w2c_opencv</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">((</span><span class="n">c2w_opengl_</span> <span class="o">==</span><span class="n">c2w_opengl</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The <code>c2w_opengl_</code> equals to the <code>c2w_opengl</code> above.</p>
+</details>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/nerf/">NeRF</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/writenotes/model/nerfs/b-note-s3im/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://miro.medium.com/v2/resize:fit:1400/1*SBVkh54RJZrMsozG-vQdCQ.png" loading="lazy" data-key="" data-hash="https://miro.medium.com/v2/resize:fit:1400/1*SBVkh54RJZrMsozG-vQdCQ.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: S3IM: Stochastic SSIM Loss for NeRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/writenotes/model/nerfs/b-note-matchnerf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://i.imgur.com/rQN8Eg5.png" loading="lazy" data-key="" data-hash="https://i.imgur.com/rQN8Eg5.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: Match-NeRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/writenotes/model/nerfs/b-note-tensorf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://apchenstu.github.io/TensoRF/img/pipeline.png" loading="lazy" data-key="" data-hash="https://apchenstu.github.io/TensoRF/img/pipeline.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: TensoRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/writenotes/model/nerfs/b-note-grf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://github.com/alextrevithick/GRF/raw/main/imgs/process.png" loading="lazy" data-key="" data-hash="https://github.com/alextrevithick/GRF/raw/main/imgs/process.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: GRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/writenotes/model/nerfs/b-note-mvsnerf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://ar5iv.labs.arxiv.org/html/2103.15595/assets/x2.png" loading="lazy" data-key="" data-hash="https://ar5iv.labs.arxiv.org/html/2103.15595/assets/x2.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: MVSNeRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

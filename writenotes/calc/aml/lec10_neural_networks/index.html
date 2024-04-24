@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Video 13 Neural Network 2021-11-10
+Outline:
+Stochastic gradient descent Neural network model Backpropagation algorithm Gradient Descent 沿着误差函数 $\mathbf e$ 的负梯度方向，一步一步最小化 in-sample error。
+Ein 是（线性/非线性）模型的权重 $\mathbf w$ 的函数：
+$$ E_{in}(\mathbf w) = \frac{1}{N} \sum_{n=1}^N \mathbf e(h(\mathbf x_n), y_n) $$
+$\mathbf e$ 是误差函数，计算假设值与样本真实值之间的误差。复杂的误差函数越难优化。有时不能向 linear regression 那样 one-shot 求出最佳w。可以用梯度下降，一步一步地使误差下降。移动的方向是负梯度方向$-\nabla$，每次移动的大小与 $-\nabla E_{in}$ (Gradient error) 成比例（$\eta$是学习率）：
+$$ \Delta \mathbf w = - \eta \nabla E_{in}(\mathbf w) $$
+这里$\nabla$ Ein 是基于所有的样本点($\mathbf x_n, y_n$)，叫做&amp;quot;batch GD&amp;quot;，也就是使用所有点做了一次梯度下降。
+Stochastic gradient descent 一次随机选一个点做梯度下降。'>
+<title>watch: AML 10 | Neural Networks</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/aml/lec10_neural_networks/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: AML 10 | Neural Networks'>
+<meta property='og:description' content='Video 13 Neural Network 2021-11-10
+Outline:
+Stochastic gradient descent Neural network model Backpropagation algorithm Gradient Descent 沿着误差函数 $\mathbf e$ 的负梯度方向，一步一步最小化 in-sample error。
+Ein 是（线性/非线性）模型的权重 $\mathbf w$ 的函数：
+$$ E_{in}(\mathbf w) = \frac{1}{N} \sum_{n=1}^N \mathbf e(h(\mathbf x_n), y_n) $$
+$\mathbf e$ 是误差函数，计算假设值与样本真实值之间的误差。复杂的误差函数越难优化。有时不能向 linear regression 那样 one-shot 求出最佳w。可以用梯度下降，一步一步地使误差下降。移动的方向是负梯度方向$-\nabla$，每次移动的大小与 $-\nabla E_{in}$ (Gradient error) 成比例（$\eta$是学习率）：
+$$ \Delta \mathbf w = - \eta \nabla E_{in}(\mathbf w) $$
+这里$\nabla$ Ein 是基于所有的样本点($\mathbf x_n, y_n$)，叫做&amp;quot;batch GD&amp;quot;，也就是使用所有点做了一次梯度下降。
+Stochastic gradient descent 一次随机选一个点做梯度下降。'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/aml/lec10_neural_networks/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2021-12-14T00:53:00&#43;00:00'/><meta property='article:modified_time' content='2021-12-14T00:53:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: AML 10 | Neural Networks">
+<meta name="twitter:description" content="Video 13 Neural Network 2021-11-10
+Outline:
+Stochastic gradient descent Neural network model Backpropagation algorithm Gradient Descent 沿着误差函数 $\mathbf e$ 的负梯度方向，一步一步最小化 in-sample error。
+Ein 是（线性/非线性）模型的权重 $\mathbf w$ 的函数：
+$$ E_{in}(\mathbf w) = \frac{1}{N} \sum_{n=1}^N \mathbf e(h(\mathbf x_n), y_n) $$
+$\mathbf e$ 是误差函数，计算假设值与样本真实值之间的误差。复杂的误差函数越难优化。有时不能向 linear regression 那样 one-shot 求出最佳w。可以用梯度下降，一步一步地使误差下降。移动的方向是负梯度方向$-\nabla$，每次移动的大小与 $-\nabla E_{in}$ (Gradient error) 成比例（$\eta$是学习率）：
+$$ \Delta \mathbf w = - \eta \nabla E_{in}(\mathbf w) $$
+这里$\nabla$ Ein 是基于所有的样本点($\mathbf x_n, y_n$)，叫做&amp;quot;batch GD&amp;quot;，也就是使用所有点做了一次梯度下降。
+Stochastic gradient descent 一次随机选一个点做梯度下降。">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#gradient-descent">Gradient Descent</a></li>
+        <li><a href="#stochastic-gradient-descent">Stochastic gradient descent</a></li>
+      </ol>
+    </li>
+    <li><a href="#neural-network-model">Neural Network model</a></li>
+    <li><a href="#backpropagation-algorithm">Backpropagation algorithm</a>
+      <ol>
+        <li><a href="#example">Example：</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/aml/lec10_neural_networks/">watch: AML 10 | Neural Networks</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 14, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Video 13 Neural Network 2021-11-10</p>
+<p>Outline:</p>
+<ol>
+<li>Stochastic gradient descent</li>
+<li>Neural network model</li>
+<li>Backpropagation algorithm</li>
+</ol>
+<h3 id="gradient-descent">Gradient Descent</h3>
+<ul>
+<li>
+<p>沿着误差函数 $\mathbf e$ 的负梯度方向，一步一步最小化 in-sample error。</p>
+</li>
+<li>
+<p>Ein 是（线性/非线性）模型的权重 $\mathbf w$ 的函数：</p>
+<p>$$
+E_{in}(\mathbf w) = \frac{1}{N} \sum_{n=1}^N \mathbf e(h(\mathbf x_n), y_n)
+$$</p>
+<p>$\mathbf e$ 是误差函数，计算假设值与样本真实值之间的误差。复杂的误差函数越难优化。有时不能向 linear regression 那样 one-shot 求出最佳w。可以用梯度下降，一步一步地使误差下降。移动的方向是负梯度方向$-\nabla$，每次移动的大小与 $-\nabla E_{in}$ (Gradient error) 成比例（$\eta$是学习率）：</p>
+<p>$$
+\Delta \mathbf w = - \eta \nabla E_{in}(\mathbf w)
+$$</p>
+<p>这里$\nabla$ Ein 是基于所有的样本点($\mathbf x_n, y_n$)，叫做&quot;batch GD&quot;，也就是使用所有点做了一次梯度下降。</p>
+</li>
+</ul>
+<h3 id="stochastic-gradient-descent">Stochastic gradient descent</h3>
+<ul>
+<li>
+<p>一次随机选一个点做梯度下降。</p>
+<p>Pick one ($\mathbf x_n, y_n$) at a time. Apply GD to $\mathbf e(h(\mathbf x_n),y_n)$</p>
+</li>
+<li>
+<p>N 次梯度下降的“平均方向”(Average direction)还是等于$-\nabla E_{in}$:</p>
+<p>$$
+\mathbb E_n [-\nabla \mathbf e(h(\mathbf x_n), y_n)]
+= \frac{1}{N} \sum_{n=1}^N -\nabla \mathbf e(h(\mathbf x_n),y_{n})
+= -\nabla E_{in}
+$$</p>
+<p>随机梯度下降是梯度下降的 randomized version</p>
+</li>
+<li>
+<p>SGD 的好处：</p>
+<ol>
+<li>简化计算 (Cheaper computation): 每次只看一个样本点</li>
+<li>随机化 (Randomization): 避免陷入局部最小或鞍点，无法继续优化。如果使用“batch GD”，那么初始位置最关键，因为只走一步，所以容易陷入附近的局部最优。</li>
+<li>简单 (Simple)</li>
+</ol>
+</li>
+<li>
+<p>Rule of thumb (经验法则): $\eta = 0.1$ works</p>
+</li>
+<li>
+<p>例子：电影评分</p>
+<p>User $u_i$ 的喜好有K个属性，Movie $v_j$ 的也有对应的K个属性。根据这个用户他之前评价过的电影 $r_{ij}$ (rating)，调整用户的各属性权重，最小化误差。</p>
+<p>$$
+\mathbf e_{ij} = \left( \underbrace{ r_{ij}}<em>{\text{actual}} - \underbrace{\sum</em>{k=1}^K u_{ik}v_{jk}}_{\text{predict}} \right)^2
+$$</p>
+<p>反过来，把用户属性输入模型就可以估计某电影的评分</p>
+</li>
+</ul>
+<p>&hellip;</p>
+<p>2D perceptron 的break point=4，也就是感知机无法解决异或问题。</p>
+<p>&hellip;</p>
+<h2 id="neural-network-model">Neural Network model</h2>
+<ul>
+<li></li>
+<li>
+<div align="center"><img src="./img/Lec10_s13.png" style="zoom:50%"></div>
+<p>对于从神经元 $i$ 出发，指向第 $l$ 层的神经元 $j$ 的权重 $w_{ij}^{(l)}$</p>
+<p>$$
+\begin{cases}
+1 \leq l \leq L &amp; \text{隐藏层/输出层序号, 输入层是0} \
+0 \leq i \leq d^{(l-1)}   &amp; \text{w出发的神经元: 0代表从bias出发}\
+1 \leq j \leq d^{(l)}   &amp; \text{w指向的神经元: 至少有一个,最多有$d^{l}$}\
+\end{cases}
+$$</p>
+<p>第 $l$ 层的某神经元，接受了来自上一层所有神经元的输入（内积）：</p>
+<p>$$
+x_j^{(l)} = \theta(s_j^{(l)}) = \theta
+\left(
+\sum_{i=0}^{d^{(l-1)}} w_{ij}^{(l)} x_i^{(l-1)}
+\right)
+$$</p>
+<p>从bias term 开始加到第 $d^{(l-1)}$ 个，把信号 $s_j^{(i)}$ 传入 $\theta$ 非线性激活函数</p>
+<div align="center"><img src="./img/Lec10_s14.png" style="zoom:60%"></div>
+<p>一个样本 $\mathbf x$ 有$d^{(0)}$ 个维度，所以输入层对应有：$x_1^{(0)} \cdots x_{d^{(0)}}^{(0)}$，经过一层一层传递，直到最终输出一个值：$x_1^{(L)} = h(\mathbf x)$</p>
+</li>
+</ul>
+<h2 id="backpropagation-algorithm">Backpropagation algorithm</h2>
+<ul>
+<li>
+<p>应用随机梯度下降，调节神经网络的权重，使误差函数最小</p>
+</li>
+<li>
+<p>网络全部的权重 $\mathbf w = {w_{ij}^{(l)}}$ 决定了一个假设 $h(\mathbf x)$ (输入到输出的映射)</p>
+<p>对于一个样本 $(\mathbf x_n,\ y_n)$ 上的误差：$\mathbf e(h(\mathbf X_n),\ y_n) = \mathbf e(\mathbf w)$，使用SGD，调整权重，减小误差</p>
+</li>
+<li>
+<p>误差函数对每个权重求梯度：</p>
+<p>$$
+\nabla \mathbf e(\mathbf w): \frac{\partial \mathbf e(\mathbf w)}{\partial w_{ij}^{(l)}}, \quad \text{for all } i,j,l
+$$</p>
+</li>
+<li>
+<p>计算误差函数 $\mathbf e$ 对各权重 w 的梯度 $\frac{\partial \mathbf e(\mathbf w)}{\partial w_{ij}^{(l)}}$</p>
+<div align="center"><img src="./img/Lec10_s17.png" style="zoom:70%"></div>
+<p>误差 $\mathbf e$ 是实际输出 $\theta(s)$ 减去真实值 $y$，所以误差函数首先是 $s_{j}^{(l)}$ 的函数，第 $l$ 层的第 $j$ 个神经元的输入信号$s_{j}^{(l)}$ 是来自上一层所有神经元的输出贡献之和，所以 $s_{j}^{(l)}$ 是 $w_{ij}^{(l)}$ 的函数，根据链式求导法则：</p>
+<p>$$
+\frac{\partial \mathbf e(\mathbf w)}{\partial w_{ij}^{(l)}} =
+\frac{\partial \mathbf e(\mathbf w)}{\partial s_{j}^{(l)}}
+\times
+\frac{\partial s_{j}^{(l)}}{\partial w_{ij}^{(l)}}
+$$</p>
+<p>其中：$\frac{\partial s_{j}^{(l)}}{\partial w_{ij}^{(l)}} = x_i^{(l-1)}$，也就是前一层的神经元的输出。
+把误差对输入信号的导数称为：$\delta_j^{(l)} = \frac{\partial \mathbf e(\mathbf w)}{\partial s_{j}^{(l)}}$。</p>
+<p>所以（某神经元上的）误差对各权重 w 的梯度等于：$\frac{\partial \mathbf e(\mathbf w)}{\partial w_{ij}^{(l)}}= \delta_j^{(l)} x_i^{(l-1)}$。</p>
+<p><strong>计算$\delta$:</strong></p>
+<p>从最后一层（输出层$l=L,\ j=1$）的 $\delta_1^{(L)}$ 开始计算，输出神经元的输入信号是 $s_1^{(L)}$:</p>
+<p>$$
+\begin{aligned}
+\delta_1^{(L)} &amp;= \frac{\partial \mathbf e(\mathbf w)}{\partial s_1^{(L)}}\
+\mathbf e(\mathbf w) &amp;= \left ( x_1^{(L)}- y_n \right)^2    &amp; \text{预测值-实际值} \
+x_1^{(L)} &amp;= \theta(s_1^{(L)}) &amp; \text{神经元的输出是$\theta$的输出} \
+\theta&rsquo;(s) &amp;= 1 - \theta^2(s) &amp; \text{for the tanh}
+\end{aligned}
+$$</p>
+<p>之前层 ($l-1$层) 神经元上的误差对其输入信号的导数：</p>
+<div align="center"><img src="./img/Lec10_s19.png" style="zoom:70%"></div>
+<p>因为第 $l-1$ 层的某个神经元会对第 $l$ 层的全部神经元都有贡献，所以它的误差来自第 $l$ 层的全部神经元 $\delta_j^{(l)}$，所以需要求和。根据链式法则，误差$\mathbf e$ 从上一层 ($l$层) 过来，所以首先是 $s^{(l)}$ 的函数，然后$s^{(l)}$ 是第 $(l-1)$ 层神经元 $x^{(l-1)}$ 的函数，最后 $x^{(l-1)}$ 才是它输入信号 $s^{(l-1)}$ 的函数：</p>
+<p>$$
+\begin{aligned}
+\delta_i^{(l-1)} &amp;= \frac{\partial \mathbf e(\mathbf w)}{\partial s_i^{(l-1)}} \
+&amp;=\sum_{j=1}^{d^{(l)}} \frac{\partial \mathbf{e}(\mathbf{w})}{\partial s_{j}^{(l)}} \times \frac{\partial s_{j}^{(l)}}{\partial x_{i}^{(l-1)}} \times \frac{\partial x_{i}^{(l-1)}}{\partial s_{i}^{(l-1)}} &amp; \text{第$l$层所有神经元误差求和}\</p>
+<p>&amp;=\sum_{j=1}^{d^{(l)}} \delta_{j}^{(l)} \times w_{i j}^{(l)} \times \theta^{\prime}\left(s_{i}^{(l-1)}\right) \</p>
+<p>\delta_{i}^{(l-1)} &amp;=\left(1-\left(x_{i}^{(l-1)}\right)^{2}\right) \sum_{j=1}^{d^{(l)}} w_{i j}^{(l)} \delta_j^{(l)} &amp; \text{$\theta$与j无关,求导放前面; $x_i^{l-1}$也就是$\theta(s)$}
+\end{aligned}
+$$</p>
+<p>所以最后一层之前层的神经元的 $\delta$ 等于 1 减去这个神经元输出的平方，再乘上从它出发的各权重与下一层的$\delta$ 的内积之和。最后一层的$\delta^{(L)}$算出来了，才能算倒数第2层的$\delta^{(L-1)}$，从而可以反向地一层一层求出误差$\mathbf e$ 对各个权重 w 的梯度。</p>
+</li>
+<li>
+<p><strong>Backpropagation algorithm:</strong></p>
+<ol>
+<li>Initialize all weights $w_{ij}^{(l)}$ <strong>at random</strong></li>
+<li>for t=0,1,2, &hellip;, do   //循环
+<ol>
+<li>Pick $n \in { 1,2,\cdots,N }$ //从N个样本中挑一个</li>
+<li><strong>Forward</strong>: Compute all $x_j^{(l)}$ //计算每个神经元的输出，从而得出预测值</li>
+<li><strong>Backward</strong>: Compute all $\delta_j^{l}$ //计算每个神经元的误差(贡献)</li>
+<li><strong>Update</strong> the weights: $w_{ij}^{(i)} \leftarrow w_{ij}^{l} - \eta x_i^{(l-1)} \delta_j^{(l)}$ //迭代直到收敛</li>
+<li>Iterate to the next step until it is time to stop</li>
+</ol>
+</li>
+<li>Return the final weights $w_{ij}^{l}$</li>
+</ol>
+</li>
+</ul>
+<p><strong>Final remark: hidden layers</strong></p>
+<p>隐藏层是在“模仿”非线性变换：把高维样本（线性不可分）变换到新的维度空间，叫做“learned nonlinear transform”。隐藏层的每个神经元是 &ldquo;learned feature&rdquo;。</p>
+<p>神经元数量越多，自由度越多（有效参数越多），VC维越高，模型复杂度越高，需要更多的样本，才能保证可以从 $E_{in}$ 泛化到Eout.</p>
+<h3 id="example">Example：</h3>
+<p><a class="link" href="https://zhuanlan.zhihu.com/p/40378224"  target="_blank" rel="noopener"
+    >Back Propagation（梯度反向传播）实例讲解</a></p>
+<div align="center"><img src="./img/Example_梯度下降.png" style="zoom:90%"></div>
+<p>令 $x_1=1, x_2=0.5$ ，然后我们令 $w_1, w_2, w_3, w_4$ 的真实值分别是 1,2,3,4 ，令 $w_5, w_6$ 的真实值是 $0.5, 0.6$ 。这样我们可以算出 $y$ 的真实目标值是 $t=4$ 。</p>
+<p>那么为了模拟一个Back Propagation的过程，我们假设我们只知道 $x_1=1, x_2=0.5$ ，以及对应的目标 $t=4$ 。我们不知道 $w_1,w_2,w_3,w_4,w_5,w_6$ 的真实值，现在我们需要随机为他们初始化值，假设我们的随机化结果是 $w_1=0.5, w_2=1.5, w_3=2.3, w_4=3, w_5=1, w_6=1$。</p>
+<ol>
+<li>
+<p>Forward: 计算 $h_1, h_2, y$ 的预测值和误差项 E，其中 $E=\frac{1}{2}(t-y)^2$</p>
+<p>$$
+\begin{aligned}
+h_1 &amp;= w_1 \cdot x_1 + w_2 \cdot x_2 = 0.5 \cdot 1 + 1.5 \cdot 0.5 = 1.25 \
+h_2 &amp;= w_3 \cdot x_1 + w_4 \cdot x_2 = 2.3 \cdot 1 + 3 \cdot 0.5 = 3.8 \
+y &amp;= w_5 \cdot h_1 + w_6 \cdot h_2 = 1 \cdot 1.25 + 1 \cdot 3.8 = 5.05 \
+E &amp;= \frac{1}{2} (y-t)^2 = 0.55125
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>Backward</p>
+<p>updata $w_5$:</p>
+<p>$$
+\begin{aligned}
+\frac{\partial E}{\partial w_5} &amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial w_5} = (y-t)\cdot h_1 = 1.05 \cdot 1.25 =1.3125 \</p>
+<p>\frac{\partial E}{\partial y} &amp;= (t-y)\cdot -1 = y-t \
+\frac{\partial y}{\partial w_5} &amp;= \frac{\partial (w_5 h_1 + w_6 h_2)}{\partial w_5} = h_1 \
+w_5^+ &amp;= w_5 - \eta \cdot \frac{\partial E}{\partial w_5} = 1-0.1\cdot 1.3125 = 0.86875
+\end{aligned}
+$$</p>
+<p>updata $w_6$:</p>
+<p>$$
+\begin{aligned}
+\frac{\partial E}{\partial w_6} &amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial w_6} = (y-t)\cdot h_2 = 1.05 \cdot 3.8 = 3.99 \
+w_6^+ &amp;= w_6 -\eta \cdot \frac{\partial E}{\partial w_6} = 1-0.1\cdot 3.99 = 0.601
+\end{aligned}
+$$</p>
+<p>下面我们再来看 $w_1, w_2, w_3, w_4$ ，由于这四个参数在同一层，所以求梯度的方法是相同的</p>
+<p>updata $w_1$:</p>
+<p>$$
+\begin{aligned}
+\frac{\partial E}{\partial w_1} &amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial h_1} \cdot \frac{\partial h_1}{\partial w_1} = (y-t) \cdot w_5 \cdot x_1 = 1.05 \cdot 1 \cdot 1 = 1.05 \</p>
+<p>w_1^+ &amp;= w_1 - \eta \cdot \frac{\partial E}{\partial w_1} = 0.5 - 0.1 \cdot 1.05 = 0 .395
+\end{aligned}
+$$</p>
+<p>updata $w_2$:</p>
+<p>$$
+\begin{aligned}
+\frac{\partial E}{\partial w_2} &amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial h_1} \cdot \frac{\partial h_1}{\partial w_2} = (y-t) \cdot w_5 \cdot x_2 = 1.05 \cdot 1 \cdot 0.5 = 0.525 \</p>
+<p>w_2^+ &amp;= w_2 - \eta \cdot \frac{\partial E}{\partial w_2} = 1.5 - 0.1 \cdot 0.525 = 1.4475
+\end{aligned}
+$$</p>
+<p>updata $w_3$:</p>
+<p>$$
+\begin{aligned}
+\frac{\partial E}{\partial w_3} &amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial h_2} \cdot \frac{\partial h_2}{\partial w_3} = (y-t) \cdot w_6 \cdot x_1 = 1.05 \cdot 1 \cdot 1 = 1.05 \</p>
+<p>w_3^+ &amp;= w_3 - \eta \cdot \frac{\partial E}{\partial w_3} = 2.3 - 0.1 \cdot 1.05 = 2.195
+\end{aligned}
+$$</p>
+<p>updata $w_4$:</p>
+<p>$$
+\begin{aligned}
+\frac{\partial E}{\partial w_4} &amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial h_2} \cdot \frac{\partial h_2}{\partial w_4} = (y-t) \cdot w_6 \cdot x_2 = 1.05 \cdot 1 \cdot 0.5 = 0.525 \</p>
+<p>w_4^+ &amp;= w_4 - \eta \cdot \frac{\partial E}{\partial w_4} = 3 - 0.1 \cdot 0.525 = 2.9475
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>Forward:</p>
+<p>$$
+\begin{aligned}
+h_1 &amp;= w_1 \cdot x_1 + w_2 \cdot x_2 = 0.395 \cdot 1 + 1.4475 \cdot 0.5 = 1.11875 \
+h_2 &amp;= w_3 \cdot x_1 + w_4 \cdot x_2 = 2.195 \cdot 1 + 2.9475 \cdot 0.5 = 3.66875 \
+y &amp;= w_5 \cdot h_1 + w_6 \cdot h_2 = 0.97191 + 2.204918 = 3.17683 \
+E &amp;= \frac{1}{2} (y-t)^2 = 0.338802
+\end{aligned}
+$$</p>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

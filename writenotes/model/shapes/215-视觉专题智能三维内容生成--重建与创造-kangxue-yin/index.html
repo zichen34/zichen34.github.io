@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='title: &amp;ldquo;3D Content Creation and Stylization with AI&amp;rdquo;
+Source link: GAMES Webinar 215-视觉专题：智能三维内容生成&amp;ndash;重建与创造-Kangxue Yin
+3D内容创作： 游戏，电影特效，动画，VR/AR，专业化程度高（建模软件）
+动画电影创作流程:
+剧本 原画 Layout: 物体相机摆放，位置关系 特效技术研发 2D 建模为3D 纹理 绑定骨骼，皮肤，相对运动关系 人物运动（运动捕捉） VFX 特效模拟（爆炸） 打光 渲染(物理仿真) 梦工厂pipeline：https://www.youtube.com/watch?v=ru0tQRJ4qKs
+3D 内容成本高：2009 阿凡达（3D） $ 2.37亿 ，而 2010年的2D电影 让子弹飞 只有 $ 0.18亿
+元宇宙需要大量3D 内容
+降低3D内容制作成本：让普通玩家参与创作（房子，汽车&amp;hellip;）NFT，未经训练，细节不足，风格不够多样，用人工智能辅助。
+Research works Deep Marching Tetrahedra: a Hybrid Representation for High-Resolution 3D Shape
+输入 voxel 模型，网络合成细节。
+3D represention 选择
+Discrete Repre
+Implicit Fields:
+生成网络细节不足，转换为mesh有问题
+differentiable iso-surfacing 把隐式方程转化为一个mesh，然后用 mesh 和 ground truth 之间的差（loss）来优化网络，降低 iso-surfacing 离散化带来的误差，其中使用的不是 Marching cube 而是 Marching Tetrahedra'>
+<title>watch: 215-智能三维内容生成</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/shapes/215-%E8%A7%86%E8%A7%89%E4%B8%93%E9%A2%98%E6%99%BA%E8%83%BD%E4%B8%89%E7%BB%B4%E5%86%85%E5%AE%B9%E7%94%9F%E6%88%90--%E9%87%8D%E5%BB%BA%E4%B8%8E%E5%88%9B%E9%80%A0-kangxue-yin/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: 215-智能三维内容生成'>
+<meta property='og:description' content='title: &amp;ldquo;3D Content Creation and Stylization with AI&amp;rdquo;
+Source link: GAMES Webinar 215-视觉专题：智能三维内容生成&amp;ndash;重建与创造-Kangxue Yin
+3D内容创作： 游戏，电影特效，动画，VR/AR，专业化程度高（建模软件）
+动画电影创作流程:
+剧本 原画 Layout: 物体相机摆放，位置关系 特效技术研发 2D 建模为3D 纹理 绑定骨骼，皮肤，相对运动关系 人物运动（运动捕捉） VFX 特效模拟（爆炸） 打光 渲染(物理仿真) 梦工厂pipeline：https://www.youtube.com/watch?v=ru0tQRJ4qKs
+3D 内容成本高：2009 阿凡达（3D） $ 2.37亿 ，而 2010年的2D电影 让子弹飞 只有 $ 0.18亿
+元宇宙需要大量3D 内容
+降低3D内容制作成本：让普通玩家参与创作（房子，汽车&amp;hellip;）NFT，未经训练，细节不足，风格不够多样，用人工智能辅助。
+Research works Deep Marching Tetrahedra: a Hybrid Representation for High-Resolution 3D Shape
+输入 voxel 模型，网络合成细节。
+3D represention 选择
+Discrete Repre
+Implicit Fields:
+生成网络细节不足，转换为mesh有问题
+differentiable iso-surfacing 把隐式方程转化为一个mesh，然后用 mesh 和 ground truth 之间的差（loss）来优化网络，降低 iso-surfacing 离散化带来的误差，其中使用的不是 Marching cube 而是 Marching Tetrahedra'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/shapes/215-%E8%A7%86%E8%A7%89%E4%B8%93%E9%A2%98%E6%99%BA%E8%83%BD%E4%B8%89%E7%BB%B4%E5%86%85%E5%AE%B9%E7%94%9F%E6%88%90--%E9%87%8D%E5%BB%BA%E4%B8%8E%E5%88%9B%E9%80%A0-kangxue-yin/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-01-07T22:22:00&#43;00:00'/><meta property='article:modified_time' content='2022-01-07T22:22:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: 215-智能三维内容生成">
+<meta name="twitter:description" content="title: &amp;ldquo;3D Content Creation and Stylization with AI&amp;rdquo;
+Source link: GAMES Webinar 215-视觉专题：智能三维内容生成&amp;ndash;重建与创造-Kangxue Yin
+3D内容创作： 游戏，电影特效，动画，VR/AR，专业化程度高（建模软件）
+动画电影创作流程:
+剧本 原画 Layout: 物体相机摆放，位置关系 特效技术研发 2D 建模为3D 纹理 绑定骨骼，皮肤，相对运动关系 人物运动（运动捕捉） VFX 特效模拟（爆炸） 打光 渲染(物理仿真) 梦工厂pipeline：https://www.youtube.com/watch?v=ru0tQRJ4qKs
+3D 内容成本高：2009 阿凡达（3D） $ 2.37亿 ，而 2010年的2D电影 让子弹飞 只有 $ 0.18亿
+元宇宙需要大量3D 内容
+降低3D内容制作成本：让普通玩家参与创作（房子，汽车&amp;hellip;）NFT，未经训练，细节不足，风格不够多样，用人工智能辅助。
+Research works Deep Marching Tetrahedra: a Hybrid Representation for High-Resolution 3D Shape
+输入 voxel 模型，网络合成细节。
+3D represention 选择
+Discrete Repre
+Implicit Fields:
+生成网络细节不足，转换为mesh有问题
+differentiable iso-surfacing 把隐式方程转化为一个mesh，然后用 mesh 和 ground truth 之间的差（loss）来优化网络，降低 iso-surfacing 离散化带来的误差，其中使用的不是 Marching cube 而是 Marching Tetrahedra">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#3d内容创作">3D内容创作：</a></li>
+    <li><a href="#research-works">Research works</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/shapes/215-%E8%A7%86%E8%A7%89%E4%B8%93%E9%A2%98%E6%99%BA%E8%83%BD%E4%B8%89%E7%BB%B4%E5%86%85%E5%AE%B9%E7%94%9F%E6%88%90--%E9%87%8D%E5%BB%BA%E4%B8%8E%E5%88%9B%E9%80%A0-kangxue-yin/">watch: 215-智能三维内容生成</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 07, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>title: &ldquo;3D Content Creation and Stylization with AI&rdquo;</p>
+<p>Source link: <a class="link" href="https://www.bilibili.com/video/BV1mZ4y1U7ns/"  target="_blank" rel="noopener"
+    >GAMES Webinar 215-视觉专题：智能三维内容生成&ndash;重建与创造-Kangxue Yin</a></p>
+<h2 id="3d内容创作">3D内容创作：</h2>
+<p>游戏，电影特效，动画，VR/AR，专业化程度高（建模软件）</p>
+<p>动画电影创作流程:</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/shapes/img/215-3D%E5%8A%A8%E7%94%BB%E7%94%B5%E5%BD%B1%E5%88%9B%E4%BD%9C%E6%B5%81%E7%A8%8B_4_55.png width=>
+  
+  
+
+
+<ol>
+<li>剧本</li>
+<li>原画</li>
+<li>Layout: 物体相机摆放，位置关系</li>
+<li>特效技术研发</li>
+<li>2D 建模为3D</li>
+<li>纹理</li>
+<li>绑定骨骼，皮肤，相对运动关系</li>
+<li>人物运动（运动捕捉）</li>
+<li>VFX 特效模拟（爆炸）</li>
+<li>打光</li>
+<li>渲染(物理仿真)</li>
+<li></li>
+</ol>
+<p>梦工厂pipeline：https://www.youtube.com/watch?v=ru0tQRJ4qKs</p>
+<p>3D 内容成本高：2009 阿凡达（3D） $ 2.37亿 ，而 2010年的2D电影 让子弹飞 只有 $ 0.18亿</p>
+<p>元宇宙需要大量3D 内容</p>
+<p>降低3D内容制作成本：让普通玩家参与创作（房子，汽车&hellip;）NFT，未经训练，细节不足，风格不够多样，用人工智能辅助。</p>
+<h2 id="research-works">Research works</h2>
+<ul>
+<li>
+<p>Deep Marching Tetrahedra: a Hybrid Representation for High-Resolution 3D Shape</p>
+<p>输入 voxel 模型，网络合成细节。</p>
+<ul>
+<li>
+<p>3D represention 选择</p>
+<p>Discrete Repre</p>
+
+    
+    
+    
+    
+      
+      
+      
+      
+       
+      
+      
+       
+      
+      <img src= /writenotes/model/shapes/img/215-%E7%A6%BB%E6%95%A3%E8%A1%A8%E7%A4%BA%E6%9C%89%E7%BC%BA%E7%82%B9_11-31.png width=>
+      
+      
+    
+
+<p>Implicit Fields:</p>
+
+    
+    
+    
+    
+      
+      
+      
+      
+       
+      
+      
+       
+      
+      <img src= /writenotes/model/shapes/img/215-%E9%9A%90%E5%90%AB%E5%9C%BA%E7%9A%84%E7%BC%BA%E7%82%B9_13-18.png width=>
+      
+      
+    
+
+<p>生成网络细节不足，转换为mesh有问题</p>
+
+    
+    
+    
+    
+      
+      
+      
+      
+       
+      
+      
+       
+      
+      <img src= /writenotes/model/shapes/img/215-%E6%8A%8A%E9%9A%90%E5%BC%8F%E6%96%B9%E7%A8%8B%E8%BD%AC%E5%8C%96%E4%B8%BA%E6%98%BE%E5%BC%8F%E8%A1%A8%E9%9D%A2_14-06.png width=>
+      
+      
+    
+
+<p>differentiable iso-surfacing 把隐式方程转化为一个mesh，然后用 mesh 和 ground truth 之间的差（loss）来优化网络，降低 iso-surfacing 离散化带来的误差，其中使用的不是 Marching cube 而是 Marching Tetrahedra</p>
+
+    
+    
+    
+    
+      
+      
+      
+      
+       
+      
+      
+       
+      
+      <img src= /writenotes/model/shapes/img/215-Marching_Tetra_15-33.png width=>
+      
+      
+    
+
+</li>
+</ul>
+</li>
+<li>
+<p>3DStyleNet: Creating</p>
+<p>3D 物体的风格迁移</p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

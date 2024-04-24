@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='3D Gaussian Splatting for Real-Time Radiance Field Rendering (Siggraph 2023 Best)'>
+<title>read: NVS - 3D Gaussian Splatting</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/splat/b-note-3dgs-read/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: NVS - 3D Gaussian Splatting'>
+<meta property='og:description' content='3D Gaussian Splatting for Real-Time Radiance Field Rendering (Siggraph 2023 Best)'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/splat/b-note-3dgs-read/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='Splatting' /><meta property='article:published_time' content='2023-05-14T13:41:00&#43;00:00'/><meta property='article:modified_time' content='2023-05-14T13:41:00&#43;00:00'/><meta property='og:image' content='https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&f=1&ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&ipo=images' />
+<meta name="twitter:title" content="read: NVS - 3D Gaussian Splatting">
+<meta name="twitter:description" content="3D Gaussian Splatting for Real-Time Radiance Field Rendering (Siggraph 2023 Best)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&f=1&ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&ipo=images' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#video-explain">Video Explain</a>
+      <ol>
+        <li><a href="#3d-gaussian">3D Gaussian</a></li>
+        <li><a href="#optimization">Optimization</a></li>
+      </ol>
+    </li>
+    <li><a href="#read-notes">Read Notes</a>
+      <ol>
+        <li><a href="#abs">Abs</a></li>
+        <li><a href="#intro">Intro</a></li>
+        <li><a href="#related-works">Related Works</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#differentiable-3dgs">Differentiable 3DGS</a></li>
+        <li><a href="#optimization-1">Optimization</a></li>
+        <li><a href="#adaptive-density-control">Adaptive Density Control</a></li>
+        <li><a href="#tile-based-gaussian">Tile-based Gaussian</a></li>
+        <li><a href="#implementation">Implementation</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#limitations">Limitations</a></li>
+      </ol>
+    </li>
+    <li><a href="#play">Play</a>
+      <ol>
+        <li><a href="#environment">Environment</a>
+          <ol>
+            <li><a href="#ubuntu-1804">Ubuntu 18.04</a></li>
+            <li><a href="#ubuntu-2004">Ubuntu 20.04</a></li>
+            <li><a href="#ubuntu-2204">Ubuntu 22.04</a></li>
+          </ol>
+        </li>
+        <li><a href="#train">Train</a></li>
+        <li><a href="#sibr-viewer">SIBR viewer</a>
+          <ol>
+            <li><a href="#ubuntu-2004-1">Ubuntu 20.04</a></li>
+            <li><a href="#ubuntu-2204-1">Ubuntu 22.04</a></li>
+            <li><a href="#ubuntu-1804-1">Ubuntu 18.04</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/writenotes/model/splat/b-note-3dgs-read/">
+                
+                    <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&amp;f=1&amp;ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&amp;ipo=images" loading="lazy" alt="Featured image of post read: NVS - 3D Gaussian Splatting" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/splat/b-note-3dgs-read/">read: NVS - 3D Gaussian Splatting</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            3D Gaussian Splatting for Real-Time Radiance Field Rendering (Siggraph 2023 Best)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 14, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    19 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2308.04079"  target="_blank" rel="noopener"
+    >Arxiv(2308)</a>
+| <a class="link" href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/"  target="_blank" rel="noopener"
+    >ProjPage</a></p>
+<p>Code: <a class="link" href="https://github.com/wanmeihuali/taichi_3d_gaussian_splatting"  target="_blank" rel="noopener"
+    >wanmeihuali/taichi_3d_gaussian_splatting</a></p>
+<hr>
+<h2 id="video-explain">Video Explain</h2>
+<p>(2023-09-11)</p>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1uV4y1Y7cA/"  target="_blank" rel="noopener"
+    >【论文讲解】用点云结合3D高斯构建辐射场，成为快速训练、实时渲染的新SOTA！- 意の茗</a></p>
+<ul>
+<li>
+<p>CG technique: Splatting</p>
+</li>
+<li>
+<p>Each point is an anisotropic 3D Gaussian distribution:</p>
+<ol>
+<li>mean is point location (xyz),</li>
+<li>covariance matrix determined the shape of the 3D Gaussian</li>
+</ol>
+</li>
+<li>
+<p>Optimize points&rsquo; distribution:</p>
+<ol>
+<li>Locations are at mean, which are needless to learn;</li>
+<li>Co-variance matrix is converted to quaternion</li>
+</ol>
+</li>
+<li>
+<p>3D Gaussian distribution can do clone and split to fit complex geometry.</p>
+</li>
+<li>
+<p>Tile-based fast rendering rather volume rendering.</p>
+</li>
+</ul>
+<figure><a href="https://www.semanticscholar.org/paper/3D-Gaussian-Splatting-for-Real-Time-Radiance-Field-Kerbl-Kopanas/2cc1d857e86d5152ba7fe6a8355c2a0150cc280a"><img src="https://d3i71xaburhd42.cloudfront.net/2cc1d857e86d5152ba7fe6a8355c2a0150cc280a/5-Figure2-1.png"/></a>
+</figure>
+
+<hr>
+<h3 id="3d-gaussian">3D Gaussian</h3>
+<p>(2023-10-28)</p>
+<ol>
+<li>
+<p>1D Gaussian distribution:</p>
+<p>Given a scalar $x \sim N(μ,σ²)$, its PDF:</p>
+<p>$$
+p(x) = \frac{1}{\sqrt{2πσ²}} e^{-\frac{(x-μ)²}{2σ²}}
+$$</p>
+</li>
+<li>
+<p>3D Gaussian composed of 3 <strong>independent</strong> 1D Gaussian in 3 directions can be represented as below.</p>
+<p>Given a vector 𝐯: [a,b,c], its PDF: p(𝐯) = p(a) p(b) p(c)</p>
+<p>$$
+\begin{aligned}
+p(𝐯) &amp;= \frac{1}{(2π)^{3/2}σₐ σ_b σ_c}
+exp(-\frac{(a-μₐ)²}{2σₐ²} -\frac{(b-μ_b)²}{2σ_b²} -\frac{(c-μ_c)²}{2σ_c²}) \\
+(\text{vectorize})  &amp;= \frac{1}{(2π)^{3/2} |Σ|^½} exp(-½⋅(𝐯-\bm μ)ᵀ(𝐯-\bm μ) Σ⁻¹)
+\end{aligned}
+$$</p>
+<ul>
+<li>
+<p>Where the $σₐ σ_b σ_c$ is the square root of the determinant of covariance matrix Σ:</p>
+<p>$$
+|Σ|^{½} = \begin{vmatrix} σₐ² &amp; 0 &amp; 0 \\ 0 &amp; σ_b² &amp; 0 \\ 0 &amp; 0 &amp; σ_c² \end{vmatrix}^{1/2} = σₐ σ_b σ_c
+$$</p>
+</li>
+<li>
+<p>The exponent can be derived as:</p>
+<p>$$
+\begin{array}{ccc}
+\begin{bmatrix} a-μ_a \\ b-μ_b \\ c-μ_c \end{bmatrix}
+\begin{bmatrix} a-μ_a &amp; b-μ_b &amp; c-μ_c  \end{bmatrix}
+\begin{bmatrix}
+1/σₐ² &amp; 0 &amp; 0 \\ 0 &amp; 1/σ_b² &amp; 0 \\ 0 &amp; 0 &amp; 1/σ_c²
+\end{bmatrix} \\ =
+\frac{(a-μ_a)²}{σₐ²} + \frac{(b-μ_b)²}{σ_b²} + \frac{(c-μ_c)²}{σ_c²}
+\end{array}
+$$</p>
+</li>
+<li>
+<p>If those 3 1D Gaussian are all $N(μ=0, σ²=1)$, the 3D Gaussian becomes simpler:</p>
+<p>$$\rm p(𝐯) = \frac{1}{(2π)^{3/2}} exp(-\frac{a²+b²+c²}{2})$$</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Derivation for arbitrary 3D Gaussians:</p>
+<ul>
+<li>
+<p>3D Gaussian is a product of three 1D Gaussian. If each 1D Gaussian is <strong>N(0,1)</strong>, then 3D Gaussian is:</p>
+<p>$$
+\begin{aligned}
+p(𝐱) &amp;= p(x)p(y)p(z) \\
+&amp;= \frac{1}{(2π)^{3/2}} exp(-\frac{x²+y²+z²}{2})
+= \frac{1}{(2π)^{3/2}} exp(-\frac{𝐱ᵀ𝐱}{2}) \\
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>For an <strong>arbitrary vector</strong> 𝐱 = [x,y,z], where 3 Gaussians could be in various shapes.
+it will be moved to the <strong>origin of world space</strong> by subtracting the mean vecotr,
+and the 3 directions (covariance matrix) will be scaled to 1 (identity matrix) through a transformation matrix 𝐀.</p>
+<p>$$\rm 𝐱&rsquo; = 𝐀(𝐱-\bm μ)$$</p>
+<p>Because the mean vector is point&rsquo;s position. This step means
+all points are moved to world&rsquo;s origin and reshaped into a unit space for later optimization.</p>
+</li>
+<li>
+<p>Plug this &ldquo;normalized&rdquo; 𝐱&rsquo; into 3D Gaussian :</p>
+<p>$$p(𝐱&rsquo;) = \frac{1}{(2π)^{3/2}} exp(-\frac{(𝐱-\bm μ)ᵀ𝐀ᵀ𝐀(𝐱-\bm μ)}{2})$$</p>
+</li>
+<li>
+<p>To reach a form about 𝐱, integrate p(𝐱&rsquo;):</p>
+<p>$$1 = ∭_{-∞}^{+∞} \frac{1}{(2π)^{3/2}} exp(-\frac{(𝐱-\bm μ)ᵀ𝐀ᵀ𝐀(𝐱-\bm μ)}{2}) d𝐱&rsquo;$$</p>
+</li>
+<li>
+<p><strong>Substitude</strong> $d𝐱&rsquo;$ with $d𝐀(𝐱-\bm μ) = |𝐀|d𝐱$</p>
+<p>$$1 = ∭_{-∞}^{+∞} \frac{|𝐀|}{(2π)^{3/2}} exp(-\frac{(𝐱-\bm μ)ᵀ𝐀ᵀ𝐀(𝐱-\bm μ)}{2}) d𝐱$$</p>
+<p>The function being integrated is p(𝐱).
+Since 𝐱 follows Gaussian, it can be rewritten with a mean vector 𝛍 and a covariance matrix 𝚺.</p>
+</li>
+<li>
+<p>The covariance matrix 𝚺 is a symmetric matrix, which can be decomposed by SVD:</p>
+<p>$$
+\begin{aligned}
+Σ &amp;= U Λ Uᵀ          \\
+&amp;= UΛ^{½} Λ^{½T} Uᵀ \\
+&amp;= UΛ^{½} (UΛ^{½})ᵀ
+\end{aligned}
+$$</p>
+<ul>
+<li>
+<p>On a 2D plane, SVD is <strong>strecting and rotating</strong>, represented separately by
+a stretch matrix (diagnoal) $S = [^{s₁ \ 0}_{0\ s₂}]$,
+and a rotate matrix (UUᵀ=1) $R = [^{cosθ \ -sinθ}_{sinθ \ cosθ}]$.</p>
+</li>
+<li>
+<p>Each <strong>column</strong> of U is orthogonal to each other and of magnitude 1. For example, when U is R:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 304 89"
+      >
+      <g transform='translate(8,16)'>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>⌈</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>⌊</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='48' y='68' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>⌉</text>
+<text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>⌋</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>⌈</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>⌊</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='112' y='68' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>⌉</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>⌋</text>
+<text text-anchor='middle' x='120' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>⌈</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>⌊</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>⌉</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>⌋</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>⌈</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>⌊</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='192' y='68' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>⌉</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>⌋</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>⌈</text>
+<text text-anchor='middle' x='240' y='36' fill='currentColor' style='font-size:1em'>⌊</text>
+<text text-anchor='middle' x='240' y='68' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='256' y='68' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='264' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='272' y='68' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>⌉</text>
+<text text-anchor='middle' x='288' y='36' fill='currentColor' style='font-size:1em'>⌋</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>In 3D space, matrices are 3×3.</p>
+</li>
+<li>
+<p>𝐔 is <strong>a basis</strong> (a component, a coordinate system). By multiplying it with a diagnoal matrix,
+$UΛ^½$ is a linear transformation, denoted as the transformation matrix 𝐀. Thus, 𝚺 = 𝐀𝐀ᵀ.</p>
+<p>In other words, an identity matrix (basis) will be transformed to another basis $UΛ^½$ by 𝐀.</p>
+<p>Therefore, 𝐀ᵀ𝐀 = 𝚺⁻¹, which will reverse an arbitrary covariance matrix 𝚺 to identity matrix 𝐈,
+i.e., putting the ellipsoid into the <strong>&ldquo;unit&rdquo; space</strong> $[^{100}_{^{010}_{001}}]$,
+where the modulus of each axis is 1.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Substitute 𝐀ᵀ𝐀 with 𝚺⁻¹, and $|𝐀| = |Σ|^½$, the <strong>3D Gaussian</strong> is the function being integrated:</p>
+<p>$$\frac{1}{(2π)^{3/2}|Σ|^½} exp(-\frac{(𝐱-\bm μ)ᵀΣ⁻¹(𝐱-\bm μ)}{2})$$</p>
+</li>
+<li>
+<p>The 3D Gaussian used in this work is simplified as:</p>
+<p>$$
+G(x) = exp(-\frac{(𝐱)ᵀΣ⁻¹(𝐱)}{2})  \tag{4}
+$$</p>
+<ul>
+<li>
+<p>Omit the mean vector 𝛍, becuase it&rsquo;s 0. Every 3D Gaussian distribution&rsquo;s center has been shifted to the origin.
+Once the optimization finished, ellipsoids will be reverted to the world space for rasterization.</p>
+<p>The front fraction is omitted as the integral (&ldquo;volume&rdquo;) of 3D Gaussian isn&rsquo;t limited to 1 to be a probability distribution,
+and considering a 3D Gaussian can be any size.</p>
+</li>
+<li>
+<p>𝐀 is for rotating and stretching an ellipsoid. Thus, 𝐀=𝐑𝐒.
+And then 𝚺 = 𝐑𝐒𝐒ᵀ𝐑ᵀ</p>
+</li>
+<li>
+<p>The covariance matrix 𝚺 gets optimized during training,
+such that the shape and direction of ellipsoids get adjusted to fit the scene.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="optimization">Optimization</h3>
+<ol>
+<li>
+<p>3D Gaussian representation based on point cloud from SfM.</p>
+<ul>
+<li>
+<p>Each 3D Gaussian contains properties: 3D position (xyz), shape (transform matrix 𝐀), SH coeffs (color), opacity (α).</p>
+</li>
+<li>
+<p>Optimize rotate matrix 𝐑 using Quaternion instead of 3×3 matrix</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Point cloud optimization</p>
+<ul>
+<li>
+<p>Remove points whose opacity lower than threshold after a certain epochs;</p>
+</li>
+<li>
+<p>High positional gradients are inferred as a point is hard to reconstruct the <strong>geometry</strong>.
+So, small Gaussian do clone (for faster training), while large Gaussian do split (for recovering bkg).</p>
+</li>
+<li>
+<p>Reset opacity to 0 periodically to remove floater around camera</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tile-based rasterization.</p>
+<ul>
+<li>An image is split into 16×16 patches.</li>
+<li>Sorting 3D ellipses observed by a <strong>patch</strong> based on depth.</li>
+<li>Terminate alpha compositing on a pixel when opactiy reaches 1.</li>
+<li>Each tile has a CUDA block, and each pixel has a CUDA thread.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="read-notes">Read Notes</h2>
+<p>(2023-05-14)</p>
+<p>Three elements:</p>
+<ol>
+<li>Based on sparse points (colmap) and 3D Gaussians representation</li>
+<li>Point cloud optimization</li>
+<li>Fast rendering algorithm with GPU sorting (tile-based rasterization)</li>
+</ol>
+<p>How much meomery does the 1-5 million (1e6) Gaussians (for all scenes tested) cost?</p>
+<ul>
+<li>Comparing with Mip-NeRF360 of 8.6MB, 3DGS has 523MB after 7K iterations on dataset &ldquo;Mip-NeRF360&rdquo;.</li>
+</ul>
+<p>Chinese translation: <a class="link" href="https://zhuanlan.zhihu.com/p/654627437"  target="_blank" rel="noopener"
+    >3DGS笔记 - bo233的文章 - 知乎</a></p>
+<hr>
+<h3 id="abs">Abs</h3>
+<p>(2023-10-29)</p>
+<p>NVS based on <strong>radiance field without</strong> neural network.</p>
+<ol>
+<li>SfM point cloud and 3D Gaussian representation.</li>
+<li>Point cloud adjustment: add and remove based on gradients.</li>
+<li>Tile-based rasterizer leveraging depth and cuda.</li>
+</ol>
+<h3 id="intro">Intro</h3>
+<ul>
+<li>
+<p>Points cloud format is chosen for rasterization. Then,
+3D Gaussian is chosen to make point cloud a continuous field.</p>
+</li>
+<li>
+<p>Efficient method based on continuous representation (MLP) most performed interpolation.</p>
+</li>
+<li>
+<p>Neural nets representation is convinent to be optimized, but hinder fast rendering.</p>
+</li>
+</ul>
+<h3 id="related-works">Related Works</h3>
+<ul>
+<li>
+<p>Splatting made point-based rendering more efficient by
+extending the rasterization beyond a single pixel to cover a spread-out area.</p>
+</li>
+<li>
+<p>Some methods used CNN to render.</p>
+</li>
+<li>
+<p>NeRF requires <strong>extensive</strong> sampling around the entire space.</p>
+</li>
+<li>
+<p>Pulsar is &ldquo;order-independent&rdquo;, whereas alpha-blending for a pixel is performed based on visibility order.</p>
+</li>
+<li>
+<p>diffuse - diffusion model</p>
+</li>
+</ul>
+<h3 id="overview">Overview</h3>
+<ul>
+<li>
+<blockquote>
+<p>The key to the <strong>efficiency</strong> of our method is our tile-based rasterizer.</p>
+</blockquote>
+<ol>
+<li>
+<p><strong>Explicit</strong> scene representation appeals fast rendering without inferencing neural network.</p>
+</li>
+<li>
+<p>Gradients are backpropagated to concrete 3D Gaussian.</p>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="differentiable-3dgs">Differentiable 3DGS</h3>
+<ul>
+<li>
+<p>&ldquo;Unstructured&rdquo; is <strong>opposite</strong> to &ldquo;regular volume grid&rdquo;.
+3DGS is unstructured but able to do volume rendering.
+Point cloud data + 3DGS primitive -&gt; scene representation</p>
+</li>
+<li>
+<p>Comparing with small planar circle representation for each point,
+3D Gaussian doesn&rsquo;t need normal.
+And normals are intractable for a sparse (SfM) point cloud.</p>
+</li>
+<li>
+<blockquote>
+<p>covariance matrices have <strong>physical meaning</strong> only when they are positive semi-definite</p>
+</blockquote>
+<p>Thus, they use a decomposed, equivalent form:
+𝚺 = 𝐑𝐒𝐒ᵀ𝐑ᵀ
+, i.e., stretching and rotating an ellipsoid.</p>
+<ul>
+<li>Scaling matrix 𝐒 is represented by a <strong>3D vector</strong>;</li>
+<li>Rotation 𝐑 is represented by a <strong>quaternion</strong>.</li>
+<li>Reparameterization is changing spaces. For example, spherical coords (θ,φ) of viewdir is <strong>recombinded</strong> to cartisian coords (x,y,z) in NeRF&rsquo;s code.
+However, SVD doesn&rsquo;t alter the number of dimensions, as a single space is split into 2 spaces.</li>
+</ul>
+</li>
+</ul>
+<h3 id="optimization-1">Optimization</h3>
+<ol>
+<li>
+<p>Create, delete or move points (3D Gaussian) to fit <strong>geometry</strong>.</p>
+<blockquote>
+<p>The <strong>quality of covariance</strong> of 3D Gaussians is critical for the compactness.</p>
+</blockquote>
+</li>
+<li>
+<p>SGD performed by CUDA. Alpha comes from sigmoid. Covariance has done exponential activation.</p>
+<blockquote>
+<p>The <strong>fast rasterization</strong> is critical in the efficiency of our optimization.</p>
+</blockquote>
+</li>
+<li>
+<p>Loss function: 𝓛 = (1-λ)𝓛₁ + λ𝓛_dssim</p>
+<ul>
+<li>
+<p>Since the output is a <strong>complete image</strong>, SSIM is measured holistically between the gt image and predicted image.
+In contrast, S3IM is for <strong>random-ray</strong> patches.</p>
+</li>
+<li>
+<p>Use absolute error of rgbs, instead of MSE.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="adaptive-density-control">Adaptive Density Control</h3>
+<ol>
+<li>
+<p><strong>Densify</strong> to better represent scene and <strong>remove</strong> transparent 3D Gaussians (points) every 100 iterations.</p>
+</li>
+<li>
+<p>Total volume?</p>
+</li>
+<li>
+<p><strong>Reset alpha</strong> value close to zero every 3k iterations to reduce floaters near cameras.</p>
+</li>
+</ol>
+<h3 id="tile-based-gaussian">Tile-based Gaussian</h3>
+<ul>
+<li>
+<p>Split image into 16x16 patches ➔ Cull 3D Gaussians intersected with frustum ➔ Project 3D Gaussians to 2D ➔
+Assign depth observed by a patch to each 3D Gaussian
+➔ Sorting Gaussians based on depth for each patch.</p>
+</li>
+<li>
+<blockquote>
+<p>A block is assigned to a patch and loads packets of Gaussians into shared memory.</p>
+</blockquote>
+<p>Each pixel has a thread to do alpha compositing.</p>
+</li>
+<li>
+<blockquote>
+<p>Reuse the per-tile lists for each pixel in the tile.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="implementation">Implementation</h3>
+<ul>
+<li>
+<p>Central-object photos taken from the entire hemisphere without angular regions missing result in good SH coefficients.</p>
+<p>However, for incomplete observation, e.g., corners or &ldquo;inside-out&rdquo; photos, the 0th order SH prone to be corrupt during optimization.</p>
+<p>So they first optimize only the 0-order coefficient for 1K iterations, then add 1 more coeff every 1K iters until all 4 orders are supplemented.</p>
+</li>
+</ul>
+<h3 id="results">Results</h3>
+<ol>
+<li>As fast as instantNGP, and as good as MipNeRF360.</li>
+<li>Synthetic dataset can use 100K random intialized point cloud in the bbox.</li>
+<li>More compact than other point-based methods.</li>
+</ol>
+<h3 id="limitations">Limitations</h3>
+<ol>
+<li>
+<p>Hight memory cost due to point cloud representation. Tradeoff of model size for speed.</p>
+<ul>
+<li>Compress point cloud.</li>
+</ul>
+</li>
+<li>
+<p>Defects occurs in the scene not well observed.</p>
+</li>
+</ol>
+<hr>
+<h2 id="play">Play</h2>
+<p>(2023-11-01)</p>
+<h3 id="environment">Environment</h3>
+<h4 id="ubuntu-1804">Ubuntu 18.04</h4>
+<p>Lambda Server: nvcc 10.2, Ubuntu 18.04, driver 470.103.01 with support for CUDA 11.4 at highest.</p>
+<ol>
+<li>
+<p>Clone needs <strong>&ndash;recursive</strong>:
+<code>git clone https://github.com/graphdeco-inria/gaussian-splatting --recursive</code></p>
+<p>Otherwise, there will be an error when running <code>conda env create --file environment.yml</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ERROR: Directory <span class="s1">&#39;submodules/diff-gaussian-rasterization&#39;</span> is not installable. Neither <span class="s1">&#39;setup.py&#39;</span> nor <span class="s1">&#39;pyproject.toml&#39;</span> found.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Or fetch and install submodules individually:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda activate gaussian_splatting
+</span></span><span class="line"><span class="cl">git submodule update --init --recursive
+</span></span><span class="line"><span class="cl">pip install submodules/diff-gaussian-rasterization
+</span></span><span class="line"><span class="cl">pip install submodules/simple-knn 
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Submodule install error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Pip subprocess error:
+</span></span><span class="line"><span class="cl">  error: subprocess-exited-with-error
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  × python setup.py egg_info did not run successfully.
+</span></span><span class="line"><span class="cl">  │ <span class="nb">exit</span> code: <span class="m">1</span>
+</span></span><span class="line"><span class="cl">  ╰─&gt; <span class="o">[</span><span class="m">12</span> lines of output<span class="o">]</span>
+</span></span><span class="line"><span class="cl">      Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">        File <span class="s2">&#34;&lt;string&gt;&#34;</span>, line 36, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">        File <span class="s2">&#34;&lt;pip-setuptools-caller&gt;&#34;</span>, line 34, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">        File <span class="s2">&#34;/home/z/Downloads/gaussian-splatting/submodules/diff-gaussian-rasterization/setup.py&#34;</span>, line 13, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">          from torch.utils.cpp_extension import CUDAExtension, BuildExtension
+</span></span><span class="line"><span class="cl">        File <span class="s2">&#34;/home/z/anaconda3/envs/gaussian_splatting/lib/python3.7/site-packages/torch/__init__.py&#34;</span>, line 201, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">          _load_global_deps<span class="o">()</span>
+</span></span><span class="line"><span class="cl">        File <span class="s2">&#34;/home/z/anaconda3/envs/gaussian_splatting/lib/python3.7/site-packages/torch/__init__.py&#34;</span>, line 154, in _load_global_deps
+</span></span><span class="line"><span class="cl">          ctypes.CDLL<span class="o">(</span>lib_path, <span class="nv">mode</span><span class="o">=</span>ctypes.RTLD_GLOBAL<span class="o">)</span>
+</span></span><span class="line"><span class="cl">        File <span class="s2">&#34;/home/z/anaconda3/envs/gaussian_splatting/lib/python3.7/ctypes/__init__.py&#34;</span>, line 364, in __init__
+</span></span><span class="line"><span class="cl">          self._handle <span class="o">=</span> _dlopen<span class="o">(</span>self._name, mode<span class="o">)</span>
+</span></span><span class="line"><span class="cl">      OSError: /home/z/anaconda3/envs/gaussian_splatting/lib/python3.7/site-packages/torch/lib/../../../../libcublas.so.11: symbol cublasLtGetStatusString version libcublasLt.so.11 not defined in file libcublasLt.so.11 with link <span class="nb">time</span> reference
+</span></span><span class="line"><span class="cl">      <span class="o">[</span>end of output<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Submodules (&ldquo;diff-gaussian-rasterization&rdquo;) needs <strong>compilation locally</strong> with CUDA Toolkit.
+<a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/issues/45#issuecomment-1643897347"  target="_blank" rel="noopener"
+    >issue#45</a></p>
+</li>
+<li>
+<p>Alternative steps refer to <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/issues/406"  target="_blank" rel="noopener"
+    >issue#406</a></p>
+</li>
+</ul>
+<p>(2024-04-05)</p>
+<p>I previously thought that the driver 470 is insufficient to install cuda 11.6,
+but I found that driver 470 is able to install CUDA 11.x on Docs.
+However, the problem persists when using cuda 11.6.</p>
+<ul>
+<li>
+<p>The problem is that my PATH has been modified previously.
+I once added a line in my .bashrc:
+<code>export LD_LIBRARY_PATH=/home/z/anaconda3/envs/GNT/lib</code></p>
+<p>This caused the libcublas points to mismatched library.
+Refer to the <a class="link" href="https://stackoverflow.com/a/74828501"  target="_blank" rel="noopener"
+    >answer of eval</a></p>
+<p>I remove that line, and having the nvidia-driver 470 + ctk 11.6 on ubuntu 18.04,
+the env installation succeeds with just one line: <code>conda env create --file environment.yml</code></p>
+<p>He said by setting env virable <code>LD_LIBRARY_PATH=&lt;anaconda dir&gt;/python3.7/site-packages/torch/lib/nvidia/cublas/lib/:$LD_LIBRARY_PATH</code>
+So that &ldquo;the dlopen will firstly look for .so files in that directory.&rdquo; (I didn&rsquo;t try that at present.)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Submodules compile error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/usr/local/cuda/bin/nvcc -I/home/z/anaconda3/envs/3dgs/lib/python3.9/site-packages/torch/include 
+</span></span><span class="line"><span class="cl">-I/home/z/anaconda3/envs/3dgs/lib/python3.9/site-packages/torch/include/torch/csrc/api/include 
+</span></span><span class="line"><span class="cl">-I/home/z/anaconda3/envs/3dgs/lib/python3.9/site-packages/torch/include/TH 
+</span></span><span class="line"><span class="cl">-I/home/z/anaconda3/envs/3dgs/lib/python3.9/site-packages/torch/include/THC 
+</span></span><span class="line"><span class="cl">-I/usr/local/cuda/include 
+</span></span><span class="line"><span class="cl">-I/home/z/anaconda3/envs/3dgs/include/python3.9 
+</span></span><span class="line"><span class="cl">-c cuda_rasterizer/backward.cu 
+</span></span><span class="line"><span class="cl">-o build/temp.linux-x86_64-cpython-39/cuda_rasterizer/backward.o
+</span></span><span class="line"><span class="cl">-D__CUDA_NO_HALF_OPERATORS__ 
+</span></span><span class="line"><span class="cl">-D__CUDA_NO_HALF_CONVERSIONS__ 
+</span></span><span class="line"><span class="cl">-D__CUDA_NO_BFLOAT16_CONVERSIONS__ 
+</span></span><span class="line"><span class="cl">-D__CUDA_NO_HALF2_OPERATORS__ 
+</span></span><span class="line"><span class="cl">--expt-relaxed-constexpr 
+</span></span><span class="line"><span class="cl">--compiler-options <span class="s1">&#39;-fPIC&#39;</span> 
+</span></span><span class="line"><span class="cl">-I/home/z/Downloads/gaussian-splatting/submodules/diff-gaussian-rasterization/third_party/glm/ 
+</span></span><span class="line"><span class="cl">-DTORCH_API_INCLUDE_EXTENSION_H 
+</span></span><span class="line"><span class="cl">-DPYBIND11_COMPILER_TYPE<span class="o">=</span><span class="se">\&#34;</span>_gcc<span class="se">\&#34;</span> 
+</span></span><span class="line"><span class="cl">-DPYBIND11_STDLIB<span class="o">=</span><span class="se">\&#34;</span>_libstdcpp<span class="se">\&#34;</span> 
+</span></span><span class="line"><span class="cl">-DPYBIND11_BUILD_ABI<span class="o">=</span><span class="se">\&#34;</span>_cxxabi1011<span class="se">\&#34;</span> 
+</span></span><span class="line"><span class="cl">-DTORCH_EXTENSION_NAME<span class="o">=</span>_C 
+</span></span><span class="line"><span class="cl">-D_GLIBCXX_USE_CXX11_ABI<span class="o">=</span><span class="m">0</span> 
+</span></span><span class="line"><span class="cl">-gencode<span class="o">=</span><span class="nv">arch</span><span class="o">=</span>compute_61,code<span class="o">=</span>compute_61 
+</span></span><span class="line"><span class="cl">-gencode<span class="o">=</span><span class="nv">arch</span><span class="o">=</span>compute_61,code<span class="o">=</span>sm_61 
+</span></span><span class="line"><span class="cl">-std<span class="o">=</span>c++14
+</span></span><span class="line"><span class="cl">      cuda_rasterizer/backward.cu:15:10: fatal error: cooperative_groups/reduce.h: No such file or directory
+</span></span><span class="line"><span class="cl">       <span class="c1">#include &lt;cooperative_groups/reduce.h&gt;</span>
+</span></span><span class="line"><span class="cl">                ^~~-------------------------
+</span></span><span class="line"><span class="cl">      compilation terminated.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ERROR: Could not build wheels <span class="k">for</span> diff-gaussian-rasterization, which is required to install pyproject.toml-based projects
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And compiling simple_knn.h will encounter:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">simple_knn.cu:17:10: fatal error: cub/cub.cuh: No such file or directory
+</span></span><span class="line"><span class="cl">       <span class="c1">#include &lt;cub/cub.cuh&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><del>Possible method: Add cub to CmakeLists.txt.</del> <a class="link" href="https://forums.developer.nvidia.com/t/fatal-error-cub-cub-cuh-no-such-file-or-directory-include-cub-cub-cuh/219029/4"  target="_blank" rel="noopener"
+    >Nvidia-forum</a></p>
+</li>
+<li>
+<p>nvcc mismatch and maybe 10.2 doesn&rsquo;t have that function yet.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="ubuntu-2004">Ubuntu 20.04</h4>
+<ol start="4">
+<li>
+<p>Install new cudatookit on Alien PC (Ubuntu 20.04) <a class="link" href="https://developer.nvidia.com/cuda-downloads"  target="_blank" rel="noopener"
+    >CUDA Toolkit 12.3 Downloads | NVIDIA Developer</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+</span></span><span class="line"><span class="cl">sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+</span></span><span class="line"><span class="cl">wget https://developer.download.nvidia.com/compute/cuda/12.3.0/local_installers/cuda-repo-ubuntu2004-12-3-local_12.3.0-545.23.06-1_amd64.deb
+</span></span><span class="line"><span class="cl">sudo dpkg -i cuda-repo-ubuntu2004-12-3-local_12.3.0-545.23.06-1_amd64.deb
+</span></span><span class="line"><span class="cl">sudo cp /var/cuda-repo-ubuntu2004-12-3-local/cuda-*-keyring.gpg /usr/share/keyrings/
+</span></span><span class="line"><span class="cl">sudo apt-get update
+</span></span><span class="line"><span class="cl">sudo apt-get -y install cuda-toolkit-12-3
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Install driver:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get install -y cuda-drivers
+</span></span><span class="line"><span class="cl"><span class="c1"># reboot is required</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>But <code>nvcc -V</code> still returns 10.2.</p>
+</li>
+<li>
+<p>I found there are <strong>multiple</strong> &ldquo;cuda&rdquo; on my Alien PC. <a class="link" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#why-do-i-see-nvcc-no-such-file-or-directory-when-i-try-to-build-a-cuda-application"  target="_blank" rel="noopener"
+    >Nv-Install Guide Linux</a></p>
+<ul>
+<li>
+<p>Under dir &ldquo;/usr/local/&rdquo;, there are &ldquo;cuda/&rdquo;, &ldquo;cuda11/&rdquo;, &ldquo;cuda11.6/&rdquo;, &ldquo;cuda12/&rdquo;, &ldquo;cuda12.3/&rdquo;.</p>
+<p>Only one could be used. <a class="link" href="https://stackoverflow.com/a/73272850/18003182"  target="_blank" rel="noopener"
+    >SO</a>.
+And the default version may can be checked by: <code>update-alternatives --display cuda</code>
+<a class="link" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#select-the-active-version-of-cuda"  target="_blank" rel="noopener"
+    >Docs-Nv</a></p>
+</li>
+<li>
+<p><strong>Add 11.6 to PATH</strong>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-11.6/bin<span class="si">${</span><span class="nv">PATH</span><span class="p">:+:</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}}</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CUDADIR</span><span class="o">=</span>/usr/local/cuda-11.6
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$LD_LIBRARY_PATH</span>:/usr/local/cuda-11.6/lib64
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Then <code>nvcc -V</code> change to 11.6.</p>
+</li>
+<li>
+<p>Success to create env on Alien PC with just the <strong>one line</strong>:
+<code>conda env create --file environment.yml</code></p>
+</li>
+<li>
+<p>For Lambda Server, although there is &ldquo;cuda-11.2&rdquo; folder in &ldquo;/usr/local/&rdquo;,
+but &ldquo;bin/&rdquo; <strong>doesn&rsquo;t exist</strong> inside, so it can&rsquo;t be added into PATH.</p>
+<p>Therefore, the <strong>full</strong> cudatoolkit 11.6 and compatible driver (as above) are required,
+instead of the <strong>subset</strong> cudatoolkit for runtime installed by conda.</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="ubuntu-2204">Ubuntu 22.04</h4>
+<p>(2023-11-03)</p>
+<ul>
+<li>CUDA Toolkit 11.6 doesn&rsquo;t have version for Ubuntu 22.04</li>
+<li>CUDA Toolkit 11.8 corresponds PyTorch which is higher than 2.0.0</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># nvcc -V # 11.8, Ubuntu 22.04, nvidia driver 545, 3090Ti</span>
+</span></span><span class="line"><span class="cl">conda create -n 3dgs <span class="nv">python</span><span class="o">=</span>3.9
+</span></span><span class="line"><span class="cl">conda activate 3dgs
+</span></span><span class="line"><span class="cl">conda install <span class="nv">pytorch</span><span class="o">==</span>2.0.0 <span class="nv">torchvision</span><span class="o">==</span>0.15.0 pytorch-cuda<span class="o">=</span>11.8 -c pytorch -c nvidia
+</span></span><span class="line"><span class="cl">pip install plyfile tqdm ninja
+</span></span><span class="line"><span class="cl">pip install submodules/diff-gaussian-rasterization/
+</span></span><span class="line"><span class="cl">pip install submodules/simple-knn/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/issues/151"  target="_blank" rel="noopener"
+    >SIBR viewer install fails (Ubuntu 22.04) #151</a></p>
+<hr>
+<h3 id="train">Train</h3>
+<ol>
+<li>
+<p>NeRF Synthetic</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">python train.py -s ../nerf/data/nerf_synthetic/lego -r <span class="m">8</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<p>(2024-04-15)</p>
+<p>Test DTU dataset:</p>
+<ol>
+<li>
+<p>Install Colmap.</p>
+<p>To get the CUDA support on Linux, a local compilation is required. <a class="link" href="https://colmap.github.io/install.html#build-from-source"  target="_blank" rel="noopener"
+    >Docs</a></p>
+</li>
+</ol>
+<hr>
+<h3 id="sibr-viewer">SIBR viewer</h3>
+<p><a class="link" href="https://gitlab.inria.fr/sibr/sibr_core"  target="_blank" rel="noopener"
+    >SIBR Core - Git Lab</a></p>
+<h4 id="ubuntu-2004-1">Ubuntu 20.04</h4>
+<p>On Ubuntu 20.04, 1050Ti:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Get into submodule:</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> SIBR_viewers
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># For Ubuntu 20.04, otherwise opencv version (4.2) mismatch 4.5:</span>
+</span></span><span class="line"><span class="cl">git checkout fossa_compatibility
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Dependencies</span>
+</span></span><span class="line"><span class="cl">sudo apt install -y libglew-dev libassimp-dev libboost-all-dev libgtk-3-dev libopencv-dev libglfw3-dev libavdevice-dev libavcodec-dev libeigen3-dev libxxf86vm-dev libembree-dev
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Project setup</span>
+</span></span><span class="line"><span class="cl">cmake -Bbuild . -DCMAKE_BUILD_TYPE<span class="o">=</span>Release <span class="c1"># add -G Ninja to build faster</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Don&#39;t add &#39;-j24&#39;, otherwise crash?</span>
+</span></span><span class="line"><span class="cl">cmake --build build --target install
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Some details:</p>
+<ol>
+<li>
+<p>Install cmake by compiling source code:</p>
+<p>Download tar.gz (cmake-<version>.tar.gz), such as <a class="link" href="https://github.com/Kitware/CMake/releases/download/v3.29.1/cmake-3.29.1.tar.gz"  target="_blank" rel="noopener"
+    >cmake-3.29.1.tar.gz</a>,
+and extract: <code>tar -zxvf cmake-{version number}.tar.gz</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Dependecy for OpenSSL</span>
+</span></span><span class="line"><span class="cl">sudo apt-get install libssl-dev
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> cmake-<span class="o">{</span>version number<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Check required dependencies:</span>
+</span></span><span class="line"><span class="cl">./bootstrap
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Build package:</span>
+</span></span><span class="line"><span class="cl">make
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Install</span>
+</span></span><span class="line"><span class="cl">sudo make install
+</span></span><span class="line"><span class="cl">cmake --version
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Ref <a class="link" href="https://www.linuxcapable.com/how-to-install-cmake-on-ubuntu-linux/"  target="_blank" rel="noopener"
+    >How to Install CMake on Ubuntu 22.04 or 20.04 - LinuxCapable</a></p>
+</li>
+<li>
+<p>OpenCV issue on Ubuntu 20.04 resolved by <strong>switching branch</strong> to &ldquo;fossa_compatibility&rdquo;.
+<a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/issues/10"  target="_blank" rel="noopener"
+    >Installing SIBR - cannot find correct version of OpenCV #10</a></p>
+</li>
+<li>
+<p>sm_30 error</p>
+<p>With cudatoolkit 11.6 added to PATH, an error occurs:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">#$ ptxas -arch=sm_30 -m64 &#34;tmp/CMakeCUDACompilerId.ptx&#34; -o</span>
+</span></span><span class="line"><span class="cl"> <span class="s2">&#34;tmp/CMakeCUDACompilerId.sm_30.cubin&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> ptxas fatal : Value <span class="s1">&#39;sm_30&#39;</span> is not defined <span class="k">for</span> option <span class="s1">&#39;gpu-name&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Check if <strong>old-version cuda</strong> exists:
+<code>apt-cache policy nvidia-cuda-toolkit</code>.
+<a class="link" href="https://blog.csdn.net/Fucking_Code0916/article/details/132429186"  target="_blank" rel="noopener"
+    >【已解决】 Compilation error ptxas fatal :</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">nvidia-cuda-toolkit:
+</span></span><span class="line"><span class="cl">  Installed: 10.1.243-3
+</span></span><span class="line"><span class="cl">  Candidate: 10.1.243-3
+</span></span><span class="line"><span class="cl">  Version table:
+</span></span><span class="line"><span class="cl"> *** 10.1.243-3 <span class="m">500</span>
+</span></span><span class="line"><span class="cl">        <span class="m">500</span> http://ca.archive.ubuntu.com/ubuntu focal/multiverse amd64 Packages
+</span></span><span class="line"><span class="cl">        <span class="m">100</span> /var/lib/dpkg/status
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Remove</strong> it: <code>sudo apt remove nvidia-cuda-toolkit</code></p>
+<p>Then, re-build works.</p>
+</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>
+<p>Run local viewer</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">./SIBR_viewers/install/bin/SIBR_gaussianViewer_app -m output/c777580e-9
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Error (Real-time viewer requires CC &gt; 7.0):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>gaussian_splatting<span class="o">)</span> yi@yi-Alienware-Aurora-R8:~/Downloads/gaussian-splatting$ ./SIBR_viewers/install/bin/SIBR_gaussianViewer_app -m output/c777580e-9/ --no_interop
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> --  INFOS  --:   Initialization of GLFW
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> --  INFOS  --:   OpenGL Version: 4.6.0 NVIDIA 545.23.06<span class="o">[</span>major: 4, minor: 6<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Number of input Images to read: <span class="m">300</span>
+</span></span><span class="line"><span class="cl">Number of Cameras <span class="nb">set</span> up: <span class="m">300</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> --  INFOS  --:   Error: can<span class="s1">&#39;t load mesh &#39;</span>/home/yi/Downloads/nerf/data/nerf_synthetic/lego.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> --  INFOS  --:   Error: can<span class="s1">&#39;t load mesh &#39;</span>/home/yi/Downloads/nerf/data/nerf_synthetic/lego.ply.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> --  INFOS  --:   Error: can<span class="s1">&#39;t load mesh &#39;</span>/home/yi/Downloads/nerf/data/nerf_synthetic/lego.obj.
+</span></span><span class="line"><span class="cl">LOADSFM: Try to open /home/yi/Downloads/nerf/data/nerf_synthetic/legopoints3D.bin
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> --  INFOS  --:   Error: can<span class="s1">&#39;t load mesh &#39;</span>/home/yi/Downloads/nerf/data/nerf_synthetic/legopoints3D.bin.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> !! WARNING !!:   FILE /home/yi/Downloads/gaussian-splatting/SIBR_viewers/src/core/scene/ProxyMesh.cpp
+</span></span><span class="line"><span class="cl">                        LINE 29, FUNC loadFromData
+</span></span><span class="line"><span class="cl">                        proxy model not found at /home/yi/Downloads/nerf/data/nerf_synthetic/lego
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> <span class="c1">##  ERROR  ##:   FILE /home/yi/Downloads/gaussian-splatting/SIBR_viewers/src/projects/gaussianviewer/renderer/GaussianView.cpp</span>
+</span></span><span class="line"><span class="cl">                        LINE 339, FUNC GaussianView
+</span></span><span class="line"><span class="cl">                        Sorry, need at least compute capability 7.0+!terminate called after throwing an instance of <span class="s1">&#39;std::runtime_error&#39;</span>
+</span></span><span class="line"><span class="cl">  what<span class="o">()</span>:  See log <span class="k">for</span> message errors
+</span></span><span class="line"><span class="cl">Aborted <span class="o">(</span>core dumped<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Even the 1080 Ti&rsquo;s compute capacity is only 6.1 ? <a class="link" href="https://developer.nvidia.com/cuda-gpus"  target="_blank" rel="noopener"
+    >Your GPU Compute Capability</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="ubuntu-2204-1">Ubuntu 22.04</h4>
+<p>(2023-11-04)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Dependencies</span>
+</span></span><span class="line"><span class="cl">sudo apt install -y libglew-dev libassimp-dev libboost-all-dev libgtk-3-dev libopencv-dev libglfw3-dev libavdevice-dev libavcodec-dev libeigen3-dev libxxf86vm-dev libembree-dev
+</span></span><span class="line"><span class="cl"><span class="c1"># Project setup</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> SIBR_viewers
+</span></span><span class="line"><span class="cl">cmake -Bbuild . -DCMAKE_BUILD_TYPE<span class="o">=</span>Release -G Ninja
+</span></span><span class="line"><span class="cl">cmake --build build -j24 --target install
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Train</strong>: <code>python train.py -s ../Dataset/nerf_synthetic/lego</code></p>
+<p><strong>Real-time viewer</strong>: <code>sudo ./SIBR_viewers/install/bin/SIBR_gaussianViewer_app -m output/4ee28b3c-9</code></p>
+<p><strong>Run Network viewer</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>3dgs<span class="o">)</span> z@homepc:~/Downloads/gaussian-splatting/SIBR_viewers$ ./install/bin/SIBR_remoteGaussian_app 
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> --  INFOS  --:   Initialization of GLFW
+</span></span><span class="line"><span class="cl"><span class="o">[</span>SIBR<span class="o">]</span> <span class="c1">##  ERROR  ##:   FILE /home/z/Downloads/gaussian-splatting/SIBR_viewers/src/core/graphics/Window.cpp</span>
+</span></span><span class="line"><span class="cl">                        LINE 30, FUNC glfwErrorCallback
+</span></span><span class="line"><span class="cl">                        X11: The DISPLAY environment variable is missing
+</span></span><span class="line"><span class="cl">terminate called after throwing an instance of <span class="s1">&#39;std::runtime_error&#39;</span>
+</span></span><span class="line"><span class="cl">  what<span class="o">()</span>:  See log <span class="k">for</span> message errors
+</span></span><span class="line"><span class="cl">Aborted <span class="o">(</span>core dumped<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h4 id="ubuntu-1804-1">Ubuntu 18.04</h4>
+<p>(2024-04-05)</p>
+<p>The current cmake on server is 3.10, which is too old.</p>
+<ul>
+<li>
+<p>Using the pre-built cmake <a class="link" href="https://github.com/Kitware/CMake/releases/download/v3.29.1/cmake-3.29.1-linux-x86_64.tar.gz"  target="_blank" rel="noopener"
+    >cmake-3.29.1-linux-x86_64.tar.gz</a>
+will lead to <strong>error</strong>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">wget https://github.com/Kitware/CMake/releases/download/v3.29.1/cmake-3.29.1-linux-x86_64.tar.gz
+</span></span><span class="line"><span class="cl">tar -zxvf cmake-3.29.1-linux-x86_64.tar.gz
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Build SIBR</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> ./Downloads/gaussian-splatting/SIBR_viewers
+</span></span><span class="line"><span class="cl">/home/z/Downloads/cmake-3.29.1-linux-x86_64/bin/cmake -Bbuild . -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details> <summary>Error</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">CMake Error at /home/z/Downloads/cmake-3.29.1-linux-x86_64/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake:230 <span class="o">(</span>message<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  Could NOT find GLEW <span class="o">(</span>missing: GLEW_INCLUDE_DIRS GLEW_LIBRARIES<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Call Stack <span class="o">(</span>most recent call first<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  /home/z/Downloads/cmake-3.29.1-linux-x86_64/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake:600 <span class="o">(</span>_FPHSA_FAILURE_MESSAGE<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  /home/z/Downloads/cmake-3.29.1-linux-x86_64/share/cmake-3.29/Modules/FindGLEW.cmake:242 <span class="o">(</span>find_package_handle_standard_args<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  cmake/linux/dependencies.cmake:69 <span class="o">(</span>FIND_PACKAGE<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  cmake/linux/include_once.cmake:20 <span class="o">(</span>include<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  src/CMakeLists.txt:46 <span class="o">(</span>include_once<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>Using local <code>cmake</code> to compile remote folder, which is mounted via sshfs <strong>doesn&rsquo;t work</strong> neither:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi:/mnt/Server/Downloads/gaussian-splatting/SIBR_viewers$ cmake -Bbuild . -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+</span></span><span class="line"><span class="cl">CMake Error: The current CMakeCache.txt directory /mnt/Server/Downloads/gaussian-splatting/SIBR_viewers/CMakeCache.txt 
+</span></span><span class="line"><span class="cl">is different than the directory /home/z/Downloads/gaussian-splatting/SIBR_viewers where CMakeCache.txt was created. 
+</span></span><span class="line"><span class="cl">This may result in binaries being created in the wrong place. If you are not sure, reedit the CMakeCache.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Clone the CMake repo and build it.
+<code>git clone https://github.com/Kitware/CMake.git</code></p>
+<p>Install lib for ssl: <code>sudo apt-get install libssl-dev</code> to avoid SSL error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">-- Could NOT find OpenSSL, try to <span class="nb">set</span> the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR <span class="o">(</span>missing: OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR<span class="o">)</span> 
+</span></span><span class="line"><span class="cl">CMake Error at Utilities/cmcurl/CMakeLists.txt:644 <span class="o">(</span>message<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  Could not find OpenSSL.  Install an OpenSSL development package or
+</span></span><span class="line"><span class="cl">  configure CMake with -DCMAKE_USE_OPENSSL<span class="o">=</span>OFF to build without OpenSSL.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> CMake/
+</span></span><span class="line"><span class="cl">mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+</span></span><span class="line"><span class="cl">../bootstrap <span class="o">&amp;&amp;</span> make
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The using cmake to compile project:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> ~/Downloads/gaussian-splatting/SIBR_viewers
+</span></span><span class="line"><span class="cl">../../CMake/build/bin/cmake -Bbuild . -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>But this still encounters the same error as above.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">CMake Error at /home/z/Downloads/CMake/Modules/FindPackageHandleStandardArgs.cmake:230 <span class="o">(</span>message<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  Could NOT find GLEW <span class="o">(</span>missing: GLEW_INCLUDE_DIRS GLEW_LIBRARIES<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Copy the compiled executable files onto system.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> 
+</span></span><span class="line"><span class="cl">sudo make install
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Cmake 3.29 gets installed (copied) into:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/usr/local/doc/cmake-3.29/cmsys/Copyright.txt
+</span></span><span class="line"><span class="cl">... ... ...
+</span></span><span class="line"><span class="cl">-- Installing: /usr/local/share/cmake-3.29/Modules/
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">-- Installing: /usr/local/share/cmake-3.29/Templates
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">-- Installing: /usr/local/share/vim/vimfiles/indent
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">-- Installing: /usr/local/share/emacs/site-lisp/cmake-mode.el
+</span></span><span class="line"><span class="cl">-- Installing: /usr/local/share/aclocal/cmake.m4
+</span></span><span class="line"><span class="cl">-- Installing: /usr/local/share/bash-completion/completions/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Relaunch a terminal. Check the version:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> z@lambda-server:~/Downloads/gaussian-splatting$ cmake --version
+</span></span><span class="line"><span class="cl">cmake version 3.29.20240405-gc2949db
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CMake suite maintained and supported by Kitware <span class="o">(</span>kitware.com/cmake<span class="o">)</span>.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Build SIBR:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git checkout fossa_compatibility
+</span></span><span class="line"><span class="cl">git checkout master
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> SIBR_viewers
+</span></span><span class="line"><span class="cl">cmake -Bbuild . -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The error persists!! as below:
+(Note: The following error corresponds to the <code>master</code> branch.)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">CMake Error at /usr/local/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake:230 <span class="o">(</span>message<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  Could NOT find GLEW <span class="o">(</span>missing: GLEW_INCLUDE_DIRS GLEW_LIBRARIES<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Call Stack <span class="o">(</span>most recent call first<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  /usr/local/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake:600 <span class="o">(</span>_FPHSA_FAILURE_MESSAGE<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  /usr/local/share/cmake-3.29/Modules/FindGLEW.cmake:245 <span class="o">(</span>find_package_handle_standard_args<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  cmake/linux/dependencies.cmake:69 <span class="o">(</span>FIND_PACKAGE<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  cmake/linux/include_once.cmake:20 <span class="o">(</span>include<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  src/CMakeLists.txt:46 <span class="o">(</span>include_once<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Install dependencies:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt install -y libglew-dev libassimp-dev libboost-all-dev libgtk-3-dev libopencv-dev libglfw3-dev libavdevice-dev libavcodec-dev libeigen3-dev libxxf86vm-dev <span class="c1"># libembree-dev</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>It prompts that <code>E: Unable to locate package ibembree-dev</code>.</p>
+<p>Then, the building will prompts error about libboost:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">CMake Error at /usr/local/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake:230 <span class="o">(</span>message<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  Could NOT find Boost: Found unsuitable version <span class="s2">&#34;1.65.1&#34;</span>, but required is at
+</span></span><span class="line"><span class="cl">  least <span class="s2">&#34;1.71.0&#34;</span> <span class="o">(</span>found /usr/include, found components: system chrono
+</span></span><span class="line"><span class="cl">  filesystem date_time<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Call Stack <span class="o">(</span>most recent call first<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  /usr/local/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake:598 <span class="o">(</span>_FPHSA_FAILURE_MESSAGE<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  /usr/local/share/cmake-3.29/Modules/FindBoost.cmake:2394 <span class="o">(</span>find_package_handle_standard_args<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  cmake/dependencies.cmake:173 <span class="o">(</span>find_package<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  cmake/include_once.cmake:20 <span class="o">(</span>include<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  src/CMakeLists.txt:46 <span class="o">(</span>include_once<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The header and libraries of libboost are in:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">-- Found Boost: /usr/include <span class="o">(</span>found version <span class="s2">&#34;1.65.1&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">-- Boost_INCLUDE_DIRS: /usr/include
+</span></span><span class="line"><span class="cl">-- Boost_LIBRARY_DIRS: /usr/lib/x86_64-linux-gnu
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>These information is return by adding command into CMakeLists.txt (guided by chatGPT):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">find_package</span><span class="p">(</span><span class="s">Boost</span> <span class="s">REQUIRED</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">message</span><span class="p">(</span><span class="s">STATUS</span> <span class="s2">&#34;Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">message</span><span class="p">(</span><span class="s">STATUS</span> <span class="s2">&#34;Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}&#34;</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>I don&rsquo;t know how to update libboost.</p>
+<hr>
+<p>I found the CMakeLists.txt varies between different branch.</p>
+<p>The branch of SIBR used by 3DGS is <code>gaussian_code_release_union</code> (4ae964a267):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git checkout gaussian_code_release_union
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> SIBR_viewers
+</span></span><span class="line"><span class="cl">cmake -Bbuild . -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Warnings about embree, and errors for OpenCV4.5:</p>
+<details><summary> Error </summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Warnings</span>
+</span></span><span class="line"><span class="cl">CMake Warning at cmake/linux/dependencies.cmake:127 <span class="o">(</span>find_package<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  By not providing <span class="s2">&#34;Findembree.cmake&#34;</span> in CMAKE_MODULE_PATH this project has
+</span></span><span class="line"><span class="cl">  asked CMake to find a package configuration file provided by <span class="s2">&#34;embree&#34;</span>, but
+</span></span><span class="line"><span class="cl">  CMake did not find one.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  Could not find a package configuration file provided by <span class="s2">&#34;embree&#34;</span> <span class="o">(</span>requested
+</span></span><span class="line"><span class="cl">  version 3.0<span class="o">)</span> with any of the following names:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    embreeConfig.cmake
+</span></span><span class="line"><span class="cl">    embree-config.cmake
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  Add the installation prefix of <span class="s2">&#34;embree&#34;</span> to CMAKE_PREFIX_PATH or <span class="nb">set</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;embree_DIR&#34;</span> to a directory containing one of the above files.  If <span class="s2">&#34;embree&#34;</span>
+</span></span><span class="line"><span class="cl">  provides a separate development package or SDK, be sure it has been
+</span></span><span class="line"><span class="cl">  installed.
+</span></span><span class="line"><span class="cl">Call Stack <span class="o">(</span>most recent call first<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  cmake/linux/include_once.cmake:20 <span class="o">(</span>include<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  src/CMakeLists.txt:46 <span class="o">(</span>include_once<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Errors: </span>
+</span></span><span class="line"><span class="cl">There is no provided OpenCV library <span class="k">for</span> your compiler, relying on find_package to find it
+</span></span><span class="line"><span class="cl">CMake Error at cmake/linux/dependencies.cmake:248 <span class="o">(</span>find_package<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  Could not find a configuration file <span class="k">for</span> package <span class="s2">&#34;OpenCV&#34;</span> that is compatible
+</span></span><span class="line"><span class="cl">  with requested version <span class="s2">&#34;4.5&#34;</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  The following configuration files were considered but not accepted:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    /usr/share/OpenCV/OpenCVConfig.cmake, version: 3.2.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Call Stack <span class="o">(</span>most recent call first<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  cmake/linux/include_once.cmake:20 <span class="o">(</span>include<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  src/CMakeLists.txt:46 <span class="o">(</span>include_once<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<p>Then I change to branch <code>fossa_compatibility</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git checkout fossa_compatibility
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> SIBR_viewers
+</span></span><span class="line"><span class="cl">cmake -Bbuild . -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The error of OpenCV4 occurs:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">CMake Warning <span class="o">(</span>dev<span class="o">)</span> at /usr/local/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake:438 <span class="o">(</span>message<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  The package name passed to <span class="sb">`</span>find_package_handle_standard_args<span class="sb">`</span> <span class="o">(</span>EMBREE<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  does not match the name of the calling package <span class="o">(</span>embree<span class="o">)</span>.  This can lead to
+</span></span><span class="line"><span class="cl">  problems in calling code that expects <span class="sb">`</span>find_package<span class="sb">`</span> result variables
+</span></span><span class="line"><span class="cl">  <span class="o">(</span>e.g., <span class="sb">`</span>_FOUND<span class="sb">`</span><span class="o">)</span> to follow a certain pattern.
+</span></span><span class="line"><span class="cl">Call Stack <span class="o">(</span>most recent call first<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  cmake/linux/Modules/Findembree.cmake:87 <span class="o">(</span>FIND_PACKAGE_HANDLE_STANDARD_ARGS<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  cmake/linux/dependencies.cmake:127 <span class="o">(</span>find_package<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  cmake/linux/include_once.cmake:20 <span class="o">(</span>include<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  src/CMakeLists.txt:46 <span class="o">(</span>include_once<span class="o">)</span>
+</span></span><span class="line"><span class="cl">This warning is <span class="k">for</span> project developers.  Use -Wno-dev to suppress it.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">-- EMBREE wasn<span class="err">&#39;</span>t found correctly. Set EMBREE_DIR to the root SDK installation directory. <span class="o">(</span>missing: EMBREE_INCLUDE_DIR EMBREE_LIBRARIES<span class="o">)</span> 
+</span></span><span class="line"><span class="cl">There is no provided OpenCV library <span class="k">for</span> your compiler, relying on find_package to find it
+</span></span><span class="line"><span class="cl">CMake Error at cmake/linux/dependencies.cmake:248 <span class="o">(</span>find_package<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  Could not find a configuration file <span class="k">for</span> package <span class="s2">&#34;OpenCV&#34;</span> that is compatible
+</span></span><span class="line"><span class="cl">  with requested version <span class="s2">&#34;4&#34;</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  The following configuration files were considered but not accepted:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    /usr/share/OpenCV/OpenCVConfig.cmake, version: 3.2.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Call Stack <span class="o">(</span>most recent call first<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  cmake/linux/include_once.cmake:20 <span class="o">(</span>include<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  src/CMakeLists.txt:46 <span class="o">(</span>include_once<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Authors said the SIBR has no support for Ubuntu 18.
+<a class="link" href="https://github.com/search?q=repo%3Agraphdeco-inria%2Fgaussian-splatting&#43;18.04&amp;type=issues"  target="_blank" rel="noopener"
+    >Related issues</a> with searching &ldquo;18.04&rdquo;</p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/splatting/">Splatting</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='1 背景 P1
+频率角度： 解一个优化问题，比如：
+线性回归模型，数据拟合，用数据估计直线的W：f(W) = WᵀX: 策略(loss func): 最小化所有样本点的误差之和(最小二乘估计，无约束的优化问题): L(w) = Σᵢᴺ(wᵀxᵢ-yᵢ)²，Dataset: {(xᵢ,yᵢ)}ᵢᴺ，xᵢ∈ ℝᵖ，yᵢ∈ ℝ。 最优 w^ = argmin L(w)。
+解法：
+解析解：损失函数对 w 求导=0，则W^ = (XᵀX)⁻¹XᵀY, where X is train set 数值解：（随机）梯度下降， SVM 模型，分类问题，估计符号函数：f(w) = sign(wᵀx&#43;b)；
+策略(loss func): 类间大，类内小（有约束的凸优化问题）： L(w) = min 1/2 wᵀw, s.t. yᵢ(wᵀxᵢ&#43;b)≥1, i=1,&amp;hellip;,N
+解法：
+调用 QP 套件 拉格朗日对偶 EM 模型，迭代优化模型参数θ，使似然值取得最大：θ^ = argmax log P(X|θ)
+策略：迭代公式： $θ⁽ᵗ⁺¹⁾ = argmax_θ ∫_Z log P(X,Z|θ) P(Z|X,θ⁽ᵗ⁾) dZ$ （输入数据和隐变量的完全数据分布按照Z的后验分布求期望（加权和，求积分）） 贝叶斯角度： 解一个积分问题'>
+<title>watch: ML - 白板 12 | Variational Inference</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/12-%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: ML - 白板 12 | Variational Inference'>
+<meta property='og:description' content='1 背景 P1
+频率角度： 解一个优化问题，比如：
+线性回归模型，数据拟合，用数据估计直线的W：f(W) = WᵀX: 策略(loss func): 最小化所有样本点的误差之和(最小二乘估计，无约束的优化问题): L(w) = Σᵢᴺ(wᵀxᵢ-yᵢ)²，Dataset: {(xᵢ,yᵢ)}ᵢᴺ，xᵢ∈ ℝᵖ，yᵢ∈ ℝ。 最优 w^ = argmin L(w)。
+解法：
+解析解：损失函数对 w 求导=0，则W^ = (XᵀX)⁻¹XᵀY, where X is train set 数值解：（随机）梯度下降， SVM 模型，分类问题，估计符号函数：f(w) = sign(wᵀx&#43;b)；
+策略(loss func): 类间大，类内小（有约束的凸优化问题）： L(w) = min 1/2 wᵀw, s.t. yᵢ(wᵀxᵢ&#43;b)≥1, i=1,&amp;hellip;,N
+解法：
+调用 QP 套件 拉格朗日对偶 EM 模型，迭代优化模型参数θ，使似然值取得最大：θ^ = argmax log P(X|θ)
+策略：迭代公式： $θ⁽ᵗ⁺¹⁾ = argmax_θ ∫_Z log P(X,Z|θ) P(Z|X,θ⁽ᵗ⁾) dZ$ （输入数据和隐变量的完全数据分布按照Z的后验分布求期望（加权和，求积分）） 贝叶斯角度： 解一个积分问题'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/12-%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-12-20T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-20T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: ML - 白板 12 | Variational Inference">
+<meta name="twitter:description" content="1 背景 P1
+频率角度： 解一个优化问题，比如：
+线性回归模型，数据拟合，用数据估计直线的W：f(W) = WᵀX: 策略(loss func): 最小化所有样本点的误差之和(最小二乘估计，无约束的优化问题): L(w) = Σᵢᴺ(wᵀxᵢ-yᵢ)²，Dataset: {(xᵢ,yᵢ)}ᵢᴺ，xᵢ∈ ℝᵖ，yᵢ∈ ℝ。 最优 w^ = argmin L(w)。
+解法：
+解析解：损失函数对 w 求导=0，则W^ = (XᵀX)⁻¹XᵀY, where X is train set 数值解：（随机）梯度下降， SVM 模型，分类问题，估计符号函数：f(w) = sign(wᵀx&#43;b)；
+策略(loss func): 类间大，类内小（有约束的凸优化问题）： L(w) = min 1/2 wᵀw, s.t. yᵢ(wᵀxᵢ&#43;b)≥1, i=1,&amp;hellip;,N
+解法：
+调用 QP 套件 拉格朗日对偶 EM 模型，迭代优化模型参数θ，使似然值取得最大：θ^ = argmax log P(X|θ)
+策略：迭代公式： $θ⁽ᵗ⁺¹⁾ = argmax_θ ∫_Z log P(X,Z|θ) P(Z|X,θ⁽ᵗ⁾) dZ$ （输入数据和隐变量的完全数据分布按照Z的后验分布求期望（加权和，求积分）） 贝叶斯角度： 解一个积分问题">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-背景">1 背景</a>
+      <ol>
+        <li><a href="#频率角度">频率角度：</a></li>
+        <li><a href="#贝叶斯角度">贝叶斯角度：</a></li>
+      </ol>
+    </li>
+    <li><a href="#2-公式推导">2 公式推导</a></li>
+    <li><a href="#3-再回首">3. 再回首</a></li>
+    <li><a href="#4-随机梯度变分推断-sgvi-1">4. 随机梯度变分推断-SGVI-1</a></li>
+    <li><a href="#5-随机梯度变分推断-sgvi-2">5. 随机梯度变分推断-SGVI-2</a>
+      <ol>
+        <li><a href="#重参数化技巧-reparameterization-trick">重参数化技巧 Reparameterization trick</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/12-%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD/">watch: ML - 白板 12 | Variational Inference</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 20, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="1-背景">1 背景</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1DW41167vr"  target="_blank" rel="noopener"
+    >P1</a></p>
+<h3 id="频率角度">频率角度：</h3>
+<p>解一个优化问题，比如：</p>
+<ol>
+<li>
+<p>线性回归模型，数据拟合，用数据估计直线的W：f(W) = WᵀX: <br></p>
+<ul>
+<li>
+<p>策略(loss func): 最小化所有样本点的误差之和(最小二乘估计，无约束的优化问题):
+L(w) = Σᵢᴺ(wᵀxᵢ-yᵢ)²，Dataset: {(xᵢ,yᵢ)}ᵢᴺ，xᵢ∈ ℝᵖ，yᵢ∈ ℝ。
+最优 w^ = argmin L(w)。</p>
+</li>
+<li>
+<p>解法：</p>
+<ol>
+<li>解析解：损失函数对 w 求导=0，则W^ = (XᵀX)⁻¹XᵀY, where X is train set</li>
+<li>数值解：（随机）梯度下降，</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>SVM 模型，分类问题，估计符号函数：f(w) = sign(wᵀx+b)；</p>
+<ul>
+<li>
+<p>策略(loss func): 类间大，类内小（有约束的凸优化问题）：
+L(w) = min 1/2 wᵀw, s.t. yᵢ(wᵀxᵢ+b)≥1, i=1,&hellip;,N</p>
+</li>
+<li>
+<p>解法：</p>
+<ol>
+<li>调用 QP 套件</li>
+<li>拉格朗日对偶</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>EM 模型，迭代优化模型参数θ，使似然值取得最大：θ^ = argmax log P(X|θ)</p>
+<ul>
+<li>策略：迭代公式：
+$θ⁽ᵗ⁺¹⁾ = argmax_θ ∫_Z log P(X,Z|θ) P(Z|X,θ⁽ᵗ⁾) dZ$ （输入数据和隐变量的完全数据分布按照Z的后验分布求期望（加权和，求积分））</li>
+</ul>
+</li>
+</ol>
+<h3 id="贝叶斯角度">贝叶斯角度：</h3>
+<p>解一个积分问题</p>
+<p>贝叶斯定理：P(θ|X) = P(X|θ) P(θ) / P(X)，后验分布 = 似然值⋅先验分布/参数空间的积分∫P(X|θ)P(θ)dθ</p>
+<p>贝叶斯推断Inference：依据贝叶斯定理求后验分布P(θ|X)。（然后可求分布的期望，方差）</p>
+<p>贝叶斯决策Decision：借助后验分布P(θ|X)，用已有样本 X <strong>预测</strong>新样本 x^ 发生的概率：
+$P(\^x|X) =  ∫ P(\^x,θ|X) dθ = ∫_θ P(\^x|θ,X) P(θ|X) dθ = E_{θ|X} [P(\^x|θ)]$，即对似然P(x^|θ)按照θ的后验分布求期望</p>
+<p>如何求后验分布P(θ|X)：</p>
+<ol>
+<li>
+<p>精确推断，问题简单（参数空间/隐变量的维度不高）可以直接计算出分母的积分</p>
+</li>
+<li>
+<p>近似推断，参数空间维度高，无法直接求出分母积分</p>
+<ul>
+<li>
+<p>确定性近似</p>
+<ol>
+<li>变分推断</li>
+</ol>
+</li>
+<li>
+<p>随机近似</p>
+<ol>
+<li>MCMC 马尔科夫链蒙特卡洛方法</li>
+<li>MH, Metropolis-Hastings</li>
+<li>Gibbs, 吉布斯采样</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-公式推导">2 公式推导</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1DW41167vr/?p=2"  target="_blank" rel="noopener"
+    >P2</a><br>
+Create on 2022-12-16</p>
+<p>变分推断的目的：找到一个分布 q(Z) 去逼近无法得到解析解(intractable)的后验分布P(Z|X,θ)</p>
+<ul>
+<li>z: latent variable z + parameters θ，把参数也看作随机变量</li>
+<li>X: observed data 样本数据</li>
+<li>大Z: 样本的隐变量</li>
+<li>(X,Z): Complete data</li>
+<li>P(X,Z) = P(Z|X)P(X)，联合概率</li>
+<li>P(X) = P(X,Z)/P(Z|X)，“似然” 省略了θ，重点不在θ</li>
+</ul>
+<ol>
+<li>
+<p>似然取对数，两概率相除变成相减（类似推导也出现在EM，不过下面省略了θ，因为包含在了Z中）：<br>
+log P(X) = log P(X,Z) - log P(Z|X)</p>
+</li>
+<li>
+<p>引入 Z 的分布 q(Z)：<br>
+log P(X) = log (P(X,Z)/q(Z)) - log (P(Z|X)/q(Z))</p>
+</li>
+<li>
+<p>两边同时按照大 Z 的概率密度函数 q(Z) 求似然的期望:</p>
+<p>$$
+∫_Z q(Z)⋅logP(X) dZ = \\
+∫_Z q(Z)⋅log (\frac{P(X,Z)}{q(Z)}) dZ \\ - ∫_Z q(Z)⋅log (\frac{P(Z|X)}{q(Z)}) dZ \\
+log P(X) = ELBO + KL(q(Z)||P(Z|X))
+$$</p>
+<p>因为 logP(X) 与 Z 无关，所以等号左边没变，而等号右边变成了下界 ELBO + KL(Z的分布||Z的后验)。
+ELBO 是 q(Z) 的函数，记为 L(q(Z))，是q(Z)的一个变分。</p>
+</li>
+<li>
+<p>当X固定，logP(X) 是固定的，又因为 KL 散度≥0，所以 L(q(Z)) 最大为 logP(X)。
+希望 KL 散度最小，让 q(Z) 与 P(Z|X) 最接近，也就是让 L(q(Z) 最大</p>
+</li>
+</ol>
+<p>数学表达：
+$\rm \^q(Z) = arg max_{q(Z)} L(q(Z)) = arg min KL(q(Z)||P(Z|X))$</p>
+<p>求解：</p>
+<p>z 包含隐变量和参数，所以 q(z) 是一个很大的联合概率，假设 q(z) 可以划分成 M 个相互独立的组（统计物理中的平均场理论）：
+q(z) = ∏ᵢ₌₁ᴹ qᵢ(zᵢ)</p>
+<p>每次只求 1 组 qⱼ，同时固定其余的组{1,2,&hellip;,j-1,j+1,&hellip;M}，逐个求完后，把M组的 q 连乘起来就是整体的 q(z)</p>
+<p>L(q(Z)) = ∫z q(Z)⋅log P(X,Z) dZ - ∫z q(Z)⋅log q(Z) dZ ，把 q(Z) 代入 L <br>
+= E1 + E2</p>
+<p>对于E1：
+∫z q(Z)⋅log P(X,Z) dZ = ∫z log P(X,Z)⋅∏ᵢ₌₁ᴹ qᵢ(Zᵢ) dz₁,z₂,&hellip;, zₘ</p>
+<p>.
+.
+.
+.</p>
+<h2 id="3-再回首">3. 再回首</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1DW41167vr/?p=3"  target="_blank" rel="noopener"
+    >P3</a></p>
+<p>符号修正</p>
+<p>.
+.
+.
+.</p>
+<h2 id="4-随机梯度变分推断-sgvi-1">4. 随机梯度变分推断-SGVI-1</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1DW41167vr/?p=4"  target="_blank" rel="noopener"
+    >P4</a></p>
+<p>基于平均场理论的变分推断无法解决复杂隐变量 z 的情况，比如 z 是一个神经网络，平均场就失效了，z 可以是任意复杂度的。</p>
+<div class="mermaid">stateDiagram-v2
+  隐变量z --> 观测变量x: Generative model,\n 条件P(x|z),\n Decoder
+  观测变量x --> 隐变量z: Inference model,\n 后验P(z|x),\n Encoder
+</div>
+
+<p>基于平均场理论的变分推断（classical VI）也是一种坐标上升法Coordinate Ascend：一次迭代需要逐个更新 Z 的每个维度。
+与此相对的，可以用（随机）梯度上升法解决最大化问题，做变分推断就叫做SGVI / SGVB</p>
+<p>先看下关于 q(z) 的参数的梯度能否求出？</p>
+<p>基于梯度的参数更新公式：θ⁽ᵗ⁺¹⁾ = θ⁽ᵗ⁾ + λ⁽ᵗ⁾⋅∇θ⁽ᵗ⁾。
+变分推断以最小化两分布（Z 的假设分布与 Z 的后验分布）的KL散度，或者最大化下界ELBO（ L(q(Z)) ）为目标函数： <br>
+q^ = arg min_q KL( q(Z) || P(Z|X,θ) ) = arg max_q L(q)，
+要更新 q，就需要求出 L 对 q 的梯度：∂L/∂q。</p>
+<p>q(z) 或 q(z|x) 是隐变量 z 的概率分布，x 是观测变量，可以简化掉。
+假设 q(z) 是指数族分布，它就有一个参数形式，因此求 q(z) 就是求它的参数。
+假设 z 的概率分布 q(z) 是以 ϕ 为参数，如果能求出最好的 ϕ，就相当于得到了 q(z)，所以目标变为去求 ϕ：</p>
+<ol>
+<li>
+<p>L(ϕ) = ELBO = E_qᵩ(z) [ log (P(x⁽ⁱ⁾,z|θ) / qᵩ(z)) ] <br>
+= E_qᵩ(z) [ log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z) ]  <br>
+= ∫_z qᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) dz - log qᵩ(z)) dz  <br></p>
+</li>
+<li>
+<p>样本似然：log P(x⁽ⁱ⁾|θ) = L(ϕ) + KL(q||P)  ≥ L(ϕ)</p>
+</li>
+<li>
+<p>目标函数：ϕ^ = arg maxᵩ L(ϕ)</p>
+</li>
+</ol>
+<p>把期望写成对随机变量 z 的积分:</p>
+<p>∇ᵩL(ϕ) = ∇ᵩ∫_z qᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) dz - log qᵩ(z)) dz ：求偏导 ∇ᵩ 与积分 ∫_z 可交换  <br>
+= ∫_z [∇ᵩqᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z))]
++ [qᵩ(z) ⋅ ∇ᵩ(log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z))] dz ：对两项之积求导 <br>
+= ∫_z ① dz + ∫_z ② dz ：拆为两项分析 <br></p>
+<p>在第 ② 项中的 log P(x⁽ⁱ⁾,z|θ) 与 ϕ 无关，对它求导=0，所以 ② 对应的积分为：</p>
+<p>∫z qᵩ(z) ⋅ ∇ᵩ(-log qᵩ(z)) dz  <br>
+= -∫z qᵩ(z) ⋅ 1/qᵩ(z) ⋅ ∇ᵩqᵩ(z) dz  <br>
+= -∫z ∇ᵩqᵩ(z) dz = -∇ᵩ∫z qᵩ(z) dz = - ∇ᵩ1 = 0 <br></p>
+<p>所以第2项就约去了，L对 ϕ 求梯度就等于第1项：<br>
+∇ᵩL(ϕ) = ∫z ∇ᵩqᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) dz</p>
+<p>这个式子没办法直接写成期望的形式，如果可以的话，就可以利用蒙特卡罗采样，把未知分布的期望近似出来。</p>
+<p>技巧：利用 ∇ᵩlog qᵩ(z) = 1/qᵩ(z)⋅∇ᵩqᵩ(z) 做等价变换：∇ᵩqᵩ(z) = qᵩ(z) ⋅ ∇ᵩlog qᵩ(z)，然后就可以写成一个期望：</p>
+<p>∇ᵩL(ϕ) = ∫z qᵩ(z) ⋅ ∇ᵩlog qᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) dz <br>
+= E_qᵩ(z) [ ∇ᵩlog qᵩ(z) ⋅ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) ]</p>
+<p>所以 L 对 ϕ 的梯度 ∇ᵩL(ϕ) 就等于那一坨关于随机变量 z 的函数按照 qᵩ(z) 求期望。可以用蒙特卡罗采样对其估计：</p>
+<p>假定第 l 个样本 z⁽ˡ⁾~ qᵩ(z), l=1,2,..,L，从分布 qᵩ(z) 中采样 L 个样本，
+则 L 个样本的平均值就是近似期望：
+≈ 1/L ⋅ ∑ₗ₌₁ᴸ [ ∇ᵩlog qᵩ(z⁽ˡ⁾) ⋅ (log P(x⁽ⁱ⁾,z⁽ˡ⁾|θ) - log qᵩ(z⁽ˡ⁾)) ]</p>
+<p>每一步计算这个期望就是梯度，然后可以用梯度上升法</p>
+<h2 id="5-随机梯度变分推断-sgvi-2">5. 随机梯度变分推断-SGVI-2</h2>
+<p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1DW41167vr/?p=5"  target="_blank" rel="noopener"
+    >P5</a></p>
+<p>上面使用 MC 采样是有问题的：<br>
+先对 z 采样，算出 qᵩ(z)，当 qᵩ(z) 很小时（靠近0），对应的 log 值（log qᵩ(z⁽ˡ⁾)）变化剧烈，所以梯度 ∇ᵩlog qᵩ(z⁽ˡ⁾)就非常大，
+造成整个统计量（所求期望的量:∇ᵩlog qᵩ(Z) ⋅ (log P(X⁽ⁱ⁾,Z|θ) - log qᵩ(Z))）的<strong>方差会非常大</strong>，
+意味着需要更多的样本才能得到比较好的近似，或者如果方差非常大，可能就无法采样，这种直接用MC采样的方法就行不通。</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/12_log_high_var.png width=>
+  
+  
+
+
+<p>而且即便用蒙特卡罗采样得到了近似的期望（方差较大，不够精确），它等于下界 L(ϕ) 的梯度，再用梯度上升求分布 qᵩ(Z) 的参数 ϕ^，这样一环扣一环，不精确的梯度再叠加上梯度上升时引入的误差，误差（方差）会越来越大，所以在实际中不可行。</p>
+<p>如何降低统计量的方差？Variance Reduction</p>
+<h3 id="重参数化技巧-reparameterization-trick">重参数化技巧 Reparameterization trick</h3>
+<p>最初，下界 L(ϕ) 的梯度 ∇ᵩL(ϕ) = ∇ᵩE_qᵩ(Z) [ log P(X⁽ⁱ⁾,Z|θ) - log qᵩ(Z) ]，
+在这个期望中，被统计量（似然-Z后验）和“权重”（Z的分布qᵩ(Z)）都与 ϕ 有关，只能像上面那样先展开，比较复杂。</p>
+<p>如果假定 Z 的分布（概率密度函数）qᵩ(Z) 是已经确定的分布 p(ε)，与 ϕ 无关，然后梯度号就可以直接写到中括号里面，先对似然值求梯度，再按这个确定分布（常量）p(ε)求期望：
+E_p(ε) [ ∇ᵩ(log P(X⁽ⁱ⁾,Z|θ) - log qᵩ(Z)) ]</p>
+<p>换句话说，z 是分布 qᵩ(Z|X) 中的采样 z～qᵩ(Z|X)，z 是一个随机变量，考虑把 z 和 ϕ 之间的关系解耦，也就是把 z 的随机成分单拎出来。</p>
+<p>重参数化技巧：假定 z 与 ε 和 x 之间有函数关系：z = gᵩ(ε,x⁽ⁱ⁾)，而且 ε 服从一个给定的（简单的）分布 ε~P(ε)。
+这样 z 是关于随机变量 ε 的函数，z 仍然是一个<strong>随机变量</strong>，但它的随机性转移到了 ε 上（当ε和x定了，z就定了）:</p>
+<p>Z～qᵩ(Z|X)   <br>
+↓   “随机性通过函数关系 g 转移” <br>
+ε～p(ε)</p>
+<p>因为 ∫z qᵩ(z|x⁽ⁱ⁾)⋅dz = 1，∫ p(ε)⋅dε =1，而且 z 是 ε 的一个（线性）变换，
+因此“定性地”认为：|qᵩ(z|x⁽ⁱ⁾)⋅dz| = |p(ε)⋅dε|</p>
+<p>把 ∇ᵩL(ϕ) 中的 z 代换为变换 gᵩ(ε,x⁽ⁱ⁾):</p>
+<p>∇ᵩL(ϕ) = ∇ᵩE_qᵩ(z) [ log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z) ] ，写成对Z积分的形式<br>
+= ∇ᵩ ∫z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) ⋅ qᵩ(z|x⁽ⁱ⁾)⋅dz ，代换 <br>
+= ∇ᵩ ∫z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) ⋅ p(ε)⋅dε ，写成期望 <br>
+= ∇ᵩ E_p(ε) [ log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z) ] ，p(ε)与ϕ无关,∇ᵩ写里面<br>
+= E_p(ε) [∇ᵩ (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z)) ] ，先对z求∇，再对ϕ求∇ <br>
+z 是 ϕ 的函数: z=gᵩ(ε,x⁽ⁱ⁾) <br>
+= E_p(ε) [∇_z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z|x⁽ⁱ⁾)) ⋅∇ᵩz] ，链式法则 <br>
+= E_p(ε) [∇_z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z|x⁽ⁱ⁾)) ⋅ ∇ᵩgᵩ(ε,x⁽ⁱ⁾)]</p>
+<p>其中 p(ε) 与 ϕ 无关，两个 log 是 z 的函数（θ是上一时刻的），z是ε的函数，然后是 g 对 ε 的梯度。
+此时再用蒙特卡罗采样对 ε 采样：ε⁽ˡ⁾～p(ε), l=1,2,..,L，把 ε 带入 中括号里的那个函数算函数值，再求平均值就是近似的期望：</p>
+<p>∇ᵩL(ϕ) ≈ 1/L ∑ₗ₌₁ᴸ ∇z (log P(x⁽ⁱ⁾,z|θ) - log qᵩ(z|x⁽ⁱ⁾)) ⋅ ∇ᵩgᵩ(ε⁽ˡ⁾,x⁽ⁱ⁾)]，
+其中 z=gᵩ(ε⁽ˡ⁾,x⁽ⁱ⁾)</p>
+<p>然就可以把这个近似梯度带入梯度上升公式：ϕ⁽ᵗ⁺¹⁾ = ϕ⁽ᵗ⁾ + λ⁽ᵗ⁾⋅∇ᵩL(ϕ)，
+每一步求个近似期望，得到梯度，再做梯度上升</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script>
+        mermaid.initialize({ startOnLoad: true });
+      </script>
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

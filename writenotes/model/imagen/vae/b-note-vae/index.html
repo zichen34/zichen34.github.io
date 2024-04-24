@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Auto-Encoding Variational Bayes'>
+<title>read: VAE</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/imagen/vae/b-note-vae/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: VAE'>
+<meta property='og:description' content='Auto-Encoding Variational Bayes'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/imagen/vae/b-note-vae/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='Generative' /><meta property='article:published_time' content='2023-06-07T10:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-06-07T10:00:00&#43;00:00'/>
+<meta name="twitter:title" content="read: VAE">
+<meta name="twitter:description" content="Auto-Encoding Variational Bayes">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#method">Method</a>
+      <ol>
+        <li><a href="#problem-scenario">Problem scenario</a></li>
+        <li><a href="#22-the-variational-bound">2.2 The Variational bound</a></li>
+        <li><a href="#23-sgvb-estimator-and-aevb-algo">2.3 SGVB estimator and AEVB algo</a></li>
+        <li><a href="#24-reparameterization-trick">2.4 Reparameterization trick</a></li>
+        <li><a href="#loss-func">Loss func</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/imagen/vae/b-note-vae/">read: VAE</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Auto-Encoding Variational Bayes
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 07, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    11 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="https://arxiv.org/abs/1312.6114"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://keras.io/examples/generative/vae/"  target="_blank" rel="noopener"
+    >Code-keras</a>
+| <a class="link" href="https://github.com/bojone/vae/blob/master/cvae_keras.py"  target="_blank" rel="noopener"
+    >Code-cvae</a></p>
+<ul>
+<li>Another paper: <a class="link" href="https://arxiv.org/abs/1906.02691"  target="_blank" rel="noopener"
+    ><em>An Introduction to Variational Autoencoders</em></a></li>
+</ul>
+<p>Recognition model with parameters φ, $q_φ(𝐳|𝐱)$, approximates the intractable posterior distribution;</p>
+<p>Generative model with parameters θ, $p_θ(𝐳)p_θ(𝐱|𝐳)$, maps a latent variable to a &ldquo;sample&rdquo;.</p>
+<h2 id="abstract">Abstract</h2>
+<ul>
+<li>
+<p>directed probabilistic model</p>
+<p>The distribution of an i.i.d. dataset with latent variables P(𝐗,𝐙)</p>
+</li>
+<li>
+<p>continuous latent variables with intractable posterior distributions</p>
+<p>The latent variable 𝐳 per datapoint is continuous, so its posterior distribution $p_θ(𝐳|𝐱)$ cannot be computed explicitly.</p>
+</li>
+<li>
+<p>reparameterization of the variational lower bound yields a lower bound estimator</p>
+</li>
+<li>
+<p>Lower bound estimator can be optimized using SGD,</p>
+</li>
+<li></li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<ul>
+<li>
+<p>Variational Bayesian approach involves the optimization of an approximation to the intractable posterior.</p>
+<p>Use q(𝐳) to approximate $p_θ(𝐳|𝐱)$</p>
+</li>
+<li>
+<p>Mean-field approach requires analytical solutions of expectations w.r.t. the approximate posterior</p>
+<p>𝔼_{q(𝐳)} [  ]</p>
+</li>
+<li>
+<p>q(𝐳) is also intractable</p>
+</li>
+</ul>
+<h2 id="method">Method</h2>
+<h3 id="problem-scenario">Problem scenario</h3>
+<ul>
+<li>
+<p>Each sample is generated by two steps:</p>
+<ol>
+<li>sample a 𝐳 from prior distribution $p_{θ^*}(𝐳)$</li>
+<li>Sample an 𝐱 from the conditional distribution $p_{θ^*}(𝐱|𝐳)$</li>
+</ol>
+<p>where θ* is the true parameters.</p>
+</li>
+<li>
+<p>Intractability:</p>
+<p>The integral of the marginal likelihood $p_θ(𝐱) = ∫ p_θ(𝐳) p_θ(𝐱|𝐳) d𝐳 = ∫ p_θ(𝐱,𝐳) d𝐳$ cannot be computed,
+because 𝐳 is a high-dimensional continuous variable.</p>
+<p>Such that the true posterior density $p_θ(𝐳|𝐱) = \frac{ p_θ(𝐱|𝐳) p_θ(𝐳) }{ p_θ(𝐱) }$ is also intractable,
+because the denominator marginal likelihood cannot be computed.</p>
+<p>That means the EM algorithm cannot be used,
+because in each iteration the introduced prior distribution q(𝐳) needs to be equal to $p_θ(𝐳|𝐱)$, which however is intractable.</p>
+<p>And any reasonable mean-field variational bayesian algorithms are intractable,
+where the $p_θ(𝐳|𝐱)$ is used as the objective of approximating by q(𝐳), but it doesn&rsquo;t work for $p_θ(𝐳|𝐱)$ that cannot be computed.</p>
+</li>
+<li>
+<p>A large dataset:</p>
+<p>Sampling-based methods, e.g. Monte Carlo EM, would be too slow,
+because sampling is performed on every datapoint.</p>
+</li>
+</ul>
+<p>Three meaningful problems:</p>
+<ol>
+<li>
+<p>Estimating the parameter θ of the distribution via MLE or MAP can allow mimicking the data-generating process: Sample 𝐳 first then sample the x from the conditional distribution</p>
+<ul>
+<li>
+<p>MLE try to find the θ that makes the probability of dataset X <strong>given Z</strong> maximum.
+MLE is to estimate <strong>parameter</strong> θ, while VAE is to estimate the <strong>distribution</strong> of X.</p>
+</li>
+<li>
+<p>MAP believe that the θ having the maximum posterior probability given a dataset likelihood p(X|θ) and prior probability p(θ) according to, $p(θ|X) = \frac{p(X|θ) p(θ)}{p(X)}$, is the most possible.</p>
+</li>
+<li>
+<p>EM algorithm uses MLE to find the <strong>parameter</strong> θ of a probabilistic model involving latent variable,
+where assume the prior probability q(𝐳) = posterior probability $p_θ(𝐳|𝐱)$ of the latent variable, then apply MLE find optimal θ.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Approximating the <strong>posterior probability</strong> $p_θ(𝐳|𝐱)$ given an observed value 𝐱 and a choice of parameters θ is useful for encoding data.</p>
+<p>The latent variable 𝐳 can be regarded as a latent representation of a datapoint 𝐱.</p>
+</li>
+<li>
+<p>Approximating the <strong>marginal likelihood</strong> $p_θ(𝐱)$ enable to perform those inference tasks where the prior p(𝐱) is required, e.g. image denoising and inpainting.</p>
+</li>
+</ol>
+<p>The above three goals can be tackled by a recognition model $q_φ(𝐳|𝐱)$,
+which is an approximation to the intractable posterior probability $p_θ(𝐳|𝐱)$</p>
+<p>The recognition model $q_φ(𝐳|𝐱)$ is a probabilistic <strong>encoder</strong>, which produces a distribution over <strong>all</strong> possible values of 𝐳 with given a datapoint 𝐱.</p>
+<p>(Each datapoint 𝐱 corresponds to a distribution $q_φ(𝐳|𝐱)$ with some parameters (e.g., μ,σ).)</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 376 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 32,48 L 40,48' fill='none' stroke='currentColor'></path>
+<path d='M 104,48 L 112,48' fill='none' stroke='currentColor'></path>
+<path d='M 224,48 L 232,48' fill='none' stroke='currentColor'></path>
+<path d='M 296,48 L 304,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,64 L 128,64' fill='none' stroke='currentColor'></path>
+<path d='M 128,64 L 152,64' fill='none' stroke='currentColor'></path>
+<path d='M 208,64 L 320,64' fill='none' stroke='currentColor'></path>
+<path d='M 320,64 L 344,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,16 L 16,64' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 208,64' fill='none' stroke='currentColor'></path>
+<polygon points='24.000000,16.000000 12.000000,10.400000 12.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 16.000000, 16.000000)'></polygon>
+<polygon points='160.000000,64.000000 148.000000,58.400002 148.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 152.000000, 64.000000)'></polygon>
+<polygon points='216.000000,16.000000 204.000000,10.400000 204.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 208.000000, 16.000000)'></polygon>
+<polygon points='352.000000,64.000000 340.000000,58.400002 340.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 344.000000, 64.000000)'></polygon>
+<path d='M 72,16 A 16,16 0 0,0 56,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,16 A 16,16 0 0,1 88,32' fill='none' stroke='currentColor'></path>
+<path d='M 264,16 A 16,16 0 0,0 248,32' fill='none' stroke='currentColor'></path>
+<path d='M 264,16 A 16,16 0 0,1 280,32' fill='none' stroke='currentColor'></path>
+<path d='M 32,48 A 16,16 0 0,0 16,64' fill='none' stroke='currentColor'></path>
+<path d='M 56,32 A 16,16 0 0,1 40,48' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 A 16,16 0 0,0 104,48' fill='none' stroke='currentColor'></path>
+<path d='M 112,48 A 16,16 0 0,1 128,64' fill='none' stroke='currentColor'></path>
+<path d='M 224,48 A 16,16 0 0,0 208,64' fill='none' stroke='currentColor'></path>
+<path d='M 248,32 A 16,16 0 0,1 232,48' fill='none' stroke='currentColor'></path>
+<path d='M 280,32 A 16,16 0 0,0 296,48' fill='none' stroke='currentColor'></path>
+<path d='M 304,48 A 16,16 0 0,1 320,64' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>𝐳</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>|</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='24' y='148' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='116' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='32' y='148' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='40' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='48' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='56' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='64' y='100' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='72' y='116' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='72' y='148' fill='currentColor' style='font-size:1em'>E</text>
+<text text-anchor='middle' x='80' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='88' y='116' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='88' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='96' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='120' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='144' y='100' fill='currentColor' style='font-size:1em'>𝐳</text>
+<text text-anchor='middle' x='168' y='68' fill='currentColor' style='font-size:1em'>𝐳</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>|</text>
+<text text-anchor='middle' x='216' y='100' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>𝐳</text>
+<text text-anchor='middle' x='224' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='224' y='148' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='232' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='232' y='148' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='240' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='240' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='248' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='248' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='256' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='256' y='148' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='264' y='100' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='272' y='100' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='272' y='148' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='280' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='280' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='280' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='288' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='288' y='116' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='288' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='296' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='296' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='304' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='304' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='304' y='148' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='312' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='320' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='320' y='116' fill='currentColor' style='font-size:1em'>𝐳</text>
+<text text-anchor='middle' x='320' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='328' y='100' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='328' y='148' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='344' y='100' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='360' y='68' fill='currentColor' style='font-size:1em'>𝐱</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>A 𝐳 produces a conditional distribution p(𝐱|𝐳), from which a datapoint 𝐱 is generated. So the generative model $p_θ(𝐱|𝐳)$ is called probabilistic <strong>decoder</strong>.</p>
+<p>(2023-07-09)</p>
+<ul>
+<li>
+<p>So a training step is: sampling a 𝐳 from distribution p(𝐳|𝐱), then with this 𝐳, find the parameter θ that makes the probability p(𝐱|𝐳) largest based on MLE.
+That&rsquo;s why the loss funciton has a cross-entropy term that measures the likelihood of output 𝐱&rsquo;, i.e., log p(𝐱|𝐳).</p>
+</li>
+<li>
+<p>According to KL-divergence $-q(𝐳) log \frac{p(𝐳|𝐱)}{q(𝐳)}$, the approximated posterior q(𝐳) is supposed to equal the real posterior p(𝐳|𝐱),
+which, however, is intractable.
+So the authors use network and reparameterization to estimate the parameters (mean, variance) of the posterior.</p>
+</li>
+<li>
+<p>(I think) 𝐳 sampled from posterior can be one value or multiple times and doing average.</p>
+</li>
+</ul>
+<h3 id="22-the-variational-bound">2.2 The Variational bound</h3>
+<p>The marginal likelihood of the dataset with N datapoints is a sum over the marginal likelihoods of individual datapoints:</p>
+<p>$log\ p_θ(𝐱⁽¹⁾, &hellip;, 𝐱⁽ᴺ⁾ ) = ∑ᵢ₌₁ᴺ log\ p_θ(𝐱⁽ⁱ⁾)$</p>
+<ul>
+<li>
+<p>Rewrite it by introducing posterior approximation $q_φ(𝐳|𝐱⁽ⁱ⁾)$ to make up KL divergence:</p>
+<p>$$
+\begin{aligned}
+&amp;log\ p_θ(𝐱⁽ⁱ⁾)  \\
+&amp;= log\ (\frac{p_θ(𝐱⁽ⁱ⁾|𝐳) p_θ(𝐳)}{p_θ(𝐳|𝐱⁽ⁱ⁾)} ) \\
+&amp;= log\ (p_θ(𝐱⁽ⁱ⁾|𝐳) p_θ(𝐳)) - log\ p_θ(𝐳|𝐱⁽ⁱ⁾) \\
+&amp;= log\ (p_θ(𝐱⁽ⁱ⁾|𝐳) p_θ(𝐳)) - log\ p_θ(𝐳|𝐱⁽ⁱ⁾) \\
+&amp;\quad  + log\ q_φ(𝐳|𝐱⁽ⁱ⁾) - log\ q_φ(𝐳|𝐱⁽ⁱ⁾) \\
+&amp;= log\ \frac{p_θ(𝐱⁽ⁱ⁾|𝐳) p_θ(𝐳)}{q_φ(𝐳|𝐱⁽ⁱ⁾)} - log\ \frac{p_θ(𝐳|𝐱⁽ⁱ⁾)}{q_φ(𝐳|𝐱⁽ⁱ⁾)}\\
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>Compute <strong>expectations</strong> w.r.t. the approximate posterior $q_φ(𝐳|𝐱)$ for both side:</p>
+<p>$$
+∫q_φ(𝐳|𝐱⁽ⁱ⁾) log\ p_θ(𝐱⁽ⁱ⁾) d𝐳 = \\
+∫q_φ(𝐳|𝐱⁽ⁱ⁾) \left[log\ \frac{p_θ(𝐱⁽ⁱ⁾|𝐳) p_θ(𝐳)}{q_φ(𝐳|𝐱⁽ⁱ⁾)} - log\ \frac{p_θ(𝐳|𝐱⁽ⁱ⁾)}{q_φ(𝐳|𝐱⁽ⁱ⁾)} \right] d𝐳
+$$</p>
+</li>
+<li>
+<p>Left-hand side remains marginal likelihood $log\ p_θ(𝐱⁽ⁱ⁾)$ (i.e. $𝔼_{q_φ(𝐳|𝐱⁽ⁱ⁾)} [ log\ p_θ(𝐱⁽ⁱ⁾) ]$) because p(x) has nothing to do with z.</p>
+<p>While right-hand side is the <strong>lower bound</strong> plus <strong>KL divergence</strong>: <div id="eq2"></div></p>
+<p>$$
+\begin{aligned}
+&amp; log\ p_θ(𝐱⁽ⁱ⁾) = \\
+&amp; ∫q_φ(𝐳|𝐱⁽ⁱ⁾) log\ \frac{p_θ(𝐱⁽ⁱ⁾|𝐳) p_θ(𝐳)}{q_φ(𝐳|𝐱⁽ⁱ⁾)} d𝐳 \\
+&amp;\quad - ∫q_φ(𝐳|𝐱⁽ⁱ⁾) log\ \frac{p_θ(𝐳|𝐱⁽ⁱ⁾)}{q_φ(𝐳|𝐱⁽ⁱ⁾)} d𝐳 \\
+&amp; = ℒ(θ,φ; 𝐱⁽ⁱ⁾) + D_{KL} ( q_φ(𝐳|𝐱⁽ⁱ⁾) || p_θ(𝐳|𝐱⁽ⁱ⁾ ) \\
+&amp;  \\
+&amp; = 𝔼_{q_φ(𝐳|𝐱⁽ⁱ⁾)} [log\ p_θ(𝐱⁽ⁱ⁾,𝐳) - log\ q_φ(𝐳|𝐱⁽ⁱ⁾)] \\
+&amp;\quad + D_{KL} ( q_φ(𝐳|𝐱⁽ⁱ⁾) || p_θ(𝐳|𝐱⁽ⁱ⁾ ) \quad (2)
+\end{aligned}
+$$</p>
+</li>
+</ul>
+<p>In another way, the lower bound can also be written as eq.(3): <div id="eq3"></div></p>
+<p>𝓛$(θ,φ; 𝐱⁽ⁱ⁾) = -D_{KL} ( q_φ(𝐳|𝐱⁽ⁱ⁾) || p_θ(𝐳) ) + 𝔼_{q_φ(𝐳|𝐱⁽ⁱ⁾)} [log\ p_θ(𝐱⁽ⁱ⁾|𝐳)]$</p>
+<p>whose derivation starts from the conditional probability $p_θ(𝐱⁽ⁱ⁾|𝐳)$:</p>
+<ul>
+<li>
+<p>The likelihood of the i-th datapoint:
+$$
+\begin{aligned}
+&amp; log(p_θ(𝐱⁽ⁱ⁾|𝐳))  \\
+&amp;= log( \frac{p_θ(𝐳|𝐱⁽ⁱ⁾)p_θ(𝐱⁽ⁱ⁾))}{p_θ(𝐳)} )\\
+&amp;= log( \frac{ p_θ(𝐳|𝐱⁽ⁱ⁾)p_θ(𝐱⁽ⁱ⁾)* q_φ(𝐳|𝐱⁽ⁱ⁾) ) }{ p_θ(𝐳)*q_φ(𝐳|𝐱⁽ⁱ⁾) } ) \\
+&amp;= log( \frac{ p_θ(𝐳|𝐱⁽ⁱ⁾)p_θ(𝐱⁽ⁱ⁾)}{q_φ(𝐳|𝐱⁽ⁱ⁾)} ) -
+log( \frac{p_θ(𝐳)}{q_φ(𝐳|𝐱⁽ⁱ⁾)} )
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>Compute the expectation w.r.t. approximate posterior $q_φ(𝐳|𝐱⁽ⁱ⁾)$:</p>
+<p>$$
+\begin{aligned}
+&amp; ∫q_φ(𝐳|𝐱⁽ⁱ⁾)\ log(p_θ(𝐱⁽ⁱ⁾|𝐳)) d𝐳 = \\
+&amp; ∫q_φ(𝐳|𝐱⁽ⁱ⁾) log( \frac{ p_θ(𝐳|𝐱⁽ⁱ⁾)p_θ(𝐱⁽ⁱ⁾)}{q_φ(𝐳|𝐱⁽ⁱ⁾)})d𝐳\\
+&amp; \quad - ∫q_φ(𝐳|𝐱⁽ⁱ⁾) log( \frac{p_θ(𝐳)}{q_φ(𝐳|𝐱⁽ⁱ⁾)} ) d𝐳 \\
+&amp; \\
+&amp; 𝔼_{q_φ(𝐳|𝐱⁽ⁱ⁾)} [log\ p_θ(𝐱⁽ⁱ⁾|𝐳))] = \\
+&amp; \quad ℒ(θ,φ; 𝐱⁽ⁱ⁾) + D_{KL} ( q_φ(𝐳|𝐱⁽ⁱ⁾ || p_θ(𝐳))
+\end{aligned}
+$$</p>
+</li>
+</ul>
+<p>However, using Monte Carlo to estimate gradient of 𝓛 (an expectation) will bring high variance.</p>
+<hr>
+<h3 id="23-sgvb-estimator-and-aevb-algo">2.3 SGVB estimator and AEVB algo</h3>
+<blockquote>
+<p>A practical estimator of the lower bound 𝓛 of the likelihood and its derivatives w.r.t. the parameters.</p>
+</blockquote>
+<p>(With some mild conditions for a selected approximate posterior distribution $q_φ(𝐳|𝐱)$,)</p>
+<p>Consider a variable $\~𝐳$ that comes from $\~𝐳 = g_φ$(𝛆,𝐱) with 𝛆 ~ p(𝛆),
+follows the posterior distribution $\~𝐳 \sim q_φ(𝐳|𝐱)$ (or not conditioned distribution $q_φ(𝐳)$). <br>
+And $g_φ$(𝛆,𝐱) is a <strong>deterministic differentiable transformation</strong> of an (auxiliary) noise variable 𝛆.</p>
+<p>Since $\~𝐳$ is a transformation of 𝛆, $\~𝐳$ follows the distribution p(𝛆) as well.</p>
+<ol>
+<li>
+<p>Monte Carlo estimation</p>
+<p>Therefore, using Monte Carlo (i.e., averaging the L sampled values) to approximate an expectation of some function $f(𝐳)$ w.r.t. the posterior approximation $q_φ(𝐳|𝐱⁽ⁱ⁾)$ becomes:</p>
+<p>$$
+𝔼_{q_φ(𝐳|𝐱⁽ⁱ⁾)} [f(𝐳)] = 𝔼_{p(ε)} [f( g_φ(ε, 𝐱⁽ⁱ⁾) )] \\
+≃  \frac{1}{L} ∑ₗ₌₁ᴸ f( g_φ(ε⁽ˡ⁾, 𝐱⁽ⁱ⁾) ),
+$$
+where 𝛆⁽ˡ⁾~ p(𝛆).</p>
+</li>
+<li>
+<p>Approximate lower bound with <a class="link" href="#eq2" >eq. (2)</a></p>
+<p>The version A of SGVB estimator comes from eq. (2), the lower bound 𝓛 should be finally equal to that ELBO expectation,
+𝓛ᴬ (𝛉,𝛗,𝐱⁽ⁱ⁾) ≃ 𝓛 (𝛉,𝛗,𝐱⁽ⁱ⁾) i.e., the KL divergence=0.</p>
+<p>And that expectation can be approximated via Monte Carlo (sampling), so the lower bound is approximated as:</p>
+<p>$$
+\~\mathcal L^A (θ,φ,𝐱⁽ⁱ⁾) = \\
+\frac{1}{L}  ∑ₗ₌₁ᴸ \left[ log\ p_θ(𝐱⁽ⁱ⁾, 𝐳⁽ⁱ&rsquo;ˡ⁾) - log\ q_φ(𝐳⁽ⁱ&rsquo;ˡ⁾| 𝐱⁽ⁱ⁾) \right] \\
+$$</p>
+<p>where $𝐳⁽ⁱ&rsquo;ˡ⁾= g_φ(ε⁽ⁱ&rsquo;ˡ⁾, 𝐱⁽ⁱ⁾))$ and 𝛆⁽ˡ⁾~ p(𝛆)</p>
+</li>
+<li>
+<p>Approximate lower bound with <a class="link" href="#eq3" >eq. (3)</a></p>
+<p>Since the KL-divergence $D_{KL}( q_φ(𝐳|𝐱⁽ⁱ⁾) || p_θ(𝐳) )$ of eq. (3) can be integrated analytically,
+it can be substituted into eq. (3), then only that expectation (&ldquo;expected reconstruction error&rdquo; $𝔼_{q_φ(𝐳|𝐱⁽ⁱ⁾)} [log\ p_θ(𝐱⁽ⁱ⁾|𝐳))]$) is approximated,
+so the second version of lower bound approximation: 𝓛ᴮ (𝛉,𝛗,𝐱⁽ⁱ⁾) ≃ 𝓛 (𝛉,𝛗,𝐱⁽ⁱ⁾) is more relatively accurate than the version A.</p>
+<p>$$
+\tilde{\mathcal L^B} =
+-D_{KL}( q_φ(𝐳|𝐱⁽ⁱ⁾) || p_θ(𝐳) ) \\
+\qquad + \frac{1}{L}  ∑ₗ₌₁ᴸ log\ p_θ(𝐱⁽ⁱ⁾ | 𝐳⁽ⁱ&rsquo;ˡ⁾)
+$$</p>
+<p>where $𝐳⁽ⁱ&rsquo;ˡ⁾= g_φ(ε⁽ⁱ&rsquo;ˡ⁾, 𝐱⁽ⁱ⁾))$ and 𝛆⁽ˡ⁾~ p(𝛆).</p>
+<p>The KL-divergence there can be interpreted as regularizer, and the optimization objective is enlarging the &ldquo;expected negative reconstruction error&rdquo;, i.e., recover original 𝐱 from code 𝐳.</p>
+</li>
+<li>
+<p>Train with minibatches</p>
+<p>Given a dataset 𝐗 with N datapoints, each time M datapoints are drawn as a minibatch,
+then the marginal likelihood lower bound of the full dataset batch-by-batch is estimated as:</p>
+<p>$$
+\mathcal L(\pmb{θ,φ},𝐱) \simeq \mathcal L^M (\pmb{θ,φ},𝐗ᴹ) =
+\frac{N}{M} ∑ᵢ₌₁ᴹ \tilde{\mathcal L} (\pmb{θ,φ},𝐱⁽ⁱ⁾)
+$$</p>
+</li>
+</ol>
+<h3 id="24-reparameterization-trick">2.4 Reparameterization trick</h3>
+<p>Previously, 𝐳 is sampled directly, then input to model $p_θ(𝐱|𝐳)$, but the parameter φ of the distribution of 𝐳 is not able to be optimized via gradient descent, since Monte Carlo isn&rsquo;t differentiable.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 280 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 144,48 L 168,48' fill='none' stroke='currentColor'></path>
+<path d='M 8,80 L 104,80' fill='none' stroke='currentColor'></path>
+<path d='M 104,80 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 8,16 L 8,80' fill='none' stroke='currentColor'></path>
+<path d='M 208,80 L 216,64' fill='none' stroke='currentColor'></path>
+<path d='M 228,40 L 236,24' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 216,32' fill='none' stroke='currentColor'></path>
+<path d='M 228,56 L 236,72' fill='none' stroke='currentColor'></path>
+<polygon points='16.000000,16.000000 4.000000,10.400000 4.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 8.000000, 16.000000)'></polygon>
+<polygon points='128.000000,80.000000 116.000000,74.400002 116.000000,85.599998' fill='currentColor' transform='rotate(0.000000, 120.000000, 80.000000)'></polygon>
+<polygon points='176.000000,48.000000 164.000000,42.400002 164.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 168.000000, 48.000000)'></polygon>
+<path d='M 56,32 A 16,16 0 0,0 40,48' fill='none' stroke='currentColor'></path>
+<path d='M 56,32 A 16,16 0 0,1 72,48' fill='none' stroke='currentColor'></path>
+<path d='M 24,64 A 16,16 0 0,0 8,80' fill='none' stroke='currentColor'></path>
+<path d='M 40,48 A 16,16 0 0,1 24,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,48 A 16,16 0 0,0 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 A 16,16 0 0,1 104,80' fill='none' stroke='currentColor'></path>
+<circle cx='208' cy='16' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='208' cy='48' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='208' cy='80' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='248' cy='16' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='248' cy='32' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='248' cy='48' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='248' cy='64' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='248' cy='80' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='56' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='64' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>q</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>ᵩ</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>M</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='232' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>x</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Instead of sampling the 𝐳 directly, but the 𝐳 is derived from the sampled 𝛆,
+based on the deterministic differentiable transformation:
+𝐳 = gᵩ(𝛆, 𝐱).</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 408 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 144,48 L 168,48' fill='none' stroke='currentColor'></path>
+<path d='M 288,48 L 304,48' fill='none' stroke='currentColor'></path>
+<path d='M 24,64 L 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 104,64' fill='none' stroke='currentColor'></path>
+<path d='M 8,80 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 120,80 L 136,80' fill='none' stroke='currentColor'></path>
+<path d='M 8,16 L 8,80' fill='none' stroke='currentColor'></path>
+<path d='M 336,80 L 344,64' fill='none' stroke='currentColor'></path>
+<path d='M 356,40 L 364,24' fill='none' stroke='currentColor'></path>
+<path d='M 336,16 L 344,32' fill='none' stroke='currentColor'></path>
+<path d='M 356,56 L 364,72' fill='none' stroke='currentColor'></path>
+<polygon points='16.000000,16.000000 4.000000,10.400000 4.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 8.000000, 16.000000)'></polygon>
+<polygon points='144.000000,80.000000 132.000000,74.400002 132.000000,85.599998' fill='currentColor' transform='rotate(0.000000, 136.000000, 80.000000)'></polygon>
+<polygon points='176.000000,48.000000 164.000000,42.400002 164.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 168.000000, 48.000000)'></polygon>
+<polygon points='312.000000,48.000000 300.000000,42.400002 300.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 304.000000, 48.000000)'></polygon>
+<path d='M 64,32 A 16,16 0 0,0 48,48' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 A 16,16 0 0,1 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 24,64 A 16,16 0 0,0 8,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,48 A 16,16 0 0,1 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 A 16,16 0 0,0 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 104,64 A 16,16 0 0,1 120,80' fill='none' stroke='currentColor'></path>
+<circle cx='336' cy='16' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='336' cy='48' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='336' cy='80' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='376' cy='16' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='376' cy='32' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='376' cy='48' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='376' cy='64' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='376' cy='80' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='56' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='64' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='80' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>M</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='232' y='52' fill='currentColor' style='font-size:1em'>μ</text>
+<text text-anchor='middle' x='248' y='52' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='264' y='52' fill='currentColor' style='font-size:1em'>σ</text>
+<text text-anchor='middle' x='272' y='52' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='344' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='352' y='52' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='360' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>x</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>(The non-differentiable operation (M.C.) is put ahead of the leave nodes on the computational graph.)</p>
+<p>Then the parameters (e.g. μ,σ²) of 𝐳&rsquo;s distribution can be learned by a network with parameters φ.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 424 297"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 112,16 L 144,16' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 112,80' fill='none' stroke='currentColor'></path>
+<path d='M 192,128 L 224,128' fill='none' stroke='currentColor'></path>
+<path d='M 304,128 L 328,128' fill='none' stroke='currentColor'></path>
+<path d='M 120,240 L 128,240' fill='none' stroke='currentColor'></path>
+<path d='M 192,240 L 200,240' fill='none' stroke='currentColor'></path>
+<path d='M 104,256 L 216,256' fill='none' stroke='currentColor'></path>
+<path d='M 216,256 L 232,256' fill='none' stroke='currentColor'></path>
+<path d='M 104,208 L 104,256' fill='none' stroke='currentColor'></path>
+<path d='M 128,96 L 128,112' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 160,112' fill='none' stroke='currentColor'></path>
+<path d='M 176,144 L 176,176' fill='none' stroke='currentColor'></path>
+<path d='M 12,72 L 20,56' fill='none' stroke='currentColor'></path>
+<path d='M 32,32 L 40,16' fill='none' stroke='currentColor'></path>
+<path d='M 240,160 L 248,144' fill='none' stroke='currentColor'></path>
+<path d='M 260,120 L 268,104' fill='none' stroke='currentColor'></path>
+<path d='M 12,24 L 20,40' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 40,80' fill='none' stroke='currentColor'></path>
+<path d='M 240,96 L 248,112' fill='none' stroke='currentColor'></path>
+<path d='M 260,136 L 268,152' fill='none' stroke='currentColor'></path>
+<polygon points='112.000000,208.000000 100.000000,202.399994 100.000000,213.600006' fill='currentColor' transform='rotate(270.000000, 104.000000, 208.000000)'></polygon>
+<polygon points='136.000000,112.000000 124.000000,106.400002 124.000000,117.599998' fill='currentColor' transform='rotate(90.000000, 128.000000, 112.000000)'></polygon>
+<polygon points='168.000000,112.000000 156.000000,106.400002 156.000000,117.599998' fill='currentColor' transform='rotate(90.000000, 160.000000, 112.000000)'></polygon>
+<polygon points='184.000000,144.000000 172.000000,138.399994 172.000000,149.600006' fill='currentColor' transform='rotate(270.000000, 176.000000, 144.000000)'></polygon>
+<polygon points='232.000000,128.000000 220.000000,122.400002 220.000000,133.600006' fill='currentColor' transform='rotate(0.000000, 224.000000, 128.000000)'></polygon>
+<polygon points='240.000000,256.000000 228.000000,250.399994 228.000000,261.600006' fill='currentColor' transform='rotate(0.000000, 232.000000, 256.000000)'></polygon>
+<polygon points='336.000000,128.000000 324.000000,122.400002 324.000000,133.600006' fill='currentColor' transform='rotate(0.000000, 328.000000, 128.000000)'></polygon>
+<path d='M 144,16 A 16,16 0 0,1 160,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,80 A 16,16 0 0,1 128,96' fill='none' stroke='currentColor'></path>
+<path d='M 160,208 A 16,16 0 0,0 144,224' fill='none' stroke='currentColor'></path>
+<path d='M 160,208 A 16,16 0 0,1 176,224' fill='none' stroke='currentColor'></path>
+<path d='M 120,240 A 16,16 0 0,0 104,256' fill='none' stroke='currentColor'></path>
+<path d='M 144,224 A 16,16 0 0,1 128,240' fill='none' stroke='currentColor'></path>
+<path d='M 176,224 A 16,16 0 0,0 192,240' fill='none' stroke='currentColor'></path>
+<path d='M 200,240 A 16,16 0 0,1 216,256' fill='none' stroke='currentColor'></path>
+<circle cx='0' cy='16' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='0' cy='32' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='0' cy='48' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='0' cy='64' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='0' cy='80' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='40' cy='16' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='40' cy='80' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='240' cy='96' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='240' cy='128' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='240' cy='160' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='280' cy='96' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='280' cy='112' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='280' cy='128' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='280' cy='144' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='280' cy='160' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>φ</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>μ</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>σ</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>²</text>
+<text text-anchor='middle' x='96' y='132' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='96' y='196' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='104' y='196' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='112' y='132' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='112' y='196' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='120' y='196' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='120' y='276' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='128' y='132' fill='currentColor' style='font-size:1em'>μ</text>
+<text text-anchor='middle' x='136' y='276' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='144' y='132' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='144' y='276' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='276' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='160' y='132' fill='currentColor' style='font-size:1em'>σ</text>
+<text text-anchor='middle' x='160' y='196' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='160' y='276' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='168' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='168' y='276' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='176' y='132' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='176' y='196' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='176' y='276' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='184' y='196' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='184' y='276' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='192' y='196' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='192' y='276' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='200' y='196' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='200' y='276' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='208' y='196' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='208' y='276' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='216' y='196' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='216' y='276' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='224' y='276' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='232' y='196' fill='currentColor' style='font-size:1em'>L</text>
+<text text-anchor='middle' x='240' y='84' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='248' y='260' fill='currentColor' style='font-size:1em'>𝛆</text>
+<text text-anchor='middle' x='256' y='132' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='264' y='132' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='280' y='84' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='336' y='116' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='344' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='352' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='352' y='132' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='352' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='360' y='116' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='360' y='132' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='360' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='368' y='116' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='368' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='368' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='376' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='376' y='132' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='376' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='384' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='384' y='132' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='392' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='400' y='116' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='408' y='116' fill='currentColor' style='font-size:1em'>-</text>
+</g>
+
+    </svg>
+  
+</div>
+<blockquote>
+<p>Such that the Monte Carlo estimate of the expectation is differentiable w.r.t. φ.</p>
+</blockquote>
+<p>The reasoning is as follows:</p>
+<ul>
+<li>
+<p>For infinitesimals, there is $$q_φ(𝐳|𝐱)∏ᵢdzᵢ = p(\pmb ε)∏ᵢdεᵢ$$;
+where zᵢ is one of dimensions, d𝐳 = ∏ᵢ dzᵢ</p>
+</li>
+<li>
+<p>Therefore, $∫ q_φ(𝐳|𝐱) f(𝐳) d𝐳$ = ∫p(𝛆) f(𝐳) d𝛆 = ∫ p(𝛆) $f(g_φ$(𝛆,𝐱)) d𝛆</p>
+</li>
+<li>
+<p>Use Monte Carlo sampling approximation: $∫ q_φ(𝐳|𝐱) f(𝐳) d𝐳$ ≃ 1/L ∑ₗ₌₁ᴸ f( gᵩ(𝛆⁽ˡ⁾, 𝐱)), where 𝛆⁽ˡ⁾ ~ p(𝛆)</p>
+</li>
+</ul>
+<p>The transformation (φ) from 𝛆 to 𝐳 can be learned by back-propagation and gradient descent from the reconstruction loss, since the transformation differentiable.</p>
+<p>So the parameters (e.g. μ,σ) of the approximate posterior distribution $q_φ(𝐳|𝐱)$ of 𝐳 can be optimized through φ, and the parameter θ of the generative model is trained jointly.</p>
+<p>This&rsquo;s just a trick, the essence of the algorithm is still the coordinate ascent:</p>
+<ol>
+<li>
+<p>Sample a 𝐳 by sampling an 𝛆:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">reparameterize</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">logvar</span><span class="p">):</span> <span class="c1"># logvar is log𝛔²</span>
+</span></span><span class="line"><span class="cl">  <span class="n">std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">logvar</span><span class="p">)</span> <span class="c1"># (e^{log𝛔²})^½</span>
+</span></span><span class="line"><span class="cl">  <span class="n">eps</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">std</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">eps</span> <span class="o">*</span> <span class="n">std</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Use 𝐳 to generate 𝐱 with model $p_θ(𝐱|𝐳)$,</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="n">result</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">latent_dim</span><span class="p">,</span> <span class="n">hidden_dims</span><span class="p">)(</span><span class="n">z</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">result</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>then use 𝐱 to produce 𝐳 with model $q_φ(𝐳|𝐱)$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="n">result</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">)(</span><span class="nb">input</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">)(</span><span class="n">result</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">logvar</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">)(</span><span class="n">result</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">logvar</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p>With using reparameterization trick, both the two models can be optimized by gradient descent.</p>
+<p>(2024-04-16)</p>
+<ul>
+<li>
+<p>Reparameterization trick is a sampling method. It&rsquo;s similar to inverse transform sampling: using a known distribution (uniform) to sample an unknown distribution.</p>
+</li>
+<li>
+<p>Reparameterization trick makes the sampling from an unknown distribution differentiable,
+and enables the parameters of the distribution to be optimized.</p>
+</li>
+</ul>
+<hr>
+<h3 id="loss-func">Loss func</h3>
+<p>Loss function contains two parts: KL divergence and reconstruction error.</p>
+<ol>
+<li>
+<p>KL divergence (i.e., cross entropy) can be computed with given the prior and assumed posterior of 𝐳.</p>
+<p>For example, let the prior $\rm p_θ(𝐳) = N(𝐳,𝟎,𝐈)$ and assume the posterior qᵩ(𝐳|𝐱) = N(𝐳; 𝛍, 𝛔²𝐈),
+then cross entropy can be derived by plugging them into Gaussian expression.</p>
+</li>
+<li>
+<p>The reconstruction error is the log likelihood of the input datapoint log p(𝐱|𝐳).</p>
+<ul>
+<li>
+<p>For a datapoint obeying multivariate Bernoulli (Yes or No), the log likelihood of 𝐱 is</p>
+<p>$$
+log p(𝐱|𝐳) = log ∏ᵢ₌₁ᴰ yᵢˣⁱ (1-yᵢ)¹⁻ˣⁱ  \\
+\          = ∑ᵢ₌₁ᴰ [ xᵢlog yᵢ + (1-xᵢ)log (1-yᵢ) ]
+$$</p>
+<p>where yᵢ should be like a probability (need to do sigmoid activation).
+So in this case, this loss term is a cross entropy.</p>
+</li>
+<li>
+<p>For a datapoint following multivariate Gaussian distribution N(𝐱; 𝛍, 𝛔²𝐈), refer to <a class="link" href="https://www.kexue.fm/archives/5343"  target="_blank" rel="noopener"
+    >Su, Jianlin</a></p>
+<p>$$
+\begin{aligned}
+&amp;p(𝐱|𝐳) = \frac{1}{∏ᵢ₌₁ᴰ \sqrt{2πσᵢ²(𝐳)}}
+\rm exp(-\frac{1}{2} ‖\frac{x-\pmb μ(𝐳)}{\pmb σ(𝐳)}‖²) \\
+\            \\
+&amp;log\ p(𝐱|𝐳) \\
+&amp;= log \frac{1}{∏ᵢ₌₁ᴰ \sqrt{2πσᵢ²(𝐳)}}
+\ -\frac{1}{2} ‖\frac{x-\pmb μ(𝐳)}{\pmb σ(𝐳)}‖² \\
+&amp;= -∑ᵢ₌₁ᴰ log \sqrt{2πσᵢ²(𝐳)} -\frac{1}{2} ‖\frac{x-\pmb μ(𝐳)}{\pmb σ(𝐳)}‖² \\
+&amp;= -∑ᵢ₌₁ᴰ [\frac{1}{2} (log2π + logσᵢ²(𝐳))] - \frac{1}{2} ‖\frac{x-\pmb μ(𝐳)}{\pmb σ(𝐳)}‖² \\
+&amp;= -\frac{D}{2} log2π -∑ᵢ₌₁ᴰlogσᵢ²(𝐳) -\frac{1}{2} ‖\frac{x-\pmb μ(𝐳)}{\pmb σ(𝐳)}‖² \\
+\end{aligned}
+$$</p>
+<p>Normally, the variance 𝛔² will be fixed, so this loss term is only related with mean 𝛍(𝐳):</p>
+<p>-log p(𝐱|𝐳) ~ $\frac{1}{2\pmb σ²}\| 𝐱-\pmb μ(𝐳) \|²$</p>
+<p>Therefore, this loss term is MSE.</p>
+</li>
+</ul>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/generative/">Generative</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

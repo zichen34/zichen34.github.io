@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Normalize Dataset (2023-11-23)
+Normalizing a dataset means making the variance to 1.
+方差是一个标量（偏离期望的平方的期望）: the average of squared difference between each value in a dataset from the mean value.
+Square ignores the sign of deviations, and only focuses on magnitudes.
+Given 2 datasets with different scales: 1,2,6 and 10,20,60.
+1 2 -*--*--▲------* V.S. -*--*--▲------* 1 2 3 6 10 20 30 60 Their variance are 4.66 and 46.6. After normalization, their variance will both become 1.'>
+<title>memo: DL | Normalization</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/dl_normalization/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: DL | Normalization'>
+<meta property='og:description' content='Normalize Dataset (2023-11-23)
+Normalizing a dataset means making the variance to 1.
+方差是一个标量（偏离期望的平方的期望）: the average of squared difference between each value in a dataset from the mean value.
+Square ignores the sign of deviations, and only focuses on magnitudes.
+Given 2 datasets with different scales: 1,2,6 and 10,20,60.
+1 2 -*--*--▲------* V.S. -*--*--▲------* 1 2 3 6 10 20 30 60 Their variance are 4.66 and 46.6. After normalization, their variance will both become 1.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/dl_normalization/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-01-14T12:54:12-05:00'/><meta property='article:modified_time' content='2023-01-14T12:54:12-05:00'/>
+<meta name="twitter:title" content="memo: DL | Normalization">
+<meta name="twitter:description" content="Normalize Dataset (2023-11-23)
+Normalizing a dataset means making the variance to 1.
+方差是一个标量（偏离期望的平方的期望）: the average of squared difference between each value in a dataset from the mean value.
+Square ignores the sign of deviations, and only focuses on magnitudes.
+Given 2 datasets with different scales: 1,2,6 and 10,20,60.
+1 2 -*--*--▲------* V.S. -*--*--▲------* 1 2 3 6 10 20 30 60 Their variance are 4.66 and 46.6. After normalization, their variance will both become 1.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#normalize-dataset">Normalize Dataset</a></li>
+    <li><a href="#batchnorm">BatchNorm</a></li>
+    <li><a href="#layernorm-customize">LayerNorm Customize</a></li>
+    <li><a href="#absorb-bn">Absorb BN</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/dl_normalization/">memo: DL | Normalization</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 14, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="normalize-dataset">Normalize Dataset</h2>
+<p>(2023-11-23)</p>
+<p>Normalizing a dataset means making the variance to 1.</p>
+<p>方差是一个标量（偏离期望的平方的期望）: the average of squared difference between each value in a dataset from the mean value.</p>
+<ul>
+<li>
+<p>Square ignores the sign of deviations, and only focuses on magnitudes.</p>
+</li>
+<li>
+<p>Given 2 datasets with different scales: 1,2,6 and 10,20,60.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">-*--*--▲------*   V.S.  -*--*--▲------*
+</span></span><span class="line"><span class="cl"> <span class="m">1</span>  <span class="m">2</span>  <span class="m">3</span>      <span class="m">6</span>         <span class="m">10</span> <span class="m">20</span> <span class="m">30</span>     <span class="m">60</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Their variance are 4.66 and 46.6. After normalization, their variance will both become 1. (Plain number, without any practical meaning.)</p>
+</li>
+<li>
+<p>Transform the variance to 1: subtract mean and divide by std for each sample.</p>
+<p>$$
+Var = \frac{∑(\frac{x-μ}{σ} - 0)²}{n}
+= \frac{∑\frac{(x-μ)²}{σ²}}{n}
+= \frac{1}{σ²} σ² = 1
+$$</p>
+</li>
+<li>
+<p>The consequences of normalization have 2 aspects:</p>
+<ol>
+<li>
+<p>Because all the <em>squared deviations</em> (x-μ)² are scaled by their average: σ², the <strong>measuring unit is eliminated</strong> (消除量纲).
+Hence, different attributes (dimensions) can be compared equally.</p>
+</li>
+<li>
+<p>On the other hand, the <strong>sum of the scaled</strong> squared deviation becomes $n$. Thus, the new variance is 1.</p>
+<p>$$
+Var = \frac{∑\frac{(x-μ)²}{σ²}}{n}
+= \frac{∑\frac{(x-μ)²}{ \frac{∑(x-μ)²}{n} }}{n}
+= \frac{n ∑\frac{(x-μ)²}{∑(x-μ)²} }{n} = \frac{n* 1}{n} =1
+$$</p>
+<ul>
+<li>Analogy: $\frac{a}{a+b+c} + \frac{b}{a+b+c} + \frac{c}{a+b+c}=1$</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li>Variance can be scaled to any value. Taking 1 is for interpretability and simplifying calculations (?)</li>
+</ul>
+<hr>
+<p>(2023-01-14)</p>
+<h2 id="batchnorm">BatchNorm</h2>
+<p>BatchNorm: 前向过程中每层的输入的分布一直在变化，不满足独立同分布，导致内部协变量偏移Internal Covariate Shift问题，
+所以对每层的激活值在输入下一层之前，把这一个batch的分布调整为0均值，方差为1的标准正态分布，
+即固定每个隐层节点的激活输入分布，让输入的激活值落在激活函数梯度较大的区域，加快收敛与避免梯度消失。
+<a class="link" href="https://zhuanlan.zhihu.com/p/38176412"  target="_blank" rel="noopener"
+    >Batch Normalization导读-张俊林-知乎</a></p>
+<ul>
+<li>(2024-02-21) 不是“正态分布”，标准化不会改变数据的分布类型，数据原来是什么分布，做完 normalization 还是什么分布。
+(mean=0, sigma=1) 只是一个 <strong>标准</strong>，之后经过一些运算，分布的参数发生变化了，还可以回到这个标准。</li>
+</ul>
+<p>todo: <a class="link" href="https://youtu.be/34PDIFvvESc"  target="_blank" rel="noopener"
+    >L11.2 How BatchNorm Works</a></p>
+<p>todo: <a class="link" href="https://youtu.be/uI19wIdzh9M"  target="_blank" rel="noopener"
+    >L11.4 Why BatchNorm Works</a></p>
+<p>Normalization layer 对数据减均值，除以标准差。以下的 N 是一个 batch 中的样本个数(batch size, B)，
+图片batch：(N,C,H,W)，序列batch: (N, embed_dim, seq_len)。
+1d,2d,3d方法的区别在于 input 的维度。
+Learnable parameters 是γ 和 β 用于对 μ和σ 做 affine 变换。
+running mean 和 running var 在训练时不断使用在前向时得到的 x 的mean 和 var 做加权更新，权重为动量 momentum</p>
+<ul>
+<li>
+<p>BatchNorm 让1个batch的，每个通道的均值为0，方差为1（整个batch的μ也=0）； <br>
+指定通道数量input.shape[1]: <code>bn=nn.BatchNorm1d(num_features=C)</code></p>
+</li>
+<li>
+<p>LayerNorm 让每个样本的全部通道（最后几维，一个单词的特征向量，一幅图片的feature map）的均值为0，方差为1，layer指的是 fc net 的一层；<br>
+指定最后几维: <code>ln=nn.LayerNorm(normalized_shape=[C,H,W])</code>）</p>
+</li>
+<li>
+<p>InstanceNorm 让每个样本的每个通道的均值为0，方差为1，同一batch内的样本没有联系，用于风格迁移；<br>
+指定通道数量: <code>in=nn.InstanceNorm1d(num_features=C)</code></p>
+</li>
+<li>
+<p>GroupNorm 介于 LayerNorm 和 Instance Norm之间，通道分组=1 就是LN，通道分组=C 就是IN；<br>
+指定通道分组: <code>gn=nn.GroupNorm(num_groups=2, num_channels=C)</code>
+<a class="link" href="https://www.bilibili.com/video/BV1MA411P7XZ"  target="_blank" rel="noopener"
+    >lecture 7b 神经网络的训练(归一化，迁移学习）-ranchlai-bili</a>;
+<a class="link" href="https://github.com/SanJerry007/Stanford-CS231n-2021-and-2022"  target="_blank" rel="noopener"
+    >github repo</a></p>
+<div align="center"><img src="https://miro.medium.com/max/700/1*O2kJUz0MfZ754kLlcHtTBQ.jpeg"><center><a href="https://arxiv.org/abs/1803.08494">Wu&He ECCV2018</a></div>
+</li>
+<li>
+<p>Weight Norm</p>
+</li>
+</ul>
+<hr>
+<p>(2023-08-03)</p>
+<h2 id="layernorm-customize">LayerNorm Customize</h2>
+<ul>
+<li>
+<p>LayerNorm, as referring to <a class="link" href="https://github.com/facebookresearch/ConvNeXt/blob/048efcea897d999aed302f2639b6270aedf8d4c8/models/convnext.py#L119C12-L119C12"  target="_blank" rel="noopener"
+    >ConvNeXt-meta</a>&rsquo;s <code>nn.LayerNorm</code>,
+can only normalized the <strong>last</strong> few channels.</p>
+</li>
+<li>
+<p><code>F.layer_norm</code> can be used to normlize one of the <strong>middle</strong> dimensions, as in <a class="link" href="https://github.com/pytorch/vision/blob/9ebf10af02aeb882bd8d7782149e21b48528d562/torchvision/models/convnext.py#L30"  target="_blank" rel="noopener"
+    >ConvNeXt-torchvision</a></p>
+</li>
+</ul>
+<p><strong>Loop of ChatGPT&rsquo;s Wrong Solutions:</strong></p>
+<ol>
+<li>
+<p>Q: In the following code, why is the <code>grad</code> of self.weight None after <code>loss.backward()</code>?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="sa">r</span><span class="s2">&#34;&#34;&#34; Input data: (batch_size, C, H, W)
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Use F.layer_norm to do normalization 
+</span></span></span><span class="line"><span class="cl"><span class="s2">    for the dim of channels.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">)</span> <span class="c1"># C = 3, placeholder</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="sa">r</span><span class="s2">&#34;&#34;&#34; Since the `normalized_shape` (#channels) of x is unknown when initializing the model,
+</span></span></span><span class="line"><span class="cl"><span class="s2">        implement normalization for the channels dimension here.
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],):</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">var</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># biased estimation</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">x</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">224</span><span class="p">,</span><span class="mi">224</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="n">myLN</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">myLN</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">register_hook</span><span class="p">(</span><span class="k">lambda</span> <span class="n">grad</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">grad</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">normalized_x</span> <span class="o">=</span> <span class="n">myLN</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">target_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">224</span><span class="p">,</span><span class="mi">224</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()(</span><span class="n">normalized_x</span><span class="p">,</span> <span class="n">target_x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Answer</strong>:</p>
+<p>The redefined variables <code>self.weight</code>, <code>self.bias</code> inside the forward method are not part of the computation graph,
+so their gradients won&rsquo;t be computed during the backward pass.</p>
+<p>And the new created parameter tensors have <strong>no connection</strong> to the original <code>self.weight</code> and <code>self.bias</code> (created during initialization),
+which are not used in the forward pass. so their <code>grad</code> attribute remain <code>None</code>.</p>
+<p>Finally, he suggested me don&rsquo;t redefine in the forward.</p>
+</li>
+<li>
+<p>Q: But I don&rsquo;t have information about the <strong>shape</strong> of self.weight to initialize it inside the <strong>init</strong> method.</p>
+<p><strong>Answer</strong>:</p>
+<p>Initialize them as <code>None</code> in the <code>__init__</code> method and then initialize them with the correct shape during the first forward pass.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Placeholder for the shape of self.weight</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Placeholder for the weight parameter</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Placeholder for the bias parameter</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># Initialize self.normalized_shape and create weight and bias with the correct shape</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],)</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">var</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">correction</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">x</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>This code has an <code>ValueError: optimizer got an empty parameter list</code></p>
+<p><strong>Anwser</strong>:</p>
+<blockquote>
+<p>Apologies for the oversight.
+The error is happening because the <code>LayerNorm</code> class does not define any learnable parameters (weights and biases) in its <code>__init__</code> method.
+As a result, when you try to pass <code>myLN.parameters()</code> to the optimizer, it doesn&rsquo;t find any parameters to optimize,
+leading to the &ldquo;optimizer got an empty parameter list&rdquo; error.</p>
+<p>In order to use an optimizer like Adam, you need to define at least one learnable parameter within your model that will be optimized during training.</p>
+<p>Since you don&rsquo;t have information about the shape of the input during initialization,
+you can create a placeholder for <code>self.weight</code> and <code>self.bias</code> in the <code>__init__</code> method,
+and then initialize them with the correct shape during the first forward pass.
+To do this, we can use the <code>register_buffer</code> method, which allows us to create tensors that are not optimized during training but still part of the model.</p>
+<p>Here&rsquo;s the updated code with the use of <code>register_buffer</code>:</p>
+</blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">LayerNorm</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;normalized_shape&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([]))</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([]))</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;bias&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([]))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># Initialize self.normalized_shape and create weight and bias with the correct shape</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_shape</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">var</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">correction</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">x</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>Now the model will contain learnable parameters that can be optimized using an optimizer like Adam.
+The <code>grad</code> attribute of <code>self.weight</code> should be available and updated after <code>loss.backward()</code>.</p>
+<p>Additionally, you can also use <code>torch.nn.init</code> functions to initialize the weight and bias tensors in a more standard way.
+For example, you can use <code>torch.nn.init.ones_</code> and <code>torch.nn.init.zeros_</code> to initialize the <code>self.weight</code> and <code>self.bias</code> tensors, respectively.</p>
+</blockquote>
+</li>
+<li>
+<p><code>register_buffer</code> doesn&rsquo;t add parameters to optimizer to optimize neither.</p>
+</li>
+</ol>
+<p>It may be <strong>necessary</strong> to know the number of channels.</p>
+<ul>
+<li>
+<p>Just <strong>sum up</strong> the attribute <code>out_chnnels</code> of each layer, e.g., <code>alexnet.features[0].out_channels</code>.
+<a class="link" href="https://discuss.pytorch.org/t/get-the-input-channels-for-the-conv2d-from-previous-layer/78510/2"  target="_blank" rel="noopener"
+    >PyTorch Forum</a></p>
+<p>But Swin transformer doesn&rsquo;t have Conv2d.</p>
+</li>
+<li>
+<p>Maybe I can only <strong>hard code</strong> the numbers of channels.</p>
+</li>
+<li>
+<p>If you add the norm layer following the convolution layer, the <code>normalized_shape</code> is the out_channels of the convolution layer.</p>
+<p>But here, I want to normalize the stacked extracted feature maps. So I need to know the total channels of the incoming feature maps.</p>
+</li>
+</ul>
+<p>If the #channels is known, I can use <code>F.layer_norm()</code> directly.</p>
+<hr>
+<p>(2023-10-17)</p>
+<h2 id="absorb-bn">Absorb BN</h2>
+<ol>
+<li>
+<p><strong>Normalization</strong> is performed to keep each &ldquo;stage&rdquo; (layer) in a network maintain the <strong>same distribution</strong>,
+such that the training could be more efficient due to</p>
+<ol>
+<li>
+<p>Leaving out modeling <strong>distributions shift</strong> of each layer&rsquo;s input data.</p>
+</li>
+<li>
+<p>Stabilizing optimization by suppressing &ldquo;outliers&rdquo; (high value) in the output feature map of each layer to <strong>avoid big variations</strong> in the final prediction.</p>
+<p>Refer to: <a class="link" href="https://zhuanlan.zhihu.com/p/421632235"  target="_blank" rel="noopener"
+    >BN、BN同步、吸收BN - EveK的文章 - 知乎</a></p>
+</li>
+</ol>
+</li>
+<li>
+<p>Specifically, input data has (mean=0, std=1), but after a conv layer, the outcome feature maps may don&rsquo;t persist (mean=0, std=1).</p>
+<ol>
+<li>
+<p>Ideally, featue maps&rsquo;s distribution should be transformed to (mean=0, std=1) to align with the input data.
+And that transformation requires its <a class="link" href="https://en.wikipedia.org/wiki/Whitening_transformation"  target="_blank" rel="noopener"
+    >whitening matrix</a>
+, which transforms co-variance matrix of the feature maps an identity matrix, meaning <strong>each dimension is unrelated</strong>.
+<a class="link" href="https://blog.csdn.net/weixin_37872766/article/details/102957235"  target="_blank" rel="noopener"
+    >CSDN</a></p>
+<p>However, solving the whitening matrix for a <strong>high-dimension</strong> tensor is time consuming.</p>
+<p>Therefore, the &ldquo;whitening&rdquo; is performed only for each channel.</p>
+</li>
+<li>
+<p>On the other hand, it&rsquo;s difficult to get the exact distributions at once, because the data is trained batch-by-batch.</p>
+<p>Therefore, the distribution to be corrected pertains only to the small batch of data.
+(Or involving previous data by using <strong>moving average of history</strong> mean and std)</p>
+<p>And only 2 parameters (mean, std) of their distribution are considered to keep the distributions consistent.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Once a feature map $M_{(N, C, H, W)}$ spit out from a conv layer,
+BatchNorm normalizes the data at the <strong>same channel</strong> for <strong>all N samples</strong> in the batch:</p>
+<pre class="pseudocode" data-line-number=true>\begin{algorithm}
+\begin{algorithmic}
+\FOR {i=0 \TO M.size(1)}
+  \PROCEDURE{BN}{ M, meanʰ, stdʰ, scale, bias}
+    \STATE mean = M[:, i, :, :].sum() / N   
+
+    \STATE std = ( (M[:, i, :, :] - mean)² / N ).sqrt()
+
+    \STATE M⁰¹ = (M[:, i, :, :] - mean) / std
+
+    \STATE M' = scale * M⁰¹ + bias
+  \ENDPROCEDURE
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+<ul>
+<li>
+<p>meanʰ and stdʰ are from history.</p>
+</li>
+<li>
+<p>The scale factor γ and bias β are for the situation where the variation is very small.
+Then the differences can be magnified through scaling to avoid representation capacity degradation.</p>
+</li>
+<li>
+<p>And γ,β are required to be <strong>learnable</strong> to automatically find the appropriate feature levels.
+Otherwise, bias will grow to infinity as explained in <a class="link" href="https://arxiv.org/abs/1502.03167"  target="_blank" rel="noopener"
+    >paper</a>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Combine BN into wights and bias of the last layer</p>
+<p>$$
+M&rsquo; = γ \frac{M - mean}{std} + β
+= \frac{γ⋅M}{std} \left( β - \frac{γ ⋅ mean}{std} \right)
+$$</p>
+<p>If M is calculated as $M = w⋅x + b$, by substituting it, the equation becomes:</p>
+<p>$$
+M&rsquo;= \frac{γ⋅w}{std} x + \left( β - \frac{γ⋅mean}{std} + \frac{γ⋅b}{std} \right)
+$$</p>
+<p>Thus, w becomes $\frac{γ⋅w}{std}$ and b becomes $( β - \frac{γ⋅mean}{std} + \frac{γ⋅b}{std} )$.</p>
+</li>
+<li>
+<p>Given a conv layer with $C_i$ input channels and $C_o$ output channels,
+BN for this layer has $C_i × C_o$ parameters, where $C_i$ is for the history channels, $C_o$ is for target channels.</p>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"
+              integrity="sha512-EKW5YvKU3hpyyOcN6jQnAxO/L8gts+YdYV6Yymtl8pk9YlYFtqJgihORuRoBXK8/cOIlappdU6Ms8KdK6yBCgA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer">
+      </script>
+    
+      
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+      </script>
+    
+      
+      <script>
+        pseudocode.renderClass("pseudocode");
+      </script>
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Homography warps two images to a common plane, or maps a pixel from a camera plane to another camera plane.
+A pixel can be mapped to another camera because the 2 pixels are the projections of a common 3D point.
+Homography warps the images captured from different angles, observing a common plane at a certain depth, to a unified viewpoint for stitching or other applications.
+A homography corresponds to only one depth.'>
+<title>memo: Vis | Planar Homography</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/vis/planar_homography/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: Vis | Planar Homography'>
+<meta property='og:description' content='Homography warps two images to a common plane, or maps a pixel from a camera plane to another camera plane.
+A pixel can be mapped to another camera because the 2 pixels are the projections of a common 3D point.
+Homography warps the images captured from different angles, observing a common plane at a certain depth, to a unified viewpoint for stitching or other applications.
+A homography corresponds to only one depth.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/vis/planar_homography/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-12-03T17:30:00-05:00'/><meta property='article:modified_time' content='2022-12-03T17:30:00-05:00'/>
+<meta name="twitter:title" content="memo: Vis | Planar Homography">
+<meta name="twitter:description" content="Homography warps two images to a common plane, or maps a pixel from a camera plane to another camera plane.
+A pixel can be mapped to another camera because the 2 pixels are the projections of a common 3D point.
+Homography warps the images captured from different angles, observing a common plane at a certain depth, to a unified viewpoint for stitching or other applications.
+A homography corresponds to only one depth.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#two-cameras">Two Cameras</a></li>
+    <li><a href="#basis-changes">Basis Changes</a></li>
+    <li><a href="#transfer-camera">Transfer Camera</a></li>
+    <li><a href="#generalize-h">Generalize H</a></li>
+    <li><a href="#warp-an-image">Warp An Image</a></li>
+    <li><a href="#multi-depth-planes">Multi-Depth Planes</a></li>
+    <li><a href="#warp-by-sampling">Warp by Sampling</a></li>
+    <li><a href="#4-co-planar-points">4 Co-planar Points</a></li>
+    <li><a href="#solution">Solution</a></li>
+    <li><a href="#misc">Misc</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" >
+                memo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/vis/planar_homography/">memo: Vis | Planar Homography</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 03, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    18 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Homography warps two images to a common plane, or maps a pixel from a camera plane to another camera plane.</p>
+<ul>
+<li>
+<p>A pixel can be mapped to another camera because the 2 pixels are the projections of a <strong>common 3D point</strong>.</p>
+</li>
+<li>
+<p>Homography warps the images captured from different angles, observing a <strong>common plane at a certain depth</strong>,
+to a unified viewpoint for stitching or other applications.</p>
+</li>
+<li>
+<p>A homography corresponds to <strong>only one</strong> depth.
+If the image doesn&rsquo;t only capture a plane at a certain depth, the part with a deviated depth will be distorted in the warped image.
+Thus, solving homographies requires specifying depth.</p>
+</li>
+<li>
+<p>Homography relation is built based on the pose transformation between two cameras, and a depth <strong>embodied</strong> by
+a co-observed point or a co-observed plane.
+Or it can be sovled from 4 pairs of matched pixels.</p>
+</li>
+<li>
+<p>Specifically, two cameras are connected via the 2 <strong>camera-space coordinates conversion</strong> for a <strong>depth-known</strong> co-observed 3D point.</p>
+<ol>
+<li>
+<p>The conversion can be represented by two camera&rsquo;s poses in the <strong>world space</strong>, or
+the <strong>direct</strong> transformation from one camera to the other.</p>
+</li>
+<li>
+<p>The depth of the co-observed 3D point can be given by specifying either <strong>the z-coordinate</strong> directly or <strong>a plane</strong> (𝐧,d) indirectly.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>(2023-12-19) Two scenarios for homography: stitching images based on a co-observed <strong>plane</strong>,
+and transferring viewpoint for a <strong>plane</strong> surface.
+They both rely on the observed plane.</p>
+</li>
+</ul>
+<h2 id="two-cameras">Two Cameras</h2>
+<p>The homography matrix is solved based on <strong>matching points</strong> in a pair of images.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 264 201"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 40,16 L 120,16' fill='none' stroke='currentColor'></path>
+<path d='M 40,64 L 72,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 104,64' fill='none' stroke='currentColor'></path>
+<path d='M 104,64 L 120,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,112 L 48,112' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 64,112' fill='none' stroke='currentColor'></path>
+<path d='M 112,112 L 128,112' fill='none' stroke='currentColor'></path>
+<path d='M 128,112 L 160,112' fill='none' stroke='currentColor'></path>
+<path d='M 80,144 L 96,144' fill='none' stroke='currentColor'></path>
+<path d='M 16,160 L 64,160' fill='none' stroke='currentColor'></path>
+<path d='M 112,160 L 160,160' fill='none' stroke='currentColor'></path>
+<path d='M 16,112 L 16,160' fill='none' stroke='currentColor'></path>
+<path d='M 40,16 L 40,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,112 L 64,160' fill='none' stroke='currentColor'></path>
+<path d='M 112,112 L 112,160' fill='none' stroke='currentColor'></path>
+<path d='M 120,16 L 120,64' fill='none' stroke='currentColor'></path>
+<path d='M 160,112 L 160,160' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 176,80' fill='none' stroke='currentColor'></path>
+<path d='M 32,144 L 48,112' fill='none' stroke='currentColor'></path>
+<path d='M 56,96 L 72,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 88,32' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 L 104,64' fill='none' stroke='currentColor'></path>
+<path d='M 104,64 L 120,96' fill='none' stroke='currentColor'></path>
+<path d='M 128,112 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 56,96' fill='none' stroke='currentColor'></path>
+<polygon points='74.000000,96.000000 62.000000,90.400002 62.000000,101.599998' fill='currentColor' transform='rotate(120.000000, 56.000000, 96.000000)'></polygon>
+<polygon points='104.000000,144.000000 92.000000,138.399994 92.000000,149.600006' fill='currentColor' transform='rotate(0.000000, 96.000000, 144.000000)'></polygon>
+<path d='M 120,96 L 128,112' fill='none' stroke='currentColor'></path>
+<polygon points='138.000000,96.000000 126.000000,90.400002 126.000000,101.599998' fill='currentColor' transform='rotate(60.000000, 120.000000, 96.000000)'></polygon>
+<polygon points='184.000000,80.000000 172.000000,74.400002 172.000000,85.599998' fill='currentColor' transform='rotate(90.000000, 176.000000, 80.000000)'></polygon>
+<circle cx='32' cy='144' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='88' cy='32' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='144' cy='144' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='0' y='148' fill='currentColor' style='font-size:1em'>𝐲</text>
+<text text-anchor='middle' x='8' y='148' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='24' y='180' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='32' y='180' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>W</text>
+<text text-anchor='middle' x='40' y='180' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>𝐏</text>
+<text text-anchor='middle' x='48' y='180' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='88' y='132' fill='currentColor' style='font-size:1em'>𝐇</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>𝐐</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='120' y='84' fill='currentColor' style='font-size:1em'>𝐏</text>
+<text text-anchor='middle' x='120' y='180' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='128' y='84' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='128' y='180' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='136' y='180' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='144' y='180' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='168' y='148' fill='currentColor' style='font-size:1em'>𝐲</text>
+<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='192' y='52' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='192' y='68' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>j</text>
+<text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='240' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='240' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='248' y='68' fill='currentColor' style='font-size:1em'>s</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>$$
+𝐲₁ = 𝐏₁ ⋅ 𝐐 \\
+𝐲₂ = 𝐏₂ ⋅ 𝐐 \\
+𝐲₂ = 𝐏₂ ⋅ 𝐏₁⁻¹ * 𝐲₁
+$$</p>
+<ul>
+<li>
+<p>𝐏 is the projecting operation that converts a world <strong>coordinates</strong> of a point 𝐱 to pixel coordinates 𝐲.</p>
+<p>$𝐏 = 𝐊[𝐑|𝐭]$ and $𝐏⁻¹ = [𝐑|𝐭]⁻¹𝐊⁻¹$</p>
+</li>
+<li>
+<p>𝐏₂ ⋅ 𝐏₁⁻¹ is the homography matrix.</p>
+</li>
+<li>
+<p>Besides 𝐊[𝐑|𝐭], the <strong>z-coordinate of covisible point 𝐐</strong> (or the &ldquo;distance from camera center to plane&rdquo; d) is necessary.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 208 137"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 48,96 L 56,96' fill='none' stroke='currentColor'></path>
+<path d='M 56,96 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,96 L 128,96' fill='none' stroke='currentColor'></path>
+<path d='M 128,96 L 176,96' fill='none' stroke='currentColor'></path>
+<path d='M 56,64 L 56,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 120,80' fill='none' stroke='currentColor'></path>
+<polygon points='64.000000,64.000000 52.000000,58.400002 52.000000,69.599998' fill='currentColor' transform='rotate(270.000000, 56.000000, 64.000000)'></polygon>
+<polygon points='132.000000,80.000000 120.000000,74.400002 120.000000,85.599998' fill='currentColor' transform='rotate(60.000000, 120.000000, 80.000000)'></polygon>
+<circle cx='96' cy='32' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='128' cy='96' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='88' y='68' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='96' y='52' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='96' y='84' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>𝐐</text>
+<text text-anchor='middle' x='136' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='160' y='116' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='168' y='116' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='176' y='116' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='184' y='116' fill='currentColor' style='font-size:1em'>)</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Since the inverse intrisics $𝐊⁻¹ ⋅(u,v,1)ᵀ$ solely <strong>can&rsquo;t determine</strong> a unique 3D point as
+z has been canceled when $(u,v,1)ᵀ=\frac{1}{z}⋅𝐊⁻¹ ⋅ (x,y,z)ᵀ$,
+the z must be <strong>specified at first</strong>. <a class="link" href="#%e7%9f%a5%e4%b9%8e-ewr" >5</a></p>
+<p>$$ (x,y,z)ᵀ = 𝐊⁻¹ ⋅z ⋅(u,v,1)ᵀ $$</p>
+<p>If assuming camera&rsquo;s z-axis is <strong>perpendicular</strong> to the observed plane, then z is indeed $d$.
+Thus, the z-retained coordinates of the pixel 𝐲₁ is (ud,vd,d),
+such that $𝐊⁻¹ ⋅d⋅(u,v,1)ᵀ$ is a <strong>unique 3D point</strong> in the camera space.</p>
+<ul>
+<li>
+<p>Recall the NeRF&rsquo;s sampling points (<a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/run_nerf_helpers.py#L133-L138"  target="_blank" rel="noopener"
+    ><code>get_rays_np</code></a>):
+meshgrid as pixel coordinates
+→ divided by focal (with z=1) to be in camera space
+→ @c2w to be in world space → z vals sampling</p>
+<p>Thus $𝐊⁻¹ ⋅(u,v,1)ᵀ$ only determines the viewdir, not a 3D point.</p>
+</li>
+</ul>
+<p>Then, roll back it to world space and project to the other camera to get the pixel 𝐲₂.</p>
+<p>$$
+𝐲₂ = 𝐊₂[^{𝐑₂ \quad 𝐭₂}_{0 \quad 1}] [^{𝐑₁ \quad 𝐭₁}_{0 \quad 1}]⁻¹𝐊₁⁻¹ ⋅d⋅𝐲₁
+$$</p>
+<p>Overview: Plane1 → camera1 → world space → camera 2 → plane 2</p>
+</li>
+<li>
+<p>However, if either 𝐐&rsquo;s $z$ (or the distance $d$), or poses of two cameras is <strong>unknown</strong>,
+the 3x3 homography matrix can be solved from 4 pairs of matching pixels.</p>
+</li>
+</ul>
+<hr>
+<p>(2023-12-04)</p>
+<h2 id="basis-changes">Basis Changes</h2>
+<p>Refer to <a class="link" href="https://www.cs.toronto.edu/~jepson/csc2503/tutorials/homography.pdf"  target="_blank" rel="noopener"
+    >Planar homographies - Department of Computer Science, University of Toronto</a></p>
+<p>In a <strong>&ldquo;meta space&rdquo;</strong> holding two cameras, for example the world space,
+a ray <strong>emitted from the world origin</strong> passed through 2 <strong>world points</strong> 𝐦, 𝐧 locating on 2 planes separately.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 336 281"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 152,32 L 224,32' fill='none' stroke='currentColor'></path>
+<path d='M 24,64 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,64 L 128,64' fill='none' stroke='currentColor'></path>
+<path d='M 128,64 L 168,64' fill='none' stroke='currentColor'></path>
+<path d='M 200,64 L 240,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 216,128 L 240,128' fill='none' stroke='currentColor'></path>
+<path d='M 88,160 L 104,160' fill='none' stroke='currentColor'></path>
+<path d='M 104,160 L 128,160' fill='none' stroke='currentColor'></path>
+<path d='M 216,160 L 288,160' fill='none' stroke='currentColor'></path>
+<path d='M 72,112 L 72,224' fill='none' stroke='currentColor'></path>
+<path d='M 88,128 L 88,160' fill='none' stroke='currentColor'></path>
+<path d='M 128,0 L 128,64' fill='none' stroke='currentColor'></path>
+<path d='M 128,64 L 128,112' fill='none' stroke='currentColor'></path>
+<path d='M 72,112 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 128,0' fill='none' stroke='currentColor'></path>
+<path d='M 88,160 L 104,128' fill='none' stroke='currentColor'></path>
+<path d='M 72,224 L 104,160' fill='none' stroke='currentColor'></path>
+<path d='M 104,160 L 128,112' fill='none' stroke='currentColor'></path>
+<path d='M 216,128 L 232,96' fill='none' stroke='currentColor'></path>
+<path d='M 152,32 L 168,64' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 216,160' fill='none' stroke='currentColor'></path>
+<path d='M 200,96 L 216,128' fill='none' stroke='currentColor'></path>
+<path d='M 224,32 L 240,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 288,160' fill='none' stroke='currentColor'></path>
+<polygon points='96.000000,128.000000 84.000000,122.400002 84.000000,133.600006' fill='currentColor' transform='rotate(270.000000, 88.000000, 128.000000)'></polygon>
+<polygon points='116.000000,128.000000 104.000000,122.400002 104.000000,133.600006' fill='currentColor' transform='rotate(300.000000, 104.000000, 128.000000)'></polygon>
+<polygon points='136.000000,160.000000 124.000000,154.399994 124.000000,165.600006' fill='currentColor' transform='rotate(0.000000, 128.000000, 160.000000)'></polygon>
+<polygon points='212.000000,96.000000 200.000000,90.400002 200.000000,101.599998' fill='currentColor' transform='rotate(240.000000, 200.000000, 96.000000)'></polygon>
+<polygon points='244.000000,96.000000 232.000000,90.400002 232.000000,101.599998' fill='currentColor' transform='rotate(300.000000, 232.000000, 96.000000)'></polygon>
+<polygon points='248.000000,128.000000 236.000000,122.400002 236.000000,133.600006' fill='currentColor' transform='rotate(0.000000, 240.000000, 128.000000)'></polygon>
+<polygon points='280.000000,64.000000 268.000000,58.400002 268.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 272.000000, 64.000000)'></polygon>
+<circle cx='24' cy='64' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='112' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='200' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>W</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>M</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='48' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='72' y='244' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='72' y='260' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='80' y='244' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='80' y='260' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='88' y='116' fill='currentColor' style='font-size:1em'>𝐚</text>
+<text text-anchor='middle' x='88' y='244' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='88' y='260' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='96' y='244' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='96' y='260' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>𝐚</text>
+<text text-anchor='middle' x='104' y='244' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='260' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>𝐦</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='112' y='260' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='244' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='128' y='244' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='128' y='260' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='144' y='164' fill='currentColor' style='font-size:1em'>𝐚</text>
+<text text-anchor='middle' x='152' y='164' fill='currentColor' style='font-size:1em'>₀</text>
+<text text-anchor='middle' x='192' y='84' fill='currentColor' style='font-size:1em'>𝐛</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='200' y='84' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='200' y='244' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='200' y='260' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='208' y='244' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='208' y='260' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='216' y='244' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='216' y='260' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='224' y='244' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='224' y='260' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='232' y='84' fill='currentColor' style='font-size:1em'>𝐛</text>
+<text text-anchor='middle' x='232' y='244' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='232' y='260' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='240' y='84' fill='currentColor' style='font-size:1em'>₀</text>
+<text text-anchor='middle' x='240' y='260' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='248' y='244' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='256' y='132' fill='currentColor' style='font-size:1em'>𝐛</text>
+<text text-anchor='middle' x='256' y='244' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='256' y='260' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='264' y='132' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='296' y='68' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='304' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='312' y='68' fill='currentColor' style='font-size:1em'>y</text>
+</g>
+
+    </svg>
+  
+</div>
+<ol>
+<li>
+<p>$\vec{a₀}$ and $\vec{b₀}$ are the <strong>normal vector</strong> of two planes.</p>
+</li>
+<li>
+<p>$\vec{a₁}$, $\vec{a₂}$ are orthogonal, so they form <strong>a basis</strong> of the plane,  same as $\vec{b₁}$, $\vec{b₂}$.</p>
+<p>Thus, the world point 𝐦 on the plane can be <strong>represented by its planar basis</strong> as 𝐩 = (p₁,p₂,1) :</p>
+<p>$$
+𝐦 = 𝐚₁ p₁ +  𝐚₂ p₂ + 𝐚₀ = \begin{pmatrix}𝐚₁ &amp; 𝐚₂ &amp; 𝐚₀\end{pmatrix} \begin{pmatrix} p₁ \\ p₂ \\ 1 \end{pmatrix}
+= 𝐀 \begin{pmatrix} p₁ \\ p₂ \\ 1 \end{pmatrix}
+$$</p>
+<ul>
+<li>
+<p>Specifically, 𝐚₀, 𝐚₁, 𝐚₂ make up the <strong>camera space</strong>.</p>
+<p>Since each <strong>column</strong> in A is the camera (source) space basis axis seen from the world (original) space,
+𝐀 contains c2w, and $𝐀 = [𝐑|𝐭]ₘ⁻¹𝐊ₘ⁻¹$</p>
+</li>
+</ul>
+<p>Similarly, the point 𝐧 represented by the basis of its plane is 𝐪 = (q₁,q₂,1):</p>
+<p>$$𝐧 = \begin{pmatrix}𝐛₁ &amp; 𝐛₂ &amp; 𝐛₀\end{pmatrix} \begin{pmatrix} q₁ \\ q₂ \\ 1 \end{pmatrix}
+= 𝐁 \begin{pmatrix} q₁ \\ q₂ \\ 1 \end{pmatrix}
+$$</p>
+<ul>
+<li>where 𝐁 can be interpreted as $𝐁= [𝐑|𝐭]ₙ⁻¹𝐊ₙ⁻¹$</li>
+</ul>
+</li>
+<li>
+<p>Because the two world points are on the <strong>common line</strong>, and they satisfy the <strong>perspective projection</strong> centered at the world origin,
+so the only difference between them is a <strong>scaling factor</strong>.</p>
+<p>$$𝐦 = α 𝐧$$</p>
+<ul>
+<li>α is a scalar that depends on 𝐧. And eventually, on 𝐪. So α is a function of 𝐪, i.e., α(𝐪).</li>
+</ul>
+<p>Substituting their <strong>coordinates</strong> 𝐩 and 𝐪:</p>
+<p>$$
+\begin{aligned}
+𝐀𝐩 = α(𝐪) ⋅𝐁⋅𝐪  \\
+𝐩 = α(𝐪) ⋅𝐀⁻¹⋅𝐁⋅𝐪
+\end{aligned}
+$$</p>
+<ul>
+<li>A is invertible because its 3 rows (base vectors) are <strong>independent</strong> and nonzero as the <strong>plane doesn&rsquo;t cross zero</strong>.</li>
+</ul>
+</li>
+<li>
+<p>If 𝐦 and 𝐧 are overlapped, i.e., the same point, which is just observed from different angles,
+the scale factor α = 1.</p>
+</li>
+</ol>
+<hr>
+<p>(2023-12-05)</p>
+<h2 id="transfer-camera">Transfer Camera</h2>
+<p>Source article: <a class="link" href="https://silverwind1982.pixnet.net/blog/post/153225557"  target="_blank" rel="noopener"
+    >Pinhole Camera: Homography - 拾人牙慧 - 痞客邦</a></p>
+<ul>
+<li>
+<p>Homography transfers a pixel on cam1 to another camera&rsquo;s film.</p>
+</li>
+<li>
+<p>A homography can be solved if the rotation and translation <strong>from one camera to the other</strong> and
+the co-observed plane (𝐧,d) is defined under the <strong>original</strong> camera space.</p>
+<p>In other words, the camera-1&rsquo;s space is regraded as the <strong>world space</strong>.
+Thus, the extrinsics of cam1 is [𝐈|0], and cam2&rsquo;s extrinsics is [𝐑|𝐭].</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 240 137"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 64,16 L 112,16' fill='none' stroke='currentColor'></path>
+<path d='M 32,48 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 96,48 L 120,48' fill='none' stroke='currentColor'></path>
+<path d='M 136,48 L 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 32,96 L 80,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,96 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 32,48 L 32,96' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 L 80,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,48 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 128,32 L 128,48' fill='none' stroke='currentColor'></path>
+<path d='M 144,48 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 48,32 L 48,40' fill='none' stroke='currentColor'></path>
+<polygon points='136.000000,48.000000 124.000000,42.400002 124.000000,53.599998' fill='currentColor' transform='rotate(90.000000, 128.000000, 48.000000)'></polygon>
+<path d='M 64,16 A 16,16 0 0,0 48,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,16 A 16,16 0 0,1 128,32' fill='none' stroke='currentColor'></path>
+<circle cx='48' cy='80' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='128' cy='80' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>𝐐</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='48' y='68' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>𝐭</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='120' y='68' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>𝐐</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>'</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>Note: In this setting, the co-observed 3D point 𝐐&rsquo;s <strong>coordinates aren&rsquo;t given</strong>,
+so the plane {𝐧,d} is necessary to derive the crucial <strong>z-coordinate</strong> of 𝐐.</p>
+</li>
+<li>
+<p>Supp: A plane in a 3D space can be defined by its normal vector 𝐧 (a,b,c) and a point 𝐐 (x,y,z) located on it as: $𝐧𝐐 = 0$
+<a class="link" href="https://math.libretexts.org/Bookshelves/Calculus/Calculus_%28OpenStax%29/12%3A_Vectors_in_Space/12.05%3A_Equations_of_Lines_and_Planes_in_Space"  target="_blank" rel="noopener"
+    >(12.5: Equations of Lines and Planes in Space)</a>.</p>
+<p>$$ 𝐧⋅𝐐 = (a,b,c) (x-x₀, y-y₀, z-z₀) \\
+= ax-ax₀+by-by₀+cz-cz₀ = 0 $$</p>
+<ul>
+<li>where (x₀,y₀,z₀) is the &ldquo;origin&rdquo;.</li>
+</ul>
+</li>
+<li>
+<p>If the plane is displaced from the origin <strong>along its normal vector</strong> by distance $d$, the plane is $𝐧𝐐-d=0$. <a class="link" href="https://www.songho.ca/math/plane/plane.html"  target="_blank" rel="noopener"
+    >(Plane Equation - Song Ho)</a></p>
+<p>$$ 𝐧⋅𝐐 = (a,b,c) (x-da-x₀, y-db-y₀, z-dc-z₀) \\
+= ax-ax₀+by-by₀+cz-cz₀ -d = 0 $$</p>
+<p>Thus, 𝐐 can be determined by 𝐧 and d.</p>
+</li>
+</ul>
+<p>The normal vector 𝐧 uses <strong>coordinates in the camera-1</strong>,
+as it&rsquo;s used to locate the point 𝐐 observed by camera-1.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 288 217"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 40,16 L 168,16' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 224,16' fill='none' stroke='currentColor'></path>
+<path d='M 224,16 L 240,16' fill='none' stroke='currentColor'></path>
+<path d='M 192,48 L 208,48' fill='none' stroke='currentColor'></path>
+<path d='M 208,48 L 256,48' fill='none' stroke='currentColor'></path>
+<path d='M 136,96 L 176,96' fill='none' stroke='currentColor'></path>
+<path d='M 192,96 L 240,96' fill='none' stroke='currentColor'></path>
+<path d='M 24,128 L 48,128' fill='none' stroke='currentColor'></path>
+<path d='M 80,128 L 120,128' fill='none' stroke='currentColor'></path>
+<path d='M 120,128 L 160,128' fill='none' stroke='currentColor'></path>
+<path d='M 40,160 L 72,160' fill='none' stroke='currentColor'></path>
+<path d='M 104,160 L 208,160' fill='none' stroke='currentColor'></path>
+<path d='M 24,32 L 24,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 48,112' fill='none' stroke='currentColor'></path>
+<path d='M 72,128 L 72,160' fill='none' stroke='currentColor'></path>
+<path d='M 24,128 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 104,160 L 120,128' fill='none' stroke='currentColor'></path>
+<path d='M 120,128 L 136,96' fill='none' stroke='currentColor'></path>
+<path d='M 192,48 L 208,16' fill='none' stroke='currentColor'></path>
+<path d='M 168,128 L 192,80' fill='none' stroke='currentColor'></path>
+<path d='M 192,80 L 208,48' fill='none' stroke='currentColor'></path>
+<path d='M 208,48 L 224,16' fill='none' stroke='currentColor'></path>
+<path d='M 208,160 L 240,96' fill='none' stroke='currentColor'></path>
+<path d='M 24,128 L 40,160' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 72,160' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 72,128' fill='none' stroke='currentColor'></path>
+<path d='M 96,176 L 104,192' fill='none' stroke='currentColor'></path>
+<path d='M 240,16 L 256,48' fill='none' stroke='currentColor'></path>
+<polygon points='108.000000,176.000000 96.000000,170.399994 96.000000,181.600006' fill='currentColor' transform='rotate(240.000000, 96.000000, 176.000000)'></polygon>
+<polygon points='160.000000,128.000000 148.000000,122.400002 148.000000,133.600006' fill='currentColor' transform='rotate(0.000000, 160.000000, 128.000000)'></polygon>
+<polygon points='176.000000,16.000000 164.000000,10.400000 164.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 168.000000, 16.000000)'></polygon>
+<polygon points='204.000000,80.000000 192.000000,74.400002 192.000000,85.599998' fill='currentColor' transform='rotate(300.000000, 192.000000, 80.000000)'></polygon>
+<path d='M 40,16 A 16,16 0 0,0 24,32' fill='none' stroke='currentColor'></path>
+<circle cx='24' cy='128' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='64' cy='128' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='168' cy='128' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='208' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='224' cy='16' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>𝐂</text>
+<text text-anchor='middle' x='8' y='180' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='24' y='148' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='24' y='164' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='24' y='180' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='24' y='196' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>𝐭</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>𝐊</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>⁻</text>
+<text text-anchor='middle' x='112' y='180' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>¹</text>
+<text text-anchor='middle' x='160' y='148' fill='currentColor' style='font-size:1em'>𝐐</text>
+<text text-anchor='middle' x='176' y='84' fill='currentColor' style='font-size:1em'>𝐊</text>
+<text text-anchor='middle' x='184' y='132' fill='currentColor' style='font-size:1em'>𝐐</text>
+<text text-anchor='middle' x='184' y='180' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='192' y='132' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='192' y='180' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='192' y='196' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='200' y='180' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='200' y='196' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='208' y='180' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='208' y='196' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='216' y='180' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='216' y='196' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>𝐂</text>
+<text text-anchor='middle' x='224' y='180' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='224' y='196' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>₂</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Within the <strong>camera-1 space</strong>, the distance from the camera center 𝐂₁ to the plane can be expressed as
+the <strong>inner product</strong> of $𝐐$ (or $𝐂₁𝐐$) and $𝐧$</p>
+<p>$$ d = 𝐧ᵀ⋅𝐐 = 1⋅|𝐐|⋅cosθ $$</p>
+<ul>
+<li>
+<p>If 𝐧 points towards <strong>the side with the camera-1</strong>, then θ is larger than 90°,
+so d is negative. Thus, a <strong>minus sign</strong> will be added.</p>
+<p>In MVSNet, all preset depth planes are <strong>parallel</strong> to the reference camera,
+so 𝐧 represented in the reference camera space is $(0,0,-1)ᵀ$,
+and $𝐧 𝐑_{ref}$ (i.e., <a class="link" href="https://github.com/YoYo000/MVSNet/blob/3ae2cb2b72c6df58ebcb321d7d243d4efd01fbc5/mvsnet/homography_warping.py#L29"  target="_blank" rel="noopener"
+    ><code>fronto_direction</code></a>)
+is the <strong>opposite z-axis</strong> of $𝐑_{ref}$ (extrinsics) in the <strong>world space</strong>.</p>
+</li>
+</ul>
+<p><del>If $d$ and $𝐧$ are known, the coordinate of 𝐐 under camera-1 space can be written as:</del></p>
+<p>If $d$ and 𝐧 are known, although there is $𝐐 = \frac{d}{𝐧ᵀ}$, the 𝐐=(Qx,Qy,Qz)ᵀ can&rsquo;t be determined uniquely based on it alone.
+Because there are 3 unkonwns with only 1 constraint, there is infinitely many solutions.</p>
+<p>However, the following equation can be used:</p>
+<p>$$ 1 = - \frac{𝐧ᵀ⋅𝐐}{d} $$</p>
+<p>Assume the conversion between two cameras is:
+$$𝐐&rsquo; = 𝐑𝐐 + 𝐭$$</p>
+<ul>
+<li>
+<p>𝐑 and 𝐭 transform the coordinates in camera-1 to coordinates in camera-2,
+i.e., the camera-1 is transformed to camera-2.</p>
+</li>
+<li>
+<p>𝐐&rsquo; is the coordinates of the covisible point in the camera-2&rsquo;s space.
+With it, the <strong>target pixel</strong> on camera-2 is: $𝐊&rsquo;𝐐&rsquo;$.</p>
+</li>
+</ul>
+<p>By substituting the above equation of 1, 𝐐&rsquo; can be expressed with plane&rsquo;s parameters:</p>
+<p>$$ 𝐐&rsquo; = 𝐑𝐐 + 𝐭⋅1 = (𝐑 -𝐭 \frac{𝐧ᵀ}{d})𝐐 $$</p>
+<ul>
+<li>
+<p>Essentially, the z-coordinate of 𝐐 is determined by the plane uniquely.</p>
+</li>
+<li>
+<p>Thus, 𝐐 can be given by specifying z directly or a plane (𝐧,d) equivalently.</p>
+<p>And 𝐐&rsquo; can be represented by two cameras&rsquo; poses or the transformation from one camera to the other.</p>
+</li>
+</ul>
+<p>Suppose two cameras have different intrinsics 𝐊 and 𝐊&rsquo;, so their projection pixels are 𝐩 and 𝐪 respectively:</p>
+<p>$$ 𝐩 = 𝐊𝐐  \quad \text{and} \quad 𝐪 = 𝐊&rsquo; 𝐐&rsquo;  $$</p>
+<p>Substituting 𝐐&rsquo;, the 𝐪 will be derived from 𝐩:</p>
+<p>$$ 𝐪 = 𝐊&rsquo; (𝐑-𝐭 \frac{𝐧ᵀ}{d})𝐐 = 𝐊&rsquo; (𝐑-𝐭 \frac{𝐧ᵀ}{d}) 𝐊⁻¹𝐩 $$</p>
+<p>Hence, the homography from 𝐩 to 𝐪 is:
+$$ 𝐇 = 𝐊&rsquo; (𝐑-𝐭 \frac{𝐧ᵀ}{d}) 𝐊⁻¹ $$</p>
+<hr>
+<p>(2023-12-06)</p>
+<p>$𝐊⁻¹ ⋅(u,v,1)ᵀ$ <strong>can&rsquo;t restore</strong> a 3D point uniquely because z has been absorbed into u,v. (i.e., z is unknown in $\rm 𝐐 = 𝐊⁻¹⋅ z⋅ (u,v,1)ᵀ$)
+Instead, it represents a line of points with various z, corresponding to the <strong>epipolar line</strong> on the other camera film.<a class="link" href="#%e7%9f%a5%e4%b9%8e-ewr" >5</a></p>
+<p>Therefore, the distance from a camera to the plane is used to specify the <strong>point on a certain plane</strong>,
+which will be transformed <strong>first to the other camera space</strong> and then projected perspectively onto <strong>camera film</strong>.</p>
+<p>$$
+\begin{aligned}
+𝐐 &amp;= -\frac{d}{𝐧ᵀ} &amp; \text{unique point} \\
+𝐐&rsquo; &amp;= 𝐑 𝐐 + 𝐭  &amp; \text{Another camera space} \\
+𝐪 &amp;= 𝐊 𝐐&rsquo; = 𝐊(𝐑 𝐐 +𝐭) &amp; \text{perspective project} \\
+&amp;= 𝐊 (𝐑 -𝐭 \frac{𝐧ᵀ}{d}) 𝐐 \\
+&amp;= 𝐊 (𝐑 -𝐭 \frac{𝐧ᵀ}{d}) 𝐊^{-1} 𝐩
+\end{aligned}
+$$</p>
+<p>In this way, the projection on a camera film is mapped to another camera&rsquo;s film.</p>
+<p>Note: the pixel coordinates on the two films are not the same.</p>
+<hr>
+<p>(2023-12-07)</p>
+<h2 id="generalize-h">Generalize H</h2>
+<p>Source article: <a id="知乎-ewr" href="https://zhuanlan.zhihu.com/p/363830541" target="_blank">5. Multi-View Stereo中的平面扫描(plane sweep) - ewrfcas的文章 - 知乎</a></p>
+<p>The generalized homography describes the pixel mapping from the reference plane 𝐂₁ to the plane of an <strong>arbitrary camera</strong> 𝐂ᵢ.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 208 185"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 48,32 L 104,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,48 L 104,48' fill='none' stroke='currentColor'></path>
+<path d='M 128,64 L 144,64' fill='none' stroke='currentColor'></path>
+<path d='M 144,64 L 160,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 64,112' fill='none' stroke='currentColor'></path>
+<path d='M 112,112 L 136,112' fill='none' stroke='currentColor'></path>
+<path d='M 32,48 L 32,96' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 96,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 96,144' fill='none' stroke='currentColor'></path>
+<path d='M 144,80 L 144,112' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 128,64 L 144,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 96,144' fill='none' stroke='currentColor'></path>
+<path d='M 144,32 L 160,64' fill='none' stroke='currentColor'></path>
+<polygon points='72.000000,112.000000 60.000000,106.400002 60.000000,117.599998' fill='currentColor' transform='rotate(0.000000, 64.000000, 112.000000)'></polygon>
+<polygon points='112.000000,32.000000 100.000000,26.400000 100.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 104.000000, 32.000000)'></polygon>
+<polygon points='112.000000,48.000000 100.000000,42.400002 100.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 104.000000, 48.000000)'></polygon>
+<polygon points='136.000000,112.000000 124.000000,106.400002 124.000000,117.599998' fill='currentColor' transform='rotate(0.000000, 136.000000, 112.000000)'></polygon>
+<polygon points='152.000000,80.000000 140.000000,74.400002 140.000000,85.599998' fill='currentColor' transform='rotate(270.000000, 144.000000, 80.000000)'></polygon>
+<path d='M 96,48 A 16,16 0 0,0 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 32,96 A 16,16 0 0,0 48,112' fill='none' stroke='currentColor'></path>
+<circle cx='96' cy='112' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='144' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='144' cy='112' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>W</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>𝐭</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='24' y='68' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>𝐇</text>
+<text text-anchor='middle' x='64' y='68' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='72' y='68' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='80' y='164' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='88' y='164' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>𝐭</text>
+<text text-anchor='middle' x='96' y='164' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='112' y='164' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='132' fill='currentColor' style='font-size:1em'>𝐐</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='160' y='116' fill='currentColor' style='font-size:1em'>𝐐</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='168' y='116' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>i</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>To apply the above derived expression 𝐇, the camera Ref-1 should <strong>always be the &ldquo;world space&rdquo;</strong>,
+and the target plane is various source camera-i.</p>
+<p>Thus, the coordinates 𝐐&rsquo; in a source camera-i space is transformed from 𝐐 in the Ref-1 camera space as:</p>
+<p>$$
+𝐐&rsquo; =\begin{bmatrix} 𝐑ᵢ &amp; 𝐭ᵢ \\ 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 𝐑₁ &amp; 𝐭₁ \\ 0 &amp; 1 \end{bmatrix}^{-1} 𝐐
+$$</p>
+<p>The matrices product can be simplified as:</p>
+<p>$$
+\begin{bmatrix} 𝐑ᵢ &amp; 𝐭ᵢ \\ 0 &amp; 1 \end{bmatrix}
+\begin{bmatrix} 𝐑₁ &amp; 𝐭₁ \\ 0 &amp; 1 \end{bmatrix}^{-1} =
+\begin{bmatrix} 𝐑ᵢ &amp; 𝐭ᵢ \\ 0 &amp; 1 \end{bmatrix}
+\frac{1}{𝐑₁}\begin{bmatrix} 1 &amp; -𝐭₁ \\ 0 &amp; 𝐑₁ \end{bmatrix} = \\
+\begin{bmatrix} 𝐑ᵢ &amp; 𝐭ᵢ \\ 0 &amp; 1 \end{bmatrix}
+\begin{bmatrix}𝐑₁⁻¹ &amp; -𝐑₁⁻¹𝐭₁ \\ 0 &amp; 1 \end{bmatrix} =
+\begin{bmatrix} 𝐑ᵢ𝐑₁⁻¹ &amp; -𝐑ᵢ𝐑₁⁻¹𝐭₁+𝐭ᵢ \\ 0 &amp; 1 \end{bmatrix} \\
+$$</p>
+<p>Therefore, the generalized relation between 𝐐&rsquo; and 𝐐 is:</p>
+<p>$$ 𝐐&rsquo; = \tilde{𝐑}𝐐+ \tilde{𝐭} = 𝐑ᵢ𝐑₁⁻¹ 𝐐 + (-𝐑ᵢ𝐑₁⁻¹𝐭₁+𝐭ᵢ)$$</p>
+<p>Substituting $\tilde{𝐑}$ and $\tilde{𝐭}$ into the planar homography:</p>
+<p>$$
+𝐪 =𝐊ᵢ (𝐑ᵢ𝐑₁⁻¹ - \frac{(-𝐑ᵢ𝐑₁⁻¹𝐭₁+𝐭ᵢ) 𝐧ᵀ}{d} ) 𝐊₁⁻¹𝐩
+$$</p>
+<p>Rearrange it to align with the MVSNet paper:</p>
+<p>$$
+𝐪 =𝐊ᵢ 𝐑ᵢ(𝐑₁⁻¹ - \frac{(-𝐑₁⁻¹𝐭₁+𝐑ᵢ⁻¹𝐭ᵢ)𝐧ᵀ}{d}) 𝐊₁⁻¹𝐩 \\
+= 𝐊ᵢ 𝐑ᵢ ( 𝐈 - \frac{(-𝐑₁⁻¹𝐭₁+𝐑ᵢ⁻¹𝐭ᵢ) 𝐧ᵀ 𝐑₁}{d})𝐑₁⁻¹ 𝐊₁⁻¹𝐩
+$$</p>
+<p>The eq. (1) in MVSNet was <strong>wrong</strong>:
+$𝐇_i(d) = 𝐊ᵢ 𝐑ᵢ ( 𝐈 - \frac{(𝐭₁-𝐭ᵢ) 𝐧ᵀ}{d})𝐑₁ᵀ 𝐊₁ᵀ$,
+(<a class="link" href="https://github.com/YoYo000/MVSNet/issues/77#issuecomment-593096933"  target="_blank" rel="noopener"
+    >issue #77</a>)</p>
+<ul>
+<li>$𝐊₁⁻¹ \neq 𝐊₁ᵀ$ since 𝐊 may not be an orthogonal matrix.</li>
+<li>𝐑ᵢ⁻¹ and 𝐑₁ can&rsquo;t be cancled.</li>
+</ul>
+<p>Corresponding to MVSNet-TF <a class="link" href="https://github.com/YoYo000/MVSNet/blob/master/mvsnet/homography_warping.py"  target="_blank" rel="noopener"
+    >code</a>,
+<code>c_left</code> is $-𝐑₁⁻¹𝐭₁$; <code>c_right</code> is $-𝐑ᵢ⁻¹𝐭ᵢ$;
+<code>c_relative</code> is $-(-𝐑₁⁻¹𝐭₁+𝐑ᵢ⁻¹𝐭ᵢ)$
+<code>fronto_direction</code> is $-𝐧ᵀ 𝐑₁$, which is <code>R_left[2,:]</code>.
+Therefore, <code>temp_vec = tf.matmul(c_relative, fronto_direction)</code> is $(-𝐑₁⁻¹𝐭₁+𝐑ᵢ⁻¹𝐭ᵢ) 𝐧ᵀ 𝐑₁$.</p>
+<hr>
+<h2 id="warp-an-image">Warp An Image</h2>
+<ul>
+<li>
+<p>(2023-12-19) Homography warps a <strong>non-rectangle</strong> to a rectangle.</p>
+<figure><img src="https://docs.opencv.org/4.x/homography_perspective_correction.jpg"/>
+  </figure>
+
+</li>
+</ul>
+<p>(2023-02-08)</p>
+<p>Homography matrix warps an image to another plane.
+In the application of image stitching, multiple images are warped to a <strong>unified plane</strong>.</p>
+<p>The images have to be observing the common plane.</p>
+<ul>
+<li>
+<p>It works for stitching planar panoramas because the scene is far from the camera.</p>
+</li>
+<li>
+<p>(2023-12-17) In other words, co-planar points <strong>remain co-planar</strong> after a homography transformation (matrix).
+For example, a point on a plane that in image-1 remains located on the plane viewed by image-2.</p>
+<p>Two pairs of matched points will perform the same transformation:
+$$\begin{cases}p_1 = H p_2 \\ q_1 = H q_2 \end{cases}$$</p>
+<p>Put differently, &ldquo;a plane remains a plane in another view&rdquo;, while the portion that is not on the plane will be warped.</p>
+</li>
+</ul>
+<ul>
+<li>
+<p>R,T can be solved from H and K.</p>
+</li>
+<li>
+<p>Demo: Warp the image to simulate the scene seen from another displaced camera (Aerial View).
+Refer to: <a class="link" href="https://youtu.be/flYOCVQvrzU"  target="_blank" rel="noopener"
+    >OTC4 Homography說明以及小實驗-AI葵</a></p>
+<p>Select 10 points to form a plane, which remains a plane in another view after transformion.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">cv2</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">img1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&#34;rot1.png&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pts1</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">124</span><span class="p">),</span> <span class="p">(</span><span class="mi">49</span><span class="p">,</span> <span class="mi">124</span><span class="p">),</span> <span class="p">(</span><span class="mi">98</span><span class="p">,</span> <span class="mi">124</span><span class="p">),</span> <span class="p">(</span><span class="mi">104</span><span class="p">,</span> <span class="mi">124</span><span class="p">),</span> <span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">124</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">146</span><span class="p">),</span> <span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="mi">146</span><span class="p">),</span> <span class="p">(</span><span class="mi">65</span><span class="p">,</span> <span class="mi">146</span><span class="p">),</span> <span class="p">(</span><span class="mi">102</span><span class="p">,</span> <span class="mi">146</span><span class="p">),</span> <span class="p">(</span><span class="mi">133</span><span class="p">,</span> <span class="mi">146</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">pts1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">cv2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">img1</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img1</span><span class="p">[:,:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">img2</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&#34;rot2.png&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pts2</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">116</span><span class="p">),</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">120</span><span class="p">),</span> <span class="p">(</span><span class="mi">110</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="p">(</span><span class="mi">118</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span> <span class="p">(</span><span class="mi">135</span><span class="p">,</span> <span class="mi">131</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">135</span><span class="p">),</span> <span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mi">137</span><span class="p">),</span> <span class="p">(</span><span class="mi">69</span><span class="p">,</span> <span class="mi">143</span><span class="p">),</span> <span class="p">(</span><span class="mi">105</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="p">(</span><span class="mi">140</span><span class="p">,</span> <span class="mi">158</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">src_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">dst_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pts2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">Homography</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findHomography</span><span class="p">(</span><span class="n">src_points</span><span class="p">,</span> <span class="n">dst_points</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="c1"># (3,3)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># warp img1 to the view of img2</span>
+</span></span><span class="line"><span class="cl"><span class="n">warped1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">warpPerspective</span><span class="p">(</span><span class="n">img1</span><span class="p">,</span> <span class="n">Homography</span><span class="p">,</span> <span class="p">(</span><span class="n">img1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">img1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">warped1</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># reverse</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img2</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span> <span class="c1"># overlap</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Bird&rsquo;s-Eye View:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">src_trapezoid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="p">[</span><span class="mi">47</span><span class="p">,</span> <span class="mi">91</span><span class="p">],</span> <span class="p">[</span><span class="mi">120</span><span class="p">,</span> <span class="mi">91</span><span class="p">],</span> <span class="p">[</span><span class="mi">157</span><span class="p">,</span> <span class="mi">128</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl"><span class="n">dst_rectangle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">([[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">104</span><span class="p">],</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="p">[</span><span class="mi">104</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span> <span class="p">[</span><span class="mi">104</span><span class="p">,</span> <span class="mi">104</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">homoMatrix</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getPerspectiveTransform</span><span class="p">(</span><span class="n">src_trapezoid</span><span class="p">,</span> <span class="n">dst_rectangle</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">warped</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">warpPerspective</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">homoMatrix</span><span class="p">,(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The image got transformed by the homography to deform the trapezoidal road lane to a rectangle displaying on the image
+by changing the camera pose to <strong>looking down</strong>:</p>
+<figure><a href="https://arxiv.org/abs/1812.00913"><img src="https://images.deepai.org/converted-papers/1812.00913/figures/firstfig4722.png" width="300"/></a>
+  </figure>
+
+</li>
+</ul>
+<ul>
+<li>BEV is a homography, but only make sense for the ground plane.
+<a class="link" href="https://zhuanlan.zhihu.com/p/74597564"  target="_blank" rel="noopener"
+    >单应性Homograph估计：从传统算法到深度学习 - 白裳的文章 - 知乎</a></li>
+</ul>
+<hr>
+<h2 id="multi-depth-planes">Multi-Depth Planes</h2>
+<p>(2023-12-17)</p>
+<p>Given camera parameters of a reference view and a source view in the world space respectively, and multiple depth planes,
+<strong>solve the homographies</strong> that transforming the source image into the reference camera space:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 472 233"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 96,32 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 64,80' fill='none' stroke='currentColor'></path>
+<path d='M 32,48 L 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,16 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 48,96' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 80,160' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 96,128' fill='none' stroke='currentColor'></path>
+<path d='M 104,160 L 104,208' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 200,16 L 200,96' fill='none' stroke='currentColor'></path>
+<path d='M 256,16 L 256,96' fill='none' stroke='currentColor'></path>
+<path d='M 312,16 L 312,96' fill='none' stroke='currentColor'></path>
+<path d='M 32,48 L 48,16' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 48,96' fill='none' stroke='currentColor'></path>
+<path d='M 80,160 L 104,208' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 104,160' fill='none' stroke='currentColor'></path>
+<polygon points='72.000000,80.000000 60.000000,74.400002 60.000000,85.599998' fill='currentColor' transform='rotate(0.000000, 64.000000, 80.000000)'></polygon>
+<polygon points='80.000000,64.000000 68.000000,58.400002 68.000000,69.599998' fill='currentColor' transform='rotate(180.000000, 72.000000, 64.000000)'></polygon>
+<polygon points='104.000000,32.000000 92.000000,26.400000 92.000000,37.599998' fill='currentColor' transform='rotate(180.000000, 96.000000, 32.000000)'></polygon>
+<path d='M 80,64 A 16,16 0 0,1 96,80' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>𝐊</text>
+<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>𝐭</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>ᵣ</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>ᵣ</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>ᵣ</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='40' y='164' fill='currentColor' style='font-size:1em'>𝐊</text>
+<text text-anchor='middle' x='40' y='180' fill='currentColor' style='font-size:1em'>𝐑</text>
+<text text-anchor='middle' x='40' y='196' fill='currentColor' style='font-size:1em'>𝐭</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='48' y='164' fill='currentColor' style='font-size:1em'>ₛ</text>
+<text text-anchor='middle' x='48' y='180' fill='currentColor' style='font-size:1em'>ₛ</text>
+<text text-anchor='middle' x='48' y='196' fill='currentColor' style='font-size:1em'>ₛ</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='64' y='196' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='64' y='212' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>𝐳</text>
+<text text-anchor='middle' x='72' y='196' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='72' y='212' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='80' y='196' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='80' y='212' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>𝐇</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='208' y='116' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>₃</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='312' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='320' y='116' fill='currentColor' style='font-size:1em'>₄</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>The formula used in MVSNet-tf code is:
+$𝐊ᵢ𝐑ᵢ ( 𝐈 - \frac{-(-𝐑₁⁻¹𝐭₁+𝐑ᵢ⁻¹𝐭ᵢ) (-𝐧ᵀ 𝐑₁)}{d})𝐑₁⁻¹𝐊₁⁻¹$
+because the $-𝐧ᵀ 𝐑₁$ is the z-axis of 𝐑₁ in the world space.</p>
+<script src="https://gist.github.com/zichen34/61d4d3c3f5efa3777b0a8848cd8f876e.js"></script>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/Homo_multi_views_depths_marked.jpg width=>
+  
+  
+
+
+<p>A source images is warped to the <strong>reference camera space</strong> and watching a <strong>common depth plane</strong>.
+Therefore, the points on the depth plane will have the <strong>same x</strong> coordinates as the points in the reference image.</p>
+<figure><a href="https://docs.opencv.org/4.x/d9/dab/tutorial_homography.html"><img src="https://docs.opencv.org/4.x/homography_transformation_example1.jpg"/></a>
+</figure>
+
+<hr>
+<h2 id="warp-by-sampling">Warp by Sampling</h2>
+<p>(2023-12-18)</p>
+<p>Sample the source image to be warped at the locations that is determined by
+the mapping of homography inversely from the target view to the source view.
+Refer to MVSNet-pytorch.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">vu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cartesian_prod</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">uv</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">vu</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># (hw,2), As x varies, y is fixed</span>
+</span></span><span class="line"><span class="cl"><span class="n">uv1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">uv</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">uv</span><span class="p">),</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># (hw,3)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">src_KRT</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">src_KRT</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">K_s</span> <span class="o">@</span> <span class="n">RT_s</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">ref_KRT</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ref_KRT</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">K_r</span> <span class="o">@</span> <span class="n">RT_r</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">proj</span> <span class="o">=</span> <span class="n">src_KRT</span> <span class="o">@</span> <span class="n">torch</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">ref_KRT</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">rot</span><span class="p">,</span> <span class="n">trans</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">proj</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>   
+</span></span><span class="line"><span class="cl"><span class="n">rot_uv1</span> <span class="o">=</span> <span class="n">rot</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">@</span> <span class="n">uv1</span><span class="o">.</span><span class="n">t</span><span class="p">()</span>  <span class="c1"># (3, hw)</span>
+</span></span><span class="line"><span class="cl"><span class="n">d</span> <span class="o">=</span> <span class="mf">425.0</span> <span class="o">+</span> <span class="mf">1.06</span><span class="o">*</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">192</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>  <span class="c1">#(1, 192, 1)</span>
+</span></span><span class="line"><span class="cl"><span class="n">rot_uvd</span> <span class="o">=</span> <span class="n">rot_uv1</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">192</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span>  <span class="c1">#(3, 192, hw)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pix_proj</span> <span class="o">=</span> <span class="n">rot_uvd</span> <span class="o">+</span> <span class="n">trans</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">192</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># (3, 192, hw)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">u_src</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">pix_proj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pix_proj</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="n">v_src</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">pix_proj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">pix_proj</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="n">uv_src</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">u_src</span><span class="p">,</span> <span class="n">v_src</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>    <span class="c1"># (192, hw, 2)</span>
+</span></span><span class="line"><span class="cl"><span class="n">uv_src_d1</span> <span class="o">=</span> <span class="n">uv_src</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># plane at the furthest depth</span>
+</span></span><span class="line"><span class="cl"><span class="n">sampled</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># (1,3,512,640)</span>
+</span></span><span class="line"><span class="cl">          <span class="n">uv_src_d1</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">sampled_scaled</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">sampled</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">255</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># (3, 512, 640)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">15</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">src</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># (512, 640, 3)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Source view&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">sampled_scaled</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Warped source&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">ref</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Reference view&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The result is almost the same as the one yielded by opencv:</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/Homo_warp2ref.jpg width=>
+  
+  
+
+
+<hr>
+<h2 id="4-co-planar-points">4 Co-planar Points</h2>
+<p>(2022-12-03)</p>
+<p>Homography matrix builds the relatioship between 2 images to make the pixels corresponding to the same 3D points overlap <a class="link" href="#ytb-Behnam" >³</a>
+based on the projection from the common 3D point to different image planes.</p>
+<p>In following example, two cameras look at a flat plane. And they both observe the points located on that flat plane.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/Homography_in_CV_explained_6-33.png width=>
+  
+  
+
+
+<p>Then, the matching pixels on the two camera planes can be connected by the chain:
+img1 ➔ plane0 ➔ img2.</p>
+<p>When a 3D world point is projected to 2D camera plane, the coordinates transformation consists of two matrix:
+<strong>extrinsic matrix</strong> [R|T] transforming the coordinate system, and the <strong>intrinsic matrix</strong> [K] projecting the 3D point to a 2D pixel,
+that is:</p>
+<p>$$
+\begin{bmatrix} u\\ v\\ 1\\ 1 \end{bmatrix} =
+\begin{bmatrix} f/dₓ &amp; 0 &amp; cₓ &amp; 0 \\ 0 &amp; f/d_y &amp; c_y &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp;1 \end{bmatrix}
+\begin{bmatrix} r₁₁ &amp; r₁₂ &amp; r₁₃ &amp; t₁ \\ r₂₁ &amp; r₂₂ &amp; r₂₃ &amp; t₂ \\ r₃₁ &amp; r₃₂ &amp; r₃₃ &amp; t₃ \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix}
+\begin{bmatrix} X \\ Y \\ Z \\ W \end{bmatrix}
+$$</p>
+<p>where the W is the <a class="link" href="https://zichen34.github.io/writenotes/vis/homogeneous_coord/" >homogeneous coordinate</a> for accommodating the translation vector $[^{^{t₁}_{t₂}} _{^{t₃}_{1}}]$ in the extrinsic matrix.</p>
+<p>Omit z because all points on the plane have z=0.</p>
+<p>Given $[^{_{x₁}}_{^{y₁}_{w₁}}]$ = H₁₀ $[^{_{x₀}}_{^{y₀}_{w₀}}]$, then there is
+$$\rm [^{_{x₂}}_{^{y₂}_{w₂}}] = H₂₀ H₁₀⁻¹[^{_{x₁}}_{^{y₁}_{w₁}}]$$,
+where H₂₀ H₁₀⁻¹ is the <strong>homograhpy matrix</strong> H₃ₓ₃. It represents the mapping between the pair of points: (x₁,y₁,w₁) and (x₂,y₂,w₂).</p>
+<p>$$
+\begin{bmatrix} x₂\\ y₂\\ w₂ \end{bmatrix} =
+\begin{bmatrix}
+H₁₁ &amp; H₁₂ &amp; H₁₃ \\ H₂₁ &amp; H₂₂ &amp; H₂₃ \\ H₃₁ &amp; H₃₂ &amp; H₃₃ \\
+\end{bmatrix}
+\begin{bmatrix} x₁\\ y₁\\ w₁ \end{bmatrix}
+$$</p>
+<p>Expand the above equation, there are 2 equations (with considering x₂&rsquo;=x₂/w₂, y₂&rsquo;=y₂/w₂, such that w = 1):</p>
+<p>$$\begin{cases}
+x₂&rsquo; = \frac{x₂}{w₂} = \frac{H₁₁x₁ + H₁₂y₁ + H₁₃w₁}{H₃₁x₁ + H₃₂y₁ + H₃₃w₁} \\
+y₂&rsquo; = \frac{y₂}{w₂} = \frac{H₂₁x₁ + H₂₂y₁ + H₂₃w₁}{H₃₁x₁ + H₃₂y₁ + H₃₃w₁}\end{cases} \\
+⇓ \\
+\rm\{^{x₂&rsquo;H₃₁x₁ + x₂&rsquo;H₃₂y₁ + x₂&rsquo;H₃₃w₁ - H₁₁x₁ - H₁₂y₁ - H₁₃w₁ = 0}
+_{y₂&rsquo;H₃₁x₁ + y₂&rsquo;H₃₂y₁ + y₂&rsquo;H₃₃w₁ - H₂₁x₁ - H₂₂y₁ - H₂₃w₁ = 0}
+$$</p>
+<p>The last element H₃₃ is determined when other elements are set, so the degree of freedom for this matrix is 8.</p>
+<p>Therefore, the homography matrix can be solved from 4 pairs of matching points:
+(x₁,y₁)-(x₂,y₂); (x₃,y₃)-(x₄,y₄); (x₅,y₅)-(x₆,y₆); (x₇,y₇)-(x₈,y₈).</p>
+<p>After reformalizing the equation system to a matrix form, the sigular value decomposition can be applied.</p>
+<p>$$\rm{
+[^{^{^{-x₁\; -y₁\; -w₁\; 0\quad 0\quad 0\quad x₂&rsquo;x₁\quad x₂&rsquo;y₁\quad x₂&rsquo;w₁}
+_{0\quad 0\quad 0\quad -x₁\; -y₁\; -w₁\; y₂&rsquo;x₁\quad y₂&rsquo;y₁\quad y₂&rsquo;w₁}}
+_{^{-x₃\; -y₃\; -w₃\; 0\quad 0\quad 0\quad x₄&rsquo;x₃\quad x₄&rsquo;y₃\quad x₄&rsquo;w₃}
+_{0\quad 0\quad 0\quad -x₃\; -y₃\; -w₃\;  y₄&rsquo;x₃\quad y₄&rsquo;y₃\quad y₄&rsquo;w₃}}}
+_{^{^{pair3-1}_{pair3-2}}   _{^{pair4-1}_{pair4-2}}}]
+\
+[^{^{^{H₁₁}_{H₁₂}}   _{^{H₁₃}_{H₂₁}}}
+_{^{^{H₂₂}_{H₂₃}}   _{^{H₃₁}_{^{H₃₂}_{H₃₃}}}}] = 0 }
+$$</p>
+<h2 id="solution">Solution</h2>
+<p>This is a homogeneous linear system 𝐀𝐡=0, so its solution has <a class="link" href="https://zichen34.github.io/writenotes/calc/%E4%BF%97%E8%AF%B4%E7%9F%A9%E9%98%B5-%E9%AB%98%E5%B1%B1%E8%80%81%E5%B8%88/02_%E8%A7%A3%E9%BD%90%E6%AC%A1%E7%BA%BF%E6%80%A7%E6%96%B9%E7%A8%8B%E7%BB%84/" >2 cases</a>:</p>
+<ul>
+<li>
+<p>If the number of non-zero rows of the coefficients matrix 𝐀 after Gaussian elimination is less than
+the number of unknowns of 𝐡, i.e., (rank(𝐀) &lt; #h),
+there is only the zero solution;</p>
+</li>
+<li>
+<p>Or infinitely many non-zero solution, but only the solution satisfying constraints of magnitude is selected.</p>
+</li>
+</ul>
+<p>If 𝐀 is invertible (square matrix &amp; rank(𝐀) = #col), then 𝐡=𝐀⁻¹⋅0 = 0 ???</p>
+<p>Otherwise, if 𝐀 is not invertible, there would be inifinetly many non-zero solutions.
+So the optimal solution should be approached by minimizing the error $$J = ½‖𝐀𝐡-0‖²$$
+Therefore, the least-square solution is when the derivative</p>
+<p>$$
+∂J/∂𝐡 = 0 \\ ⇒ 𝐀ᵀ(𝐀𝐡-0) = 0\\ ⇒ 𝐀ᵀ𝐀𝐡-𝐀ᵀ⋅0 = 0
+$$</p>
+<p>If 𝐀ᵀ𝐀 is invertible, the optimal 𝐡=(𝐀ᵀ𝐀)⁻¹𝐀ᵀ⋅0 = 0 ???, where the (𝐀ᵀ𝐀)⁻¹𝐀ᵀ is the
+<a class="link" href="https://zichen34.github.io/writenotes/calc/pseudo-inverse/" >pseudo-inverse matrix</a>.</p>
+<ul>
+<li>Use all the matching pints to compute a robust H, even though 4 pairs are enough to solve the 8 unkowns (An element is 1 after scaling the matrix by it).
+<ol>
+<li>
+<p>Constrained Least Squares. Solve for 𝐡: A𝐡=0, such that ‖𝐡‖²=1. <br>
+Define least squares problem: min_𝐡 ‖A𝐡‖², such that ‖𝐡‖²=1. We know that: ‖A𝐡‖² = (A𝐡)ᵀ(A𝐡) = 𝐡ᵀAᵀA𝐡, and ‖𝐡‖²= 𝐡ᵀ𝐡 =1. So the problem is: minₕ(𝐡ᵀAᵀA𝐡), such that 𝐡ᵀ𝐡 =1.</p>
+<p>Define Loss function L(𝐡,λ): L(𝐡,λ)= 𝐡ᵀAᵀA𝐡 - λ(𝐡ᵀ𝐡 -1). And take derivatives of L(𝐡,λ) w.r.t. 𝐡: 2AᵀA𝐡 - 2λ𝐡 =0. It&rsquo;s the classical eigenvalue problem: AᵀA𝐡 = λ𝐡.</p>
+</li>
+<li>
+<p>SVD. <br> Find the eigenvalue and eigenvectors of the matrix AᵀA. 𝐡 is he eighenvector with the smallest eigenvalue λ.</p>
+</li>
+</ol>
+</li>
+</ul>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/Homography_Image_Stitching_1-26.png width=>
+  
+  
+
+
+<p><a class="link" href="https://youtu.be/l_qjO4cM74o"  target="_blank" rel="noopener"
+    >First Principles of CV-Dr.Shree</a>;</p>
+<hr>
+<h2 id="misc">Misc</h2>
+<ol>
+<li>(2023-12-07) Epipolar geometry requires translation between cameras, whereas homography doesn&rsquo;t.
+<a class="link" href="https://people.scs.carleton.ca/~c_shu/Courses/comp4900d/notes/homography.pdf"  target="_blank" rel="noopener"
+    >homography - Carleton University</a></li>
+</ol>
+<hr>
+<h2 id="ref">Ref</h2>
+<ol>
+<li>
+<div id="opencv"><a href="https://docs.opencv.org/4.x/d9/dab/tutorial_homography.html">OpenCV4 - Docs - Basic concepts of the homography explained with code</a></div>
+</li>
+<li>
+<div id="ytb-Behnam"><a href="https://youtu.be/MlaIWymLCD8">Homography in computer vision explained - Behnam Asadi</a></div>
+</li>
+<li>
+<div id="csdn"><a href="https://blog.csdn.net/u010087338/article/details/118344523">3D投影变换（含透视投影Perspective Projection）-子燕若水 -CSDN</a></div>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

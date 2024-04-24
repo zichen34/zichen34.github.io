@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='SVM SVM本质上是一个判别模型，解决二分类问题，与概率无关 超平面: 𝐰ᵀ𝐱&#43;b=0 分类模型：f(𝐰) = sign(𝐰ᵀ𝐱&#43;b) SVM有3宝，间隔对偶核技巧 三大分类算法： Hard-margin SVM （硬间隔） Soft-margin SVM Kernel SVM 1 硬间隔SVM-模型定义（最大间隔分类器） Video-P1
+Hard-margin SVM 最大间隔分类器（max margin()）
+几何意义：对于平面上点的分类问题， 如果分界线两侧的点到线的距离很小，会对噪声很敏感，如果有一点噪声可能就被分到另一侧去了，泛化误差大。所以最好的分界线满足对所有点的距离都足够大。
+从无限条可以正确分类的直线（超平面）中，选择最好的
+数学表述：
+使间隔margin函数最大，实现对N个p维的样本点 ${(x_i, y_i)}_{i=1}^{N}, \quad x_i \in \R^p, y\in{-1,1}$正确分类
+$$ \begin{aligned} &amp;amp; \rm max , margin(\mathbf w, b) \
+&amp;amp; s.t. \begin{cases} \mathbf w^T x_i &#43; b &amp;gt; 0, &amp;amp; y_i = 1 \ \mathbf w^T x_i &#43; b &amp;lt; 0, &amp;amp; y_i = -1 \end{cases}'>
+<title>watch: ML - 白板 06 | SVM</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/06_svm/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: ML - 白板 06 | SVM'>
+<meta property='og:description' content='SVM SVM本质上是一个判别模型，解决二分类问题，与概率无关 超平面: 𝐰ᵀ𝐱&#43;b=0 分类模型：f(𝐰) = sign(𝐰ᵀ𝐱&#43;b) SVM有3宝，间隔对偶核技巧 三大分类算法： Hard-margin SVM （硬间隔） Soft-margin SVM Kernel SVM 1 硬间隔SVM-模型定义（最大间隔分类器） Video-P1
+Hard-margin SVM 最大间隔分类器（max margin()）
+几何意义：对于平面上点的分类问题， 如果分界线两侧的点到线的距离很小，会对噪声很敏感，如果有一点噪声可能就被分到另一侧去了，泛化误差大。所以最好的分界线满足对所有点的距离都足够大。
+从无限条可以正确分类的直线（超平面）中，选择最好的
+数学表述：
+使间隔margin函数最大，实现对N个p维的样本点 ${(x_i, y_i)}_{i=1}^{N}, \quad x_i \in \R^p, y\in{-1,1}$正确分类
+$$ \begin{aligned} &amp;amp; \rm max , margin(\mathbf w, b) \
+&amp;amp; s.t. \begin{cases} \mathbf w^T x_i &#43; b &amp;gt; 0, &amp;amp; y_i = 1 \ \mathbf w^T x_i &#43; b &amp;lt; 0, &amp;amp; y_i = -1 \end{cases}'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/06_svm/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2021-10-13T18:59:00&#43;00:00'/><meta property='article:modified_time' content='2021-10-13T18:59:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: ML - 白板 06 | SVM">
+<meta name="twitter:description" content="SVM SVM本质上是一个判别模型，解决二分类问题，与概率无关 超平面: 𝐰ᵀ𝐱&#43;b=0 分类模型：f(𝐰) = sign(𝐰ᵀ𝐱&#43;b) SVM有3宝，间隔对偶核技巧 三大分类算法： Hard-margin SVM （硬间隔） Soft-margin SVM Kernel SVM 1 硬间隔SVM-模型定义（最大间隔分类器） Video-P1
+Hard-margin SVM 最大间隔分类器（max margin()）
+几何意义：对于平面上点的分类问题， 如果分界线两侧的点到线的距离很小，会对噪声很敏感，如果有一点噪声可能就被分到另一侧去了，泛化误差大。所以最好的分界线满足对所有点的距离都足够大。
+从无限条可以正确分类的直线（超平面）中，选择最好的
+数学表述：
+使间隔margin函数最大，实现对N个p维的样本点 ${(x_i, y_i)}_{i=1}^{N}, \quad x_i \in \R^p, y\in{-1,1}$正确分类
+$$ \begin{aligned} &amp;amp; \rm max , margin(\mathbf w, b) \
+&amp;amp; s.t. \begin{cases} \mathbf w^T x_i &#43; b &amp;gt; 0, &amp;amp; y_i = 1 \ \mathbf w^T x_i &#43; b &amp;lt; 0, &amp;amp; y_i = -1 \end{cases}">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#svm">SVM</a></li>
+      </ol>
+    </li>
+    <li><a href="#1-硬间隔svm-模型定义最大间隔分类器">1 硬间隔SVM-模型定义（最大间隔分类器）</a>
+      <ol>
+        <li><a href="#a-idhardhard-margin-svma"><a id="hard">Hard-margin SVM</a></a></li>
+        <li><a href="#kkt条件">KKT条件</a></li>
+      </ol>
+    </li>
+    <li><a href="#4-软间隔svm-模型定义">4 软间隔SVM-模型定义</a>
+      <ol>
+        <li><a href="#a-idsoftsoft-margin-svma"><a id="soft">Soft-margin SVM</a></a></li>
+        <li><a href="#超平面">超平面</a></li>
+        <li><a href="#点到超平面距离">点到超平面距离</a></li>
+        <li><a href="#几何距离与函数距离">几何距离与函数距离</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/06_svm/">watch: ML - 白板 06 | SVM</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 13, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h3 id="svm">SVM</h3>
+<ul>
+<li>SVM本质上是一个判别模型，解决二分类问题，与概率无关</li>
+<li>超平面: 𝐰ᵀ𝐱+b=0 <br>
+分类模型：f(𝐰) = sign(𝐰ᵀ𝐱+b)</li>
+<li>SVM有3宝，间隔对偶核技巧 <br>
+三大分类算法：
+<ol>
+<li><a href="#hard">Hard-margin SVM （硬间隔）</a></li>
+<li><a href="#soft">Soft-margin SVM</a></li>
+<li>Kernel SVM</li>
+</ol>
+</li>
+</ul>
+<h2 id="1-硬间隔svm-模型定义最大间隔分类器">1 硬间隔SVM-模型定义（最大间隔分类器）</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1Hs411w7ci?p=1"  target="_blank" rel="noopener"
+    >Video-P1</a></p>
+<h3 id="a-idhardhard-margin-svma"><a id="hard">Hard-margin SVM</a></h3>
+<ul>
+<li>
+<p>最大间隔分类器（max margin()）</p>
+</li>
+<li>
+<p>几何意义：对于平面上点的分类问题，
+如果分界线两侧的点到线的距离很小，会对噪声很敏感，如果有一点噪声可能就被分到另一侧去了，泛化误差大。所以最好的分界线满足对所有点的距离都足够大。</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/svm_%E6%B3%9B%E5%8C%96%E8%AF%AF%E5%B7%AE%E5%A4%A7.png width=>
+    
+    
+  
+
+</li>
+<li>
+<p>从无限条可以正确分类的直线（超平面）中，选择最好的</p>
+</li>
+<li>
+<p>数学表述：</p>
+<p>使间隔margin函数最大，实现对N个p维的样本点 ${(x_i, y_i)}_{i=1}^{N}, \quad x_i \in \R^p, y\in{-1,1}$正确分类</p>
+<p>$$
+\begin{aligned}
+&amp; \rm max , margin(\mathbf w, b) \</p>
+<p>&amp; s.t.
+\begin{cases}
+\mathbf w^T x_i + b &gt; 0, &amp; y_i = 1 \
+\mathbf w^T x_i + b &lt; 0, &amp; y_i = -1
+\end{cases}</p>
+<p>\Rightarrow
+y_i(\mathbf w^Tx_i +b )&gt;0, &amp; \text{for $\forall$ i=1,&hellip;,N}（同号）
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>每个<a class="link" href="#%e7%82%b9%e5%88%b0%e8%b6%85%e5%b9%b3%e9%9d%a2%e8%b7%9d%e7%a6%bb" >点到直线的距离</a>:
+$\rm distance(w,b,x_i) = \frac{1}{| w |} |w^T x_i +b|$</p>
+<p>$$
+\begin{aligned}
+\rm margin(\mathbf w,b)
+&amp; = \rm \underset{\mathbf w,b,x_i,i=1,&hellip;,N}{min}, distance(\mathbf w,b,x_i) \
+&amp; = \rm \underset{\mathbf w,b,x_i,i=1,&hellip;,N}{min}, \frac{1}{| \mathbf w |} |\mathbf w^T x_i +b|</p>
+<p>\end{aligned}
+$$</p>
+<ul>
+<li>
+<p>因为限制条件 $y_i(\mathbf w^T x_i + b)&gt;0$，而且$y_i={-1,1}$，所以可以替换上式中的绝对值。<br>
+所以最大间隔分类器可写为：</p>
+<p>$$
+\rm \underset{\mathbf w,b}{max} \frac{1}{| \mathbf w|}; \underset{x_i, i=1,&hellip;,N}{min} ; |\mathbf w^T x_i +b|
+$$</p>
+<p>(因为min只与$x_i$有关，而$\frac{1}{| \mathbf w|}$与$x$无关，所以移到了前面)</p>
+</li>
+<li>
+<p>对于限制条件  $y_i(\mathbf w^T x_i + b)&gt;0$，说明存在最小值：</p>
+<p>$$
+\exist , r&gt;0, \quad
+s.t.; \rm \underset{\mathbf w,b,x_i,i=1,&hellip;,N}{min}, y_i (\mathbf w^T x_i +b) = r
+$$</p>
+<p>所以可以继续简化：</p>
+<p>$$
+\rm \underset{\mathbf w,b}{max} \frac{1}{| \mathbf w|} r
+$$</p>
+<p>因为超平面可以同比例缩放（$\mathbf{w^T x} + b = 2\mathbf{w^T x} + 2b$），所以可以设置最小值r为1，相当于把超平面缩放到1，系数乘在前面的$\frac{1}{| \mathbf w|}$里</p>
+<p>所以问题最终转化为一个凸优化问题：</p>
+<p>$$
+\begin{cases}
+\rm \underset{w,b}{max} \frac{1}{| \mathbf w |} \
+s.t. ; \operatorname{min} y_i (\mathbf w^T x_i + b) = 1
+\end{cases}</p>
+<p>\Rightarrow</p>
+<p>\begin{cases}
+\rm \underset{w,b}{min} \frac{1}{2} \mathbf{w^T w} &amp; \text{(目标函数是二次)}\
+s.t. ;  y_i (\mathbf w^T x_i + b) ≥ 1, ; i=1,&hellip;,N &amp; \text{(N个线性约束)}
+\end{cases}
+$$</p>
+</li>
+</ul>
+</li>
+<li>
+<p>求解QP问题
+(凸二次规划<a class="link" href="https://en.wikipedia.org/wiki/Quadratic_programming"  target="_blank" rel="noopener"
+    >Quadratic programming</a>问题)</p>
+<p>在维度不高，样本个数不多的情况下，比较好求解。
+但是对于维度很高，样本很多，或者对数据$x$做$\phi(x)$的特征转换到了新的特征空间$Z$中，而Z的维度比原数据的维度高很多，就没办法直接求解，计算量太大。
+借助拉格朗日乘子，引出它的对偶问题，求解相对容易的对偶问题。</p>
+<ol>
+<li>
+<p>把目标函数写成拉格朗日函数 $L$，把带约束问题化成无约束问题：拉格朗日函数只有对 λ 的约束，没有对 $𝐰$ 和 $b$ 的约束</p>
+<p>$$
+L(\mathbf w,b,λ)=
+\frac{1}{2}\mathbf{w^Tw} + \sum_{i=1}^{N} ;
+\underbrace{λ_i}<em>{≥0} ; \underbrace{(1-y_i(𝐰^T x_i + b))}</em>{≤0}
+$$</p>
+<p>问题转化为：</p>
+<p>$$
+\begin{cases}
+\rm \underset{\mathbf w,b}{min}\ \underset{λ}{max}\ L(\mathbf w,b,λ)\
+s.t. ; λ_i ≥0
+\end{cases}
+$$</p>
+</li>
+<li>
+<p>原问题的<strong>对偶问题</strong>：先对𝐰,b求L的最小值，再对 λ 求 L 的最大值</p>
+<p>$$
+\begin{cases}
+\rm \underset{λ}{max}\ \underset{\mathbf w,b}{min}\ L(\mathbf w,b,λ)\
+s.t. ; λ_i ≥0
+\end{cases}
+$$</p>
+<p>从直观上看，从最大值里面选的最小值一定是大于从最小值里面的最大值（省略证明）,也就是<strong>弱对偶关系</strong>：</p>
+<p>$$
+\rm min, max, L ≥ max , min, L
+$$</p>
+<p>我们还想要<strong>强对偶关系</strong>，即 $\rm min, max, L = max , min, L$。对于凸二次优化问题，天生满足强对偶关系（证明略），原问题和它的对偶问题是同解的。所以直接求解对偶问题即可。</p>
+</li>
+<li>
+<p>先固定 $λ$，对 $𝐰,b$ 求L的最小值，在此对偶问题中没有对𝐰,b的约束条件，所以是一个无约束的优化问题，直接求导：</p>
+<ol>
+<li>
+<p>先对b求导：</p>
+<p>$$
+\begin{aligned}
+\frac{∂L}{∂b}
+&amp;= \frac{∂}{∂b} \left[ \cancel{\sum_{i=1}^{N} λ_i}
+- \sum_{i=1}^{N} λ_i y_i(\cancel{\mathbf w^T x_i} + b)\right] \
+&amp;= \frac{∂}{∂b} \left[ -\sum_{i=1}^{N} λ_i y_i b \right] \
+&amp;= -\sum_{i=1}^{N} λ_i y_i =0
+\end{aligned}
+$$</p>
+<p>把这个结果带入$L$</p>
+<p>$$
+\begin{aligned}
+L(\mathbf w,b,λ) &amp;=
+\frac{1}{2}\mathbf{w^Tw} +
+\sum_{i=1}^{N} ; λ_i ; (1-y_i(\mathbf w^T x_i + b))\
+&amp;=
+\frac{1}{2}\mathbf{w^Tw} +
+\sum_{i=1}^{N} \ λ_i - \sum_{i=1}^{N} ; λ_i y_i(\mathbf w^T x_i + b)\
+&amp;=
+\frac{1}{2}\mathbf{w^Tw} +
+\sum_{i=1}^{N} \ λ_i - \sum_{i=1}^{N} ; λ_i y_i\mathbf w^T x_i</p>
+<ul>
+<li>\cancel{\sum_{i=1}^{N} ; λ_i y_i b} \</li>
+</ul>
+<p>\end{aligned}
+$$</p>
+</li>
+<li>
+<p>再对$𝐰$求导，定义导数为等于0</p>
+<p>$$
+\begin{aligned}
+&amp; \frac{∂L}{∂𝐰} = \frac{1}{2} 2𝐰 - \sum_{i=1}^N λ_i y_i x_i ≔ 0 \
+&amp; \Rightarrow 𝐰^* = \sum_{i=1}^{N} λ_i y_i x_i
+\end{aligned}
+$$</p>
+<p>把这个最优$𝐰^*$的表达式再带入$L$，就是L的最小值：</p>
+<p>$$
+\begin{aligned}
+L(\mathbf w,b,λ)
+&amp; = \frac{1}{2}
+\underbrace{ \left(\sum_{i=1}^{N} λ_i y_i 𝐱_i \right)^T}<em>{\sum</em>{i=1}^N λ_i y_i 𝐱_i^T }
+\sum_{j=1}^N λ_j y_j 𝐱_j</p>
+<ul>
+<li>\sum_{i=1}^N \ λ_i y_i \left(\sum_{j=1}^{N} λ_j y_j 𝐱_j \right)^T 𝐱_i</li>
+</ul>
+<ul>
+<li>\sum_{i=1}^N λ_i \
+&amp; = \frac{1}{2}
+\sum_{i=1}^N \sum_{j=1}^N λ_i λ_j y_i y_j \underline{𝐱_i^T 𝐱_j}</li>
+</ul>
+<ul>
+<li>\sum_{i=1}^N λ_i y_i \sum_{j=1}^N λ_j y_j \underline{𝐱_j^T 𝐱_i}</li>
+</ul>
+<ul>
+<li>\sum_{i=1}^N λ_i \
+&amp; = -\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N λ_i λ_j y_i y_j 𝐱_i^T 𝐱_j</li>
+<li>\sum_{i=1}^N λ_i \
+\end{aligned}
+$$</li>
+</ul>
+<p>所以对偶问题又化为：</p>
+<p>$$
+\begin{cases}
+\underset{λ}{\operatorname{min}} ;
+\frac{1}{2} \sum_{i=1}^N \sum_{j=1}^N λ_i λ_j y_i y_j 𝐱_i^T 𝐱_j</p>
+<ul>
+<li>\sum_{i=1}^N λ_i \
+s.t. \ λ_i ≥0; \ \sum_{i=1}^N λ_i y_i =0
+\end{cases}
+$$</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>固定 $\mathbf w,b$, 对于向量$λ$求$L$的最小值</p>
+<p>此时拉格朗日函数只与 $\lambda$ 有关</p>
+<p>求出 $\lambda$，根据 $\mathbf w = \sum_{i=1}^{m} \lambda_i y^{(i)} x^{(i)}$ 就可求出 $\mathbf w$，再根据 $b^* = -\frac{\rm max\ x_{i:y^{(i)}=-1} \mathbf w^{*T} x^{(i)} + min_{i:y^{(i)}} \mathbf w^{*T} x^{(i)}}{2}$，就可求出 $b$，最终得到分离超平面和分类决策函数。</p>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="kkt条件">KKT条件</h3>
+<ul>
+<li>
+<p>原问题与对偶问题具有强对偶关系的充要条件就是满足KKT条件</p>
+<p>$$
+\begin{cases}
+\frac{∂L}{∂𝐰} =0,\frac{∂L}{∂b} =0,\frac{∂L}{∂λ} =0 &amp;\text{拉格朗日函数对w，对b，对λ 求偏导都等于0}\
+λ_i (1-y_i(𝐰^T x_i + b)) = 0 &amp; \text{松弛互补条件slackness complementary} \
+λ_i ≥ 0 \
+1-y_i(𝐰^T x_i + b)≤0
+\end{cases}
+$$</p>
+</li>
+<li>
+<p>由这些条件就可以求出最优解的$w^<em>$和$b^</em>$</p>
+<p>由 ∂L/∂𝐰 可求出𝐰∗=∑ᵢ₌₁ᴺ λᵢ yᵢ xᵢ</p>
+</li>
+</ul>
+<h2 id="4-软间隔svm-模型定义">4 软间隔SVM-模型定义</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1Hs411w7ci?p=4"  target="_blank" rel="noopener"
+    >Video-P4</a></p>
+<h3 id="a-idsoftsoft-margin-svma"><a id="soft">Soft-margin SVM</a></h3>
+<ul>
+<li>
+<p>允许一点点错误 loss</p>
+<p>$$
+min \frac{1}{2} w^T w + loss
+$$</p>
+</li>
+<li>
+<p>loss函数:</p>
+<ol>
+<li>
+<p>违反约束条件的点的个数：$loss = \sum_{i=1}^N I \left{ \underbrace{y_i (w^T x_i + b)&lt;1}_{关于w不连续} \right}$ （I是指示函数）</p>
+<p>不连续性：
+令$z=y(\mathbf w^T \mathbf x+b)$，则 $loss_{0/1} = \begin{cases} 0, &amp;\text{z&lt;1} \\ 0, &amp;otherwise \end{cases}$</p>
+<p>在z=1处有跳跃，不连续导致求导有问题。</p>
+</li>
+<li>
+<p>用距离</p>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="超平面">超平面</h3>
+<ul>
+<li>
+<p>能把 n 维欧式空间分成两部分的 n-1 维子空间。</p>
+<p>n 维空间 $\R^n$ 的超平面是由方程：$𝐰^T 𝐱 + b = 0$ 定义的子集。（𝐰 和 𝐱 都是n维向量）</p>
+</li>
+<li>
+<p>法向量与超平面内任一向量垂直。假设在三维空间中，水平面内的一个向量 $𝐱-𝐱&rsquo;$ 与法向量 $\mathbf w$ 垂直，如下图(源自<a class="link" href="https://www.jianshu.com/p/ba02b92baaaf"  target="_blank" rel="noopener"
+    >如何理解超平面？</a>)：</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E6%B3%95%E5%90%91%E9%87%8F%E4%B8%8E%E8%B6%85%E5%B9%B3%E9%9D%A2%E5%9E%82%E7%9B%B4.png width=>
+    
+    
+  
+
+<p>满足：</p>
+<p>$$
+\begin{aligned}
+(𝐱-𝐱&rsquo;)\mathbf w &amp;= 0 \
+(x_1 - x_1&rsquo;, x_2 - x_2&rsquo;, x_3 - x_3&rsquo;) \cdot (w_1, w_2, w_3) &amp;= 0 \
+x_1 w_1 + x_2 w_2 + x_3 w_3 &amp;= w_1 x_1&rsquo; + w_2 x_2&rsquo; + w_3 x_3&rsquo; \
+\mathbf w^T \mathbf x &amp;= \mathbf w^T \mathbf x'
+\end{aligned}
+$$</p>
+<p>由于 $\mathbf w^T \mathbf x&rsquo;$ 是常数项，$-\mathbf w^T \mathbf x&rsquo; ≔ b$，
+所以超平面的公式可写为：</p>
+<p>$$
+\mathbf w^T \mathbf x + b = 0
+$$</p>
+</li>
+<li></li>
+</ul>
+<h3 id="点到超平面距离">点到超平面距离</h3>
+<ul>
+<li>
+<p>点到<a class="link" href="#%e8%b6%85%e5%b9%b3%e9%9d%a2" >超平面</a>的<a class="link" href="#%e5%87%a0%e4%bd%95%e8%b7%9d%e7%a6%bb%e4%b8%8e%e5%87%bd%e6%95%b0%e8%b7%9d%e7%a6%bb" >函数距离</a>，除以法向量的范数</p>
+</li>
+<li>
+<p>求平面外一点 $\mathbf x$ 到平面的距离 d。</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E7%82%B9%E5%88%B0%E8%B6%85%E5%B9%B3%E9%9D%A2%E8%B7%9D%E7%A6%BB.png width=>
+    
+    
+  
+
+<p>根据三角函数：$cos \theta = \frac{d}{| \mathbf x-\mathbf x&rsquo; |}$ (空间中一点向超平面作垂线，$\theta$只能是锐角，不必担心正负)</p>
+<p>$\mathbf x-\mathbf x&rsquo;$ 与 $\mathbf w$ 的内积为：
+$|(\mathbf x-\mathbf x&rsquo;) \cdot \mathbf w | = |\mathbf x-\mathbf x&rsquo; | \cdot | \mathbf w | \cdot cos \theta$
+（因为法向量可能反向，所以给等式左边加上绝对值）</p>
+<p>联立可得：</p>
+<p>$$
+d = \dfrac{|(𝐱 - 𝐱&rsquo;) 𝐰 |}{| 𝐰 |}
+= \dfrac{|𝐰𝐱 - 𝐰𝐱&rsquo;|}{| 𝐰 |}
+$$</p>
+<p>因为 $𝐱&rsquo;$在超平面内，$𝐰𝐱&rsquo; = -b$，于是最后得到的任意点到超平面的距离公式：</p>
+<p>$$
+d = \frac{|𝐰𝐱+b|}{| 𝐰 |}
+$$</p>
+</li>
+</ul>
+<h3 id="几何距离与函数距离">几何距离与函数距离</h3>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E5%87%A0%E4%BD%95%E8%B7%9D%E7%A6%BB%E4%B8%8E%E5%87%BD%E6%95%B0%E8%B7%9D%E7%A6%BB.png width=>
+  
+  
+
+
+<ul>
+<li>几何距离：点到直线（超平面）距离</li>
+<li>函数距离：$Δy$，直线（超平面）上的点y=0，所以不在直线上的点到直线的函数距离就是点的y值。</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

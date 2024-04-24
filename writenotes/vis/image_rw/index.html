@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='White background Code from 3DGS
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 from pathlib import Path from PIL import Image image_path = Path(path) / cam_name # &amp;#39;/home/yi/Downloads/nerf/data/nerf_synthetic/lego/./train/r_0.png&amp;#39; image_name = Path(cam_name).stem # r_0 image = Image.open(image_path) # &amp;lt;class &amp;#39;PIL.PngImagePlugin.PngImageFile&amp;#39;&amp;gt; im_data = np.array(image.convert(&amp;#34;RGBA&amp;#34;)) # (800,800,4) bg = np.array([1,1,1]) if white_background else np.array([0, 0, 0]) # Normalize to [0,1] norm_data = im_data / 255.'>
+<title>memo: Vis | Image Read/Write</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/vis/image_rw/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: Vis | Image Read/Write'>
+<meta property='og:description' content='White background Code from 3DGS
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 from pathlib import Path from PIL import Image image_path = Path(path) / cam_name # &amp;#39;/home/yi/Downloads/nerf/data/nerf_synthetic/lego/./train/r_0.png&amp;#39; image_name = Path(cam_name).stem # r_0 image = Image.open(image_path) # &amp;lt;class &amp;#39;PIL.PngImagePlugin.PngImageFile&amp;#39;&amp;gt; im_data = np.array(image.convert(&amp;#34;RGBA&amp;#34;)) # (800,800,4) bg = np.array([1,1,1]) if white_background else np.array([0, 0, 0]) # Normalize to [0,1] norm_data = im_data / 255.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/vis/image_rw/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2024-01-22T17:25:00&#43;00:00'/><meta property='article:modified_time' content='2024-01-22T17:25:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: Vis | Image Read/Write">
+<meta name="twitter:description" content="White background Code from 3DGS
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 from pathlib import Path from PIL import Image image_path = Path(path) / cam_name # &amp;#39;/home/yi/Downloads/nerf/data/nerf_synthetic/lego/./train/r_0.png&amp;#39; image_name = Path(cam_name).stem # r_0 image = Image.open(image_path) # &amp;lt;class &amp;#39;PIL.PngImagePlugin.PngImageFile&amp;#39;&amp;gt; im_data = np.array(image.convert(&amp;#34;RGBA&amp;#34;)) # (800,800,4) bg = np.array([1,1,1]) if white_background else np.array([0, 0, 0]) # Normalize to [0,1] norm_data = im_data / 255.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#white-background">White background</a></li>
+    <li><a href="#scaling-image">Scaling image</a></li>
+    <li><a href="#totensor">ToTensor</a></li>
+    <li><a href="#fov">fov</a></li>
+    <li><a href="#pixel-coords">Pixel Coords</a></li>
+    <li><a href="#write-image">Write Image</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/vis/image_rw/">memo: Vis | Image Read/Write</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 22, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="white-background">White background</h2>
+<p>Code from <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/scene/dataset_readers.py#L179"  target="_blank" rel="noopener"
+    >3DGS</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+</span></span><span class="line"><span class="cl"><span class="n">image_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">/</span> <span class="n">cam_name</span>  <span class="c1"># &#39;/home/yi/Downloads/nerf/data/nerf_synthetic/lego/./train/r_0.png&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">image_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cam_name</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>    <span class="c1"># r_0</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>  <span class="c1"># &lt;class &#39;PIL.PngImagePlugin.PngImageFile&#39;&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">im_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&#34;RGBA&#34;</span><span class="p">))</span>   <span class="c1"># (800,800,4)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">bg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">white_background</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Normalize to [0,1]</span>
+</span></span><span class="line"><span class="cl"><span class="n">norm_data</span> <span class="o">=</span> <span class="n">im_data</span> <span class="o">/</span> <span class="mf">255.0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Re-composite</span>
+</span></span><span class="line"><span class="cl"><span class="n">img_arr</span> <span class="o">=</span> <span class="n">norm_data</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">norm_data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">bg</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">norm_data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">:])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Convert to image</span>
+</span></span><span class="line"><span class="cl"><span class="n">img_rgb</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img_arr</span> <span class="o">*</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">byte</span><span class="p">),</span> <span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="scaling-image">Scaling image</h2>
+<p>Zooming image requires changing the focal lengths together, while cropping image doesn&rsquo;t need.</p>
+<ol>
+<li>
+<p>Downsize h and w, the focal also downscales, see <a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L102-L103"  target="_blank" rel="noopener"
+    >NeRF</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">factor</span> <span class="mi">4</span>     <span class="c1"># shrink raw image to 1/4</span>
+</span></span><span class="line"><span class="cl"><span class="n">args</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;mogrify&#39;</span><span class="p">,</span> <span class="s1">&#39;-resize&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="mf">100.</span><span class="o">/</span><span class="n">factor</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">,</span> <span class="s1">&#39;-format&#39;</span><span class="p">,</span> <span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="s1">&#39;*.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ext</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># the 5th column is hwf</span>
+</span></span><span class="line"><span class="cl"><span class="n">poses</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sh</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="c1"># hw</span>
+</span></span><span class="line"><span class="cl"><span class="n">poses</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">poses</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="mf">1.</span><span class="o">/</span><span class="n">factor</span>  <span class="c1"># focal</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 448 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 16,64 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 232,64 L 264,64' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 280,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,0 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 112,64 L 112,128' fill='none' stroke='currentColor'></path>
+<path d='M 264,0 L 264,64' fill='none' stroke='currentColor'></path>
+<path d='M 296,64 L 296,128' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,96 L 112,128' fill='none' stroke='currentColor'></path>
+<path d='M 80,32 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 112,96' fill='none' stroke='currentColor'></path>
+<path d='M 80,0 L 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 112,64' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 296,128' fill='none' stroke='currentColor'></path>
+<path d='M 264,0 L 296,64' fill='none' stroke='currentColor'></path>
+<circle cx='16' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='232' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='0' y='148' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='8' y='148' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='16' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='24' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='40' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='48' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='64' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='72' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='96' y='148' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='120' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='136' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='144' y='148' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='184' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='192' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='208' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='216' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='224' y='148' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='240' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='248' y='84' fill='currentColor' style='font-size:1em'>½</text>
+<text text-anchor='middle' x='248' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='256' y='84' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='256' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='264' y='148' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='280' y='148' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='296' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='304' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='312' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='320' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='336' y='148' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='344' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='352' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='360' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='368' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='384' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='392' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='408' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='416' y='148' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='424' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='432' y='148' fill='currentColor' style='font-size:1em'>s</text>
+</g>
+
+    </svg>
+  
+</div>
+<figure><a href="https://zhuanlan.zhihu.com/p/593204605" target="blank"><img src="https://pic2.zhimg.com/80/v2-cbf207d49865d7583a6b8da626026711_720w.webp"/></a>
+   </figure>
+
+<ul>
+<li>
+<p>Example: <a class="link" href="https://github.com/kwea123/CasMVSNet_pl/blob/a09e5ba230a18be54b9f6b1d714c3dc58acd8a00/datasets/dtu.py#L68-L71"  target="_blank" rel="noopener"
+    >CasMVSNet</a>
+has 3 levels of feature maps, so the <strong>first 2 rows</strong> of the camera intrinsics are scaled up along with the image size increases:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">  <span class="n">intrinsics</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="mi">2</span> <span class="c1"># 1/4-&gt;1/2-&gt;1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li>
+<p>Crop a patch doesn&rsquo;t affect focals referring to <a class="link" href="https://github.com/VITA-Group/GNT/blob/7b63996cb807dbb5c95ab6898e8093996588e73a/gnt/data_loaders/data_utils.py#L85"  target="_blank" rel="noopener"
+    >GNT</a></p>
+</li>
+</ol>
+<hr>
+<h2 id="totensor">ToTensor</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="fov">fov</h2>
+<p>Code from <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/utils/graphics_utils.py#L76"  target="_blank" rel="noopener"
+    >3DGS</a></p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 288 153"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,16 L 80,16' fill='none' stroke='currentColor'></path>
+<path d='M 152,16 L 232,16' fill='none' stroke='currentColor'></path>
+<path d='M 40,48 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 192,48 L 232,48' fill='none' stroke='currentColor'></path>
+<path d='M 0,80 L 32,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 56,80' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 152,80 L 184,80' fill='none' stroke='currentColor'></path>
+<path d='M 200,80 L 208,80' fill='none' stroke='currentColor'></path>
+<path d='M 224,80 L 232,80' fill='none' stroke='currentColor'></path>
+<path d='M 0,16 L 0,80' fill='none' stroke='currentColor'></path>
+<path d='M 40,64 L 40,128' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 152,16 L 152,80' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 192,128' fill='none' stroke='currentColor'></path>
+<path d='M 232,16 L 232,48' fill='none' stroke='currentColor'></path>
+<path d='M 232,48 L 232,80' fill='none' stroke='currentColor'></path>
+<path d='M 40,128 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 192,128 L 232,48' fill='none' stroke='currentColor'></path>
+<polygon points='48.000000,64.000000 36.000000,58.400002 36.000000,69.599998' fill='currentColor' transform='rotate(270.000000, 40.000000, 64.000000)'></polygon>
+<polygon points='200.000000,64.000000 188.000000,58.400002 188.000000,69.599998' fill='currentColor' transform='rotate(270.000000, 192.000000, 64.000000)'></polygon>
+<circle cx='40' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='192' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='52' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='144' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='144' y='100' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='152' y='100' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='160' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='168' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='176' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='184' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='240' y='52' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='248' y='52' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='256' y='52' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='264' y='52' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='272' y='52' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>Field of view: fovX = $2* arctan(\frac{width}{2f})$</li>
+<li>Near plane&rsquo;s right boundary: $z_{near} * tan(fovX)$</li>
+</ul>
+<ol>
+<li>
+<p>Convert fov to focal</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fov2focal</span><span class="p">(</span><span class="n">fovX</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>   <span class="c1"># 1111.11103, 800</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">width</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">fov</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Near plane computed from fov</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">tanHalfFovY</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">((</span><span class="n">fovY</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">tanHalfFovX</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">((</span><span class="n">fovX</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">top</span> <span class="o">=</span> <span class="n">tanHalfFovY</span> <span class="o">*</span> <span class="n">znear</span>
+</span></span><span class="line"><span class="cl"><span class="n">bottom</span> <span class="o">=</span> <span class="o">-</span><span class="n">top</span>
+</span></span><span class="line"><span class="cl"><span class="n">right</span> <span class="o">=</span> <span class="n">tanHalfFovX</span> <span class="o">*</span> <span class="n">znear</span>
+</span></span><span class="line"><span class="cl"><span class="n">left</span> <span class="o">=</span> <span class="o">-</span><span class="n">right</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="pixel-coords">Pixel Coords</h2>
+<p>(2024-03-14)</p>
+<ol>
+<li>
+<p><code>np.mgrid</code>. Example from <a class="link" href="https://github.com/kwea123/CasMVSNet_pl/blob/a09e5ba230a18be54b9f6b1d714c3dc58acd8a00/eval.py#L314-L315"  target="_blank" rel="noopener"
+    >casmvsnet_pl</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">xy_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[:</span><span class="n">args</span><span class="o">.</span><span class="n">img_wh</span><span class="p">[</span><span class="mi">1</span><span class="p">],:</span><span class="n">args</span><span class="o">.</span><span class="n">img_wh</span><span class="p">[</span><span class="mi">0</span><span class="p">]][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># (2, args.img_h, args.img_w)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># restore depth for (x,y):</span>
+</span></span><span class="line"><span class="cl"><span class="n">xyz_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">xy_ref</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">xy_ref</span><span class="p">[:</span><span class="mi">1</span><span class="p">])))</span> <span class="o">*</span> <span class="n">depth_refined</span><span class="p">[</span><span class="n">ref_vid</span><span class="p">]</span>    <span class="c1"># (3:xyz, h,w)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>np.meshgrid</code>. Example form <a class="link" href="https://github.com/xy-guo/MVSNet_pytorch/blob/e0f2ae3d7cb2dd13807b775f2075682eaa7f1521/models/module.py#L193-L197"  target="_blank" rel="noopener"
+    >MVSNet_pytorch</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;yy&#34;</span><span class="p">,</span> <span class="n">yy</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="n">yy</span> <span class="o">=</span> <span class="n">yy</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">xx</span> <span class="o">=</span> <span class="n">xx</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">xx</span><span class="p">)))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>torch.meshgrid</code>. Example form <a class="link" href="https://github.com/xy-guo/MVSNet_pytorch/blob/e0f2ae3d7cb2dd13807b775f2075682eaa7f1521/models/module.py#L111-L116"  target="_blank" rel="noopener"
+    >MVSNet_pytorch</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                       <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">contiguous</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">height</span> <span class="o">*</span> <span class="n">width</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">height</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">xyz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>  <span class="c1"># [3, H*W]</span>
+</span></span><span class="line"><span class="cl"><span class="n">xyz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [B, 3, H*W]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>torch.cartesian_prod</code> referred by <a class="link" href="https://pytorch.org/docs/stable/generated/torch.meshgrid.html"  target="_blank" rel="noopener"
+    >Docs</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">vu</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cartesian_prod</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">uv</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">vu</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># (hw,2), As x varies, y is fixed</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="write-image">Write Image</h2>
+<p>(2024-04-02)</p>
+<ul>
+<li>
+<p>Example of cv2 in casmvsnet_pl</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span> <span class="c1"># pillow</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">cv2</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">root_dir</span> <span class="o">=</span> <span class="s2">&#34;/mnt/data2_z/MVSNet_testing/dtu&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">img_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">root_dir</span><span class="si">}</span><span class="s1">/scan1/images/00000000.jpg&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">))</span> <span class="c1"># RGB</span>
+</span></span><span class="line"><span class="cl"><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;1.png&#39;</span><span class="p">,</span> <span class="n">img</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># save</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">))</span> <span class="c1"># nd array, BGR</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">img_read</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">)[:,:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># RGB</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">((</span><span class="n">img_read</span> <span class="o">==</span> <span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

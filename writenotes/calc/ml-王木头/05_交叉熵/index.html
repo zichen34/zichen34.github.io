@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Source video: 5-“交叉熵”如何做损失函数？打包理解“信息量”、“比特”、“熵”、“KL散度”、“交叉熵”
+信息量 事件发生 概率 的负对数 -log₂ p
+若$f(p)$ 被定义为信息量，要让体系自洽则需满足：
+$$ \begin{aligned} f(p) &amp;amp; \coloneqq 信息量 \\ f(p_1 ⋅ p_2) &amp;amp; = f(p_1) &#43; f(p_2) \end{aligned} $$
+对于阿根廷从八强打到冠军这件事，可以拆成两件事：阿根廷进入决赛&#43;阿根廷赢了决赛。
+这两种描述的信息量是一样的：$f$(阿根廷夺冠) = $f$(阿根廷进入决赛) &#43; $f$(阿根廷赢了决赛) $\Rightarrow f(\frac{1}{8}) = f(\frac{1}{4}) &#43; f(\frac{1}{2})$
+另外还要满足事件间的概率关系：P(阿根廷夺冠) = P(阿根廷进入决赛) ⋅ P(阿根廷赢了决赛)
+所以选择 log 函数，可以满足自洽；从直观来看，发生概率越小，所含信息量越大， 而 log 函数是递增的，所以系数取 -1；而底数可以选 e，也可选 2。
+$$ f(x) \coloneqq -log_2 x $$
+底数选2，相当于用抛硬币事件来衡量信息量。某事件的发生概率是 1/8，相当于抛3个硬币全部朝上的概率。并且以 2 为底计算出的信息量的单位是比特。类似地，输入 16 比特的数据就是把 16 个 0/1 确定下来'>
+<title>watch: DL - 王木头 05 | Info Quantity &amp; Cross Entropy</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/05_%E4%BA%A4%E5%8F%89%E7%86%B5/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: DL - 王木头 05 | Info Quantity &amp; Cross Entropy'>
+<meta property='og:description' content='Source video: 5-“交叉熵”如何做损失函数？打包理解“信息量”、“比特”、“熵”、“KL散度”、“交叉熵”
+信息量 事件发生 概率 的负对数 -log₂ p
+若$f(p)$ 被定义为信息量，要让体系自洽则需满足：
+$$ \begin{aligned} f(p) &amp;amp; \coloneqq 信息量 \\ f(p_1 ⋅ p_2) &amp;amp; = f(p_1) &#43; f(p_2) \end{aligned} $$
+对于阿根廷从八强打到冠军这件事，可以拆成两件事：阿根廷进入决赛&#43;阿根廷赢了决赛。
+这两种描述的信息量是一样的：$f$(阿根廷夺冠) = $f$(阿根廷进入决赛) &#43; $f$(阿根廷赢了决赛) $\Rightarrow f(\frac{1}{8}) = f(\frac{1}{4}) &#43; f(\frac{1}{2})$
+另外还要满足事件间的概率关系：P(阿根廷夺冠) = P(阿根廷进入决赛) ⋅ P(阿根廷赢了决赛)
+所以选择 log 函数，可以满足自洽；从直观来看，发生概率越小，所含信息量越大， 而 log 函数是递增的，所以系数取 -1；而底数可以选 e，也可选 2。
+$$ f(x) \coloneqq -log_2 x $$
+底数选2，相当于用抛硬币事件来衡量信息量。某事件的发生概率是 1/8，相当于抛3个硬币全部朝上的概率。并且以 2 为底计算出的信息量的单位是比特。类似地，输入 16 比特的数据就是把 16 个 0/1 确定下来'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/05_%E4%BA%A4%E5%8F%89%E7%86%B5/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-09-30T13:30:00&#43;00:00'/><meta property='article:modified_time' content='2022-09-30T13:30:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: DL - 王木头 05 | Info Quantity &amp; Cross Entropy">
+<meta name="twitter:description" content="Source video: 5-“交叉熵”如何做损失函数？打包理解“信息量”、“比特”、“熵”、“KL散度”、“交叉熵”
+信息量 事件发生 概率 的负对数 -log₂ p
+若$f(p)$ 被定义为信息量，要让体系自洽则需满足：
+$$ \begin{aligned} f(p) &amp;amp; \coloneqq 信息量 \\ f(p_1 ⋅ p_2) &amp;amp; = f(p_1) &#43; f(p_2) \end{aligned} $$
+对于阿根廷从八强打到冠军这件事，可以拆成两件事：阿根廷进入决赛&#43;阿根廷赢了决赛。
+这两种描述的信息量是一样的：$f$(阿根廷夺冠) = $f$(阿根廷进入决赛) &#43; $f$(阿根廷赢了决赛) $\Rightarrow f(\frac{1}{8}) = f(\frac{1}{4}) &#43; f(\frac{1}{2})$
+另外还要满足事件间的概率关系：P(阿根廷夺冠) = P(阿根廷进入决赛) ⋅ P(阿根廷赢了决赛)
+所以选择 log 函数，可以满足自洽；从直观来看，发生概率越小，所含信息量越大， 而 log 函数是递增的，所以系数取 -1；而底数可以选 e，也可选 2。
+$$ f(x) \coloneqq -log_2 x $$
+底数选2，相当于用抛硬币事件来衡量信息量。某事件的发生概率是 1/8，相当于抛3个硬币全部朝上的概率。并且以 2 为底计算出的信息量的单位是比特。类似地，输入 16 比特的数据就是把 16 个 0/1 确定下来">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#信息量">信息量</a></li>
+    <li><a href="#熵">熵</a></li>
+    <li><a href="#kl散度-相对熵">KL散度 (相对熵)</a></li>
+    <li><a href="#交叉熵">交叉熵</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/05_%E4%BA%A4%E5%8F%89%E7%86%B5/">watch: DL - 王木头 05 | Info Quantity &amp; Cross Entropy</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 30, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Source video: <a class="link" href="https://www.bilibili.com/video/BV15V411W7VB?spm_id_from=333.999.0.0"  target="_blank" rel="noopener"
+    >5-“交叉熵”如何做损失函数？打包理解“信息量”、“比特”、“熵”、“KL散度”、“交叉熵”</a></p>
+<h2 id="信息量">信息量</h2>
+<ul>
+<li>
+<p>事件发生 <strong>概率</strong> 的负对数 -log₂ p</p>
+</li>
+<li>
+<p>若$f(p)$ 被定义为信息量，要让体系自洽则需满足：</p>
+<p>$$
+\begin{aligned}
+f(p) &amp; \coloneqq 信息量 \\
+f(p_1 ⋅ p_2) &amp; = f(p_1) + f(p_2)
+\end{aligned}
+$$</p>
+<p>对于阿根廷从八强打到冠军这件事，可以拆成两件事：阿根廷进入决赛+阿根廷赢了决赛。</p>
+<ol>
+<li>
+<p>这两种描述的信息量是一样的：$f$(阿根廷夺冠) = $f$(阿根廷进入决赛) + $f$(阿根廷赢了决赛) $\Rightarrow f(\frac{1}{8}) = f(\frac{1}{4}) + f(\frac{1}{2})$</p>
+</li>
+<li>
+<p>另外还要满足事件间的概率关系：P(阿根廷夺冠) = P(阿根廷进入决赛) ⋅ P(阿根廷赢了决赛)</p>
+</li>
+</ol>
+<p>所以选择 log 函数，可以满足自洽；从直观来看，发生概率越小，所含信息量越大，
+而 log 函数是递增的，所以系数取 -1；而底数可以选 e，也可选 2。</p>
+<p>$$
+f(x) \coloneqq -log_2 x
+$$</p>
+<p>底数选2，相当于用抛硬币事件来衡量信息量。某事件的发生概率是 1/8，相当于抛3个硬币全部朝上的概率。并且以 2 为底计算出的信息量的单位是比特。类似地，输入 16 比特的数据就是把 16 个 0/1 确定下来</p>
+</li>
+</ul>
+<h2 id="熵">熵</h2>
+<ul>
+<li>
+<p>系统中各事件信息量的 <strong>期望</strong></p>
+<p>$$
+\begin{aligned}
+&amp;H(P) \coloneqq E(P_f) \\
+&amp;= ∑_{i=1}^m p_i ⋅ f(p_i) = ∑_{i=1}^m p_i(-log_2p_i) \\
+&amp;= -∑_{i=1}^m p_i ⋅ log_2 p_i
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>衡量整个系统中的所有事件的不确定性</p>
+</li>
+</ul>
+<h2 id="kl散度-相对熵">KL散度 (相对熵)</h2>
+<ul>
+<li>
+<p>系统Q相对于系统P差多少：事件 i 在两系统中的 <strong>信息量之差</strong>，按照 i 在系统 P 中的概率加权求和。</p>
+<p>$$
+D_{KL}(P\|Q) = ∑_{i=1}^m p_i ⋅ (-log_2 q_i) -
+∑_{i=1}^m p_i ⋅ (-log_2 p_i)
+$$</p>
+</li>
+<li>
+<p>无法直接对比两个不同种类模型之间的差异（无法公度），而且人脑中的概率模型不清楚，无法求熵，需要 <strong>相对熵</strong></p>
+<p>
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/KL%E6%95%A3%E5%BA%A6%E5%AE%9A%E4%B9%89.png width=>
+    
+    
+  
+  <center>Q系统P系统的概率分布</center></p>
+<p>对于某事件 $i$ 在系统 Q 中的信息量 $f_Q(q_i)$ 减去它对应到在系统 P 中的信息量 $f_P(p_i)$，再按照在系统 P 中的概率 $p$ 求期望：</p>
+<p>$$
+\begin{aligned}
+D_{KL} (P \| Q)
+&amp; \coloneqq ∑_{i=1}^m p_i ⋅ \left(f_Q(q_i) - f_P(p_i)\right)  \\
+&amp;= ∑_{i=1}^m p_i ⋅ \left((-log_2 q_i) - (-log_2 p_i)\right) \\
+&amp;= \underbrace{∑_{i=1}^m p_i ⋅ (-log_2 q_i)}_{交叉熵H(P,Q)}-
+\underbrace{∑ᵢ₌₁ᵐ pᵢ⋅ (-log₂pᵢ)}_{P的熵}
+\end{aligned}
+$$</p>
+<p>如果事件 i 在两系统中的信息量相等，差值为0，说明两个系统完全相等。</p>
+<p>根据吉不斯不等式：</p>
+<p>如果有两个概率系统，$∑_{i=1}^n p_i = ∑_{i=1}^n q_i = 1$，且 $p_i, q_i \in (0,1]$，则有：</p>
+<p>$$
+- ∑_{i=1}^n p_i log_{p_i} ≤ -∑_{i=1}^n p_i log_{q_i}
+$$</p>
+<p>当且仅当 $p_i = q_i\ ∀ i$ 时，等号成立。</p>
+<p>也就是说 KL 散度恒大于等于0（距离）。</p>
+</li>
+</ul>
+<h2 id="交叉熵">交叉熵</h2>
+<ul>
+<li>
+<p>$$
+H(P,Q) = ∑_{i=1}^m p_i ⋅ (- \operatorname{log}_2 q_i)
+$$</p>
+</li>
+<li>
+<p>事件 i 在概率系统 Q 中的信息量，按照 i 在系统 P 中的概率加权求和</p>
+</li>
+<li>
+<p>为了使 KL 散度最小，即概率系统 Q 最接近系统P，就需要交叉熵最小（最接近系统P的熵）</p>
+</li>
+<li>
+<p>对于一张图片，人脑系统（目标系统 P）只有 2 个事件：是猫和不是猫
+(&ldquo;是猫&quot;事件发生的概率为 x，则&quot;非猫&quot;事件发生的概率为 1-x)，
+神经网络（系统Q）的结果（y）是像猫的概率，所以交叉熵为：</p>
+<p>$$
+\begin{aligned}
+H(P,Q) &amp;= ∑_{i=1}^2 p_i ⋅ (-log_2 q_i) \\
+&amp;= x ⋅ log(y) + (1-x) ⋅ log(1-y) \\
+&amp;= 1 ⋅ log(y) + 0 ⋅ log(1-y)
+\end{aligned}
+$$</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/%E4%BA%BA%E8%84%91%E4%B8%8E%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E4%BA%A4%E5%8F%89%E7%86%B5.png width=>
+    
+    
+  
+
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

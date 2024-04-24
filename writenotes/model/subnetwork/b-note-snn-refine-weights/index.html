@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='A Width-Growth Model With Subnetwork Nodes and Refinement Structure for Representation Learning and Image Classification (TII 2020)'>
+<title>read: Width-Growth Model with Subnetwork Nodes</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/subnetwork/b-note-snn-refine-weights/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: Width-Growth Model with Subnetwork Nodes'>
+<meta property='og:description' content='A Width-Growth Model With Subnetwork Nodes and Refinement Structure for Representation Learning and Image Classification (TII 2020)'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/subnetwork/b-note-snn-refine-weights/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-02-15T12:40:00-05:00'/><meta property='article:modified_time' content='2023-02-15T12:40:00-05:00'/>
+<meta name="twitter:title" content="read: Width-Growth Model with Subnetwork Nodes">
+<meta name="twitter:description" content="A Width-Growth Model With Subnetwork Nodes and Refinement Structure for Representation Learning and Image Classification (TII 2020)">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#-introduction">Ⅰ. Introduction</a></li>
+    <li><a href="#-literature-review">Ⅱ. Literature review</a>
+      <ol>
+        <li><a href="#a-conventional-feature-coding">A. Conventional Feature Coding</a></li>
+        <li><a href="#b-least-squares-encoding-methods">B. Least-Squares Encoding Methods</a></li>
+      </ol>
+    </li>
+    <li><a href="#-proposed-method">Ⅲ. Proposed Method</a>
+      <ol>
+        <li><a href="#a-algorithmic-summary">A. Algorithmic Summary</a></li>
+        <li><a href="#b-model-definition">B. Model Definition</a></li>
+        <li><a href="#c-proposed-width-growth-model">C. Proposed Width-Growth Model</a></li>
+      </ol>
+    </li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/subnetwork/b-note-snn-refine-weights/">read: Width-Growth Model with Subnetwork Nodes</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            A Width-Growth Model With Subnetwork Nodes and Refinement Structure for Representation Learning and Image Classification (TII 2020)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 15, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Authors: Wandong Zhang et. al. Publish date: 2020-03-30 (Finished in 2019)</p>
+<p><a class="link" href="https://ieeexplore.ieee.org/document/9050859"  target="_blank" rel="noopener"
+    >IEEE Trans. Industrial Informatics</a>
+| <a class="link" href="https://drive.google.com/file/u/0/d/1buXSzjPvb-d56kPDDqKaccDxzkBBw87R/view"  target="_blank" rel="noopener"
+    >G.Drive</a>
+| <a class="link" href="https://scholar.google.com/citations?view_op=view_citation&amp;hl=en&amp;user=O0LaYK8AAAAJ&amp;citation_for_view=O0LaYK8AAAAJ:u5HHmVD_uO8C"  target="_blank" rel="noopener"
+    >G.Scholar</a></p>
+<p>Try to summary (2023-02-26):</p>
+<ul>
+<li>Different features are concatenated and then fed into a &ldquo;I-ELM with subnetwork nodes&rdquo;.</li>
+<li>What is optimized it the combination weights, but the feature vectors themselves are not changed.</li>
+<li>It is the weights (IW, 𝛃) are refined.</li>
+<li>Sepecifically, the new R-SNN node is improved by adding a part of unlearned wights accquired from the residual error of the last node.
+That is the weights are accumulated on the newest node. So the ultimate R-SNN node contains all the previous training outcomes.
+What we kept is only the last R-SNN node, i.e., a SLFN.</li>
+<li>Does that require the performance of the final R-SNN is the best among the former nodes.</li>
+</ul>
+<p>(In code) The update process of a SLFN is as follows:</p>
+<div class="mermaid">flowchart LR
+subgraph node1[SLFN1]
+h1((h1)) & h2((h2)) & he((he)) & hd((hd))
+end
+
+In["X\n data\n matrix"] --> IW1 --> h1 & h2 & he & hd 
+node1 --- beta1("𝛃1") --> Yout1 --> Error1
+Target -->|"pinv"| beta1
+beta1 & Error1 -->|"inv: 𝛃⋅P=𝐞₁"| P["P\n ( The H\n yielding\n Error1) "]
+P & In --> IW'["residual\n IW"]
+IW' & IW1 -->sum((+)) --> IW2
+
+subgraph node2[SLFN2]
+h21((h1)) & h22((h2)) & h2e((he)) & h2d((hd))
+end
+
+IW2 --> h21 & h22 & h2e & h2d 
+node2 --- beta2("𝛃2")
+Target --> |"pinv"| beta2
+beta2 --> Yout2
+</div>
+
+<h2 id="abstract">Abstract</h2>
+<ul>
+<li>A supervised multi-layer subnetwork-based feature refinement and classification model for representation learning.</li>
+<li>Expand the width for a generalized hidden layer rather than stack more layers to go deeper</li>
+<li>One-shot solution for finding the meaningful latent space to recognize the objects rather than searching separate spaces to find a generalized feature space.</li>
+<li>Multimodal fusion fusing various feature sources into a superstate encoding instead of a unimodal feature coding in the traditional feature representation methods.</li>
+</ul>
+<h2 id="-introduction">Ⅰ. Introduction</h2>
+<p>(Task &amp; Application &amp; List of ralated research field &amp; Problem &amp; Existing solutions brif)</p>
+<ul>
+<li>Task: high-dimensional data processing and learning</li>
+<li>Problem definition: selecting the optimal feature descriptors</li>
+<li>2 branch of solutions: hand-crafted descriptors and deep-learning-based features.</li>
+</ul>
+<p>(Criticize the former feature extraction solutions and introduce proposed method:)</p>
+<ul>
+<li>Features derived from approaches of those 2 categories are too inflexible to contribute a robust model.</li>
+<li>This method &ldquo;encodes and refines these? raw features from multiple sources to improve the classification performance&rdquo;. <br>
+For example: 4 extracted features (from AlexNet, ResNet, HMP, and SPF) are concatenated into 1 vector taken as the input to a &ldquo;3-layer&rdquo; model,
+where only a single &ldquo;genearlized&rdquo; hidden layer (latent space) bridges the raw feature space (transformation ax+b) and the final target space (residual error).</li>
+</ul>
+<p>(Recap deep learning models and mention the theory base of this work)</p>
+<ul>
+<li>Deep networks often get &ldquo;trapped in local minimum and are sensitive to the learning rate&rdquo; because their training fundation is BP.</li>
+<li>Regression-based feature learning. Least-squares representation learning methods.</li>
+</ul>
+<p>(Problems to be solved) <br>
+Drawbacks of regression-based approaches:</p>
+<ol>
+<li>&ldquo;block&rdquo; models? don&rsquo;t perform one-shot training philosophy based on the relation between raw data and the target.</li>
+<li>A model trained by some &ldquo;designed&rdquo; process has a inferious generalizatio n capacity than the model derived from one-shot training strategy (least-squares).</li>
+</ol>
+<p>Drawbacks of multilayer neural networks &amp; solution <br></p>
+<ol>
+<li>Deeper layer-stacked models suffer from overfitting with limited training samples.</li>
+<li>Network-in-network structure enhances the network&rsquo;s generalization capacity for learning feature. <a class="link" href="https://zichen34.github.io/writenotes/model/subnetwork/b-note-elm-subnet/" >ELM with subnetwork nodes</a>.</li>
+<li>Contributions:
+<ul>
+<li>Subnetwork neural nodes (SNN) realized multilayer representation learning. Unlike the ensembled network, the SNN is trained based on the error term.</li>
+<li>Feature space transformation and the classification are solved together by searching iteratively the optimal encoding space (hidden layer).</li>
+<li>Concatenation of multiple features result more discriminative representations for samples.</li>
+</ul>
+</li>
+</ol>
+<h2 id="-literature-review">Ⅱ. Literature review</h2>
+<h3 id="a-conventional-feature-coding">A. Conventional Feature Coding</h3>
+<p>&quot; Supervised method of learning representaiton evaluates the importance of a specific feature through the correlation between features and categories.&quot;</p>
+<p>Conventional feature coding of images depends on prior knowledge of the problem. Thus, the features are not complete representations.</p>
+<p>This paper enhances the feature by fusing (discriminative) hand-crafted features and (class-specific) CNN-based features.</p>
+<h3 id="b-least-squares-encoding-methods">B. Least-Squares Encoding Methods</h3>
+<blockquote>
+<p>The least-squares approximation methods, such as random forest and <strong>alternating minimization</strong>, have been exhaustively investigated in single-layer neural networks.</p>
+</blockquote>
+<p>Related works: Moore-Penrose inverse; Universal approximation capacity of I-ELM, ELM autoe-ncoder<a class="link" href="#ELM-AE" >14</a>, Features combined with subnetwork nodes <a class="link" href="#2lyrSubnet" >18</a></p>
+<blockquote>
+<p>Each SNN is applied as a <strong>local feature descriptor</strong>.
+Hence, the subspace features can be extracted? from the original data independently,
+and the useful features are generated via the <strong>combination</strong> of these features.</p>
+</blockquote>
+<h2 id="-proposed-method">Ⅲ. Proposed Method</h2>
+<h3 id="a-algorithmic-summary">A. Algorithmic Summary</h3>
+<p>Two steps:</p>
+<ol>
+<li><strong>Preprocessing</strong>: concatenate various feature vectors into a single &ldquo;supervector&rdquo;.</li>
+<li><strong>Train</strong> the width-growth model: <br>
+Terminology:
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>layer</th>
+<th>name</th>
+<th>marker</th>
+<th>params</th>
+<th>in</th>
+<th>out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>input</td>
+<td>Entrance (feature) layer</td>
+<td>𝑓</td>
+<td>𝐖ᵢᶠ, 𝐛ᵢᶠ random</td>
+<td>vct</td>
+<td>linear combination 𝐇</td>
+</tr>
+<tr>
+<td>hidden</td>
+<td>Refinement layer/subspace</td>
+<td>𝑟</td>
+<td>𝐖ᵢʳ, 𝐛ᵢʳ (𝐚,b)</td>
+<td>𝐇</td>
+<td>partial feature Ψ</td>
+</tr>
+<tr>
+<td>output</td>
+<td>Least square learning layr</td>
+<td>𝑣</td>
+<td>𝐖ᵢᵛ (𝛃)</td>
+<td>Ψ</td>
+<td>sum up all partial features: 𝚪 <br> residual error 𝐞</td>
+</tr>
+</tbody>
+</table></div>
+</li>
+</ol>
+<p>(An entrance layer and a refinement layer both are &ldquo;SNN&rdquo;, and their combination is a &ldquo;R-SNN&rdquo;)</p>
+<ul>
+<li>
+<p>Initialization: For the 1st R-SNN, 𝐖₁ᶠ, 𝐖₁ʳ are random generating a false feature Ψ. <br>
+Then the first least-square method (pseudoinverse) is performed to calculate 𝐖₁ᵛ based on target 𝐘 and Ψ.</p>
+</li>
+<li>
+<p>Iteratively add the R-SNN (2≤ i≤ L) (refinement subspace) into the hidden layer (optimal feature space)</p>
+<div class="mermaid">flowchart TB
+subgraph In[input feature]
+x1((1)) & x2((2)) & xe(("⋮")) & xn((n))
+end
+
+EnW("Entrance layer\n 𝐖ᵢᶠ, 𝐛ᵢᶠ\n random")
+
+subgraph H["entrance feature 𝐇"]
+h1((1)) & h2((2)) & he(("⋮")) & hD((D))
+end
+
+RefineW("Refinement layer\n 𝐖ᵢʳ, 𝐛ᵢʳ")
+
+subgraph Psi[partial feature Ψ]
+Ψ1((1)) & Ψ2((2)) & Ψe(("⋮")) & Ψd((d))
+end
+
+OW("Output layer\n 𝐖ᵢᵛ")
+
+subgraph Out["Output vector"]
+o1((1)) & o2((2)) & oe(("⋮")) & om((m))
+end
+
+x1 & x2 & xe & xn --> EnW --> h1 & h2 & he & hD 
+    --> RefineW --> Ψ1 & Ψ2 & Ψe & Ψd 
+    --> OW --> o1 & o2 & oe & om
+
+Out -->|"- 𝐞ᵢ₋₁"| erri["𝐞ᵢ"]
+
+erri & OW -.->|pinv| newΨ("𝐏 \n yielding\n 𝐞ᵢ")
+
+subgraph H1["entrace feature 𝐇ᵢ₊₁"]
+h11((1)) & h12((2)) & h1e(("⋮")) & h1D((D))
+end
+
+In --> EnW1("Entrance layer\n 𝐖ᵢ₊₁ᶠ, 𝐛ᵢ₊₁ᶠ\n random")
+   --> h11 & h12 & h1e & h1D
+
+H1 --> RefineW1("Refinement layer\n 𝐖ᵢ₊₁ʳ, 𝐛ᵢ₊₁ʳ")
+   %%-.-|solved by P| newΨ 
+newΨ -.-> RefineW1
+
+subgraph Psi1[partial feature Ψ]
+Ψ11((1)) & Ψ12((2)) & Ψ1e(("⋮")) & Ψ1d((d))
+end
+
+RefineW1 --> Ψ11 & Ψ12 & Ψ1e & Ψ1d --> OW1("Output layer\n 𝐖ᵢ₊₁ᵛ")
+
+%%OW1 -.-|solved by| erri
+erri -.-> OW1
+
+subgraph Out1["Output vector"]
+o11((1)) & o12((2)) & o1e(("⋮")) & o1m((m))
+end
+
+OW1 --> o11 & o12 & o1e & o1m 
+Out1 -->|"- 𝐞ᵢ"| erri+1["𝐞ᵢ₊₁"] --> newP
+</div>
+
+</li>
+</ul>
+<h3 id="b-model-definition">B. Model Definition</h3>
+<ul>
+<li>
+<p>SLFN solves the regression problem can be expressed as:</p>
+</li>
+<li>
+<p>MLNN has nested transformation:</p>
+</li>
+<li>
+<p>Proposed method is a generlized SLFN:</p>
+<p>minimize J = ½ ‖𝐘-f(𝐇ᵢᶠ, 𝐖ᵢʳ, 𝐛ᵢʳ)⋅𝐖_Lᵛ‖²,</p>
+<ul>
+<li>f(𝐇ᵢᶠ, 𝐖ᵢʳ, 𝐛ᵢʳ) = ∑ᵢ₌₁ᴸ g(𝐇ᵢᶠ ⋅ 𝐖ᵢʳ + 𝐛ᵢʳ): sum all R-SNN</li>
+<li>𝐇ᵢᶠ = g(𝐖ᵢᶠ, 𝐛ᵢᶠ, 𝐗)</li>
+<li>𝐘 ∈ ℝᴺᕽᵐ: expected output, target feature</li>
+<li>𝐗 ∈ ℝᴺᕽⁿ: input matrix</li>
+<li>L : number of R-SNN node</li>
+<li>g : activateion function</li>
+</ul>
+</li>
+<li>
+<p>3 differences from other least-squares-based MLNNs</p>
+<ol>
+<li>
+<p>SNN combines each dimension of the feature vector serving as local feature descriptor.
+While the R-SNN is the basic unit to refine feature vectors.</p>
+</li>
+<li>
+<p>Optimal feature is the aggregation of R-SNN added one by one.
+R-SNN is densly connected to input vector and output layer containing twice linear projection.
+Different R-SNNs are independent because they learn from different error.</p>
+</li>
+<li>
+<p>The latent space is the aggregation of all R-SNN nodes subspace.
+So the parameters training has no block-wise communication between different spaces.
+That means the feature refinement and classification are doen together.</p>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="c-proposed-width-growth-model">C. Proposed Width-Growth Model</h3>
+<ol>
+<li>
+<p>Input weights and bias 𝐖ᵢᶠ, 𝐛ᵢᶠ: randomly initialized; <br>
+Entrance feature: 𝐇ᵢᶠ = g(𝐗𝐖ᵢᶠ+ 𝐛ᵢᶠ); <br>
+Refined partial feature: Ψᵢ=g(𝐇ᵢᶠ𝐖ᵢʳ+ 𝐛ᵢʳ), where 𝐛ᵢʳ is random; <br></p>
+</li>
+<li>
+<p>Output weights: 𝐖ᵢᵛ=(𝐈/C + 𝚪ᵀ𝚪)⁻¹𝚪ᵀ⋅𝐘, <br>
+where C is hyperparameter for regularization,
+and (𝐈/C + 𝚪ᵀ𝚪)⁻¹𝚪ᵀ is the pseudoinverse of output vector 𝚪 (label?) <br>
+Error: 𝐞ᵢ = 𝐘 - 𝐖ᵢᵛ</p>
+</li>
+<li>
+<p>𝐏 is the desired matrix generating 𝐞ᵢ by: 𝐏ᵢ⋅𝐖ᵢᵛ=𝐞ᵢ, so <br>
+𝐏ᵢ = 𝐞ᵢ⋅(I/C + (𝐖ᵢᵛ)ᵀ𝐖ᵢᵛ)⁻¹(𝐖ᵢᵛ)ᵀ</p>
+</li>
+<li>
+<p>Refinement layer weights of next R-SNN:  <br>
+𝐖ᵢ₊₁ʳ = (I/C +𝐇ᵢᵀ𝐇ᵢ)⁻¹𝐇ᵢᵀ ⋅ g⁻¹(𝐏ᵢ),     <br>
+because g(𝐇ᵢ₊₁⋅𝐖ᵢ₊₁ʳ+ 𝐛ᵢ₊₁ʳ) = 𝐏ᵢ. <br>
+Next partial feature: Ψᵢ₊₁ = g(𝐇ᵢ₊₁⋅𝐖ᵢ₊₁ʳ+ 𝐛ᵢ₊₁ʳ)</p>
+</li>
+<li>
+<p>Accumulate the partial feature to the optimal feature:
+𝚪ᵢ₊₁ = 𝚪ᵢ + Ψᵢ₊₁  <br></p>
+</li>
+<li>
+<p>Update error: 𝐞ᵢ₊₁ = 𝐞ᵢ-𝐖ᵢᵛ𝚪ᵢ</p>
+</li>
+</ol>
+<p>Repeat steps 4-6 L-2 times, and the final feature 𝚪$_L$ is the generalized feature correponding to the best output parameter 𝐖 $_Lᵛ$ for classification.</p>
+<h2 id="ref">Ref</h2>
+<ol start="14">
+<li>
+<div id="ELM-AE"><a href="https://ieeexplore.ieee.org/document/6733226">L. L. C. Kasun, H. Zhou, G.-B. Huang, and C. M. Vong, “Representational learning with extreme learning machine for big data,” IEEE Intell. Syst.,Dec. 2013.</a></div>
+</li>
+<li>
+<div id="2lyrSubnet"><a href="https://ieeexplore.ieee.org/document/8627989"> Y. Yang and Q. J. Wu, “Features combined from hundreds of midlayers: Hierarchical networks with subnetwork nodes,” IEEE Trans. Neural Netw. Learn. Syst., Nov. 2019.</a></div>
+</li>
+<li>
+<div id="ELM-MLP"><a href="https://ieeexplore.ieee.org/document/7103337">J. Tang, C. Deng, and G.-B. Huang, “Extreme learning machine for multilayer perceptron,” IEEE Trans. Neural Netw. Learn. Syst., Apr. 2016.</a></div>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script>
+        mermaid.initialize({ startOnLoad: true });
+      </script>
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

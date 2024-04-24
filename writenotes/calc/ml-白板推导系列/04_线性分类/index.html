@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='3 线性判别分析 (Fisher判别分析) - 模型定义 Source Video-P3
+Data:
+$$ \begin{aligned} \text{Samples:}\ &amp;amp; \mathbf X = (\mathbf x_1, \mathbf x_2, \cdots, \mathbf x_N)^T_{N\times p} = \begin{pmatrix} \mathbf x_1^T \ \mathbf x_2^T \ \vdots \ \mathbf x_N^T \end{pmatrix}_{N \times p} \\
+\text{Samples:} \ &amp;amp; \mathbf Y = \begin{pmatrix} y_1 \ y_2 \ \vdots \ y_N \end{pmatrix}_{N \times 1} \\
+\text{Abbreviations:}\ &amp;amp; \left{ (\mathbf x_i, y_i) \right}_{i=1}^N, \ \mathbf x_i \in \R^p, \ \underset{(\text{2class: } C_1,C_2)}{y_i \in {&#43;1, -1}}\\'>
+<title>watch: ML - 白板 04 | Linear Classification</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/04_%E7%BA%BF%E6%80%A7%E5%88%86%E7%B1%BB/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: ML - 白板 04 | Linear Classification'>
+<meta property='og:description' content='3 线性判别分析 (Fisher判别分析) - 模型定义 Source Video-P3
+Data:
+$$ \begin{aligned} \text{Samples:}\ &amp;amp; \mathbf X = (\mathbf x_1, \mathbf x_2, \cdots, \mathbf x_N)^T_{N\times p} = \begin{pmatrix} \mathbf x_1^T \ \mathbf x_2^T \ \vdots \ \mathbf x_N^T \end{pmatrix}_{N \times p} \\
+\text{Samples:} \ &amp;amp; \mathbf Y = \begin{pmatrix} y_1 \ y_2 \ \vdots \ y_N \end{pmatrix}_{N \times 1} \\
+\text{Abbreviations:}\ &amp;amp; \left{ (\mathbf x_i, y_i) \right}_{i=1}^N, \ \mathbf x_i \in \R^p, \ \underset{(\text{2class: } C_1,C_2)}{y_i \in {&#43;1, -1}}\\'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/04_%E7%BA%BF%E6%80%A7%E5%88%86%E7%B1%BB/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2021-12-24T13:58:00-05:00'/><meta property='article:modified_time' content='2021-12-24T13:58:00-05:00'/>
+<meta name="twitter:title" content="watch: ML - 白板 04 | Linear Classification">
+<meta name="twitter:description" content="3 线性判别分析 (Fisher判别分析) - 模型定义 Source Video-P3
+Data:
+$$ \begin{aligned} \text{Samples:}\ &amp;amp; \mathbf X = (\mathbf x_1, \mathbf x_2, \cdots, \mathbf x_N)^T_{N\times p} = \begin{pmatrix} \mathbf x_1^T \ \mathbf x_2^T \ \vdots \ \mathbf x_N^T \end{pmatrix}_{N \times p} \\
+\text{Samples:} \ &amp;amp; \mathbf Y = \begin{pmatrix} y_1 \ y_2 \ \vdots \ y_N \end{pmatrix}_{N \times 1} \\
+\text{Abbreviations:}\ &amp;amp; \left{ (\mathbf x_i, y_i) \right}_{i=1}^N, \ \mathbf x_i \in \R^p, \ \underset{(\text{2class: } C_1,C_2)}{y_i \in {&#43;1, -1}}\\">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#3-线性判别分析-fisher判别分析---模型定义">3 线性判别分析 (Fisher判别分析) - 模型定义</a>
+      <ol>
+        <li><a href="#fisher">Fisher</a></li>
+      </ol>
+    </li>
+    <li><a href="#4-线性判别分析-fisher判别分析---模型求解">4 线性判别分析 (Fisher判别分析) - 模型求解</a></li>
+    <li><a href="#5-逻辑回归-logistic-regression">5 逻辑回归 (Logistic Regression)</a></li>
+    <li><a href="#9-朴素贝叶斯分类器-naive-bayes-classifer">9 朴素贝叶斯分类器 (Naive Bayes Classifer)</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/04_%E7%BA%BF%E6%80%A7%E5%88%86%E7%B1%BB/">watch: ML - 白板 04 | Linear Classification</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 24, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="3-线性判别分析-fisher判别分析---模型定义">3 线性判别分析 (Fisher判别分析) - 模型定义</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=15"  target="_blank" rel="noopener"
+    >Source Video-P3</a></p>
+<p>Data:</p>
+<p>$$
+\begin{aligned}
+\text{Samples:}\ &amp;
+\mathbf X = (\mathbf x_1, \mathbf x_2, \cdots, \mathbf x_N)^T_{N\times p} =
+\begin{pmatrix}
+\mathbf x_1^T \ \mathbf x_2^T \ \vdots \ \mathbf x_N^T
+\end{pmatrix}_{N \times p} \\</p>
+<p>\text{Samples:} \ &amp;
+\mathbf Y =
+\begin{pmatrix}
+y_1 \ y_2 \ \vdots \ y_N
+\end{pmatrix}_{N \times 1} \\</p>
+<p>\text{Abbreviations:}\ &amp;
+\left{ (\mathbf x_i, y_i) \right}_{i=1}^N, \ \mathbf x_i \in \R^p, \ \underset{(\text{2class: } C_1,C_2)}{y_i \in {+1, -1}}\\</p>
+<p>\text{2 Group:}\ &amp;\mathbf x_{C_1} = { \mathbf x_i | y_i=+1}
+; \quad \mathbf x_{C_2} = { \mathbf x_i | y_i=-1} \\</p>
+<p>\text{Number:}\ &amp; |\mathbf x_{C_1}| = N_1, \ |\mathbf x_{C_2}|=N_2, \ N_1 + N_2 = N
+\end{aligned}
+$$</p>
+<h3 id="fisher">Fisher</h3>
+<ul>
+<li>
+<p>类内小，类间大</p>
+</li>
+<li>
+<p>把p维降到1维，投影到某一个轴上再做分类。<br>
+在投影方向($\mathbf w$)上，类内点的坐标方差足够小，类间距离要大<br>
+投影方向就是分类超平面（$\mathbf w^T \mathbf x$）的法向量。</p>
+</li>
+<li>
+<p>记号</p>
+<p>限定 $| \mathbf w | =1$</p>
+<p>样本点$\mathbf x_i$ 在投影轴$\mathbf w$上的投影长度: $z_i = \mathbf w^T \mathbf x_i$</p>
+<p>$$
+\begin{aligned}</p>
+<p>均值: \overline{z} =&amp; \frac{1}{N} \sum_{i=1}^N z_i = \frac{1}{N} \sum_{i=1}^N \mathbf w^T \mathbf x_i  \</p>
+<p>协方差矩阵: S_{z} =&amp; \frac{1}{N} \sum_{i=1}^N (z-\overline z)(z-\overline z)^T \</p>
+<p>=&amp; \frac{1}{N} \sum_{i=1}^N (\mathbf w^T \mathbf x_i-\overline z)(\mathbf w^T \mathbf x_i-\overline z)^T \</p>
+<p>类C_1:\  \overline{z_1} =&amp; \frac{1}{N_1} \sum_{i=1}^{N_1} \mathbf w^T \mathbf x_i \</p>
+<pre><code>  S_{z_1} =&amp;\frac{1}{N_1} \sum_{i=1}^{N_1} (\mathbf w^T \mathbf x_i-\overline{z_1})(\mathbf w^T \mathbf x_i-\overline{z_1})^T \\
+</code></pre>
+<p>类C_2:\  \overline{z_2} =&amp; \frac{1}{N_2} \sum_{i=1}^{N_1} \mathbf w^T \mathbf x_i \</p>
+<pre><code>  S_{z_2} =&amp; \frac{1}{N_2} \sum_{i=1}^{N_2} (\mathbf w^T \mathbf x_i-\overline{z_2})(\mathbf w^T \mathbf x_i-\overline{z_2})^T \\
+</code></pre>
+<p>类内距离: &amp; S_{z_1} + S_{z_2} \
+类间距离: &amp; (\overline{z_1} - \overline{z_2})^2 \</p>
+<p>目标函数: &amp; J(\mathbf w) = \frac{(\overline{z_1} - \overline{z_2})^2}{S_{z_1} + S_{z_2}} \</p>
+<p>分子：&amp; \left[ \frac{1}{N_1} \sum_{i=1}^{N_1} \mathbf w^T \mathbf x_i-\frac{1}{N_2} \sum_{i=1}^{N_1} \mathbf w^T \mathbf x_i \right]^2 \</p>
+<pre><code>  =&amp; \left[ \mathbf w^T \left( \frac{1}{N_1} \sum_{i=1}^{N_1}\mathbf x_i-\frac{1}{N_2} \sum_{i=1}^{N_1} \mathbf x_i \right) \right]^2\\
+
+  =&amp; \left[ \mathbf w^T (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}}) \right]^2\\
+  =&amp; \mathbf w^T (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}}) (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}})^T \mathbf w^T \\ 
+</code></pre>
+<p>S_{z_1}=&amp; \frac{1}{N_1} \sum_{i=1}^{N_1} (\mathbf w^T \mathbf x_i   - \frac{1}{N_1} \sum_{j=1}^{N_1} \mathbf w^T \mathbf x_j)(\mathbf w^T \mathbf x_i - \frac{1}{N_1} \sum_{j=1}^{N_1} \mathbf w^T \mathbf x_j)^T \</p>
+<pre><code>  =&amp; \frac{1}{N_1}\sum_{i=1}^{N_1} \mathbf w^T (\mathbf x_i - \overline{\mathbf x_{C_1}}) (\mathbf x_i - \overline{\mathbf x_{C_1}})^T \mathbf w\\
+
+  =&amp; \mathbf w^T \left[ \frac{1}{N}\sum_{i=1}^{N_1}  (\mathbf x_i - \overline{\mathbf x_{C_1}}) (\mathbf x_i - \overline{\mathbf x_{C_1}})^T \right] \mathbf w \\
+
+  =&amp; \mathbf w^T S_{C_1} \mathbf w \\
+</code></pre>
+<p>分母：&amp; \mathbf w^T S_{C_1} \mathbf w + \mathbf w^T S_{C_2} \mathbf w\
+=&amp; \mathbf w^T (S_{C_1} + S_{C_2}) \mathbf w \</p>
+<p>J(\mathbf w) =&amp;
+\frac{\mathbf w^T (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}}) (\overline{\mathbf x_{C_1}}-\overline{\mathbf x_{C_2}})^T \mathbf w^T} {\mathbf w^T (S_{C_1} + S_{C_2}) \mathbf w} \
+=&amp; \frac{\mathbf w^T S_b \mathbf w}{\mathbf w^T S_{w} \mathbf w} \quad \text{($S_b$: 类间方差; $S_w$: 类内方差)} \
+=&amp; \mathbf w^T S_b \mathbf w \cdot (\mathbf w^T S_{w} \mathbf w)^{-1}</p>
+<p>\end{aligned}
+$$</p>
+<p>求: $\hat{\mathbf w} = \underset{\mathbf w}{\operatorname{arg\ max}}\ J(\mathbf w)$</p>
+</li>
+</ul>
+<h2 id="4-线性判别分析-fisher判别分析---模型求解">4 线性判别分析 (Fisher判别分析) - 模型求解</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=16"  target="_blank" rel="noopener"
+    >Video-P4</a></p>
+<p>$$
+\begin{aligned}
+\frac{\partial J(\mathbf w)}{\partial \mathbf w}
+&amp;= 0 \</p>
+<p>2 S_b \mathbf w (\mathbf w^T S_w \mathbf w)^{-1}
+- \mathbf w^T S_b \mathbf w (\mathbf w^T S_w \mathbf w)^{-2} \cdot 2S_w \mathbf w
+&amp;= 0  \</p>
+<p>S_b \mathbf w (\mathbf w^T S_w \mathbf w)
+- \mathbf w^T S_b \mathbf w S_w \mathbf w
+&amp;= 0  \</p>
+<p>\underbrace{\mathbf w^T}<em>{1\times p}
+\underset{\in \R}
+{\underbrace{S_b}</em>{p\times p}
+\underbrace{\mathbf w}<em>{p\times 1}}
+S_w \mathbf w
+&amp;= S_b \mathbf w
+\underset{\in \R}
+{(\underbrace{\mathbf w^T}</em>{1\times p}
+\underbrace{S_w}<em>{p\times p}
+\underbrace{\mathbf w}</em>{p\times 1})} \</p>
+<p>S_w \mathbf w
+&amp;= \frac{\mathbf w^T S_w \mathbf w}{\mathbf w^T S_b \mathbf w}
+S_b \mathbf w \</p>
+<p>\mathbf w
+&amp;= \frac{\mathbf w^T S_w \mathbf w}{\mathbf w^T S_b \mathbf w}
+S_w^{-1} \cdot S_b \cdot \mathbf w \</p>
+<p>只关心方向：\mathbf w
+&amp; \propto S_w^{-1} \cdot S_b \cdot \mathbf w \</p>
+<p>\mathbf w
+&amp; \propto S_w^{-1} \cdot
+(\overline{\mathbf x_{C_1}} - \overline{\mathbf x_{C_2}})
+\underbrace{
+(\overline{\mathbf x_{C_1}} - \overline{\mathbf x_{C_2}})^T
+\mathbf w }_{1\times 1 \in \R} \</p>
+<p>\mathbf w
+&amp; \propto S_w^{-1} \cdot (\overline{\mathbf x_{C_1}} - \overline{\mathbf x_{C_2}})</p>
+<p>\end{aligned}
+$$</p>
+<p>如果$S_w^-1$ 是对角矩阵，而且是各向同性，则 $S_w^{-1} \propto 单位矩阵I$，所以 $\mathbf w \propto (\overline{\mathbf x_{C_1}} - \overline{\mathbf x_{C_2}})$</p>
+<h2 id="5-逻辑回归-logistic-regression">5 逻辑回归 (Logistic Regression)</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=17"  target="_blank" rel="noopener"
+    >Video-P5</a></p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E7%BA%BF%E6%80%A7%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95%E6%A0%91.png width=>
+  
+  
+
+
+<p>硬输出：0 和 1；或者 +-1</p>
+<p>软输出：概率</p>
+<h2 id="9-朴素贝叶斯分类器-naive-bayes-classifer">9 朴素贝叶斯分类器 (Naive Bayes Classifer)</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1aE411o7qd?p=21"  target="_blank" rel="noopener"
+    >Video-P9</a></p>
+<p>核心思想：朴素贝叶斯假设，又叫条件独立性假设，最简单的概率有向图模型</p>
+<p>在给定类别的情况下，属性（维度）之间是相互独立的</p>
+<p>随机变量 $y$ 是随机变量，对应 p 维自变量</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/%E6%9D%A1%E4%BB%B6%E7%8B%AC%E7%AB%8B%E6%80%A7%E5%81%87%E8%AE%BE.png width=>
+  
+  
+
+
+<p>从概率图角度来看，在给定 y 的情况下，从 $x_1$ 到 $x_2$ 的路径被 y 阻断了，所以 $x_1$ 和 $x_2$ 独立。</p>
+<p>概率表达式：</p>
+<p>$$
+P(\mathbf x | y) = \prod_{j=1}^p P(x_i | y)
+$$</p>
+<p>假设的动机：为了简化运算，
+对于 $\mathbf x = (x_1, x_2, \cdots x_p)^T$，忽略了 $x_i$ 与 $x_j$ 之间的关系，如果p非常大，导致计算困难。</p>
+<p>$$
+P(y|x) = \frac{P(x,y)}{P(x)} = \frac{P(y)\cdot P(x|y)}{P(x)} \propto P(y) \cdot P(x | y)
+$$</p>
+<p>分类数据：${(x_i, y_i)}_{i=1}^N, \ x_i \in \R^p, \ y_i \in {0,1}$，对于一个给定的 x，对它分类：</p>
+<p>$$
+\begin{aligned}
+\hat y =&amp; \underset{y}{\operatorname{arg\ max}}\ \underset{后验}{\underline{P{(y|x)}}} \</p>
+<pre><code>=&amp; \underset{y}{\operatorname{arg\ max}}\ \frac{P(x,y)}{P(x)}\\
+
+=&amp; \underset{y}{\operatorname{arg\ max}}\ P(y) \cdot P(x|y)
+</code></pre>
+<p>\end{aligned}
+$$</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

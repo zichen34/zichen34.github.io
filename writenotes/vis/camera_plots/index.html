@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='camtools (2024-03-28)
+yxlao/camtools - Github
+Plot the 49 camera poses in DTU:
+Code 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 import numpy as np import os def read_cam_file(filename): with open(filename) as f: lines = [line.rstrip() for line in f.readlines()] # extrinsics: line [1,5), 4x4 matrix extrinsics = np.fromstring(&amp;#39; &amp;#39;.join(lines[1:5]), dtype=np.float32, sep=&amp;#39; &amp;#39;) extrinsics = extrinsics.'>
+<title>memo: Vis | Camera Poses Visualization</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/vis/camera_plots/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: Vis | Camera Poses Visualization'>
+<meta property='og:description' content='camtools (2024-03-28)
+yxlao/camtools - Github
+Plot the 49 camera poses in DTU:
+Code 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 import numpy as np import os def read_cam_file(filename): with open(filename) as f: lines = [line.rstrip() for line in f.readlines()] # extrinsics: line [1,5), 4x4 matrix extrinsics = np.fromstring(&amp;#39; &amp;#39;.join(lines[1:5]), dtype=np.float32, sep=&amp;#39; &amp;#39;) extrinsics = extrinsics.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/vis/camera_plots/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2024-03-28T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2024-03-28T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: Vis | Camera Poses Visualization">
+<meta name="twitter:description" content="camtools (2024-03-28)
+yxlao/camtools - Github
+Plot the 49 camera poses in DTU:
+Code 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 import numpy as np import os def read_cam_file(filename): with open(filename) as f: lines = [line.rstrip() for line in f.readlines()] # extrinsics: line [1,5), 4x4 matrix extrinsics = np.fromstring(&amp;#39; &amp;#39;.join(lines[1:5]), dtype=np.float32, sep=&amp;#39; &amp;#39;) extrinsics = extrinsics.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#camtools">camtools</a></li>
+    <li><a href="#cameraviewer">CameraViewer</a></li>
+    <li><a href="#pytransform3d">pytransform3d</a></li>
+    <li><a href="#matplotlib">Matplotlib</a></li>
+    <li><a href="#open3d">open3d</a>
+      <ol>
+        <li><a href="#camera-hull">camera hull</a></li>
+        <li><a href="#camera-moves">camera moves</a></li>
+        <li><a href="#custom-animation">Custom Animation</a></li>
+      </ol>
+    </li>
+    <li><a href="#others">Others</a></li>
+    <li><a href="#opencv">OpenCV</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" >
+                memo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/vis/camera_plots/">memo: Vis | Camera Poses Visualization</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 28, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="camtools">camtools</h2>
+<p>(2024-03-28)</p>
+<p><a class="link" href="https://github.com/yxlao/camtools"  target="_blank" rel="noopener"
+    >yxlao/camtools - Github</a></p>
+<p>Plot the 49 camera poses in DTU:</p>
+<details><summary>Code</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">read_cam_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># extrinsics: line [1,5), 4x4 matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">extrinsics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">extrinsics</span> <span class="o">=</span> <span class="n">extrinsics</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># intrinsics: line [7-10), 3x3 matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">10</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">intrinsics</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># depth_min &amp; depth_interval: line 11</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depth_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">intrinsics</span><span class="p">,</span> <span class="n">extrinsics</span><span class="p">,</span> <span class="n">depth_min</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">camtools</span> <span class="k">as</span> <span class="nn">ct</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Ks</span><span class="p">,</span> <span class="n">Ts</span><span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intrinsics</span><span class="p">,</span> <span class="n">extrinsics</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read_cam_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/mnt/data2_z/MVSNet_testing/dtu&#39;</span><span class="p">,</span><span class="s1">&#39;scan1&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cams/</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">08d</span><span class="si">}</span><span class="s1">_cam.txt&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Ks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">intrinsics</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Ts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extrinsics</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">cameras</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">create_camera_frames</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">Ts</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">draw_geometries</span><span class="p">([</span><span class="n">cameras</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>Result</th>
+<th>Demo in README</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/dtu_cam_trajectory.jpg width=>
+  
+  
+
+</td>
+<td><img src="https://raw.githubusercontent.com/yxlao/camtools/master/camtools/assets/camera_frames.png"></td>
+</tr>
+<tr>
+<td>Don&rsquo;t know how to add camera frames like his.</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">          <span class="m">0</span> <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span>
+</span></span><span class="line"><span class="cl">         <span class="m">10</span> <span class="m">9</span> <span class="m">8</span> <span class="m">7</span> <span class="m">6</span> <span class="m">5</span>
+</span></span><span class="line"><span class="cl">   <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span>
+</span></span><span class="line"><span class="cl">  <span class="m">27</span> <span class="m">26</span> <span class="m">25</span> <span class="m">24</span> <span class="m">23</span> <span class="m">22</span> <span class="m">21</span> <span class="m">20</span> <span class="m">19</span>
+</span></span><span class="line"><span class="cl"> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span>
+</span></span><span class="line"><span class="cl"><span class="m">48</span> <span class="m">47</span> <span class="m">46</span> <span class="m">45</span> <span class="m">44</span> <span class="m">43</span> <span class="m">42</span> <span class="m">41</span> <span class="m">40</span> <span class="m">39</span> <span class="m">38</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="cameraviewer">CameraViewer</h2>
+<p>(2024-03-28)</p>
+<p><a class="link" href="https://github.com/xt4d/CameraViewer/tree/main"  target="_blank" rel="noopener"
+    >xt4d/CameraViewer</a> found by <a class="link" href="https://duckduckgo.com/?q=how&#43;to&#43;visualize&#43;camera&#43;pose&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+when searching &ldquo;how to visualize camera pose&rdquo;</p>
+<p>It uses plotly to visualize cameras internally.</p>
+<p>(2024-03-28)</p>
+<ol>
+<li>
+<p>Test the poses in DTU.</p>
+<p>The extrinsics (w2c) don&rsquo;t appear on the canvas if keeping the translation vectors.</p>
+<p>I set the translation (camera pose), i.e., 4th column in extrinsics to <strong>all 0</strong>, then the rotations are shown.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># /mnt/data2_z/MVSNet_testing/dtu/scan1/cams/{0:08d}_cam.txt</span>
+</span></span><span class="line"><span class="cl">array<span class="o">([[</span> 0.970263  ,  0.00747983,  0.241939  ,  0.        <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span>-0.0147429 ,  0.999493  ,  0.0282234 ,  0.        <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span>-0.241605  , -0.030951  ,  0.969881  ,  0.        <span class="o">]]</span>,
+</span></span><span class="line"><span class="cl">      <span class="nv">dtype</span><span class="o">=</span>float32<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The reason could be that the translation vector is <strong>too large</strong>: [-191.02, 3.28832, 22.5401].</p>
+<p>By reducing it by 1/100 times (<code>extrinsics[:,3] = extrinsics[:,3]/100</code>): [-1.9102, 0.0328832, 0.225401],
+the camera appears.</p>
+<ul>
+<li>
+<p>The w2c (extrinsics) can be prepared as npy files:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intrinsics</span><span class="p">,</span> <span class="n">extrinsics</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read_cam_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/mnt/data2_z/MVSNet_testing/dtu&#39;</span><span class="p">,</span><span class="s1">&#39;scan1&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cams/</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">08d</span><span class="si">}</span><span class="s1">_cam.txt&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">extrinsics</span> <span class="o">=</span> <span class="n">extrinsics</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">extrinsics</span><span class="p">[:,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">extrinsics</span><span class="p">[:,</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="mi">100</span>
+</span></span><span class="line"><span class="cl">    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/mnt/data2_z/Poses_CamViewer/obj/poses/</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">03d</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">extrinsics</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>BTW, writing json file manually is a time black hole.</p>
+</li>
+<li>
+<p>As long as the filenames of poses and images are the same, it&rsquo;s okay. The indexing doesn&rsquo;t matter.</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">~/Downloads/CameraViewer$ python app.py --root /mnt/data2_z/Poses_CamViewer/obj/ --type w2c --image_size <span class="m">128</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>If omitting the argument <code>--type</code>, the program will use poses.json.
+Otherwise, the program will read directories: <code>poses/</code> and <code>images/</code>.</li>
+</ul>
+</li>
+<li>
+<p>49 cameras for scan1</p>
+
+   
+   
+   
+   
+     
+     
+     
+     
+      
+     
+     
+      
+     
+     <img src= /writenotes/vis/img/dtu_CameraViewer.jpg width=>
+     
+     
+   
+
+<ul>
+<li>The above figure shows the original poses. And the principal axis is facing <strong>away</strong> from the object.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="pytransform3d">pytransform3d</h2>
+<p>(2024-03-29)</p>
+<ol>
+<li>
+<p>Plot mesh and cameras:</p>
+<p><a class="link" href="https://github.com/dfki-ric/pytransform3d/discussions/148"  target="_blank" rel="noopener"
+    >Visualizing camera trajectory in Open3D #148</a>
+(Found when searching &ldquo;open3d visualize camera poses&rdquo; <a class="link" href="https://duckduckgo.com/?q=open3d&#43;visualize&#43;camera&#43;poses&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>)</p>
+<p>The mesh in the <a class="link" href="https://raw.githubusercontent.com/rock-learning/pytransform3d/master/doc/source/_static/photogrammetry.png"  target="_blank" rel="noopener"
+    >image</a>
+is produced by <a class="link" href="https://github.com/alicevision/Meshroom"  target="_blank" rel="noopener"
+    >Meshroom</a>.
+And then use <code>Figure.plot_camera()</code></p>
+</li>
+<li>
+<p><a class="link" href="https://dfki-ric.github.io/pytransform3d/camera.html"  target="_blank" rel="noopener"
+    ><code>pytransform3d.camera.plot_camera()</code></a>
+<a class="link" href="https://github.com/dfki-ric/pytransform3d/blob/c45e817c4a7960108afe9f5259542c8376c0e89a/examples/plots/plot_camera_3d.py#L26-L29"  target="_blank" rel="noopener"
+    >Example</a></p>
+<details> <summary>Code for plotting pose 1 of DTU</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">import numpy as np
+</span></span><span class="line"><span class="cl">import matplotlib.pyplot as plt
+</span></span><span class="line"><span class="cl">import pytransform3d.camera as pc
+</span></span><span class="line"><span class="cl">import pytransform3d.transformations as pt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">w2c = np.array([[0.970263, 0.00747983, 0.241939, -191.02],
+</span></span><span class="line"><span class="cl">                [-0.0147429, 0.999493, 0.0282234, 3.28832],
+</span></span><span class="line"><span class="cl">                [-0.241605, -0.030951, 0.969881, 22.5401],
+</span></span><span class="line"><span class="cl">                [0.0, 0.0, 0.0, 1.0] ])
+</span></span><span class="line"><span class="cl">c2w = np.linalg.inv(w2c)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">intrinsics = np.array([
+</span></span><span class="line"><span class="cl">       [ 2.89233051e+03, -2.48063349e-04,  8.23205273e+02],
+</span></span><span class="line"><span class="cl">       [ 0.00000000e+00,  2.88317528e+03,  6.19070918e+02],
+</span></span><span class="line"><span class="cl">       [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
+</span></span><span class="line"><span class="cl">sensor_size = np.array([1600, 1200])  # image size
+</span></span><span class="line"><span class="cl">virtual_image_distance = 1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ax = pt.plot_transform(A2B=c2w, s=0.2)
+</span></span><span class="line"><span class="cl">ax.set_xlim(186, 188)
+</span></span><span class="line"><span class="cl">ax.set_ylim(3, 5)
+</span></span><span class="line"><span class="cl">ax.set_zlim(20, 22)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pc.plot_camera(
+</span></span><span class="line"><span class="cl">    ax, cam2world=c2w, M=intrinsics, sensor_size=sensor_size,
+</span></span><span class="line"><span class="cl">    virtual_image_distance=virtual_image_distance)
+</span></span><span class="line"><span class="cl">plt.show()
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>pytransform3d</th>
+<th>matplotlib</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/dtu_pose1_pytransf.jpg width=>
+  
+  
+
+</td>
+<td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/dtu_pose1_fix_centr.jpg width=>
+  
+  
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>In the matplotlib code, I have corrected the camera position to <code>-extrinsics[:-1][:,:-1].T @ extrinsics[:,-1][:-1]</code>.
+The 2 results are the same.</li>
+</ul>
+</li>
+<li>
+<p>Plot basis and camera plane:</p>
+<p><a class="link" href="https://medium.com/p/cfe80acab8dd#example-intuition:~:text=with%203D%20plots.-,Example,-Intuition"  target="_blank" rel="noopener"
+    >Camera Extrinsic Matrix with Example in Python - Part2</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># plot the global basis and the transformed camera basis</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">plot_basis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">plot_basis</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># plot the original and transformed image plane</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">xxt</span><span class="p">,</span> <span class="n">yyt</span><span class="p">,</span> <span class="n">Zt</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><figure><img src="https://miro.medium.com/v2/resize:fit:828/format:webp/1*FKP9KjstS6QqhcpAZ1EmDw.png" width="50%"/>
+   </figure>
+
+</li>
+</ol>
+<hr>
+<h2 id="matplotlib">Matplotlib</h2>
+<p>(2024-03-30)</p>
+<details><summary> Code </summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="o">%</span><span class="n">matplotlib</span> <span class="n">widget</span> 
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">read_cam_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># extrinsics: line [1,5), 4x4 matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">extrinsics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">extrinsics</span> <span class="o">=</span> <span class="n">extrinsics</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># intrinsics: line [7-10), 3x3 matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">10</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">intrinsics</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># depth_min &amp; depth_interval: line 11</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depth_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">intrinsics</span><span class="p">,</span> <span class="n">extrinsics</span><span class="p">,</span> <span class="n">depth_min</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">poses_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_</span><span class="p">,</span> <span class="n">extrinsics</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read_cam_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/mnt/data2_z/MVSNet_testing/dtu&#39;</span><span class="p">,</span><span class="s1">&#39;scan23&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cams/</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">08d</span><span class="si">}</span><span class="s1">_cam.txt&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">poses_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># &#34;position&#34;: extrinsics[:,-1][:-1],    # Wrong</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;position&#34;</span><span class="p">:</span> <span class="o">-</span> <span class="n">extrinsics</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">extrinsics</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;rotation&#34;</span><span class="p">:</span> <span class="n">extrinsics</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d.art3d</span> <span class="kn">import</span> <span class="n">Poly3DCollection</span><span class="p">,</span> <span class="n">Line3DCollection</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">plot_camera_poses</span><span class="p">(</span><span class="n">poses</span><span class="p">,</span> <span class="n">axis_length</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Plot each camera pose</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">pose</span> <span class="ow">in</span> <span class="n">poses</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Extract camera position and orientation</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cam_position</span> <span class="o">=</span> <span class="n">pose</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cam_orientation</span> <span class="o">=</span> <span class="n">pose</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Plot camera position</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cam_position</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cam_position</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">axes_endpoints</span> <span class="o">=</span> <span class="n">cam_position</span> <span class="o">+</span> <span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Plot camera canvas determined by 4 corners (forming 2 triangles)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">corner_back_1</span> <span class="o">=</span> <span class="n">axes_endpoints</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">corner_back_2</span> <span class="o">=</span> <span class="n">axes_endpoints</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">corner_back_3</span> <span class="o">=</span> <span class="n">axes_endpoints</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">corner_back_4</span> <span class="o">=</span> <span class="n">axes_endpoints</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">axis_length</span> <span class="o">*</span> <span class="n">cam_orientation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">verts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">corner_back_1</span><span class="p">,</span> <span class="n">corner_back_2</span><span class="p">,</span> <span class="n">corner_back_4</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tri</span> <span class="o">=</span> <span class="n">Poly3DCollection</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">facecolors</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">,)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">add_collection3d</span><span class="p">(</span><span class="n">tri</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">verts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">corner_back_1</span><span class="p">,</span> <span class="n">corner_back_3</span><span class="p">,</span> <span class="n">corner_back_4</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tri</span> <span class="o">=</span> <span class="n">Poly3DCollection</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">facecolors</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">,)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">add_collection3d</span><span class="p">(</span><span class="n">tri</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Hull of the camera </span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">([</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corner_back_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">corner_back_1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">corner_back_1</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">([</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corner_back_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">corner_back_2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">corner_back_2</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">([</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corner_back_3</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">corner_back_3</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">corner_back_3</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">([</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">cam_position</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Camera plane edges</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">([</span><span class="n">corner_back_1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corner_back_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">corner_back_1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">corner_back_2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">corner_back_1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">corner_back_2</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">([</span><span class="n">corner_back_3</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corner_back_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">corner_back_3</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">corner_back_1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">corner_back_3</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">corner_back_1</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">([</span><span class="n">corner_back_3</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">corner_back_3</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">corner_back_3</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">([</span><span class="n">corner_back_2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">corner_back_2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">corner_back_2</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">corner_back_4</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">poses</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">poses</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="n">poses</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;position&#39;</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Create a line collection</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lc</span> <span class="o">=</span> <span class="n">Line3DCollection</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Camera Trajectory&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">add_collection3d</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Set plot limits and labels</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">set_box_aspect</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;Z&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">ax</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Plot camera poses</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax_prev</span> <span class="o">=</span> <span class="n">plot_camera_poses</span><span class="p">(</span><span class="n">poses_list</span><span class="p">,</span> <span class="n">axis_length</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Plot point cloud</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+</span></span><span class="line"><span class="cl"><span class="n">pcd</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_point_cloud</span><span class="p">(</span><span class="s2">&#34;/mnt/data2_z/SampleSet/MVS Data/Points/stl/stl023_total.ply&#34;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ply&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pcd</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">samples</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">vs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">100</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">z</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax_prev</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<ul>
+<li>The <code>Line3DCollection</code> usage is seen from an chatGPT-generated anwser:
+<a class="link" href="https://stackoverflow.com/a/77363421/18003182"  target="_blank" rel="noopener"
+    >How to visualize colmap export that Camera parameters -SO</a></li>
+</ul>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/vis/img/Camera_trajectory_dtu.jpg width=60%>
+  
+  
+
+
+<hr>
+<h2 id="open3d">open3d</h2>
+<h3 id="camera-hull">camera hull</h3>
+<p>(2024-03-29)</p>
+<ul>
+<li>
+<p><code>create_camera_visualization()</code></p>
+<p>Sample code: <a class="link" href="https://github.com/isl-org/Open3D/discussions/3876"  target="_blank" rel="noopener"
+    >Is there a way to draw a camera in a visualizer? #3876</a> <br>
+(Found when searching &ldquo;open3d draw cameras&rdquo; <a class="link" href="https://duckduckgo.com/?q=open3d&#43;draw&#43;cameras&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>)</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/vis/img/open3d_plot_cam.png width=50%>
+    
+    
+  
+
+</li>
+</ul>
+<hr>
+<h3 id="camera-moves">camera moves</h3>
+<p>(2024-03-31)</p>
+<p><a class="link" href="https://github.com/isl-org/Open3D/issues/2121"  target="_blank" rel="noopener"
+    >Setting the extrinsic matrix for ViewControl #2121 - Open3D</a>
+(surfaced by <a class="link" href="https://duckduckgo.com/?q=open3d&#43;camera&#43;extrinsic&#43;set_extrinsic&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a> searching &ldquo;open3d camera extrinsic set_extrinsic&rdquo;)</p>
+<p>Iterate multiple camera poses (extrinsics):</p>
+<details><summary> Code </summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">read_cam_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># extrinsics: line [1,5), 4x4 matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">extrinsics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">extrinsics</span> <span class="o">=</span> <span class="n">extrinsics</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># intrinsics: line [7-10), 3x3 matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">10</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">intrinsics</span> <span class="o">=</span> <span class="n">intrinsics</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># depth_min &amp; depth_interval: line 11</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depth_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">intrinsics</span><span class="p">,</span> <span class="n">extrinsics</span><span class="p">,</span> <span class="n">depth_min</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">poses_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">49</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_</span><span class="p">,</span> <span class="n">extrinsics</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read_cam_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/mnt/data2_z/MVSNet_testing/dtu&#39;</span><span class="p">,</span><span class="s1">&#39;scan23&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cams/</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">08d</span><span class="si">}</span><span class="s1">_cam.txt&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">poses_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;position&#34;</span><span class="p">:</span> <span class="o">-</span> <span class="n">extrinsics</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">extrinsics</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;rotation&#34;</span><span class="p">:</span> <span class="n">extrinsics</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;extrinsics&#34;</span><span class="p">:</span> <span class="n">extrinsics</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">itertools</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pcd</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_point_cloud</span><span class="p">(</span><span class="s2">&#34;/home/yi/Downloads/DTU_SampleSet/MVS Data/Points/stl/stl001_total.ply&#34;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ply&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">VisualizerWithKeyCallback</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">create_window</span><span class="p">(</span><span class="n">window_name</span><span class="o">=</span><span class="s2">&#34;Playback&#34;</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">get_render_option</span><span class="p">()</span><span class="o">.</span><span class="n">background_color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">add_geometry</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ctr</span> <span class="o">=</span> <span class="n">vis</span><span class="o">.</span><span class="n">get_view_control</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">cam</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">convert_to_pinhole_camera_parameters</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">view_idx</span><span class="p">,</span> <span class="n">camParams</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">poses_list</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cam</span><span class="o">.</span><span class="n">extrinsic</span> <span class="o">=</span> <span class="n">camParams</span><span class="p">[</span><span class="s1">&#39;extrinsics&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ctr</span><span class="o">.</span><span class="n">convert_from_pinhole_camera_parameters</span><span class="p">(</span><span class="n">cam</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">vis</span><span class="o">.</span><span class="n">poll_events</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">vis</span><span class="o">.</span><span class="n">update_renderer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">destroy_window</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<ul>
+<li>Note: The argument <code>allow_arbitrary=True</code> is required in <code>convert_from_pinhole_camera_parameters(cam, True)</code> (using 0.18.0),</li>
+</ul>
+<hr>
+<h3 id="custom-animation">Custom Animation</h3>
+<p><a class="link" href="https://www.open3d.org/docs/latest/tutorial/visualization/customized_visualization.html"  target="_blank" rel="noopener"
+    >Customized visualization - Open3D Docs</a></p>
+<p><img src="https://www.open3d.org/docs/latest/_images/image_small.gif"
+	
+	
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+></p>
+<p>Code from <a class="link" href="https://github.com/isl-org/Open3D/issues/6098"  target="_blank" rel="noopener"
+    >View Control No Effect in 0.17 #6098</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="n">vis</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ctr</span> <span class="o">=</span> <span class="n">vis</span><span class="o">.</span><span class="n">get_view_control</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ctr</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">frame</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">TriangleMesh</span><span class="o">.</span><span class="n">create_coordinate_frame</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">draw_geometries_with_animation_callback</span><span class="p">([</span><span class="n">frame</span><span class="p">],</span> <span class="n">rotate</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="others">Others</h2>
+<ul>
+<li>
+<p><a class="link" href="https://github.com/demul/extrinsic2pyramid"  target="_blank" rel="noopener"
+    >demul/extrinsic2pyramid</a></p>
+<img src="https://github.com/demul/extrinsic2pyramid/raw/main/images/img.png" width="200">
+</li>
+<li>
+<p>OpenCV has example code. <a class="link" href="https://stackoverflow.com/a/62223970/18003182"  target="_blank" rel="noopener"
+    >How to plot the camera and image positions from camera calibration data?</a>
+<img src="https://i.stack.imgur.com/aMORZ.png" width="50%"></p>
+</li>
+<li>
+<p><a class="link" href="https://github.com/facebookresearch/pytorch3d/blob/main/docs/tutorials/utils/camera_visualization.py"  target="_blank" rel="noopener"
+    >pytorch3d/docs/tutorials/utils/camera_visualization.</a></p>
+</li>
+<li>
+<p><a class="link" href="https://github.com/sxyu/nerfvis"  target="_blank" rel="noopener"
+    >sxyu/nerfvis: NeRF visualization library under construction</a></p>
+<img src="https://raw.githubusercontent.com/sxyu/nerfvis/master/img/skull.gif" width="50%">
+</li>
+<li>
+<p>Blender add-on: Photogrammetry-Importer <a class="link" href="https://stackoverflow.com/a/77151386/18003182"  target="_blank" rel="noopener"
+    >How to visualize colmap export &lsquo;images.txt&rsquo; in blender? -SO</a></p>
+<img src="https://i.stack.imgur.com/gAPuH.jpg" width="50%">
+</li>
+<li>
+<p><a class="link" href="https://kaolin.readthedocs.io/en/latest/modules/kaolin.render.camera.html"  target="_blank" rel="noopener"
+    >kaolin.render.camera — Kaolin documentation - Read the Docs</a></p>
+</li>
+<li>
+<p><a class="link" href="https://webglfundamentals.org/webgl/lessons/webgl-visualizing-the-camera.html"  target="_blank" rel="noopener"
+    >WebGL Visualizing the Camera</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="opencv">OpenCV</h2>
+<p>(2024-04-01)</p>
+<ol>
+<li>
+<p><a class="link" href="https://docs.opencv.org/3.4/d6/dcc/classcv_1_1viz_1_1WCameraPosition.html"  target="_blank" rel="noopener"
+    >OpenCV: cv::viz::WCameraPosition Class Reference</a></p>
+<p><img src="https://docs.opencv.org/3.4/cpw3.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+></p>
+</li>
+<li>
+<p>Draw coordinates axes</p>
+<p><a class="link" href="https://stackoverflow.com/q/30207467/18003182"  target="_blank" rel="noopener"
+    >How to draw 3D Coordinate Axes with OpenCV for face pose estimation? - SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">scale</span> <span class="o">=</span> <span class="mf">0.1</span> 
+</span></span><span class="line"><span class="cl"><span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">drawFrameAxes</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">distortion</span><span class="p">,</span> <span class="n">rotation_vec</span><span class="p">,</span> <span class="n">translation_vec</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

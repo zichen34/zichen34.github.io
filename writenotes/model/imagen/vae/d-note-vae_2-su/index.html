@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='笔记 for 变分自编码器（二）：从贝叶斯观点出发
+数值计算 vs 采样计算 数值计算是先给个数列，对里面的每个数求概率p(x⁽ⁱ⁾)，再加权求和 ∑ᵢ₌₀ⁿ x⁽ⁱ⁾p(x⁽ⁱ⁾) (x⁽ⁱ⁾-x⁽ⁱ⁻¹⁾)； 采样计算是先从分布中采样，求采样点概率的平均，所以不需要再乘样本点出现的概率：E[x]≈1/n⋅∑ᵢ₌₀ⁿ x⁽ⁱ⁾, x⁽ⁱ⁾∼p(x)。
+推导VAE 的损失函数 苏神从逼近联合概率 p(x,z) 出发，而不是从逼近z的后验 p(z|x) 出发。 也许是因为沿着 EM 的思路走，就需要对后验 p(z|x) 求近似，所以很多人聚焦于推导 p(z|x)。
+因为想求样本集合 x的分布，
+但是难以直接描述复杂分布，所以通过引入隐变量把x的分布变成条件分布的叠加，而后可以对隐变量的分布和条件分布做适当简化（比如都假设为正态分布），并且可以用深度学习模型近似求（隐变量）条件分布的参数，即“深度概率图模型”。
+假设 x 是由 z 生成的，所以求 p(x) 可以通过把联合分布 p(x,z) 中的 p(z) 积掉求得： p(x) = ∫p(x,z) dz = ∫ p(x|z)p(z) dz
+目标是用一个 q(x,z) 逼近 p(x,z)，又因为 p(z) 是先验（已知），所以当 q(x,z)≈p(x,z) 时，生成模型 p(x|z) 也就学到了，“一举两得”。
+通过最小化 KL 散度逼近：KL( p(x,z) || q(x,z) ) = ∫∫ p(x,z) [ ln (p(x,z)/q(x,z)) ] dz dx，是一个二重积分'>
+<title>read: Blog - 苏剑林 | VAE-2</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/imagen/vae/d-note-vae_2-su/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: Blog - 苏剑林 | VAE-2'>
+<meta property='og:description' content='笔记 for 变分自编码器（二）：从贝叶斯观点出发
+数值计算 vs 采样计算 数值计算是先给个数列，对里面的每个数求概率p(x⁽ⁱ⁾)，再加权求和 ∑ᵢ₌₀ⁿ x⁽ⁱ⁾p(x⁽ⁱ⁾) (x⁽ⁱ⁾-x⁽ⁱ⁻¹⁾)； 采样计算是先从分布中采样，求采样点概率的平均，所以不需要再乘样本点出现的概率：E[x]≈1/n⋅∑ᵢ₌₀ⁿ x⁽ⁱ⁾, x⁽ⁱ⁾∼p(x)。
+推导VAE 的损失函数 苏神从逼近联合概率 p(x,z) 出发，而不是从逼近z的后验 p(z|x) 出发。 也许是因为沿着 EM 的思路走，就需要对后验 p(z|x) 求近似，所以很多人聚焦于推导 p(z|x)。
+因为想求样本集合 x的分布，
+但是难以直接描述复杂分布，所以通过引入隐变量把x的分布变成条件分布的叠加，而后可以对隐变量的分布和条件分布做适当简化（比如都假设为正态分布），并且可以用深度学习模型近似求（隐变量）条件分布的参数，即“深度概率图模型”。
+假设 x 是由 z 生成的，所以求 p(x) 可以通过把联合分布 p(x,z) 中的 p(z) 积掉求得： p(x) = ∫p(x,z) dz = ∫ p(x|z)p(z) dz
+目标是用一个 q(x,z) 逼近 p(x,z)，又因为 p(z) 是先验（已知），所以当 q(x,z)≈p(x,z) 时，生成模型 p(x|z) 也就学到了，“一举两得”。
+通过最小化 KL 散度逼近：KL( p(x,z) || q(x,z) ) = ∫∫ p(x,z) [ ln (p(x,z)/q(x,z)) ] dz dx，是一个二重积分'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/imagen/vae/d-note-vae_2-su/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-12-30T20:07:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-30T20:07:00&#43;00:00'/>
+<meta name="twitter:title" content="read: Blog - 苏剑林 | VAE-2">
+<meta name="twitter:description" content="笔记 for 变分自编码器（二）：从贝叶斯观点出发
+数值计算 vs 采样计算 数值计算是先给个数列，对里面的每个数求概率p(x⁽ⁱ⁾)，再加权求和 ∑ᵢ₌₀ⁿ x⁽ⁱ⁾p(x⁽ⁱ⁾) (x⁽ⁱ⁾-x⁽ⁱ⁻¹⁾)； 采样计算是先从分布中采样，求采样点概率的平均，所以不需要再乘样本点出现的概率：E[x]≈1/n⋅∑ᵢ₌₀ⁿ x⁽ⁱ⁾, x⁽ⁱ⁾∼p(x)。
+推导VAE 的损失函数 苏神从逼近联合概率 p(x,z) 出发，而不是从逼近z的后验 p(z|x) 出发。 也许是因为沿着 EM 的思路走，就需要对后验 p(z|x) 求近似，所以很多人聚焦于推导 p(z|x)。
+因为想求样本集合 x的分布，
+但是难以直接描述复杂分布，所以通过引入隐变量把x的分布变成条件分布的叠加，而后可以对隐变量的分布和条件分布做适当简化（比如都假设为正态分布），并且可以用深度学习模型近似求（隐变量）条件分布的参数，即“深度概率图模型”。
+假设 x 是由 z 生成的，所以求 p(x) 可以通过把联合分布 p(x,z) 中的 p(z) 积掉求得： p(x) = ∫p(x,z) dz = ∫ p(x|z)p(z) dz
+目标是用一个 q(x,z) 逼近 p(x,z)，又因为 p(z) 是先验（已知），所以当 q(x,z)≈p(x,z) 时，生成模型 p(x|z) 也就学到了，“一举两得”。
+通过最小化 KL 散度逼近：KL( p(x,z) || q(x,z) ) = ∫∫ p(x,z) [ ln (p(x,z)/q(x,z)) ] dz dx，是一个二重积分">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#数值计算-vs-采样计算">数值计算 vs 采样计算</a></li>
+    <li><a href="#推导vae-的损失函数">推导VAE 的损失函数</a></li>
+    <li><a href="#算法设计">算法设计</a>
+      <ol>
+        <li><a href="#后验分布近似">后验分布近似</a></li>
+        <li><a href="#生成模型近似">生成模型近似</a></li>
+        <li><a href="#从后验中采样-z-的技巧">从后验中采样 z 的技巧</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/imagen/vae/d-note-vae_2-su/">read: Blog - 苏剑林 | VAE-2</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 30, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>笔记 for <a class="link" href="https://www.kexue.fm/archives/5343"  target="_blank" rel="noopener"
+    >变分自编码器（二）：从贝叶斯观点出发</a></p>
+<h2 id="数值计算-vs-采样计算">数值计算 vs 采样计算</h2>
+<p>数值计算是先给个数列，对里面的每个数求概率p(x⁽ⁱ⁾)，再加权求和 ∑ᵢ₌₀ⁿ x⁽ⁱ⁾p(x⁽ⁱ⁾) (x⁽ⁱ⁾-x⁽ⁱ⁻¹⁾)；
+采样计算是先从分布中采样，求采样点概率的平均，所以不需要再乘样本点出现的概率：E[x]≈1/n⋅∑ᵢ₌₀ⁿ x⁽ⁱ⁾, x⁽ⁱ⁾∼p(x)。</p>
+<h2 id="推导vae-的损失函数">推导VAE 的损失函数</h2>
+<p>苏神从逼近联合概率 p(x,z) 出发，而不是从逼近z的后验 p(z|x) 出发。
+也许是因为沿着 EM 的思路走，就需要对后验 p(z|x) 求近似，所以很多人聚焦于推导 p(z|x)。</p>
+<p>因为想求样本集合 x的分布，</p>
+<blockquote>
+<p>但是难以直接描述复杂分布，所以通过引入隐变量把x的分布变成条件分布的叠加，而后可以对隐变量的分布和条件分布做适当简化（比如都假设为正态分布），并且可以用深度学习模型近似求（隐变量）条件分布的参数，即“深度概率图模型”。</p>
+</blockquote>
+<p>假设 x 是由 z 生成的，所以求 p(x) 可以通过把联合分布 p(x,z) 中的 p(z) 积掉求得：
+p(x) = ∫p(x,z) dz = ∫ p(x|z)p(z) dz</p>
+<p>目标是用一个 q(x,z) 逼近 p(x,z)，又因为 p(z) 是先验（已知），所以当 q(x,z)≈p(x,z) 时，<strong>生成模型 p(x|z)</strong> 也就学到了，“一举两得”。</p>
+<p>通过最小化 KL 散度逼近：KL( p(x,z) || q(x,z) ) = ∫∫ p(x,z) [ ln (p(x,z)/q(x,z)) ] dz dx，是一个二重积分</p>
+<p>把 p(x,z) 写成 pᐢ(x)⋅p(z|x)，也就是<strong>推断过程</strong>，由x的先验推出z：</p>
+<p>KL( p(x,z) || q(x,z) )
+= ∫∫ pᐢ(x)⋅p(z|x) [ ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) ] dz dx  <br>
+= ∫ pᐢ(x) [ ∫ p(z|x) ⋅ ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) dz ] dx  <br>
+= 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) dz]</p>
+<p>可以蒙特卡罗采样近似求这个期望，也就是把每个样本 x⁽ⁱ⁾ 代入上面中括号里的函数（代入概率密度公式可算出概率值），把函数值求均值。</p>
+<p>这个期望可以进一步简化，把 ln 拆开：
+ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) = ln pᐢ(x) + ln (p(z|x)/q(x,z))</p>
+<p>𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( pᐢ(x)⋅p(z|x) / q(x,z) ) dz ] <br>
+= 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln pᐢ(x) dz] +
+𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln (p(z|x)/q(x,z)) dz]</p>
+<p>上面第 1 个期望：
+𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln pᐢ(x) dz] = 𝔼_pᐢ(x) [ ln pᐢ(x)⋅∫ p(z|x) dz ]
+= 𝔼_pᐢ(x) [ ln pᐢ(x) ]</p>
+<p>这里的 pᐢ(x) 是根据样本 x⁽⁰⁾, x⁽¹⁾,&hellip;, x⁽ⁿ⁾ 确定的关于 x 的先验分布，是已知的确定的，所以这一项是一个常数。
+所以 KL 散度 = 常数 + 一个期望：</p>
+<p>KL( p(x,z) || q(x,z) ) = 常数 + 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln (p(z|x)/q(x,z)) dz]</p>
+<p>所以最小化KL散度，对应目标函数 𝓛 就是第2个期望：</p>
+<p>𝓛 = KL( p(x,z) || q(x,z) ) - 常数，则𝓛 的下界就是&quot;-常数&quot;: -𝔼_pᐢ(x) [ ln pᐢ(x) ]，
+其中 pᐢ(x) 不一定是概率，在连续情况时，pᐢ(x) 是概率密度函数，它可以大于1 也可以小于1，所以下界不一定是非负的，即 loss 可能是负数。</p>
+<p>再把 𝓛 里的 ln 和 q(x,z) 展开：</p>
+<p>𝓛 = 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( p(z|x) / q(x,z) ) dz]  <br>
+= 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( p(z|x) / (q(x|z)q(z)) dz ]  <br>
+= 𝔼_pᐢ(x) [ ∫ p(z|x) ⋅ ln ( p(z|x)/q(z) ) dz - ∫ p(z|x) ⋅ ln q(x|z) dz]</p>
+<p>把里面的积分写成期望：</p>
+<p>𝓛 = 𝔼_pᐢ(x) [ KL( p(z|x)||q(z) ) + 𝔼_p(z|x) [ -ln q(x|z) ] ]</p>
+<p>括号里的就是 VAE 的损失函数：KL散度（正则化项）+ x的后验按照 z 的后验求期望 <a class="link" href="../ML-%e7%99%bd%e6%9d%bf%e6%8e%a8%e5%af%bc%e7%b3%bb%e5%88%97/32-VAE.md" >shuhuai008-30VAE</a></p>
+<p>不能把括号里面的两项分开看或分开最小化。
+如果只令 KL( p(z|x)||q(z) )=0，即每个后验都是标准正态分布，与x无关，导致生成的 x 不准，概率 q(x|z) 会很小，-ln q(x|z) 就会很大。
+而如果 -ln q(x|z) 很小，即x后验概率 q(x|z) 大，后验分布 p(z|x) 的峰肯定集中在 x 附近，即 p(z|x) 的方差小，与标准正态的差距大，KL( p(z|x)||q(z) ) 不会小。
+所以这两部分 loss 是相互拮抗的，𝓛 要以整体来看。
+也就是要推断过程与生成过程相互博弈。</p>
+<h2 id="算法设计">算法设计</h2>
+<p>损失函数中未知的分布包括：z 的先验 q(z)，z 的后验 p(z|x)，x 的后验 q(x|z) （x 的先验pᐢ(x) 是已知的）</p>
+<ol>
+<li>
+<p>为了便于采样，假设 z 的先验分布为标准多元正态分布：q(z)=N(0,I)</p>
+</li>
+<li>
+<p>用神经网络拟合 z 的后验 p(z|x) 和 x 的后验 q(x|z)。</p>
+</li>
+</ol>
+<p>计算 z 的后验是推断过程，对应 EM 的 E步：近似求得 p(z|x)；计算 x 的后验是生成过程，对应 EM 的 M步：把z的近似后验代入似然函数，求极大似然时，对应的模型参数。
+（EM中用于逼近 p(z|x) 的神经网络的参数是 ϕ；用于逼近 q(x|z) 的神经网络（也可直接求导）的参数是 θ）</p>
+<h3 id="后验分布近似">后验分布近似</h3>
+<p>假设 z 的后验是（各分量独立的）一般正态分布，所以需要神经网络逼近它的期望和方差。期望和方差都由 x 决定，即是 x 的函数 μ_ϕ(x), Σ_ϕ(x)</p>
+<p>然后 KL 散度就可以写出来了: 1/2(-logσ² + μ² + σ² -1)，已在VAE第一篇推导过。<a class="link" href="https://www.kexue.fm/archives/5253"  target="_blank" rel="noopener"
+    >变分自编码器（一）：原来是这么一回事</a></p>
+<h3 id="生成模型近似">生成模型近似</h3>
+<p>对于生成模型部分 q(x|z) 的假设，原作者在论文<a class="link" href="https://arxiv.org/abs/1312.6114"  target="_blank" rel="noopener"
+    >《Auto-Encoding Variational Bayes》</a>中，给出了两种方案：二项分布或正态分布。“既要满足概率的定义（归一化），又要容易算，没多少选择”</p>
+<p><strong>二项分布</strong>只有一个参数：&ldquo;抛硬币向上的概率 ρ&rdquo;。所以对于一个 D 维的样本 x，x 的每一维都是个二值的，所以一个输入样本 x 在 z 成立的情况下，发生的概率就是：
+q(x|z) = ∏ₖ₌₁ᴰ (ρₖ(z))ˣᵏ (1-ρₖ(z))¹⁻ˣᵏ</p>
+<p>此时的 -ln q(x|z) = ∑ₖ₌₁ᴰ [ -xₖ ln ρₖ(z) - (1-xₖ) ln(1-ρₖ(z)) ]</p>
+<p>也就是说神经网络的输出 ρ(z) 需要是在 0～1 之间（比如用 sigmoid 激活），然后用交叉熵作为损失函数。</p>
+<p>如果假设 q(x|z) 是<strong>正态分布</strong>，用神经网络估计它的期望 μ_θ(z) 和方差 Σ_θ(z)，于是：
+-ln q(x|z) = ½ || (x-μ_θ(z)) / Σ_θ(z) ||² + D/2 ln 2π + ½∑ₖ₌₁ᴰ lnΣ_θ(z)。</p>
+<p>很多时候，训练时方差会固定为一个较小的常数（每次采样都会采到μ），所以神经网络只需估计μ，也就是把 μ 当作生成的 x&rsquo;，则上式重构误差可简化为：
+-ln q(x|z) = ½ || (x-μ_θ(z)) / Σ_θ(z) ||²</p>
+<p>x &ndash;&gt; z &ndash;&gt; x'</p>
+<p>综上，对于二值数据，假设 q(x|z) 是伯努利分布（二项分布），可以对 decoder （第2个神经网络）的输出用 sigmoid 激活，并用交叉熵作为损失函数；
+而对于一般数据，假设 q(x|z) 是正态分布，则使用 mse 作为损失函数。</p>
+<h3 id="从后验中采样-z-的技巧">从后验中采样 z 的技巧</h3>
+<p>损失函数的第 2 项是：𝔼_p(z|x) [ -ln q(x|z) ]，根据蒙特卡罗的思想，这个期望用均值近似：先采样 z，用 z 计算 x 的后验分布 q(x|z)，再从中采样 x 计算它出现概率的对数：-ln q(x|z)，再求均值：</p>
+<p>𝔼_p(z|x) [ -ln q(x|z) ] = -1/n ∑ᵢ₌₁ᴺ ln q(x|zᵢ), zᵢ～p(z|x)</p>
+<p>假设了 p(z|x) 是正态分布，它的参数 μ_ϕ, Σ_ϕ 已由神经网络算出，再使用重参数化技巧就能采样出 z 。</p>
+<p>但是要采样多少个合适呢？因为每个 z 是专属于 1 个 x，所以只从 p(z|x) 中采一个 z 来计算 x 的分布 q(x|z)，再计算 -ln q(x|z)，就是loss值。</p>
+<p>最终：𝓛 = 𝔼_pᐢ(x) [ KL( p(z|x)||q(z) ) -ln q(x|z) ] , z～p(z|x)</p>
+<p>因为每次 epoch 的隐变量都是随机生成的，因此当 epoch 数足够多时，可以保证采样的充分行。苏神试过采样多个的情形，感觉生成的样本没有明显变化。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

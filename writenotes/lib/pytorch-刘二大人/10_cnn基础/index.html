@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Background 全连接：线性层串行
+输入图像 in pytorch：(C, H, W) ToTensor doc
+CNN = Feature Extraction &#43; Classification
+CCD 光敏电阻 &#43; 透镜系统， 一个电阻只检测一个光锥区域的光线，根据电阻与光强的函数关系，得到灰度图
+input channels: rgb
+Conv Layer 每次取一个块：(C * kernel_h * kernel_w) 通过 Conv layer 得到 (C&amp;rsquo; * kernel_h&amp;rsquo; * kernel_w&amp;rsquo;)。
+做 Conv layer 时，input 的所有 channel 都做卷积操作（各通道使用的卷积核不同），然后(按不同权重)相加。 这两步做 n 次，那么 output的 channels 就是 n。所以后续的每一层 channel 都包含了input 的全部通道的信息。 CNN 的权重存在于卷积核中。
+(2023-10-22) 各输入通道 乘以的 kernel 不同，然后各通道直接 相加:
+1 2 3 4 5 6 7 8 9 10 a = torch.'>
+<title>watch: PyTorch - 刘二 10 | CNN Basics</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/lib/pytorch-%E5%88%98%E4%BA%8C%E5%A4%A7%E4%BA%BA/10_cnn%E5%9F%BA%E7%A1%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: PyTorch - 刘二 10 | CNN Basics'>
+<meta property='og:description' content='Background 全连接：线性层串行
+输入图像 in pytorch：(C, H, W) ToTensor doc
+CNN = Feature Extraction &#43; Classification
+CCD 光敏电阻 &#43; 透镜系统， 一个电阻只检测一个光锥区域的光线，根据电阻与光强的函数关系，得到灰度图
+input channels: rgb
+Conv Layer 每次取一个块：(C * kernel_h * kernel_w) 通过 Conv layer 得到 (C&amp;rsquo; * kernel_h&amp;rsquo; * kernel_w&amp;rsquo;)。
+做 Conv layer 时，input 的所有 channel 都做卷积操作（各通道使用的卷积核不同），然后(按不同权重)相加。 这两步做 n 次，那么 output的 channels 就是 n。所以后续的每一层 channel 都包含了input 的全部通道的信息。 CNN 的权重存在于卷积核中。
+(2023-10-22) 各输入通道 乘以的 kernel 不同，然后各通道直接 相加:
+1 2 3 4 5 6 7 8 9 10 a = torch.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/lib/pytorch-%E5%88%98%E4%BA%8C%E5%A4%A7%E4%BA%BA/10_cnn%E5%9F%BA%E7%A1%80/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-08-14T16:52:00&#43;00:00'/><meta property='article:modified_time' content='2022-08-14T16:52:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: PyTorch - 刘二 10 | CNN Basics">
+<meta name="twitter:description" content="Background 全连接：线性层串行
+输入图像 in pytorch：(C, H, W) ToTensor doc
+CNN = Feature Extraction &#43; Classification
+CCD 光敏电阻 &#43; 透镜系统， 一个电阻只检测一个光锥区域的光线，根据电阻与光强的函数关系，得到灰度图
+input channels: rgb
+Conv Layer 每次取一个块：(C * kernel_h * kernel_w) 通过 Conv layer 得到 (C&amp;rsquo; * kernel_h&amp;rsquo; * kernel_w&amp;rsquo;)。
+做 Conv layer 时，input 的所有 channel 都做卷积操作（各通道使用的卷积核不同），然后(按不同权重)相加。 这两步做 n 次，那么 output的 channels 就是 n。所以后续的每一层 channel 都包含了input 的全部通道的信息。 CNN 的权重存在于卷积核中。
+(2023-10-22) 各输入通道 乘以的 kernel 不同，然后各通道直接 相加:
+1 2 3 4 5 6 7 8 9 10 a = torch.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#background">Background</a></li>
+    <li><a href="#conv-layer">Conv Layer</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/lib/pytorch-%E5%88%98%E4%BA%8C%E5%A4%A7%E4%BA%BA/10_cnn%E5%9F%BA%E7%A1%80/">watch: PyTorch - 刘二 10 | CNN Basics</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 14, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="background">Background</h2>
+<p>全连接：线性层串行</p>
+<p>输入图像 in pytorch：(C, H, W) <a class="link" href="https://pytorch.org/vision/master/generated/torchvision.transforms.ToTensor.html#totensor"  target="_blank" rel="noopener"
+    >ToTensor doc</a></p>
+<p>CNN = Feature Extraction + Classification</p>
+<p>CCD 光敏电阻 + 透镜系统， 一个电阻只检测一个光锥区域的光线，根据电阻与光强的函数关系，得到灰度图</p>
+<p>input channels: rgb</p>
+<h2 id="conv-layer">Conv Layer</h2>
+<p>每次取一个块：(C * kernel_h * kernel_w) 通过 Conv layer 得到 (C&rsquo; * kernel_h&rsquo; * kernel_w&rsquo;)。</p>
+<p>做 Conv layer 时，input 的所有 channel 都做卷积操作（各通道使用的卷积核不同），然后(<del>按不同权重</del>)相加。
+这两步做 <strong>n 次</strong>，那么 output的 channels 就是 n。所以后续的每一层 channel 都包含了input 的全部通道的信息。
+CNN 的权重存在于卷积核中。</p>
+<ul>
+<li>
+<p>(2023-10-22) 各输入通道 <strong>乘以的 kernel 不同</strong>，然后各通道直接 <strong>相加</strong>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">18.</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># (bs, C, h,w)</span>
+</span></span><span class="line"><span class="cl"><span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># convolution repeat times</span>
+</span></span><span class="line"><span class="cl"><span class="n">conv_lyr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">n</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">conv_lyr</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>    <span class="c1"># shape (1,2,3,3) </span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">conv_lyr</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)])</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">conv_lyr</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">out_a</span> <span class="o">=</span> <span class="n">conv_lyr</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>   <span class="c1"># (1,1,1,1), tensor([[[[36.]]]])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># i.e. 0+1+2+3+4+...+8 + 0+0+..0  = 36.</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>(2023-10-22) Conv2d 与 FC 做的数学运算 <strong>相同</strong>：</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 520 297"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 104,16 L 120,16' fill='none' stroke='currentColor'></path>
+<path d='M 288,16 L 320,16' fill='none' stroke='currentColor'></path>
+<path d='M 320,16 L 352,16' fill='none' stroke='currentColor'></path>
+<path d='M 400,16 L 432,16' fill='none' stroke='currentColor'></path>
+<path d='M 432,16 L 464,16' fill='none' stroke='currentColor'></path>
+<path d='M 56,32 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 288,48 L 320,48' fill='none' stroke='currentColor'></path>
+<path d='M 320,48 L 352,48' fill='none' stroke='currentColor'></path>
+<path d='M 400,48 L 432,48' fill='none' stroke='currentColor'></path>
+<path d='M 432,48 L 464,48' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 288,80 L 320,80' fill='none' stroke='currentColor'></path>
+<path d='M 320,80 L 352,80' fill='none' stroke='currentColor'></path>
+<path d='M 400,80 L 432,80' fill='none' stroke='currentColor'></path>
+<path d='M 432,80 L 464,80' fill='none' stroke='currentColor'></path>
+<path d='M 56,96 L 64,96' fill='none' stroke='currentColor'></path>
+<path d='M 360,128 L 392,128' fill='none' stroke='currentColor'></path>
+<path d='M 96,144 L 120,144' fill='none' stroke='currentColor'></path>
+<path d='M 56,160 L 64,160' fill='none' stroke='currentColor'></path>
+<path d='M 360,160 L 392,160' fill='none' stroke='currentColor'></path>
+<path d='M 96,208 L 120,208' fill='none' stroke='currentColor'></path>
+<path d='M 320,208 L 336,208' fill='none' stroke='currentColor'></path>
+<path d='M 368,208 L 384,208' fill='none' stroke='currentColor'></path>
+<path d='M 416,208 L 432,208' fill='none' stroke='currentColor'></path>
+<path d='M 56,224 L 64,224' fill='none' stroke='currentColor'></path>
+<path d='M 320,224 L 336,224' fill='none' stroke='currentColor'></path>
+<path d='M 368,224 L 384,224' fill='none' stroke='currentColor'></path>
+<path d='M 416,224 L 432,224' fill='none' stroke='currentColor'></path>
+<path d='M 64,16 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 64,48' fill='none' stroke='currentColor'></path>
+<path d='M 64,80 L 64,96' fill='none' stroke='currentColor'></path>
+<path d='M 64,96 L 64,112' fill='none' stroke='currentColor'></path>
+<path d='M 64,144 L 64,160' fill='none' stroke='currentColor'></path>
+<path d='M 64,160 L 64,176' fill='none' stroke='currentColor'></path>
+<path d='M 64,208 L 64,224' fill='none' stroke='currentColor'></path>
+<path d='M 64,224 L 64,240' fill='none' stroke='currentColor'></path>
+<path d='M 288,16 L 288,48' fill='none' stroke='currentColor'></path>
+<path d='M 288,48 L 288,80' fill='none' stroke='currentColor'></path>
+<path d='M 320,16 L 320,48' fill='none' stroke='currentColor'></path>
+<path d='M 320,48 L 320,80' fill='none' stroke='currentColor'></path>
+<path d='M 320,208 L 320,224' fill='none' stroke='currentColor'></path>
+<path d='M 336,208 L 336,224' fill='none' stroke='currentColor'></path>
+<path d='M 352,16 L 352,48' fill='none' stroke='currentColor'></path>
+<path d='M 352,48 L 352,80' fill='none' stroke='currentColor'></path>
+<path d='M 360,128 L 360,160' fill='none' stroke='currentColor'></path>
+<path d='M 368,208 L 368,224' fill='none' stroke='currentColor'></path>
+<path d='M 376,96 L 376,112' fill='none' stroke='currentColor'></path>
+<path d='M 384,208 L 384,224' fill='none' stroke='currentColor'></path>
+<path d='M 392,128 L 392,160' fill='none' stroke='currentColor'></path>
+<path d='M 400,16 L 400,48' fill='none' stroke='currentColor'></path>
+<path d='M 400,48 L 400,80' fill='none' stroke='currentColor'></path>
+<path d='M 416,208 L 416,224' fill='none' stroke='currentColor'></path>
+<path d='M 432,16 L 432,48' fill='none' stroke='currentColor'></path>
+<path d='M 432,48 L 432,80' fill='none' stroke='currentColor'></path>
+<path d='M 432,208 L 432,224' fill='none' stroke='currentColor'></path>
+<path d='M 464,16 L 464,48' fill='none' stroke='currentColor'></path>
+<path d='M 464,48 L 464,80' fill='none' stroke='currentColor'></path>
+<polygon points='128.000000,16.000000 116.000000,10.400000 116.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 120.000000, 16.000000)'></polygon>
+<polygon points='128.000000,80.000000 116.000000,74.400002 116.000000,85.599998' fill='currentColor' transform='rotate(0.000000, 120.000000, 80.000000)'></polygon>
+<polygon points='128.000000,144.000000 116.000000,138.399994 116.000000,149.600006' fill='currentColor' transform='rotate(0.000000, 120.000000, 144.000000)'></polygon>
+<polygon points='128.000000,208.000000 116.000000,202.399994 116.000000,213.600006' fill='currentColor' transform='rotate(0.000000, 120.000000, 208.000000)'></polygon>
+<path d='M 376,112 L 376,120' fill='none' stroke='currentColor'></path>
+<polygon points='392.000000,112.000000 380.000000,106.400002 380.000000,117.599998' fill='currentColor' transform='rotate(90.000000, 376.000000, 112.000000)'></polygon>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='0' y='164' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='0' y='228' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='8' y='164' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='8' y='228' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='8' y='276' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='16' y='164' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='16' y='228' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='16' y='276' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='164' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='228' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='164' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='228' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='276' fill='currentColor' style='font-size:1em'>L</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='40' y='164' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='40' y='228' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='40' y='276' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='48' y='276' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='56' y='276' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='64' y='276' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='72' y='84' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='72' y='116' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='72' y='148' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='72' y='164' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='72' y='180' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='72' y='212' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='72' y='228' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='72' y='244' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='72' y='276' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='100' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='164' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='180' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='212' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='228' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='244' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='276' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='96' y='276' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='104' y='68' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='104' y='276' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='112' y='68' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='112' y='132' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='112' y='196' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='112' y='276' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='120' y='132' fill='currentColor' style='font-size:1em'>₃</text>
+<text text-anchor='middle' x='120' y='196' fill='currentColor' style='font-size:1em'>₄</text>
+<text text-anchor='middle' x='128' y='276' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='136' y='148' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='136' y='212' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='212' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='148' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='212' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='160' y='148' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='160' y='212' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='176' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='176' y='212' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='184' y='84' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='184' y='148' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='184' y='212' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='212' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='208' y='148' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='208' y='212' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='84' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='212' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='224' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='224' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='224' y='212' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='264' y='180' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='264' y='244' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='272' y='228' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='272' y='244' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='280' y='180' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='280' y='228' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='280' y='244' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='288' y='180' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='288' y='228' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='296' y='180' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='296' y='244' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='304' y='180' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='304' y='228' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='304' y='244' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='312' y='180' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='312' y='276' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='320' y='180' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='320' y='244' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='320' y='276' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='328' y='180' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='328' y='244' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='328' y='276' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='336' y='244' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='336' y='276' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='344' y='180' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='352' y='180' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='352' y='228' fill='currentColor' style='font-size:1em'>⁺</text>
+<text text-anchor='middle' x='352' y='244' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='352' y='276' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='360' y='244' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='360' y='276' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='368' y='180' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='368' y='244' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='368' y='276' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='376' y='52' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='376' y='180' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='376' y='244' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='376' y='276' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='384' y='180' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='384' y='244' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='384' y='276' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='392' y='180' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='392' y='244' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='392' y='276' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='400' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='400' y='180' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='400' y='228' fill='currentColor' style='font-size:1em'>⁺</text>
+<text text-anchor='middle' x='400' y='244' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='400' y='276' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='408' y='180' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='408' y='244' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='416' y='36' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='416' y='68' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='416' y='180' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='416' y='276' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='424' y='36' fill='currentColor' style='font-size:1em'>₁</text>
+<text text-anchor='middle' x='424' y='68' fill='currentColor' style='font-size:1em'>₃</text>
+<text text-anchor='middle' x='424' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='424' y='244' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='424' y='276' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='432' y='244' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='432' y='276' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='440' y='180' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='440' y='244' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='440' y='276' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='448' y='36' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='448' y='68' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='448' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='448' y='244' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='456' y='36' fill='currentColor' style='font-size:1em'>₂</text>
+<text text-anchor='middle' x='456' y='68' fill='currentColor' style='font-size:1em'>₄</text>
+<text text-anchor='middle' x='456' y='180' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='456' y='244' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='456' y='276' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='472' y='180' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='472' y='244' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='480' y='180' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='480' y='244' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='488' y='180' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='488' y='244' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='496' y='180' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='496' y='244' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='504' y='244' fill='currentColor' style='font-size:1em'>s</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>
+<p>如果是 <strong>1x1</strong> 的卷积 (stride=1)，即没有邻居像素相加，Conv 就会和 FC 等价: 把每个像素投影到另一个维度的空间。</p>
+<p>chnl1 × w&rsquo; + chnl2 × w&rsquo;&rsquo; + chnl3 × w&rsquo;&rsquo;&rsquo; = out-chnl1</p>
+<p>dim1 × w&rsquo; + dim2 × w&rsquo;&rsquo; + dim3 × w&rsquo;&rsquo;&rsquo; = out-dim1</p>
+</li>
+<li>
+<p>(2023-12-01) I already forgot the original meaning of the left picture because I didn&rsquo;t write descriptions.</p>
+<p>For a FC layer given by 4 samples of 3 dimensions,
+each dimension multiplied by a factor wₓ becomes <strong>a portion of</strong> the out dimension.
+This corresponds to the operations in Conv2d layer: every channel is multiplied by a kernel and then sum up all weighted channels to form one of out channels.</p>
+<p>The difference is that in FC the 4 samples <strong>aren&rsquo;t merged</strong>, but Conv2d merged 4 pixels to 1 pixel.
+Thus, the number of pixels in FC is <strong>consistent</strong>, whereas conv layer reduces pixels.</p>
+<p>Each channel in feature maps always <strong>shares</strong> a common 2-D kernel.
+A Conv2d layer stands for a 4-D kernel as each channel uses different kernels.</p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl"><span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span>
+</span></span><span class="line"><span class="cl"><span class="n">kernel_size</span> <span class="o">=</span> <span class="mi">3</span>
+</span></span><span class="line"><span class="cl"><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span> <span class="c1"># (1,5,100,100)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">conv_layer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                             <span class="n">out_channels</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                             <span class="n">kernel_size</span> <span class="o">=</span> <span class="n">kernel_size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">output</span> <span class="o">=</span> <span class="n">conv_layer</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>      <span class="c1"># (1,10,98,98)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">conv_layer</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># (10,5,3,3)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Padding 保持输出图像尺寸不变。3x3核pad 1圈，5x5 pad 2圈&hellip;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">input</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">conv_layer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">kernel</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                       <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                       <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>   <span class="c1"># (out_chnls, in_chnls, h, w)</span>
+</span></span><span class="line"><span class="cl"><span class="n">conv_layer</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">data</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">output</span> <span class="o">=</span> <span class="n">conv_layer</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>stride 卷积核移动步长，（减少步数）用于缩小feature map 的大小</p>
+<p>Max Pooling 下采样, 每 h x w 区块里面取最大值，kerenl_size=2 尺寸缩小为原来的一半。该操作无参数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">input</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">maxpooling_layer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">output</span> <span class="o">=</span> <span class="n">maxpooling_layer</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">&gt;&gt;&gt;</span> <span class="n">tensor</span><span class="p">([[[[</span><span class="mf">4.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl"><span class="o">&gt;&gt;&gt;</span>           <span class="p">[</span><span class="mf">9.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">]]]])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>定义网络：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Net</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">(</span><span class="n">Net</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">320</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pooling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pooling</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">review</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>    <span class="c1"># or flatten</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">x</span>    <span class="c1"># 使用交叉熵损失，所以不做激活</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">Net</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&#34;cuda:0&#34;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_avaliable</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&#34;cpu&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

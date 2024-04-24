@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='args &amp;amp; kwargs (2022-08-05)
+*args：表示接受任意个数的 Positional arguments，然后存放入一个元组中；传参时 位置 要对应，例如
+1 2 3 4 5 def fun (*args) print(args) fun(&amp;#39;fruit&amp;#39;, &amp;#39;animal&amp;#39;, &amp;#39;human&amp;#39;) &amp;gt;&amp;gt;&amp;gt; &amp;#39;fruit&amp;#39;，&amp;#39;animal&amp;#39;，&amp;#39;human&amp;#39; **kwargs：表示接受任意长的 Keywords arguments，然后存放入一个字典中；传参时要对应 key，例如
+1 2 3 4 5 def fun(**kwargs): for key, value in kwargs.items(): print(&amp;#34;%s:%s&amp;#34; % (key,value) fun(a=1,b=2,c=3)会输出 a=1 b=2 c=3 Positional args and keywords args
+1 2 3 4 5 6 def foo(a, b, **kwargs): var1 = a var2 = b args = kwargs var3 = args.'>
+<title>memo: Python | Misc</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/lang/python/python_misc/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: Python | Misc'>
+<meta property='og:description' content='args &amp;amp; kwargs (2022-08-05)
+*args：表示接受任意个数的 Positional arguments，然后存放入一个元组中；传参时 位置 要对应，例如
+1 2 3 4 5 def fun (*args) print(args) fun(&amp;#39;fruit&amp;#39;, &amp;#39;animal&amp;#39;, &amp;#39;human&amp;#39;) &amp;gt;&amp;gt;&amp;gt; &amp;#39;fruit&amp;#39;，&amp;#39;animal&amp;#39;，&amp;#39;human&amp;#39; **kwargs：表示接受任意长的 Keywords arguments，然后存放入一个字典中；传参时要对应 key，例如
+1 2 3 4 5 def fun(**kwargs): for key, value in kwargs.items(): print(&amp;#34;%s:%s&amp;#34; % (key,value) fun(a=1,b=2,c=3)会输出 a=1 b=2 c=3 Positional args and keywords args
+1 2 3 4 5 6 def foo(a, b, **kwargs): var1 = a var2 = b args = kwargs var3 = args.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/lang/python/python_misc/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-12-25T23:37:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-25T23:37:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: Python | Misc">
+<meta name="twitter:description" content="args &amp;amp; kwargs (2022-08-05)
+*args：表示接受任意个数的 Positional arguments，然后存放入一个元组中；传参时 位置 要对应，例如
+1 2 3 4 5 def fun (*args) print(args) fun(&amp;#39;fruit&amp;#39;, &amp;#39;animal&amp;#39;, &amp;#39;human&amp;#39;) &amp;gt;&amp;gt;&amp;gt; &amp;#39;fruit&amp;#39;，&amp;#39;animal&amp;#39;，&amp;#39;human&amp;#39; **kwargs：表示接受任意长的 Keywords arguments，然后存放入一个字典中；传参时要对应 key，例如
+1 2 3 4 5 def fun(**kwargs): for key, value in kwargs.items(): print(&amp;#34;%s:%s&amp;#34; % (key,value) fun(a=1,b=2,c=3)会输出 a=1 b=2 c=3 Positional args and keywords args
+1 2 3 4 5 6 def foo(a, b, **kwargs): var1 = a var2 = b args = kwargs var3 = args.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#args--kwargs">args &amp; kwargs</a></li>
+    <li><a href="#注解-annotation">注解 annotation</a></li>
+    <li><a href="#class-variable--instance-variable">Class Variable &amp; Instance Variable</a></li>
+    <li><a href="#classmethod">@classmethod</a></li>
+    <li><a href="#staticmethod">@staticmethod</a></li>
+    <li><a href="#__name__">__name__</a></li>
+    <li><a href="#__file__">__file__</a></li>
+    <li><a href="#built-in-functions">Built-in functions</a></li>
+    <li><a href="#-1-flip-image">[::-1] flip image</a></li>
+    <li><a href="#表达式内赋值">表达式内赋值</a></li>
+    <li><a href="#index-value-from-dict">Index value from dict</a></li>
+    <li><a href="#make-one-hot-matrix">Make one-hot matrix</a></li>
+    <li><a href="#ifelse-in-a-list">if/else in a list</a></li>
+    <li><a href="#flatten-a-list-of-list">Flatten a list of list</a></li>
+    <li><a href="#redirect-print-content">Redirect print content</a></li>
+    <li><a href="#argparse">argparse</a>
+      <ol>
+        <li><a href="#accept-a-dict">Accept a dict</a></li>
+      </ol>
+    </li>
+    <li><a href="#access-a-dict">Access a dict</a></li>
+    <li><a href="#logging">logging</a></li>
+    <li><a href="#tqdm">tqdm</a></li>
+    <li><a href="#registration-mechanism">Registration mechanism</a></li>
+    <li><a href="#isinstance">isinstance()</a></li>
+    <li><a href="#convert-str-to-classname">Convert str to classname</a></li>
+    <li><a href="#even-and-odd-compatible">Even and odd compatible</a></li>
+    <li><a href="#save-argparse-to-file">Save argparse to file</a></li>
+    <li><a href="#write-json-file">Write JSON File</a></li>
+    <li><a href="#move-a-dict-to-gpu">Move a dict to GPU</a></li>
+    <li><a href="#make-pairs-from-2-list">Make pairs from 2 list</a></li>
+    <li><a href="#slice-for-a-dim">Slice() for a dim</a></li>
+    <li><a href="#convert-class-to-dict">Convert class to dict</a></li>
+    <li><a href="#namedtuple">NamedTuple</a></li>
+    <li><a href="#format-digits">Format digits</a></li>
+    <li><a href="#files">Files</a></li>
+    <li><a href="#pass-by-assignment">Pass by Assignment</a></li>
+    <li><a href="#re">re</a>
+      <ol>
+        <li><a href="#find-numbers">Find numbers</a></li>
+      </ol>
+    </li>
+    <li><a href="#import">import</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/lang/python/python_misc/">memo: Python | Misc</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 25, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    14 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="args--kwargs">args &amp; kwargs</h2>
+<p>(2022-08-05)</p>
+<ol>
+<li>
+<p><code>*args</code>：表示接受任意个数的 Positional arguments，然后存放入一个元组中；传参时 <strong>位置</strong> 要对应，例如</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun</span> <span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">fun</span><span class="p">(</span><span class="s1">&#39;fruit&#39;</span><span class="p">,</span> <span class="s1">&#39;animal&#39;</span><span class="p">,</span> <span class="s1">&#39;human&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">&gt;&gt;&gt;</span> <span class="s1">&#39;fruit&#39;</span><span class="err">，</span><span class="s1">&#39;animal&#39;</span><span class="err">，</span><span class="s1">&#39;human&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>**kwargs</code>：表示接受任意长的 Keywords arguments，然后存放入一个字典中；传参时要对应 <strong>key</strong>，例如</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">fun</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="n">会输出</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span> <span class="n">c</span><span class="o">=</span><span class="mi">3</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p>Positional args and keywords args</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">var1</span> <span class="o">=</span> <span class="n">a</span>
+</span></span><span class="line"><span class="cl">    <span class="n">var2</span> <span class="o">=</span> <span class="n">b</span>
+</span></span><span class="line"><span class="cl">    <span class="n">args</span> <span class="o">=</span> <span class="n">kwargs</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">var3</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="p">[</span><span class="s1">&#39;key1&#39;</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="注解-annotation">注解 annotation</h2>
+<p><a class="link" href="https://www.bilibili.com/video/BV1qS4y1h7ee?share_source=copy_web"  target="_blank" rel="noopener"
+    >bilibili</a></p>
+<p>类型不匹配警告</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span> <span class="c1"># 第一个参数是int，第二个参数是list，其中每个参数是int</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>    <span class="c1"># 二维int数组</span>
+</span></span><span class="line"><span class="cl">         <span class="n">b</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="n">c</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">         <span class="n">d</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">         <span class="p">):</span> 
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">TreeNode</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">dfs</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">TreeNode</span><span class="p">):</span>    <span class="c1"># 类型为类名，或&#34;TreeNode&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">node</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">        <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># 返回值类型</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">func2</span><span class="p">(</span><span class="n">func1</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">str</span><span class="p">]):</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span>     <span class="c1"># 变量注解</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="vm">__annotations__</span><span class="p">)</span>     <span class="c1"># 查看函数的注解类型</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="class-variable--instance-variable">Class Variable &amp; Instance Variable</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MyClass</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">class_var</span> <span class="o">=</span> <span class="mi">1</span>   <span class="c1"># Class Variable</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="mi">123</span>  <span class="c1"># Instance Variable</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>All instances of the class have access to <code>class_var</code>, as well as the class itself.</li>
+<li>If class_var is mutable type, like list, class_var will influence on all instances.</li>
+</ul>
+<p>Reference:
+<a class="link" href="https://www.toptal.com/python/python-class-attributes-an-overly-thorough-guide"  target="_blank" rel="noopener"
+    >Python Class Attributes: An Overly Thorough Guide</a></p>
+<hr>
+<h2 id="classmethod">@classmethod</h2>
+<ol>
+<li>
+<p>classmethod can only be called through the class name instead through an object instantiated from the class,
+because it gets passed the <code>cls</code> as the argument.</p>
+<ul>
+<li>Similarly, <code>self</code> means a method belongs to an instance, and can only be called via instance.</li>
+</ul>
+</li>
+<li>
+<p>classmethod can access the <strong>class variables</strong>.</p>
+</li>
+<li>
+<p>classmethod usually is used for instantiating an object with a set of specific arguments rather through <code>__init__()</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">PositionalEncoding</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">..</span><span class="p">):</span> <span class="c1"># instance method</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nd">@classmethod</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">from_conf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">d_in</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>   <span class="c1"># conf: &#39;default.conf&#39;.model.code{}</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># PyHocon construction</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">conf</span><span class="o">.</span><span class="n">get_int</span><span class="p">(</span><span class="s2">&#34;num_freqs&#34;</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">          <span class="n">d_in</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">conf</span><span class="o">.</span><span class="n">get_float</span><span class="p">(</span><span class="s2">&#34;freq_factor&#34;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">          <span class="n">conf</span><span class="o">.</span><span class="n">get_bool</span><span class="p">(</span><span class="s2">&#34;include_input&#34;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">      <span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Code snippest from <a class="link" href="https://github.com/sxyu/pixel-nerf"  target="_blank" rel="noopener"
+    >pixel-nerf</a></p>
+</li>
+</ol>
+<p>Ref: <a class="link" href="https://www.pythontutorial.net/python-oop/python-class-methods/"  target="_blank" rel="noopener"
+    >An essential guide to  Python class methods and when to use them</a></p>
+<hr>
+<h2 id="staticmethod">@staticmethod</h2>
+<p><a class="link" href="https://www.askpython.com/python/staticmethod-in-python"  target="_blank" rel="noopener"
+    >@staticmethod in Python - AskPython</a></p>
+<ol>
+<li>No need to pass an instance (<code>self</code>) or class (<code>cls</code>) to it as the first argument.</li>
+<li>So it can be called both by the class name and an instance.</li>
+<li>Can be overridden by children class.</li>
+</ol>
+<hr>
+<h2 id="__name__">__name__</h2>
+<p>当一个 py 文件被直接执行时，<code>__name__</code> 被设置为 <code>'__main__'</code>，如果是被 impot，则它的 <code>__name__</code> 被设置为它的文件名(不包括后缀)，并且被导入时会执行顶层的代码（不包括 function, class）</p>
+<p><a class="link" href="https://www.freecodecamp.org/news/if-name-main-python-example/"  target="_blank" rel="noopener"
+    >freeCodeCamp-Goran Aviani</a></p>
+<hr>
+<h2 id="__file__">__file__</h2>
+<ul>
+<li>
+<p>(2024-02-28) Ref: <a class="link" href="https://www.geeksforgeeks.org/__file__-a-special-variable-in-python/"  target="_blank" rel="noopener"
+    >GfG</a></p>
+<p>The file path of the function&rsquo;s definition</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Hello.py</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">HelloWorld</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;This is Hello.py&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Call that module in another file:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># GFK.py</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">Hello</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Hello</span><span class="o">.</span><span class="n">HelloWorld</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">Hello</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;GFK.py</span><span class="se">\&#39;</span><span class="s1">s __file__: </span><span class="si">{</span><span class="vm">__file__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&#34;third_party/glm/&#34;</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Output of <code>python GFK.py</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">This is Hello.py
+</span></span><span class="line"><span class="cl">/home/yi/Downloads/ipynb_test/test_file_/Hello.py
+</span></span><span class="line"><span class="cl">GFK.py<span class="err">&#39;</span>s __file__: GFK.py
+</span></span><span class="line"><span class="cl">/home/yi/Downloads/ipynb_test/test_file_/third_party/glm/
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<hr>
+<h2 id="built-in-functions">Built-in functions</h2>
+<p><a class="link" href="https://docs.python.org/3/library/functions.html"  target="_blank" rel="noopener"
+    >Python Docs</a></p>
+<ol>
+<li>
+<p><code>dir(object)</code> returns a <strong>list</strong> of the names of attributes and methods of any kind of object, e.g., module, class, instance.
+No values are stored.</p>
+</li>
+<li>
+<p><code>vars(object)</code> returns a <strong>dict</strong>: <code>object.__dict__</code> containing changeable attributes.</p>
+<ul>
+<li><code>vars()</code> acts like <code>locals()</code>: a dict of local variables for read.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">person</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span> <span class="o">=</span> <span class="s2">&#34;jack&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">dir</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>     <span class="c1"># A list, len = 27</span>
+</span></span><span class="line"><span class="cl"><span class="n">person</span><span class="o">.</span><span class="fm">__dir__</span>  <span class="c1"># A method</span>
+</span></span><span class="line"><span class="cl"><span class="nb">vars</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>    <span class="c1"># same as person.__dict__, len=5</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># instance</span>
+</span></span><span class="line"><span class="cl"><span class="n">student</span> <span class="o">=</span> <span class="n">person</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="nb">setattr</span><span class="p">(</span><span class="n">student</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">vars</span><span class="p">(</span><span class="n">student</span><span class="p">)</span>   <span class="c1"># out: {&#39;age&#39;: 14}</span>
+</span></span><span class="line"><span class="cl"><span class="nb">dir</span><span class="p">(</span><span class="n">student</span><span class="p">)</span>    <span class="c1"># a list of attr and methods of the object</span>
+</span></span><span class="line"><span class="cl"><span class="nb">set</span><span class="p">(</span><span class="n">student</span><span class="o">.</span><span class="fm">__dir__</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">person</span><span class="p">))</span> <span class="c1"># out: {&#39;age&#39;}</span>
+</span></span><span class="line"><span class="cl"><span class="nb">set</span><span class="p">(</span><span class="n">student</span><span class="o">.</span><span class="fm">__dir__</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">student</span><span class="p">))</span>  <span class="c1"># True</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">set</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">student</span><span class="p">))</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="fm">__dir__</span><span class="p">(</span><span class="n">student</span><span class="p">))</span>  <span class="c1"># True</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">set</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">student</span><span class="p">))</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="fm">__dir__</span><span class="p">(</span><span class="n">person</span><span class="p">))</span> <span class="c1"># {&#39;__weakref__&#39;, &#39;age&#39;, &#39;name&#39;}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">set</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="fm">__dir__</span><span class="p">(</span><span class="n">person</span><span class="p">))</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">student</span><span class="p">))</span> <span class="c1"># {&#39;__abstractmethods__&#39;, &#39;__base__&#39;, &#39;__bases__&#39;, ...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="-1-flip-image">[::-1] flip image</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span> <span class="c1"># pillow</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">cv2</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;1.jpg&#39;</span><span class="p">)</span> <span class="c1"># RGB</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;1.jpg&#39;</span><span class="p">)</span> <span class="c1"># nd array, BGR</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;1.jpg&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;1.jpg&#39;</span><span class="p">)[:,:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># 最后的通道取反</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;1.jpg&#39;</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># 上下翻转</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;1.jpg&#39;</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># 左右也翻转</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="表达式内赋值">表达式内赋值</h2>
+<p>PEP 572, Python 3.8+， 类似 n := xxx</p>
+<p>比如，有一个字符串数组，想去掉每个字符串里的空格和空字符串</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;bb &#39;</span><span class="p">,</span> <span class="s1">&#39;   &#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">arr</span><span class="p">]</span> <span class="c1"># 删除字符串前面和后面的空格</span>
+</span></span><span class="line"><span class="cl"><span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">arr</span> <span class="k">if</span> <span class="n">x</span><span class="p">]</span> <span class="c1"># 空字符串会当作false</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>两行写一行:
+<code>arr = [ y for x in arr if (y := x.strip)) ]</code></p>
+<p>团队开发最好还是用易懂的写法。
+<a class="link" href="https://www.bilibili.com/video/BV1yL411L7M1"  target="_blank" rel="noopener"
+    >1_00_00什么意思？x:=y？Python里面的几个有趣特性</a></p>
+<ul>
+<li><a class="link" href="https://realpython.com/python38-new-features/#the-walrus-in-the-room-assignment-expressions"  target="_blank" rel="noopener"
+    >Assignment expression - RealPython</a></li>
+</ul>
+<hr>
+<h2 id="index-value-from-dict">Index value from dict</h2>
+<p>Get value by giving index from a dictionary</p>
+<p><a class="link" href="https://stackoverflow.com/q/15114843"  target="_blank" rel="noopener"
+    >Accessing dictionary value by index in python</a></p>
+<p>Python Dictionaries are Ordered from python 3.7 <a class="link" href="#Medium-Pavan" >6</a>, so the index can be used like:</p>
+<p><code>value_at_index = list(dic.values())[index]</code></p>
+<ol start="6">
+<li>
+<div id="Medium-Pavan"><a href="https://medium.com/junior-dev/python-dictionaries-are-ordered-now-but-how-and-why-5d5a40ee327f">Python Dictionaries are Ordered now, but how?…and why?</a></div> 
+</li>
+</ol>
+<hr>
+<h2 id="make-one-hot-matrix">Make one-hot matrix</h2>
+<p>Convert a vector to one-hot matrix</p>
+<p><a class="link" href="https://stackoverflow.com/q/29831489/18003182"  target="_blank" rel="noopener"
+    >Convert array of indices to one-hot encoded array in NumPy - StackOvf</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n_values</span><span class="p">)[</span><span class="n">values</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="ifelse-in-a-list">if/else in a list</h2>
+<p>comprehension
+<a class="link" href="https://stackoverflow.com/questions/4260280/if-else-in-a-list-comprehension"  target="_blank" rel="noopener"
+    >SO</a></p>
+<hr>
+<h2 id="flatten-a-list-of-list">Flatten a list of list</h2>
+<p><a class="link" href="https://datascienceparichay.com/article/python-flatten-a-list-of-lists-to-a-single-list/"  target="_blank" rel="noopener"
+    >Python - Flatten a list of lists to a single list</a>
+(Dead link now)</p>
+<ul>
+<li>Concatenate list of tensor: <code>torch.stack()</code> first, then <code>reshape</code></li>
+</ul>
+<hr>
+<h2 id="redirect-print-content">Redirect print content</h2>
+<p>(2023-08-08)</p>
+<p>Redirect the standard output (print stream) to a file using the sys module.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">sys</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Save the current stdout stream to a variable</span>
+</span></span><span class="line"><span class="cl"><span class="n">original_stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Write to file</span>
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;output.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">f</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The content given to sys.stdout </span><span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="s2">         will be redirected to file, </span><span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="s2">         instead of being printed out&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Restore the original stdout stream</span>
+</span></span><span class="line"><span class="cl"><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">original_stdout</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="argparse">argparse</h2>
+<p>(2023-08-28)</p>
+<ul>
+<li>
+<p><code>action=&quot;store_true&quot;</code>, this option is True when this argument appears in the command</p>
+</li>
+<li>
+<p><code>nargs=+</code>, this argument at least be assigned with 1 value.
+Similarly, <code>nargs=3</code>, the argument must be assigned with 3 values.</p>
+<p><a class="link" href="https://stackoverflow.com/a/60796254/18003182"  target="_blank" rel="noopener"
+    >Argparse: how to handle variable number of arguments (nargs=&rsquo;*&rsquo;) - SO</a></p>
+<p><a class="link" href="https://github.com/kwea123/CasMVSNet_pl/blob/a09e5ba230a18be54b9f6b1d714c3dc58acd8a00/eval.py#L49"  target="_blank" rel="noopener"
+    >Example</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--img_wh&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&#34;+&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">1152</span><span class="p">,</span> <span class="mi">864</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The command line: <code>python eval.py --img_wh 640 512</code>.
+The <code>args</code> in vscode &ldquo;launch.json&rdquo;: <code>&quot;args&quot;: [&quot;--img_wh&quot;, &quot;1152&quot;, &quot;864&quot;,]</code></p>
+</li>
+<li>
+<p><strong>Update</strong> Dict attributes (packge: mmcv)</p>
+<p><a class="link" href="https://mmcv.readthedocs.io/en/1.x/api.html#mmcv.utils.Config.merge_from_dict"  target="_blank" rel="noopener"
+    >mmcv Docs</a></p>
+<p><a class="link" href="https://blog.csdn.net/weixin_34910922/article/details/113487261"  target="_blank" rel="noopener"
+    >mmsegment配置参数说明（五）- CSDN</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">mmcv</span> <span class="kn">import</span> <span class="n">DictAction</span>
+</span></span><span class="line"><span class="cl"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Train a recognizer&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--cfg-options&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">DictAction</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">default</span><span class="o">=</span><span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="n">help</span><span class="o">=</span><span class="s1">&#39;override some settings in the used config, the key-value pair &#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;in xxx=yyy format will be merged into config file. For example, &#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#39;--cfg-options model.backbone.depth=18 model.backbone.with_cp=True&#39;&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Example in launch.json of adapt-image-models:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="s2">&#34;args&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--cfg-options&#34;</span><span class="p">,</span> <span class="s2">&#34;model.backbone.pretrained=openaiclip&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">                     <span class="s2">&#34;work_dir=work_dirs_vit/diving48/debug&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Set choices:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;--launcher&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;pytorch&#39;</span><span class="p">,</span> <span class="s1">&#39;slurm&#39;</span><span class="p">,</span> <span class="s1">&#39;mpi&#39;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="n">default</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">help</span><span class="o">=</span><span class="s1">&#39;job launcher&#39;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<hr>
+<h3 id="accept-a-dict">Accept a dict</h3>
+<p>(2023-08-31)</p>
+<p><a class="link" href="https://stackoverflow.com/a/18609361/18003182"  target="_blank" rel="noopener"
+    >Accepting a dictionary as an argument with argparse and python (duplicate) -SO</a></p>
+<p>argparse don&rsquo;t have a type of <code>dict</code>, there&rsquo;re 2 workarounds:</p>
+<ol>
+<li>
+<p>Set <code>type=str</code>, then use <code>json.loads()</code> to parse:</p>
+</li>
+<li>
+<p>Set <code>type=json.loads</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
+</span></span><span class="line"><span class="cl"><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--my-dict&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">args</span> <span class="o">=</span> <span class="n">parse</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">mydict</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">my_dict</span>  <span class="c1"># Will return a dictionary</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<ul>
+<li>
+<p>The <code>DictAction</code> of mmcv will only parse the top-level as a dict (key-value),
+but if the value passed is a dict too, it&rsquo;ll be parsed as a string.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="s2">&#34;args&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;--cfg-options&#34;</span>, <span class="s2">&#34;model.backbone.num_frames=3&#34;</span>,
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  // <span class="s2">&#34;train_pipeline[1].clip_len=3&#34;</span>,  // Cannot identify <span class="o">[</span>1<span class="o">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  // <span class="s2">&#34;dict(train_pipeline={&#39;1&#39;: dict(clip_len=3)})&#34;</span>, // Error: has to <span class="m">2</span> params, but got 1.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  // <span class="s2">&#34;train_pipeline= {\&#34;1\&#34;: {\&#34;clip_len\&#34;: \&#34;3\&#34;}}&#34;</span> 
+</span></span><span class="line"><span class="cl">  // The value will be parsed as a string, which will override the whole previous dict.
+</span></span><span class="line"><span class="cl"> <span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<hr>
+<h2 id="access-a-dict">Access a dict</h2>
+<ol>
+<li>
+<p><code>myDict.update({'aKey': &quot;newVal&quot;})</code> or <code>myDict.update(aKey='newVal')</code></p>
+</li>
+<li>
+<p><code>myDict.get('aKey', retVal)</code></p>
+</li>
+<li>
+<p><code>myDict.setdefault('aKey', 'defVal')</code>: if <code>'aKey'</code> doesn&rsquo;t exist, it will be inserted with the default value <code>defVal</code>.</p>
+</li>
+<li>
+<p><code>myDict.copy()</code> or <code>newDict = dir(myDict)</code> are <strong>shallow copy</strong>: when change the <strong>no-primitive</strong> data (such as list, nested data), the orignal dict will also change,
+because it only duplicate the top-level data, while the low-level data is referenced to the original data.
+<a class="link" href="https://datagy.io/python-dictionary-copy/"  target="_blank" rel="noopener"
+    >Copy a Python Dictionary: A Complete Guide • datagy</a></p>
+</li>
+<li>
+<p><code>myDict.pop('aKey')</code> will return and remove an item.</p>
+</li>
+<li>
+<p><a class="link" href="https://www.geeksforgeeks.org/python-delete-items-from-dictionary-while-iterating/"  target="_blank" rel="noopener"
+    >Delete items from dictionary while iterating</a>
+Have to iterate the dict twice, the 1st round collects the keys to be deleted, and the 2nd round del those items.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="logging">logging</h2>
+<p><a class="link" href="https://realpython.com/python-logging/"  target="_blank" rel="noopener"
+    >Real Python</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">logging</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">logger</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;This is an info message&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Output: <code>INFO:__main__:This is an info message</code></p>
+<ul>
+<li><a class="link" href="https://stackoverflow.com/a/68029981/18003182"  target="_blank" rel="noopener"
+    >logging.info doesn&rsquo;t show up on console</a></li>
+</ul>
+<hr>
+<h2 id="tqdm">tqdm</h2>
+<p>(2023-10-20)</p>
+<p>DDG with searching &ldquo;avoid writting tqdm bar into the log file&rdquo;</p>
+<ol>
+<li>
+<p>Use tqdm to iterate the outer loop and print in the inner loop.
+<a class="link" href="https://stackoverflow.com/a/68684426/18003182"  target="_blank" rel="noopener"
+    >How can I make the tqdm progress bar be printed less frequently in the log file?</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">outer</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="n">inner</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mf">1e4</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">outer</span><span class="o">+</span><span class="n">inner</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Output tqdm to a null device, and print/log the status bar after desired steps.
+<a class="link" href="https://stackoverflow.com/a/75059930/18003182"  target="_blank" rel="noopener"
+    >python - Making tqdm write to log files - Stack Overflow</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">tqdm_bar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm_bar</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="n">tqdm_bar</span><span class="o">.</span><span class="n">n</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tqdm_bar</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Redirecting console logging to tqdm.write(), leaving other logging handlers (e.g. log files) unaffected.
+<a class="link" href="https://tqdm.github.io/docs/contrib.logging/"  target="_blank" rel="noopener"
+    >tqdm.contrib.logging - Docs</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">logging</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tqdm.contrib.logging</span> <span class="kn">import</span> <span class="n">logging_redirect_tqdm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">with</span> <span class="n">logging_redirect_tqdm</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;console logging redirected to `tqdm.write()`&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># logging restored</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<ul>
+<li>Discussion: <a class="link" href="https://github.com/tqdm/tqdm/issues/313"  target="_blank" rel="noopener"
+    >Pass progress bar to logger · Issue #313 · tqdm/tqdm</a></li>
+</ul>
+<ol start="4">
+<li>
+<p>tqdm output to stderr, which is not in sync with stdout.
+So only redict the stdout (<code>print</code>) to file: <code>python test.py &gt; output.log</code></p>
+<p><a class="link" href="https://stackoverflow.com/a/54501264/18003182"  target="_blank" rel="noopener"
+    >How to &ldquo;flush&rdquo; tqdm progress bar explicitly?</a></p>
+<p>Found in <a class="link" href="https://www.google.com/search?q=site:stackoverflow.com/questions&#43;how&#43;to&#43;stop&#43;tqdm&#43;from&#43;blowing&#43;up&#43;my&#43;log&#43;files"  target="_blank" rel="noopener"
+    >Google</a></p>
+</li>
+<li>
+<p>Monitor log file in real-time: <code>tail -f output.log</code>.
+<a class="link" href="https://www.reddit.com/r/linuxquestions/comments/xbgyj5/how_can_i_watch_a_log_file_which_is_redrawing_a/?onetap_auto=true"  target="_blank" rel="noopener"
+    >reddit</a></p>
+</li>
+<li>
+<p>Disable tqdm bar</p>
+<ul>
+<li>
+<p>Presetting argument. Inspired by the comment of this answer of
+<a class="link" href="https://stackoverflow.com/a/57072638/18003182"  target="_blank" rel="noopener"
+    >Why is tqdm printing to a newline instead of updating the same line?</a>;
+Searched by DDG with searching &ldquo;tqdm leave&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+</span></span><span class="line"><span class="cl"><span class="n">tqdm</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">tqdm</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Disable tqdm bar by environment variable after version 4.66.0:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># pip install tqdm --upgrade</span>
+</span></span><span class="line"><span class="cl">eport <span class="nv">TQDM_DISABLE</span><span class="o">=</span><span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="https://stackoverflow.com/a/67238486/18003182"  target="_blank" rel="noopener"
+    >Silence tqdm&rsquo;s output while running tests or running the code via cron</a>;
+Searched by DDG with searching &ldquo;tqdm disable&rdquo;</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Env variable overrides supported by <a class="link" href="https://github.com/tqdm/tqdm/releases/tag/v4.66.0"  target="_blank" rel="noopener"
+    >tqdm==4.66.0</a></p>
+</li>
+<li>
+<p><code>leave=False</code> means the bar will disappear instead of leaving it left after finishing.
+<a class="link" href="https://stackoverflow.com/a/62048759/18003182"  target="_blank" rel="noopener"
+    >How to remove progressbar in tqdm once the iteration is complete</a></p>
+</li>
+<li>
+<p>Use Progress bar as status bar showing current entry, by removing all field but the description field and specifying position.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">outer</span> <span class="o">=</span> <span class="n">tqdm</span><span class="o">.</span><span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&#34;Files&#34;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">cur_file</span> <span class="o">=</span> <span class="n">tqdm</span><span class="o">.</span><span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bar_format</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">{desc}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">video</span> <span class="o">=</span> <span class="n">imageio</span><span class="o">.</span><span class="n">mimread</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">memtest</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">cur_file</span><span class="o">.</span><span class="n">set_description_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Current file: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">outer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="https://philipplies.medium.com/progress-bar-and-status-logging-in-python-with-tqdm-35ce29b908f5"  target="_blank" rel="noopener"
+    >Progress bar and status logging in python with tqdm</a></p>
+</li>
+</ol>
+<hr>
+<h2 id="registration-mechanism">Registration mechanism</h2>
+<p>A registry is a centralized &ldquo;object&rdquo; for convenience of interacting between differen components.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">..builder</span> <span class="kn">import</span> <span class="n">BACKBONES</span> <span class="c1"># registry</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@BACKBONES.register_module</span><span class="p">()</span> <span class="c1"># add a component</span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">ViT_CLIP</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>  <span class="c1"># backbone model</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">():</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="isinstance">isinstance()</h2>
+<p>Check if an object is one of types</p>
+<p><code>dataset</code> is expected to be a list or a tuple:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">dataset</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="convert-str-to-classname">Convert str to classname</h2>
+<ol>
+<li>
+<p>Use eval</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nb">eval</span><span class="p">(</span><span class="s2">&#34;cls_name&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="https://stackoverflow.com/a/1178089/18003182"  target="_blank" rel="noopener"
+    >Convert string to Python class object?</a></p>
+</li>
+<li>
+<p>Use getattr</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">optim_type</span> <span class="o">=</span> <span class="s1">&#39;AdamW&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="bp">self</span><span class="o">.</span><span class="n">optim</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="n">optim_type</span><span class="p">)(</span><span class="n">optim_params</span><span class="p">,</span> <span class="o">**</span><span class="n">optim_kwargs</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Code from MatchNeRF.</p>
+</li>
+</ol>
+<hr>
+<h2 id="even-and-odd-compatible">Even and odd compatible</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">eval_batch_size</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_batch_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">sb</span> <span class="o">+</span> <span class="mi">1</span> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Code from pixelNeRF&rsquo;s &ldquo;nerf.py&rdquo;.</p>
+<hr>
+<h2 id="save-argparse-to-file">Save argparse to file</h2>
+<p>(2023-09-25)</p>
+<p><a class="link" href="https://stackoverflow.com/a/55114771/18003182"  target="_blank" rel="noopener"
+    >Saving python argparse file - SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H%M%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="n">log_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s1">.log&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;log_file&#34;</span><span class="p">,</span> <span class="s2">&#34;w&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&#34;CommandLine_Args&#34;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">               <span class="s2">&#34;ConfigFile_Settings&#34;</span><span class="p">:</span> <span class="n">conf</span> <span class="p">},</span> 
+</span></span><span class="line"><span class="cl">                <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># --- Read ---</span>
+</span></span><span class="line"><span class="cl"><span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;commandline_args.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">args</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>json has better readabiity, interoperability, security, but slower than pickle.
+<a class="link" href="https://stackoverflow.com/a/39607169/18003182"  target="_blank" rel="noopener"
+    >Pickle or json?</a></p>
+</li>
+<li>
+<p><code>json.dumps</code> convert any python object to JSON formatted <strong>string</strong>, while <code>json.dump()</code> write a serialized object to <strong>file</strong>.
+<a class="link" href="https://pynative.com/python-json-dumps-and-dump-for-json-encoding/"  target="_blank" rel="noopener"
+    >PYnative</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="write-json-file">Write JSON File</h2>
+<p>(2024-03-21)</p>
+<ol>
+<li>
+<p><code>json.dump()</code> convert a python object to a json string. <a class="link" href="https://www.geeksforgeeks.org/read-write-and-parse-json-using-python/"  target="_blank" rel="noopener"
+    >GfG</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">json_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;camera_angle_x&#34;</span><span class="p">:</span> <span class="n">fovx</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">             <span class="s2">&#34;frames&#34;</span><span class="p">:</span> <span class="n">frams_ls</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">dir_json</span><span class="si">}</span><span class="s2">/transforms_train.json&#34;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Write a json string into a file using <code>pathlib</code> to avoid dangling <code>with open()</code>:
+<a class="link" href="https://stackoverflow.com/a/74570920/18003182"  target="_blank" rel="noopener"
+    >SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">json_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;camera_angle_x&#34;</span><span class="p">:</span> <span class="n">fovx</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">             <span class="s2">&#34;frames&#34;</span><span class="p">:</span> <span class="n">frams_ls</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">dir_json</span><span class="si">}</span><span class="s2">/transforms_train.json&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>But, in this way, I don&rsquo;t know how to realize <code>'w'</code> that always creats a new file.</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><a class="link" href="https://realpython.com/python-json/"  target="_blank" rel="noopener"
+    >Working With JSON Data in Python - Real Python</a></li>
+</ul>
+<hr>
+<h2 id="move-a-dict-to-gpu">Move a dict to GPU</h2>
+<p>(2023-09-27)</p>
+<p>Given a dict containing list, tuple, and torch.Tensor,</p>
+<ol>
+<li>
+<p>Recursive</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">move_to_device</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">      <span class="n">X</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">move_to_device</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">move_to_device</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="s2">&#34;_fields&#34;</span><span class="p">):</span>  <span class="c1"># collections.namedtuple</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dd</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dd</span> <span class="o">=</span> <span class="n">move_to_device</span><span class="p">(</span><span class="n">dd</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">X</span><span class="p">)(</span><span class="o">**</span><span class="n">dd</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">X</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Code from MatchNeRF.</p>
+</li>
+</ol>
+<hr>
+<h2 id="make-pairs-from-2-list">Make pairs from 2 list</h2>
+<ol>
+<li>
+<p>Two <code>for</code> in one line:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">index_lists</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_views</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_views</span><span class="p">)]</span>   <span class="c1"># [(0,1), (0,2), (1,2)]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Code from MatchNeRF.</p>
+</li>
+</ol>
+<hr>
+<h2 id="slice-for-a-dim">Slice() for a dim</h2>
+<p>(2023-09-29)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># specify start index, end index, step size</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>    <span class="c1"># [0,1,2,3]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="convert-class-to-dict">Convert class to dict</h2>
+<p>(2023-10-05)</p>
+<ol>
+<li>
+<p><a class="link" href="https://stackoverflow.com/q/35282222/18003182"  target="_blank" rel="noopener"
+    >In python, how do I cast a class object to a dict - SO</a></p>
+</li>
+<li>
+<p><a class="link" href="https://realpython.com/python-namedtuple/#namedtuple-vs-typingnamedtuple"  target="_blank" rel="noopener"
+    >collections.namedtuple vs typing.NamedTuple- RealPython</a></p>
+</li>
+<li>
+<p><a class="link" href="https://docs.python.org/3/library/typing.html#typing.NamedTuple"  target="_blank" rel="noopener"
+    >typing.NamedTuple - Docs</a></p>
+</li>
+<li>
+<p><a class="link" href="https://stackoverflow.com/a/34573457/18003182"  target="_blank" rel="noopener"
+    >What are &ldquo;named tuples&rdquo; in Python? - SO</a></p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NamedTuple</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">myNT</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="sa">r</span><span class="s2">&#34;&#34;&#34;a doc string&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">foo</span><span class="p">:</span> <span class="nb">int</span>
+</span></span><span class="line"><span class="cl">    <span class="n">bar</span><span class="p">:</span> <span class="nb">str</span>
+</span></span><span class="line"><span class="cl">    <span class="n">baz</span><span class="p">:</span> <span class="nb">list</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">aTupleObj</span> <span class="o">=</span> <span class="n">myNT</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="p">[])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">aTupleObj</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="namedtuple">NamedTuple</h2>
+<p>(2024-04-09)</p>
+<ul>
+<li>
+<p>NamedTuple is not mutable, so the following error will occur when trying to re-assign its atttibutes:
+<a class="link" href="https://stackoverflow.com/a/74295074/18003182"  target="_blank" rel="noopener"
+    >AttributeError: can&rsquo;t set attribute in python - SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NamedTuple</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">BasicPointCloud</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">points</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span>
+</span></span><span class="line"><span class="cl">    <span class="n">colors</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span>
+</span></span><span class="line"><span class="cl">    <span class="n">normals</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span>
+</span></span><span class="line"><span class="cl"><span class="n">pcd</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">new_points</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<hr>
+<h2 id="format-digits">Format digits</h2>
+<ol>
+<li>
+<p>Fix length filling with zeros:
+<a class="link" href="https://stackoverflow.com/a/3228882/18003182"  target="_blank" rel="noopener"
+    >How do I format a number with a variable number of digits in Python? - SO</a></p>
+<p><code>'123'.zfill(7)</code>: 0000123</p>
+</li>
+<li>
+<p>f-string round a float:
+<a class="link" href="https://stackoverflow.com/a/45310389/18003182"  target="_blank" rel="noopener"
+    >Fixed digits after decimal with f-strings</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="mf">10.1234</span>
+</span></span><span class="line"><span class="cl"><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">a</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<p>(2024-01-22)</p>
+<h2 id="files">Files</h2>
+<ol>
+<li>
+<p>Open multiple files:
+<a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/scene/__init__.py#L52"  target="_blank" rel="noopener"
+    >Source code</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">scene_info</span><span class="o">.</span><span class="n">ply_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">src_file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s2">&#34;input.ply&#34;</span><span class="p">)</span> <span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dest_file</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dest_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">src_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="pass-by-assignment">Pass by Assignment</h2>
+<p>Python is <a class="link" href="https://realpython.com/python-pass-by-reference/"  target="_blank" rel="noopener"
+    >Pass by Reference - RealPython</a></p>
+<p>(2024-02-08)</p>
+<ul>
+<li>
+<p>In Python, passing arguments to a function is <strong>assigning</strong> the incoming objects to new variable name (identifier).
+This can be verified through &ldquo;reference counter&rdquo; and namespace, which is a dictionary,
+including key-value pairs representing a binding between target variable name and object.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="mi">2</span> <span class="c1"># object 2&#39;s refcount+1, namespace add: &#39;x&#39;:&#39;2&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>When an object (value) is assigned to a variable name (identifier),
+the reference counter of the object is incremented.
+If the variable name is reassigned to another value, the pre-bounded object&rsquo;s reference counter is decremented.</p>
+</li>
+<li>
+<p>Each <strong>function</strong> has its own namespace, which can be checked by <code>print(locals())</code></p>
+</li>
+<li>
+<p>If an attribute of the object supports modification,
+and the object is passed to a function argument,
+assigning values to the object&rsquo;s attribute is <strong>in-place</strong> modification.
+<a class="link" href="https://realpython.com/python-pass-by-reference/#best-practice-use-object-attributes"  target="_blank" rel="noopener"
+    >Ref</a></p>
+</li>
+<li>
+<p>Misc:</p>
+<ul>
+<li>
+<p>Use <code>id()</code> to get the address of a variable</p>
+</li>
+<li>
+<p>When Python modifies a variable through a function, the variable is not modified in place,
+but <strong>reassigned</strong> with the returned value.</p>
+</li>
+<li>
+<p>Passing by reference in Python can be replicated with: object&rsquo;s attributes,
+dictionary (mapping type), and list-like data (subscriptable and mutable)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Example refers to <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/2eee0e26d2d5fd00ec462df47752223952f6bf4e/train.py#L34-L35"  target="_blank" rel="noopener"
+    >3DGS</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">GaussianModel</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">_xyz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Scene</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gaussian</span><span class="p">:</span> <span class="n">GaussianModel</span><span class="p">,</span> <span class="n">exTen</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">ls</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">gaussian</span> <span class="o">=</span> <span class="n">gaussian</span>  <span class="c1"># a binding created in locals()</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># The attribute _xyz supports assignment as tensor is mutable</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># object&#39;s attribute is modified in place:</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">gaussian</span><span class="o">.</span><span class="n">_xyz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">myTen</span> <span class="o">=</span> <span class="n">exTen</span>  <span class="c1"># exTen&#39;s refcount+1, </span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">myTen</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="c1"># update to new binding</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>  <span class="c1"># a binding between self.color and color</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>    <span class="c1"># new binding</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">ls</span> <span class="o">=</span> <span class="n">ls</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">88</span>  <span class="c1"># affect the original list</span>
+</span></span><span class="line"><span class="cl"><span class="n">gaussian</span> <span class="o">=</span> <span class="n">GaussianModel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">exTensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">color</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">myObj</span> <span class="o">=</span> <span class="n">Scene</span><span class="p">(</span><span class="n">gaussian</span><span class="p">,</span> <span class="n">exTensor</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span><span class="n">ls</span><span class="o">:=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">gaussian</span><span class="o">.</span><span class="n">_xyz</span><span class="p">)</span>   <span class="c1"># changed to ones</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">exTensor</span><span class="p">)</span> <span class="c1"># remain empty</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>    <span class="c1"># unchanged</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span>      <span class="c1"># changed to [88,2]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><a class="link" href="https://realpython.com/python-mutable-vs-immutable-types/"  target="_blank" rel="noopener"
+    >Mutalbe - RealPython</a></p>
+</li>
+<li>
+<p><a class="link" href="https://www.perplexity.ai/search/In-the-following-6C5fwQMARMuirzSfhlbLsA?s=u"  target="_blank" rel="noopener"
+    >perplexity</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="re">re</h2>
+<h3 id="find-numbers">Find numbers</h3>
+<p>(2024-03-17)</p>
+<p><a class="link" href="https://stackoverflow.com/a/77039515/18003182"  target="_blank" rel="noopener"
+    >How to extract numbers from a string in Python? - SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">re</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">regx_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\d+\.\d+|\d+&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">txt</span> <span class="o">=</span> <span class="s2">&#34;The price is $12.99 and the quantity is 5 21321 dasdsa 123213.&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">regx_pattern</span><span class="p">,</span> <span class="n">txt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Output: <code>['12.99', '5', '21321', '123213']</code></p>
+<hr>
+<h2 id="import">import</h2>
+<p>(2024-04-09)</p>
+<ul>
+<li>
+<p>Import file in 2 levels up.</p>
+<p><a class="link" href="https://stackoverflow.com/a/67601280/18003182"  target="_blank" rel="noopener"
+    >ValueError: attempted relative import beyond top-level package - SO</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Project
+</span></span><span class="line"><span class="cl">  _3DGS
+</span></span><span class="line"><span class="cl">      scene
+</span></span><span class="line"><span class="cl">          __init__.py
+</span></span><span class="line"><span class="cl">      utils   <span class="c1"># for _3DGS</span>
+</span></span><span class="line"><span class="cl">          <span class="c1"># there is no __init__.py (Don&#39;t know if it matters)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  utils   <span class="c1"># for current project</span>
+</span></span><span class="line"><span class="cl">      __init__.py  <span class="c1"># empty is ok</span>
+</span></span><span class="line"><span class="cl">      file2.py
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>I want to use a method (<code>write_j</code>) implemented in <code>file2.py</code> inside <code>scene/__init__.py</code>.
+Although, the above SO post stated that all folder and subfolders should have an <code>__init__.py</code>,
+I tried the following syntax works:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">utils.fuse_neighbors</span> <span class="kn">import</span> <span class="n">fuse_neighbors</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Previously, the 3 dots: <code>from ...utils.fuse_neighbors import fuse_neighbors</code>,
+will lead to an error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ValueError: attempted relative import beyond top-level package
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

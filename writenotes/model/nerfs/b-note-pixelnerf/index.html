@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='pixelNeRF: Neural Radiance Fields from One or Few Images (CVPR 2021)'>
+<title>read: PixelNeRF</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/nerfs/b-note-pixelnerf/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: PixelNeRF'>
+<meta property='og:description' content='pixelNeRF: Neural Radiance Fields from One or Few Images (CVPR 2021)'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/nerfs/b-note-pixelnerf/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='NeRF' /><meta property='article:published_time' content='2022-08-04T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-08-04T00:00:00&#43;00:00'/><meta property='og:image' content='https://ar5iv.labs.arxiv.org/html/2012.02190/assets/x2.png' />
+<meta name="twitter:title" content="read: PixelNeRF">
+<meta name="twitter:description" content="pixelNeRF: Neural Radiance Fields from One or Few Images (CVPR 2021)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ar5iv.labs.arxiv.org/html/2012.02190/assets/x2.png' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#1-introduction">1 Introduction</a></li>
+    <li><a href="#2-related-work">2 Related Work</a></li>
+    <li><a href="#3-background-nerf">3 Background NeRF</a></li>
+    <li><a href="#4-image-conditioned-nerf">4 Image-conditioned NeRF</a>
+      <ol>
+        <li><a href="#41-single-image-pixelnerf">4.1 Single-Image pixelNeRF</a></li>
+        <li><a href="#42-incorporating-multiple-views">4.2 Incorporating Multiple Views</a></li>
+      </ol>
+    </li>
+    <li><a href="#5-experiments">5 Experiments</a>
+      <ol>
+        <li><a href="#51-shapenet-benchmarks">5.1 ShapeNet Benchmarks</a></li>
+        <li><a href="#52-pushing-the-boundaries-of-shapenet">5.2 Pushing the Boundaries of ShapeNet</a></li>
+        <li><a href="#53-scene-prior-on-real-images">5.3 Scene Prior on Real Images</a></li>
+      </ol>
+    </li>
+    <li><a href="#code">Code</a>
+      <ol>
+        <li><a href="#dtu-dataset">DTU dataset</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/writenotes/model/nerfs/b-note-pixelnerf/">
+                
+                    <img src="https://ar5iv.labs.arxiv.org/html/2012.02190/assets/x2.png" loading="lazy" alt="Featured image of post read: PixelNeRF" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/generalizable/" >
+                Generalizable
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/nerfs/b-note-pixelnerf/">read: PixelNeRF</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            pixelNeRF: Neural Radiance Fields from One or Few Images (CVPR 2021)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 04, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="https://github.com/sxyu/pixel-nerf"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2012.02190"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://alexyu.net/pixelnerf"  target="_blank" rel="noopener"
+    >ProjPage</a></p>
+<p>一句话：用图像特征训练NeRF，（所以有泛化能力,不局限于单场景，不像nerf只做优化）</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/nerfs/img/pixelNerf_byHand.jpg width=>
+  
+  
+
+
+<p>如图1，光线是随机从像素空间选择的（为了随机选一些(N个)空间点），空间点投影到不同视图的 feature maps (512 chnls) 上，得到 (N∗Nviews个) feature volume，送入 mlp 变换成 r,g,b,density，再做 volume rendering</p>
+<h2 id="abstract">Abstract</h2>
+<ul>
+<li>NeRF conditioned by few images</li>
+<li>costly independent optimizing</li>
+<li>use convolution to learn scene prior</li>
+<li>no explicit 3D supervision</li>
+<li>single image novel view synthesis task</li>
+</ul>
+<h2 id="1-introduction">1 Introduction</h2>
+<ol>
+<li>
+<p>Topic: Synthesis novel views for a scene from sparse views</p>
+</li>
+<li>
+<p>Problem</p>
+</li>
+<li>
+<p>Former solution &amp; drawbacks:</p>
+<ul>
+<li>Differentiable neural rendering: represent the sence as a neural network which generates rendered images</li>
+<li>NeRF: encode the 3D position and view dirs to volume density and color. It needs too many images.</li>
+</ul>
+</li>
+<li>
+<p>Task: predicting NeRFs from one or several images.</p>
+</li>
+<li>
+<p>Contributions: Utilize pixel-aligned spatial image features to learn scene priors
+(specifically) Input image → convolutional feature grid → 𝐱,𝐝,feature(residual) → NeRF (pool-based multi-view features fusion) → σ,rgb</p>
+</li>
+<li>
+<p>Results statement</p>
+<ul>
+<li>no 3D supervision: 3D shape or object masks</li>
+<li>not trained in a canonical coordinate system, but in each camera coordinate system</li>
+<li>&ldquo;convolution preserves the spatial alignment between the image and the output 3D representation&rdquo;</li>
+<li>flexibility on number of input views in test period</li>
+</ul>
+<p>(Experiments) ShapeNet; DTU</p>
+</li>
+</ol>
+<h2 id="2-related-work">2 Related Work</h2>
+<ol>
+<li>Novel View Synthesis</li>
+<li>Learning-based 3D reconstruction</li>
+<li>Viewer-centric 3D reconstruction</li>
+</ol>
+<h2 id="3-background-nerf">3 Background NeRF</h2>
+<ul>
+<li>(job) (input-output) x,d -&gt; density, color</li>
+<li>(training manner) volume rendering</li>
+<li>(loss func)</li>
+<li>Limitation: only use geometric consistency, resulting in individual optimization for every view</li>
+</ul>
+<h2 id="4-image-conditioned-nerf">4 Image-conditioned NeRF</h2>
+<ul>
+<li>
+<p>(improvement) input spatial image features into network. (Specifically) Two components: convolutional encoder + nerf mlp. Spatial query position is drawn from camera space.</p>
+</li>
+<li>
+<p>(paragraph order) From simple case to general case</p>
+</li>
+</ul>
+<h3 id="41-single-image-pixelnerf">4.1 Single-Image pixelNeRF</h3>
+<ul>
+<li>(main idea) The inputs are all from view space.</li>
+<li>(steps) Input image → feature volume W=E(I) → assign image feature to sample points by projecting the 3D position to 2D location → NeRF network</li>
+<li>(pipeline)</li>
+<li>(the role of query view direction)</li>
+</ul>
+<h3 id="42-incorporating-multiple-views">4.2 Incorporating Multiple Views</h3>
+<ul>
+<li>
+<p>(main idea) extract information from multi views to resolve geometric ambiguities and able to accept multiple images in test time. No relation with world space</p>
+</li>
+<li>
+<p>World space can base on any view. (notion explain)</p>
+</li>
+<li>
+<p>Project the world query point into each input view space. The fisrt layer processes each view independently and the final layer aggregates all views.</p>
+</li>
+<li>
+<p>(model pipeline)</p>
+<ol>
+<li>Encode each input img into feature volume and retrieve the corresponding feature at the sample point&rsquo;s projecting location.</li>
+<li>The features companied with (xyz,viewdirs) are input to the first layer and all the intermediate vectors are fused by average pooling before entering the final layers, which compress the vector into density and color.</li>
+</ol>
+</li>
+</ul>
+<h2 id="5-experiments">5 Experiments</h2>
+<ul>
+<li>
+<p>Datasets:</p>
+<ol>
+<li>ShapeNet (category-specific and category-agnostic view synthesis);</li>
+<li>ShapNet scenes with unseen categories and multiple objects;</li>
+<li>DTU rescaled to 1/4: 400x300</li>
+</ol>
+</li>
+<li>
+<p>Baselines: SRN, DVR</p>
+</li>
+<li>
+<p>Metrics: PSNR, SSIM, LPIPS</p>
+</li>
+<li>
+<p>Implementation Details:</p>
+<ul>
+<li>Image encoder: ResNet34;</li>
+<li>Features: non-pooling, upsampled using bilinear interpolation, concatenated feature maps of every image.</li>
+<li>Combine the points&rsquo; position and view direction in a ResNet manner (residual)</li>
+</ul>
+</li>
+</ul>
+<h3 id="51-shapenet-benchmarks">5.1 ShapeNet Benchmarks</h3>
+<p>ShapeNet for category-specific and category-agnostic</p>
+<p><strong>Category-specific View Synthesis Benchmark</strong></p>
+<ul>
+<li>
+<p>one-shot and two-shot view synthesis</p>
+</li>
+<li>
+<p>A model is trained for reconstructing one category and the used images contains 50 random views per object instance.
+Only 2 are encoded and fed into network.</p>
+</li>
+<li>
+<p>Ablations. The benefit of local features</p>
+</li>
+</ul>
+<p><strong>Category-agnostic Object Prior</strong></p>
+<ul>
+<li>Train a single model to the 13 largest categories of ShapeNet</li>
+<li>pick one view randomly from 24 fixed elevation view of each object instance.</li>
+</ul>
+<h3 id="52-pushing-the-boundaries-of-shapenet">5.2 Pushing the Boundaries of ShapeNet</h3>
+<ul>
+<li>
+<p>(tasks) less controlled capture scenarios in ShapeNet:</p>
+<ol>
+<li>unseen object categories,</li>
+<li>multiple-object scene,</li>
+<li>simulation-to-real transfer on car images.</li>
+</ol>
+</li>
+<li>
+<p>Generalization to novel categories: apply the model on unseen categories</p>
+</li>
+<li>
+<p>Multiple-object scenes:
+The geometric features need can be applied in any view direction (360°)</p>
+</li>
+</ul>
+<h3 id="53-scene-prior-on-real-images">5.3 Scene Prior on Real Images</h3>
+<hr>
+<h2 id="code">Code</h2>
+<p>(2023-07-20)</p>
+<p><code>calc_losses()</code>:</p>
+<pre class="pseudocode" data-line-number=true>\begin{algorithm}
+\caption{Main steps of clac$\_$losses()}
+\begin{algorithmic}
+  \PROCEDURE{clac-losses}{}
+  \STATE Sample 4 objects from 88 training scanned objects (folder) as a super batch
+  \STATE Each object samples randomly 1 or 3 from its total of 49 NV as target images for training
+  \STATE Sample a batch of rays (N$\_$rand)
+  \STATE Extract latent feature maps `self.latent`
+  \STATE Sample z$\_$coarse points on the rays
+  \STATE Transform points onto NS camera space
+  \STATE Perspective project xyz to 2D location uv on feature maps
+  \STATE Indexing latent vectors from feature maps by `F.grid$\_$sample()`
+  \ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+<hr>
+<h3 id="dtu-dataset">DTU dataset</h3>
+<p>(2023-08-17)</p>
+<p><code>get_split_dataset()</code> (in &ldquo;data/<strong>init</strong>.py&rdquo;) will construct different Dataset objects for different datasets.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">flags</span><span class="p">[</span><span class="s2">&#34;list_prefix&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;new_&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">flags</span><span class="p">[</span><span class="s2">&#34;max_imgs&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">49</span>
+</span></span><span class="line"><span class="cl"><span class="n">flags</span><span class="p">[</span><span class="s2">&#34;sub_format&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;dtu&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">flags</span><span class="p">[</span><span class="s2">&#34;scale_focal&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl"><span class="n">flags</span><span class="p">[</span><span class="s2">&#34;z_near&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span>
+</span></span><span class="line"><span class="cl"><span class="n">flags</span><span class="p">[</span><span class="s2">&#34;z_far&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Apply color jitter during train</span>
+</span></span><span class="line"><span class="cl"><span class="n">train_aug</span> <span class="o">=</span> <span class="n">ColorJitterDataset</span>
+</span></span><span class="line"><span class="cl"><span class="n">train_aug_flags</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;extra_inherit_attrs&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;sub_format&#34;</span><span class="p">]}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">train_set</span> <span class="o">=</span> <span class="n">DVRDataset</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">datadir</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">&#34;train&#34;</span><span class="p">,</span> <span class="o">**</span><span class="n">flags</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">train_aug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">train_set</span> <span class="o">=</span> <span class="n">train_aug</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="o">**</span><span class="n">train_aug_flags</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/nerf/">NeRF</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"
+              integrity="sha512-EKW5YvKU3hpyyOcN6jQnAxO/L8gts+YdYV6Yymtl8pk9YlYFtqJgihORuRoBXK8/cOIlappdU6Ms8KdK6yBCgA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer">
+      </script>
+    
+      
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+      </script>
+    
+      
+      <script>
+        pseudocode.renderClass("pseudocode");
+      </script>
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/writenotes/model/nerfs/b-note-nerf_code_notes/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: NeRF | Code</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/writenotes/model/nerfs/b-note-nerf_bmild/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg" loading="lazy" data-key="" data-hash="https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: NeRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='(2022-07-20)
+Hyper-params N_rand 或 batch_rays 是一个 epoch/iteration 要训练的光线, no_batching是每epoch只从一张图中选像素训练，False则打乱所有图像的像素（都与test阶段渲染全图无关）。
+llff 使用了batching，每一个 epoch 使用的(4096)光线来自所有训练图像；而blender 不batching，每epoch只从一张图中取光线，所以N_rand 也较小(1024)，有人说是因为 blender 包含360度的图片，可能会采到完全对立的两条光线（一个从正面看，一个从反面看），可能影响训练（影响density分布？）。NeRF源码解析-什度学习
+N_samples决定每条光线上的采样点数量和NeRF的渲染质量;
+chunk是model一次计算的rays, netchunk 是实际每次输入model的3D points量（模型的train和test都与它们有关）。 chunk 和 netchunk 是两层循环。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 # Select N_rand rays for training. # Or input all rays in an image (H,W) for rendering def render(rays): for each ray-chunk in rays: ret = render_rays(ray-chunk) def render_rays(): # Sampling 3D points and do PE for each point-netchunk in all points of this ray-chunk: raw.'>
+<title>read: NeRF | Code</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/nerfs/b-note-nerf_code_notes/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: NeRF | Code'>
+<meta property='og:description' content='(2022-07-20)
+Hyper-params N_rand 或 batch_rays 是一个 epoch/iteration 要训练的光线, no_batching是每epoch只从一张图中选像素训练，False则打乱所有图像的像素（都与test阶段渲染全图无关）。
+llff 使用了batching，每一个 epoch 使用的(4096)光线来自所有训练图像；而blender 不batching，每epoch只从一张图中取光线，所以N_rand 也较小(1024)，有人说是因为 blender 包含360度的图片，可能会采到完全对立的两条光线（一个从正面看，一个从反面看），可能影响训练（影响density分布？）。NeRF源码解析-什度学习
+N_samples决定每条光线上的采样点数量和NeRF的渲染质量;
+chunk是model一次计算的rays, netchunk 是实际每次输入model的3D points量（模型的train和test都与它们有关）。 chunk 和 netchunk 是两层循环。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 # Select N_rand rays for training. # Or input all rays in an image (H,W) for rendering def render(rays): for each ray-chunk in rays: ret = render_rays(ray-chunk) def render_rays(): # Sampling 3D points and do PE for each point-netchunk in all points of this ray-chunk: raw.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/nerfs/b-note-nerf_code_notes/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='NeRF' /><meta property='article:published_time' content='2022-05-17T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-05-17T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="read: NeRF | Code">
+<meta name="twitter:description" content="(2022-07-20)
+Hyper-params N_rand 或 batch_rays 是一个 epoch/iteration 要训练的光线, no_batching是每epoch只从一张图中选像素训练，False则打乱所有图像的像素（都与test阶段渲染全图无关）。
+llff 使用了batching，每一个 epoch 使用的(4096)光线来自所有训练图像；而blender 不batching，每epoch只从一张图中取光线，所以N_rand 也较小(1024)，有人说是因为 blender 包含360度的图片，可能会采到完全对立的两条光线（一个从正面看，一个从反面看），可能影响训练（影响density分布？）。NeRF源码解析-什度学习
+N_samples决定每条光线上的采样点数量和NeRF的渲染质量;
+chunk是model一次计算的rays, netchunk 是实际每次输入model的3D points量（模型的train和test都与它们有关）。 chunk 和 netchunk 是两层循环。
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 # Select N_rand rays for training. # Or input all rays in an image (H,W) for rendering def render(rays): for each ray-chunk in rays: ret = render_rays(ray-chunk) def render_rays(): # Sampling 3D points and do PE for each point-netchunk in all points of this ray-chunk: raw.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#hyper-params">Hyper-params</a></li>
+    <li><a href="#oom">OOM</a></li>
+    <li><a href="#inverse-transform-sampling">Inverse transform sampling</a></li>
+    <li><a href="#pe-has-no-π">PE has no π</a></li>
+    <li><a href="#use-t-to-sample-points">Use t to sample points</a></li>
+    <li><a href="#t-or-z-sampling">t or z sampling</a></li>
+    <li><a href="#rays-in-nerf">Rays in NeRF</a></li>
+    <li><a href="#bdsmin">bds.min</a></li>
+    <li><a href="#get_rays">get_rays()</a></li>
+    <li><a href="#dist">dist</a></li>
+    <li><a href="#errors">Errors</a>
+      <ol>
+        <li><a href="#mogrify-error">mogrify error</a></li>
+        <li><a href="#imread_v2-error">imread_v2() error</a></li>
+        <li><a href="#blas-gemm-launch-failed">Blas GEMM launch failed</a></li>
+      </ol>
+    </li>
+    <li><a href="#lego-ply">Lego ply</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/nerfs/b-note-nerf_code_notes/">read: NeRF | Code</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 17, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    10 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>(2022-07-20)</p>
+<h2 id="hyper-params">Hyper-params</h2>
+<ol>
+<li>
+<p><code>N_rand</code> 或 <code>batch_rays</code> 是一个 epoch/iteration 要训练的光线, <code>no_batching</code>是每epoch只从一张图中选像素训练，False则打乱所有图像的像素（<strong>都与test阶段渲染全图无关</strong>）。</p>
+<p>llff 使用了batching，每一个 epoch 使用的(4096)光线来自所有训练图像；而blender 不batching，每epoch只从一张图中取光线，所以N_rand 也较小(1024)，有人说是因为 blender 包含360度的图片，可能会采到完全对立的两条光线（一个从正面看，一个从反面看），可能影响训练（影响density分布？）。<a class="link" href="https://www.bilibili.com/video/BV1d841187tn?t=674.6"  target="_blank" rel="noopener"
+    >NeRF源码解析-什度学习</a></p>
+</li>
+<li>
+<p><code>N_samples</code>决定每条光线上的采样点数量和NeRF的渲染质量;</p>
+</li>
+<li>
+<p><code>chunk</code>是model一次计算的rays, <code>netchunk</code> 是实际每次输入model的3D points量（模型的train和test都与它们有关）。 chunk 和 netchunk 是两层循环。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Select N_rand rays for training. </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Or input all rays in an image (H,W) for rendering</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="n">rays</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="n">each</span> <span class="n">ray</span><span class="o">-</span><span class="n">chunk</span> <span class="ow">in</span> <span class="n">rays</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span> <span class="o">=</span> <span class="n">render_rays</span><span class="p">(</span><span class="n">ray</span><span class="o">-</span><span class="n">chunk</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">render_rays</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">      <span class="c1"># Sampling 3D points and do PE</span>
+</span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="n">each</span> <span class="n">point</span><span class="o">-</span><span class="n">netchunk</span> <span class="ow">in</span> <span class="nb">all</span> <span class="n">points</span> <span class="n">of</span> <span class="n">this</span> <span class="n">ray</span><span class="o">-</span><span class="n">chunk</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">raw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">pts</span><span class="o">-</span><span class="n">netchunk</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Collect ret for each ray-chunk</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ret_list</span><span class="o">.</span><span class="n">append</span><span class="p">[</span><span class="n">ret</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># All rays are composed:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">all_ret</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ret_list</span><span class="p">)</span>   <span class="c1"># for N_rand or (H,W) rays</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>chunk</code>（光线）和<code>netchunk</code>（点）可依显存大小调整。当N_rand相同，而 netchunk 不同，曲线几乎重叠(~0.03)，只影响训练速度。</p>
+<p>虽预设chunk=1024x32，但<code>N_rand (batch_rays)</code>预设只有1024，所以实际输入model的光线是1024，则输入coarse model 的数据点有1024x64个（真正的&rsquo;batch_size&rsquo;），<del>当通过attention layer时，要创建一个 (65536,128,128) 张量要用1.07G</del> （不，tf先创建计算图，PE函数占了8个G，其他的显存应该是返回值(tensor)占的）</p>
+</li>
+<li>
+<p>ndc 在<code>render()</code>中默认为True，只有当数据集不是llff类型，或指定不使用ndc（<code>--no_ndc</code>）时，参数字典会添加一项<code>ndc=False</code>。</p>
+</li>
+<li>
+<p>lindisp = False 则是对深度（世界空间:[near,far]或者ndc空间:[0,1]）线性采样；为True 则对 1/depth 线性采样</p>
+</li>
+<li>
+<p>testskip 不影响llff, 也不影响 train 集（逐张训练），跑 val 集和 test 集会跳过图片。</p>
+</li>
+<li>
+<p><code>factor</code>是 llff 数据集在 <code>load_llff_data()</code> 时的 shrink 倍数，
+<code>half_res</code>影响 blender(和deepVoxel)数据集；
+<code>render_factor</code>是test阶段(<code>render_path()</code>)的渲染分辨率</p>
+</li>
+<li>
+<p><code>random_seed</code> 在test阶段不起作用(perturb=False,raw_noise_std=0)。
+在train 时，(use_batching) 会打乱所有像素，(no_batching)会随机选图片和像素, 在density上加随机noise，在光线采样时加入随机perturb。</p>
+</li>
+<li>
+<p><code>perturb</code> 和 <code>raw_noise_std</code> 在 test (<code>--render_only</code>, <code>render_path()</code>) 渲染阶段都是0。</p>
+</li>
+</ol>
+<hr>
+<h2 id="oom">OOM</h2>
+<p>3 similar variables:</p>
+<ol>
+<li>
+<p><code>N_rand</code> is the #rays used for 1 &ldquo;epoch&rdquo; to train</p>
+</li>
+<li>
+<p><code>chunk</code> is the #rays to do <code>render_rays()</code> in a <code>for</code> loop, where points will be sampled to do positional embedding (fine stage has double pts to do PE.),</p>
+<ul>
+<li>
+<p>The <code>embedded_fn()</code> in coarse stage takes 2G meomery;
+The <code>embedded_dirs()</code> in coarse stage takes 2G;
+And the fine stage takes another 4G.
+NeRF model takes 357 MB.</p>
+</li>
+<li>
+<p>Dict <code>all_ret</code> contains all the returend values from model.
+In the 12th iteration of <code>render_rays()</code> after coarse stage, VRAM becomes 10763 MB from 8465 MB and then OOM, where I returned 3 additional tensors: <code>pts</code>, <code>viewdirs</code>, <code>z_vals</code>.
+So the return value seems to occupy memory as well.</p>
+</li>
+<li>
+<p>But if keeping the original settings where fewer tensors are returned, it becomes 10763 MB when finishing the ray-chunk <code>for</code> loop (32768 ray x 23 chunks) in <code>batchify_rays()</code>.</p>
+</li>
+<li>
+<p>Memory change: 485 MB ⮕ 2277 MB ⮕ 4369 MB ⮕ 8465 MB</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>netchunk</code> is the #pts fed into model.</p>
+</li>
+</ol>
+<p><code>retraw</code> is one of the reasons:</p>
+<ul>
+<li>With setting <code>--render_only</code> and <code>--factor=4</code>, if <code>retraw=True</code>, OOM occurs at the line <code>all_ret = {k: tf.concat(all_ret[k], 0) for k in all_ret}</code> in <code>batchify_ray()</code>.
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">rgb</span><span class="p">,</span> <span class="n">disp</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">extras</span> <span class="o">=</span> <span class="n">render</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">focal</span><span class="p">,</span> <span class="n">chunk</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">c2w</span><span class="o">=</span><span class="n">c2w</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">4</span><span class="p">],</span> <span class="n">retraw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">render_kwargs</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>This shows that the returned values indeed take some memory.</li>
+</ul>
+<hr>
+<p>(2022-12-26)</p>
+<h2 id="inverse-transform-sampling">Inverse transform sampling</h2>
+<p><code>sample_pdf(z_vals_mid, color_weights[...,1:-1],N_importance,)</code> <a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/run_nerf_helpers.py#L183"  target="_blank" rel="noopener"
+    >code</a></p>
+<ul>
+<li>
+<p>PDF is the proportion of the color-weight of a point to the sum of all weights on a ray.
+Each point has a ratio indicating how much of its color contributes to the pixel color.
+(They exclueded the start and end pts, and may only focus on the distribution of the middle part.)</p>
+</li>
+<li>
+<p>CDF tells how much the color has been rendered up to the current point.
+The input of CDF is the color-weight of a point, and its output is the cumulative weight from <code>ro</code> to that point. The weights will be accumulated to 1.
+So coarse net learns the weights CDF roughly. And fine sampling is based on the CDF increment.</p>
+</li>
+<li>
+<p>(When testing) <code>N_importance</code> points <code>u</code> are selected evenly from [0,1] and they will fall into buckets spaced apart by CDFs of coarse points.
+The percentage of the position of <code>u</code> between the coarse point below and above it determines the distance marching from its corresponding left-neighbor z_vals_mid.
+The marching distance of a fine pts <code>z</code> is proportional to the increment of cdf.</p>
+</li>
+<li>
+<p>When the CDF rises faster, there are more samples because the steep slope makes many <code>u</code>s fall together.</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/model/nerfs/img/nerf_cdf.png width=>
+    
+    
+  
+
+<p>In the above figure, the vertical coordiantes are the uniformly sampled <code>u</code>.
+Horizontal x-ticks are coarse samples on a ray.
+Green markers <code>|</code> are midpoints of coarse samples&rsquo; z.
+Red points are fine samples.
+Red points are all start from a midpoint and march a distance which is proportional to the cdf increment of its corresponding <code>u</code>.</p>
+</li>
+<li>
+<p><code>tf.searchsorted(seq, values, side)</code> returns the bin-index for each value. <code>seq</code> defines a series of bins, and <code>values</code> are assigned to bin-indices based on the edges listed in seq. <code>side</code> indicates whether the index of a bin is marked by its left or right edge.
+For example: edges = [-1, 3.3, 9.1, 10.0]; values = [0.0, 4.1, 12.0], return array([1,2,4]) <a class="link" href="https://www.tensorflow.org/api_docs/python/tf/searchsorted"  target="_blank" rel="noopener"
+    >more</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">    0         1                2    3        4
+</span></span><span class="line"><span class="cl">————|———●—————|————●———————————|————|————●————
+</span></span><span class="line"><span class="cl">   -1   0    3.3  4.1         9.1   10   12
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<hr>
+<p>(2022-06-15)</p>
+<h2 id="pe-has-no-π">PE has no π</h2>
+<p><a class="link" href="https://github.com/bmild/nerf/issues/12"  target="_blank" rel="noopener"
+    >(pi in positional embedding? #12)</a></p>
+<p>世界坐标系下的 z（通过 projectmatrix 的第3行）从 (-near,-∞) 的范围缩放到了ndc坐标的[-1,1]，x,y并没有参与z的缩放，x,y是依据屏幕大小缩放的，如果 scene 不能被一个屏幕装下（一幅image没有把scene拍全），屏幕外的点的坐标是在[-1,1]范围外的：比如 scene 的范围是[-1.5, 1.5]，然后在embed时乘上π，则最低频时的定义域为 [-1.5π, 1.5π]，因为周期性，多个x可能对应同一个y，导致重复嵌入，所以再缩放一个π，定义域变为[-1.5,1.5]，在这段区间上是单调的，不同的x被编码后的值是不同的。
+<a class="link" href="https://www.bilibili.com/video/BV1a44y1V7KR"  target="_blank" rel="noopener"
+    >nerf代码分享-爱睡觉的人人-bili</a></p>
+<div align="center">
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/nerfs/img/nerf_scale_PosEnc.png width=>
+  
+  
+
+</div>
+<hr>
+<p>(2022-06-15)</p>
+<h2 id="use-t-to-sample-points">Use t to sample points</h2>
+<p>使用中间量 t 是为了统一 LLFF 场景和 blender 场景对光线采样的代码（llff的光线长度z∈[0,1]，blender的光线长度z∈[near,far]）。</p>
+<p>blender场景边界有限可以直接对光线长度采样，但是 llff 场景光线无限长（直接采点效果不好？），需要先将场景的世界系变换为NDC系（只对llff场景有效），左乘 projection matrix 使世界系的z方向边界坐标[-near,-far]变为[-1,1]。</p>
+<p>则世界系中的rays表达式: 𝐫=𝐨+t𝐝 变成了 𝐫=𝐨&rsquo;+t&rsquo;𝐝&rsquo; (起点𝐨&rsquo;和方向𝐝&rsquo;都是near,far的函数)；
+令𝐨&rsquo;=𝐨，则(世界)光线长度t∈[0,∞] 变成(NDC)光线长度 t&rsquo;∈[0,1] <sup><a class="link" href="https://arxiv.org/pdf/2003.08934.pdf"  target="_blank" rel="noopener"
+    >附录公式15</a></sup>。
+后面就可以通过对 t&rsquo;∈[0,1] 采样，来对世界系中的各条光线采样（不是对世界空间的z轴采样，而是在各条光线上采样）。</p>
+<ul>
+<li>
+<p>在对世界光线做 NDC 变换前，把各条光线的起点 𝐨 转移到其与近平面 (z_world=-near) 的交点处，这样变换到NDC后，光线长度t&rsquo;=0 就对应着 -near，只会对各条光线落在z_world∈[-near,-far]的部分采样。在从世界系变到NDC中光线(𝐨&rsquo;和𝐝&rsquo;)时，认为near平面在z_world=1处(函数<code>ndc_rays()</code>的参数), far平面在 z_world=∞ 处 (公式23,24)。
+(作者在issue34解释说:) 因为NDC的z轴是按 1/depth 线性变化的，所以世界系-far=∞没关系（变到ndc中就是far=1），只会稍微降低采样效率。</p>
+</li>
+<li>
+<p>确定好ndc光线后，把near,far重新赋值为光线长度的取值范围（llff 的NDC中光线长度的取值范围只能是[0,1]，而blender场景的光线长度范围就是世界系的[near,far]），用于在各光线上采样，再根据光线公式𝐨&rsquo;+z⋅𝐝&rsquo;得到采样点的3D坐标。（near,far不是depth深度范围，而是射线长度。）
+<a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/run_nerf.py#L185"  target="_blank" rel="noopener"
+    >nerf code</a></p>
+</li>
+</ul>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/nerfs/img/nerf_ndc_rays.png width=>
+  
+  
+
+
+<p>near,far本来只是长度，在nerf中，世界系(avg_camera)与相机系z轴重合，scene落在-z方向，所以近远边界的 <strong>世界坐标</strong> 为-near,-far，而ndc的z轴方向是相机观测方向，近远平面的ndc坐标=-1,1。</p>
+<hr>
+<p>(2023-05-25)</p>
+<h2 id="t-or-z-sampling">t or z sampling</h2>
+<p>When sampling points:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">pts</span> <span class="o">=</span> <span class="n">rays_o</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="kc">None</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">rays_d</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="kc">None</span><span class="p">,:]</span> <span class="o">*</span> <span class="n">z_vals</span><span class="p">[</span><span class="o">...</span><span class="p">,:,</span><span class="kc">None</span><span class="p">]</span>  <span class="c1"># [N_rays, N_samples, 3]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>这里rays_d要是没有归一化，直接就是 K逆*(u,v,1)，那这里z_vals 就是到成像平面距离；如果归一化了，那就是到光心距离 &ndash; will. (QQ chat 2023-05-25T04:09:00)
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/nerfs/img/nerf_t_z_sampling.jpg width=>
+  
+  
+
+</p>
+</blockquote>
+<blockquote>
+<p>基于数据集给定的深度直接映射三维点，远端会膨胀，投影到z轴上几何就正常了，所以NeRF出来的深度是视点到三维点的距离 &ndash; 哈哈
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/nerfs/img/qq_%E7%9F%AB%E6%AD%A3%E6%B7%B1%E5%BA%A6.jpg width=>
+  
+  
+
+</p>
+</blockquote>
+<hr>
+<p>(2022-06-15)</p>
+<h2 id="rays-in-nerf">Rays in NeRF</h2>
+<p>对光线的处理：(camera ➔ world (avg camera) ➔ ndc)</p>
+<ol>
+<li>
+<p>构造（世界系中的）光线：<code>rays=get_rays_np(c2w) -&gt; (ro+rd, 3)</code></p>
+<ul>
+<li>像素系(u,v) ➔ 成像平面系(u-cx, v-cy) ➔ unproj2相机系(x=u-cx/f, y=-(v-cy)/f, z=-1) ➔ ∗c2w（&ldquo;世界系&rdquo;），这里取平均相机系作为“世界系”。只有把光线变换到一个共同的&quot;世界系&quot;下才能用不同视图对同一 3D point 做优化。</li>
+<li>传入的<code>c2w</code>=poses[:,:3,:4] 是从 <code>load_llff_data()</code>返回，其中函数<code>recenter_poses()</code>/<code>spherify_poses()</code>调整原poses，让它们能够把点变换到&quot;新世界系&quot;下。（NeRF代码中的poses全是c2w变换）
+<ol>
+<li><code>avgc_2w=poses_avg(poses)</code>，平均相机系➔世界系</li>
+<li><code>poses=np.linalg.inv(avgc_2w)@poses</code>，相机系➔世界系➔平均相机系(&lsquo;新世界系&rsquo;)</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>渲染（世界系中的）光线：<code>rgb=render(batch_rays)</code></p>
+<ul>
+<li>ro, rd = ndc_rays(near, ro, rd)，光线的世界坐标变NDC</li>
+<li>all_ret = batchify_rays(rays,chunk)；在<code>render_rays()</code>中，从NDC的 [near,far] 采样z</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>
+<p>不直接使用 colmap 生成的c2w，因为 colmap (sfm) 中的世界系是由输入序列的第一帧确定的，但第一帧的方向是随机的，不一定正对scene，场景就重建不全，后面帧的 poses (列向量)都是相机在世界系中的表示
+<sup><a class="link" href="https://www.bilibili.com/video/BV1a44y1V7KR?&amp;t=960.9"  target="_blank" rel="noopener"
+    >爱睡觉人人16:00</a></sup>。</p>
+</li>
+<li>
+<p>从像素平面构建出的 rays 是沿着相机系的-z轴的（观测方向，即景物在相机z轴的背面），也就是NDC的Z轴方向(ndc假设)；把光线变到平均相机系(世界系)下后，再变换到NDC，则scene就落在NDC的正半z轴上（之后都使用ndc坐标）。
+<del>因为 NDC 假设相机是沿 -z 方向观察，所以取各相机z轴反方向的平均，作为NDC的z轴方向。 因为光线先被变换到世界系下，再把世界系变为NDC（而OpenGL是把相机系变换到ndc），所以世界系的z轴与NDC的z轴一样看向scene。</del>
+<a class="link" href="https://github.com/bmild/nerf/issues/34"  target="_blank" rel="noopener"
+    >nerf-issue#34 LLFF data preprocessing</a></p>
+</li>
+<li>
+<p>求平均相机系(在世界系下的表示) <a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L166-L178"  target="_blank" rel="noopener"
+    ><code>recenter_poses</code></a>：
+相机光心的坐标直接对第4列取平均得到；旋转矩阵R分为3个列向量：各相机z轴取平均，再使用右手定则确定x,y。
+把4个列向量x,y,z轴和光心 concat 起来就是平均相机系在世界系中的表示，就是c2w。c2w 求逆得 w2c。
+原poses 把相机系中点变换到世界系下，再由w2c变换到平均相机系(‘新世界系’)下。</p>
+<p>
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/model/nerfs/img/nerf_recenter_poses.png width=>
+    
+    
+  
+(矩阵的列名是源系, 行名是目标系, 变换顺序为从&rsquo;列&rsquo;到&rsquo;行&rsquo;, 每列的意义是&rsquo;源&rsquo; seen from &lsquo;目标系&rsquo;)</p>
+</li>
+<li>
+<p>对poses $\begin{bmatrix}  R &amp; t \\ 0 &amp; 1 \end{bmatrix}$ 求逆时，R转置，t 会有一点变化，最后一行还是0001。</p>
+<p>(2024-03-29)</p>
+<ul>
+<li>
+<p>对 c2w 求逆后，w2c 中的 t 等于 $-R_{c2w}^T t_{c2w}$. For example, given a 3D point p, suppose its world-space coordinates is P.
+And its camera-space coordinates is X. So, there is:</p>
+<p>$$
+\begin{bmatrix} R_{c2w} &amp; t_{c2w} \\ 0 &amp; 1 \end{bmatrix}
+\begin{bmatrix} X \\ 1 \end{bmatrix} = \begin{bmatrix} P \\ 1 \end{bmatrix}  \\
+R_{c2w} X + t_{c2w} = P  \\
+X = R_{c2w}^{-1} (P - t_{c2w})  \\
+X = \underbrace{R_{c2w}^T}_{R_{w2c}} P \underbrace{- R_{c2w}^T t_{c2w}}_{t_{w2c}}
+$$</p>
+</li>
+</ul>
+</li>
+<li>
+<p>doubt: rays_d = <a class="link" href="mailto:dir@c2w.T" >dir@c2w.T</a> 是怎么推导的? (c2w ∗ dir)ᵀ = dirᵀ ∗ c2wᵀ
+<a class="link" href="https://github.com/kwea123/nerf_pl/blob/c5910f84321eb5f72e3332507b0384f1b23f51f7/datasets/ray_utils.py#L42"  target="_blank" rel="noopener"
+    >nerf-pl</a>
+(2022-05-22)</p>
+</li>
+<li>
+<p>doubt: C2W 是 K[R|T] 的逆，colmap直接求出了？对</p>
+<p>c2w 中的 [R|T] 为：
+$$
+\begin{array}{ccc}  \qquad \rm Xcam \quad\quad Ycam \quad\quad Zcam \quad cam\ center\\
+\begin{bmatrix}
+0.989 &amp; -0.0224 &amp; -0.142 &amp; -3.67 \\
+-0.0272 &amp; -0.999 &amp; -0.0318 &amp; -1.603 \\
+-0.141 &amp; -0.0354 &amp; -0.989 &amp; -0.276  \end{bmatrix}  \end{array}
+$$</p>
+<ul>
+<li>构造 world 系中的光线即确定 ro 和 rd：ro就是 cam center 在world中的坐标，就等于c2w第4列 <code>ro=c2w[:3,-1]</code>，rd 是用像素(u,v)对应的相机系坐标(u,v,1)变换到world系下的坐标(xw,yw,zw)表示 <code>rd=c2w[:3,:3]@pixels_cam_coord</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="bdsmin">bds.min</h2>
+<ul>
+<li>在load数据时，缩放场景下界<code>bds.min()</code>和平移变量T（至<code>1./bd_factor</code>，R不需缩放）是为了以防场景太大，变换到 NDC 时超出 near 平面；虽然这里缩放后的边界不等于 near，但之后在<code>ndc_rays()</code>中会被缩放回 -near (-1)。<a class="link" href="" >issue#34</a></li>
+</ul>
+<hr>
+<p>(2022-06-03)</p>
+<h2 id="get_rays">get_rays()</h2>
+<p><code>get_rays()</code>从像素平面构建ray的方向向量dir：
+首先把像素坐标 (u,v) 反投影到相机系 (RUB) 下: (xₚ=(u-cx)/f, yₚ=-(v-cy)/f, zₚ=-1)，v轴与y轴反向，取这些点深度值=-1（如下图）。
+再乘以 c2w 变换到 world 坐标系下。从而一条光线在世界系中表示为：𝐫=𝐨+t𝐝）dir 与球坐标 φθ 没有关系。
+<a class="link" href="https://github.com/bmild/nerf/issues/24"  target="_blank" rel="noopener"
+    >nerf-issue#24: the direction in get_rays</a>；
+<a class="link" href="https://www.bilibili.com/video/BV1a44y1V7KR?t=247.4"  target="_blank" rel="noopener"
+    >爱睡觉人人04:07</a></p>
+  <div align="center">
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/nerfs/img/nerf_get_rays.png width=>
+  
+  
+
+</div>
+<ul>
+<li>
+<p>Colmap/OpenCV中的相机坐标系是 <code>[right | down | forwards]</code>，
+经过LLFF存储poses为 <code>[down|right|backwards]</code>，
+NeRF 在<code>_load_data()</code>读取后立即变换为 (OpenGL中的相机系) <code>[right | up | backwards]</code>。</p>
+<p><code>poses_bounds.npy</code>文件中是 <strong>camera-to-world！</strong>(而不是外参矩阵!) 每一行17个值，
+前15个值是3x5的pose matrix，最后2个值是near,far场景边界。
+一个 pose matrix 由5个列向量组成：cam down-axis, cam right-axis, cam back-axis, cam center, hwf(cam intrinsics)，
+前3列是世界系下的相机系。</p>
+<p><a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L62"  target="_blank" rel="noopener"
+    ><code>_load_data()</code></a>
+返回的 poses 是 reshape 后的(3,5,20), 索引 poses[:,1:2] 对应到matrix中的第2列。
+所以在 <a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L250"  target="_blank" rel="noopener"
+    >#250行</a>
+重新调整poses的&quot;行&quot;顺序，使R的列顺序(相机系)为：[right,up,back]。又在#251行把poses变回(20,3,5)
+<a class="link" href="https://github.com/fyusion/llff#using-your-own-poses-without-running-colmap"  target="_blank" rel="noopener"
+    >Using your own poses without running COLMAP-LLFF</a></p>
+<p>在后续工作中，把nerf使用的poses（经<code>load_llff_data()</code>处理，作用为cam-to-avg_cam），又变回OpenCV下的相机系（比如IBRNet,GNT）。
+如下图(from <a class="link" href="https://twitter.com/ziruiwang_ox/status/1515045717244624906?s=21&amp;t=oYLehxpqpcR8Xo5itM0OVA"  target="_blank" rel="noopener"
+    >Zirui Wang-Twitter</a>)</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/model/nerfs/img/nerf_coordinate_convertion.jpg width=>
+    
+    
+  
+
+</li>
+<li>
+<p>(2022-11-14) The direction of the constructed world rays <code>rays_d</code> should not be normalized to 1 when used for sampling points (where in nerf-pl is wrong <a class="link" href="https://youtu.be/sPQzudD-83c"  target="_blank" rel="noopener"
+    >confess</a>).
+Original nerf didn&rsquo;t normalize in <a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/run_nerf_helpers.py#L128"  target="_blank" rel="noopener"
+    >get_rays()</a>.
+Because the points are sampled based on z, so they locate on parallel planes. If the directions are normalized, the plane will become a sphere.<br></p>
+<p>
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/model/nerfs/img/nerf_get_rays_2.png width=>
+    
+    
+  
+<br></p>
+<p>But the <code>viewdirs</code> is normalized when it used as the model input (See run_nerf.py line#306).
+<code>viewdir</code> is the normalized <code>rd</code>.</p>
+</li>
+</ul>
+<hr>
+<h2 id="dist">dist</h2>
+<p><code>dists</code> are intervals between [near,far] and used for transforming the density σ (activation) to opacity α of each interval on the ray: α=(1-e⁻ʳᵉˡᵘ⁽⁶ ᕁ ᵈⁱˢᵗ⁾), because the opacity is proportional to distance (&ldquo;thickness&rdquo;). The dists can be equal when no perturb, so if density is high like around the surface, the opacity is close to 1. And the color coefficient: w=(1-α) ∏ₜ₌₁ᵗ⁻¹ αₜ is monotonically decreasing, so the further a point is, the smaller its color coeff will be until 0.</p>
+<ul>
+<li>The derivative of color weight at the surface point t∗ is not zero: $dw(t^∗)/dt &lt; 0$ (see Neus proof). Hence, the minia is not on the surface.</li>
+</ul>
+<hr>
+<h2 id="errors">Errors</h2>
+<p>(2023-05-13)</p>
+<h3 id="mogrify-error">mogrify error</h3>
+<p>A new environment is created on Ubuntu 22.04. The package imagemagick is installed in the env <code>nerf</code> by checking <code>conda list</code>.
+But when I debug the code in vscode, the shell <code>/bin/sh</code> cannot found the command <code>mogrify</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Fixing random seed <span class="m">2201</span>
+</span></span><span class="line"><span class="cl">Minifying <span class="m">64</span> ./data/nerf_llff_data/fern
+</span></span><span class="line"><span class="cl">mogrify -resize 1.5625% -format png *.JPG
+</span></span><span class="line"><span class="cl">/bin/sh: 1: mogrify: not found
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Testing in a terminal, if the env is <code>(nerf)</code>, executing the command: <code>/bin/sh -c mogrify</code> is okay and it will prompt the optional arguments.</p>
+<p>But if the env is <code>(base)</code>, executing <code>/bin/sh -c mogrify</code>, the same error occurs: <code>/bin/sh: 1: mogrify: not found</code>.</p>
+<ol>
+<li>
+<p>I found a Chinese post for the same problem. He installed imagemagick again: <code>sudo apt install imagemagick</code> <a class="link" href="https://blog.csdn.net/nguever15/article/details/123827398"  target="_blank" rel="noopener"
+    >【NeRF】在yenchenlin/nerf-pytorch上运行新的数据集</a></p>
+</li>
+<li>
+<p>For this CalledProcessError <code>&quot;/bin/sh: 1: MY_COMMAND: not found&quot;</code> problem, some people suggest to create a link to /usr/bin, e.g., <a class="link" href="https://www.linux.org/threads/bin-sh-1-grub2-mkrescue-not-found-make-makefile-31-build-hello-iso-error-127.39043/"  target="_blank" rel="noopener"
+    >linux.org</a>
+and <a class="link" href="https://techcommunity.microsoft.com/t5/azure/i-get-the-error-quot-bin-sh-1-powershell-not-found-quot-in/m-p/2116206"  target="_blank" rel="noopener"
+    >ms-community</a></p>
+</li>
+<li>
+<p><code>mogrify</code> doesn&rsquo;t exist in /opt or /usr as the command <code>find /opt /usr -name magick</code> didn&rsquo;t return anything. <a class="link" href="https://stackoverflow.com/a/75624709/18003182"  target="_blank" rel="noopener"
+    >mogrify command not found (homebrew)</a></p>
+<p>mogrify only exits in:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>nerf<span class="o">)</span> w@homepc:~$ find ~/anaconda3 -name mogrify
+</span></span><span class="line"><span class="cl">/home/w/anaconda3/pkgs/imagemagick-7.1.1_5-pl5321h211c493_1/bin/mogrify
+</span></span><span class="line"><span class="cl">/home/w/anaconda3/envs/nerf/bin/mogrify
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p>Therefore, maybe the debugger of vscode will only search in the /usr/bin (without searching the newly created virtrual envs) ?
+But the interperter of VScode is indeed shown as <code>Python 3.7.12 ('nerf') ~/anaconda3/envs/nerf/bin/python</code>. I don&rsquo;t know &hellip;</p>
+<p>Solutions:</p>
+<ol>
+<li>Creat a symbolic link <code>sudo ln -s ~/anaconda3/envs/nerf/bin/mogrify /usr/bin/mogrify</code>, then that error disappeared.</li>
+<li><code>apt install imagemagick</code> works too because it creates a binary in /usr/bin, which will be found by &ldquo;/bin/sh&rdquo;.</li>
+<li>(Didn&rsquo;t try) Add the <code>~/anaconda3/envs/nerf/bin</code> into <code>PATH</code> by adding the line: <code>export PATH=$PATH:/home/zichen/anaconda3/envs/nerf/bin</code> in ~/.bashrc</li>
+</ol>
+<h3 id="imread_v2-error">imread_v2() error</h3>
+<p>The version of imageio in this env is 2.28.1. And it&rsquo;s 2.19.0 in my lab server.
+When reading images:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">imread</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;png&#39;</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">imageio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ignoregamma</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">read<span class="o">()</span> got an unexpected keyword argument <span class="s1">&#39;ignoregamma&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Maybe I can remove that argument. But I chose to downgraded the package: <code>conda install imageio=2.19.0</code>.</p>
+<hr>
+<p>(2023-05-14)</p>
+<h3 id="blas-gemm-launch-failed">Blas GEMM launch failed</h3>
+<p>Matrices cannot be multiplied at the 1st layer, but the input data and the coarse model both are correct.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">ret</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span> <span class="c1"># inputs:(N_rays*N_samples, 90); ret: (n_inputs, 4)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">fn</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">chunk</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">chunk</span><span class="p">)],</span> <span class="mi">0</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Error message:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">tensorflow.python.eager.core._NotOkStatusException: InternalError: Blas GEMM launch failed : a.shape<span class="o">=(</span>65536, 63<span class="o">)</span>, b.shape<span class="o">=(</span>63, 256<span class="o">)</span>, <span class="nv">m</span><span class="o">=</span>65536, <span class="nv">n</span><span class="o">=</span>256, <span class="nv">k</span><span class="o">=</span><span class="m">63</span> <span class="o">[</span>Op:MatMul<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p>Reboot doesn&rsquo;t work. (Verified: nothing to with imagemagick.)</p>
+</li>
+<li>
+<p><code>nvidia-smi</code> doesn&rsquo;t show another process (notebooks, pycharm) using GPU besides Xorg and gnome-shell.</p>
+</li>
+<li>
+<p>Nvidia suggested 30 series card to use CUDA 11.2 or newer. <a class="link" href="https://forums.developer.nvidia.com/t/error-internal-blas-gemm-launch-failed/212936"  target="_blank" rel="noopener"
+    >Error Internal: Blas GEMM launch failed</a>
+<a class="link" href="https://www.zhihu.com/question/452374165"  target="_blank" rel="noopener"
+    >30系显卡不兼容?-知乎</a>;
+<a class="link" href="https://discourse.mozilla.org/t/problems-training-on-rtx3080/68966/7"  target="_blank" rel="noopener"
+    >Problems Training on RTX3080 - DeepSpeech - Mozilla Discourse</a></p>
+</li>
+<li>
+<p>Solution is using tf1.15 maintained by Nvidia <a class="link" href="https://www.pugetsystems.com/labs/hpc/How-To-Install-TensorFlow-1-15-for-NVIDIA-RTX30-GPUs-without-docker-or-CUDA-install-2005/"  target="_blank" rel="noopener"
+    >Dr.Donald-2020-12-09</a>
+,referenced by this post <a class="link" href="https://community.dataiku.com/t5/Setup-Configuration/Error-with-Tensorflow-amp-GPU/m-p/15554"  target="_blank" rel="noopener"
+    >Solved: Error with Tensorflow &amp; GPU - Dataiku community</a>
+And this package requires Python 3.8, but nerf is using 3.7, so there is an error: <code>error: subprocess-exited-with-error</code>, when installing <code>pip install --user nvidia-tensorflow[horovod]</code> <a class="link" href="https://github.com/NVIDIA/tensorflow/issues/15"  target="_blank" rel="noopener"
+    >issue#15</a>
+However, if I directly downgrade <code>conda install python=3.8</code>, there will be too many conflict error. Also modifying environment.yml and creating based on that doesn&rsquo;t work neither.</p>
+<p>Base on the answer on <a class="link" href="https://stackoverflow.com/a/48594778/18003182"  target="_blank" rel="noopener"
+    >SO</a>, I create a new env:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda create -n nerf-nvtf <span class="nv">python</span><span class="o">=</span>3.8
+</span></span><span class="line"><span class="cl">conda activate nerf-nvtf
+</span></span><span class="line"><span class="cl">pip install --user nvidia-pyindex
+</span></span><span class="line"><span class="cl"><span class="c1"># conda install -c conda-forge openmpi # for multi-GPU</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/anaconda3/envs/nerf/lib/</span>
+</span></span><span class="line"><span class="cl">pip install --user nvidia-tensorflow<span class="o">[</span>horovod<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Then I tried <code>import tensorflow</code> works.
+But once I installed other packages:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda install numpy matplotlib imageio imageio-ffmpeg configargparse imagemagick
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Then <code>import tensorflow</code> cannot find the module.</p>
+<p>Is this problem caused by the following modificaitons?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">The following packages will be REMOVED:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  libgomp-11.2.0-h1234567_1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">The following packages will be UPDATED:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  libgcc-ng          anaconda/pkgs/main::libgcc-ng-11.2.0-~ --&gt; anaconda/cloud/conda-forge::libgcc-ng-12.2.0-h65d4601_19 
+</span></span><span class="line"><span class="cl">  libstdcxx-ng       anaconda/pkgs/main::libstdcxx-ng-11.2~ --&gt; anaconda/cloud/conda-forge::libstdcxx-ng-12.2.0-h46fd767_19 
+</span></span><span class="line"><span class="cl">  zlib               anaconda/pkgs/main::zlib-1.2.13-h5eee~ --&gt; anaconda/cloud/conda-forge::zlib-1.2.13-h166bdaf_4 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">The following packages will be SUPERSEDED by a higher-priority channel:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  _libgcc_mutex      anaconda/pkgs/main::_libgcc_mutex-0.1~ --&gt; anaconda/cloud/conda-forge::_libgcc_mutex-0.1-conda_forge 
+</span></span><span class="line"><span class="cl">  _openmp_mutex      anaconda/pkgs/main::_openmp_mutex-5.1~ --&gt; anaconda/cloud/conda-forge::_openmp_mutex-4.5-2_kmp_llvm 
+</span></span><span class="line"><span class="cl">  python             anaconda/pkgs/main::python-3.8.16-h7a~ --&gt; anaconda/cloud/conda-forge::python-3.8.16-0_73_pypy
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>I tried to remove those packages, but there&rsquo;s a long waitting.</p>
+<p>So I create a new environment:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda create -n nerf-nvtf-1.15 <span class="nv">python</span><span class="o">=</span>3.8
+</span></span><span class="line"><span class="cl">conda activate nerf-nvtf-1.15
+</span></span><span class="line"><span class="cl">pip install --user nvidia-pyindex
+</span></span><span class="line"><span class="cl">pip install --user nvidia-tensorflow<span class="o">[</span>horovod<span class="o">]</span>
+</span></span><span class="line"><span class="cl">pip install <span class="s1">&#39;imageio==2.19.0&#39;</span> configargparse
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Then the code can run normally.</p>
+</li>
+</ol>
+<hr>
+<h2 id="lego-ply">Lego ply</h2>
+<p>(2024-04-03)</p>
+<p>The <code>points3d.ply</code> opened in Meshlab is a cube.</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/nerfs/img/lego_ply.jpg width=>
+  
+  
+
+
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/nerf/">NeRF</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/writenotes/model/nerfs/b-note-nerf_bmild/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg" loading="lazy" data-key="" data-hash="https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: NeRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Pytorch 保存模型与加载模型 保存和加载模型
+保存模型与加载
+使用的三个核心功能：
+torch.save 将序列化对象保存到磁盘。此函数调用pickle模块把（模型、tensor、字典等）对象序列化。 torch.load 函数调用pickle的unpickling功能把文件反序列化到内存。 torch.nn.Module.load_state_dict 调用反序列化函数state_dict加载模型的参数字典。 1. 状态字典 state_dict 模型的state_dict包括：各层网络的可学习参数（权重和偏置），优化器的state_dict包括优化器的状态和超参数。 模型torch.nn.Module的可学习参数，用model.parameters()访问 2. 两种方式： 只保存网络中的参数（速度快，占空间少，推荐）
+1 2 3 4 5 6 7 #保存参数 torch.save(net1.state_dict(), &amp;#39;net_params.pt&amp;#39;) #或&amp;#39;.pth&amp;#39;,或&amp;#39;pkl&amp;#39; #加载 model = ModelClass(*args, **kwargs) #先实例化一个模型对象 model = model.load_state_dict(torch.load(PATH)) #把文件反序列化成字典对象，把参数传给模型 model.eval() #设置dropuout 和 batch normalization层为评估模式，否则可能导致模型推断结果不一致。 保存整个网络的结构和参数与加载：
+1 2 3 4 5 6 #保存 torch.save(net1, &amp;#39;net.pkl&amp;#39;) #加载 newmodel = torch.load(PATH) #不需重构模型，直接load newmodel.eval() 3. 保存和加载Checkpoint 用于推理/继续训练 保存训练状态：
+1 2 3 4 5 6 torch.'>
+<title>memo: PyTorch | Save Model</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/aml/projecttips/%E4%BF%9D%E5%AD%98%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: PyTorch | Save Model'>
+<meta property='og:description' content='Pytorch 保存模型与加载模型 保存和加载模型
+保存模型与加载
+使用的三个核心功能：
+torch.save 将序列化对象保存到磁盘。此函数调用pickle模块把（模型、tensor、字典等）对象序列化。 torch.load 函数调用pickle的unpickling功能把文件反序列化到内存。 torch.nn.Module.load_state_dict 调用反序列化函数state_dict加载模型的参数字典。 1. 状态字典 state_dict 模型的state_dict包括：各层网络的可学习参数（权重和偏置），优化器的state_dict包括优化器的状态和超参数。 模型torch.nn.Module的可学习参数，用model.parameters()访问 2. 两种方式： 只保存网络中的参数（速度快，占空间少，推荐）
+1 2 3 4 5 6 7 #保存参数 torch.save(net1.state_dict(), &amp;#39;net_params.pt&amp;#39;) #或&amp;#39;.pth&amp;#39;,或&amp;#39;pkl&amp;#39; #加载 model = ModelClass(*args, **kwargs) #先实例化一个模型对象 model = model.load_state_dict(torch.load(PATH)) #把文件反序列化成字典对象，把参数传给模型 model.eval() #设置dropuout 和 batch normalization层为评估模式，否则可能导致模型推断结果不一致。 保存整个网络的结构和参数与加载：
+1 2 3 4 5 6 #保存 torch.save(net1, &amp;#39;net.pkl&amp;#39;) #加载 newmodel = torch.load(PATH) #不需重构模型，直接load newmodel.eval() 3. 保存和加载Checkpoint 用于推理/继续训练 保存训练状态：
+1 2 3 4 5 6 torch.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/aml/projecttips/%E4%BF%9D%E5%AD%98%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2021-11-22T02:56:00&#43;00:00'/><meta property='article:modified_time' content='2021-11-22T02:56:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: PyTorch | Save Model">
+<meta name="twitter:description" content="Pytorch 保存模型与加载模型 保存和加载模型
+保存模型与加载
+使用的三个核心功能：
+torch.save 将序列化对象保存到磁盘。此函数调用pickle模块把（模型、tensor、字典等）对象序列化。 torch.load 函数调用pickle的unpickling功能把文件反序列化到内存。 torch.nn.Module.load_state_dict 调用反序列化函数state_dict加载模型的参数字典。 1. 状态字典 state_dict 模型的state_dict包括：各层网络的可学习参数（权重和偏置），优化器的state_dict包括优化器的状态和超参数。 模型torch.nn.Module的可学习参数，用model.parameters()访问 2. 两种方式： 只保存网络中的参数（速度快，占空间少，推荐）
+1 2 3 4 5 6 7 #保存参数 torch.save(net1.state_dict(), &amp;#39;net_params.pt&amp;#39;) #或&amp;#39;.pth&amp;#39;,或&amp;#39;pkl&amp;#39; #加载 model = ModelClass(*args, **kwargs) #先实例化一个模型对象 model = model.load_state_dict(torch.load(PATH)) #把文件反序列化成字典对象，把参数传给模型 model.eval() #设置dropuout 和 batch normalization层为评估模式，否则可能导致模型推断结果不一致。 保存整个网络的结构和参数与加载：
+1 2 3 4 5 6 #保存 torch.save(net1, &amp;#39;net.pkl&amp;#39;) #加载 newmodel = torch.load(PATH) #不需重构模型，直接load newmodel.eval() 3. 保存和加载Checkpoint 用于推理/继续训练 保存训练状态：
+1 2 3 4 5 6 torch.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#1-状态字典-state_dict">1. 状态字典 state_dict</a></li>
+        <li><a href="#2-两种方式">2. 两种方式：</a></li>
+        <li><a href="#3-保存和加载checkpoint-用于推理继续训练">3. 保存和加载Checkpoint 用于推理/继续训练</a></li>
+        <li><a href="#4-在一个文件中保存多个模型">4. 在一个文件中保存多个模型</a></li>
+        <li><a href="#5-使用在不同模型参数下的热启动模式">5. 使用在不同模型参数下的热启动模式</a></li>
+        <li><a href="#6通过设备保存加载模型">6.通过设备保存/加载模型</a>
+          <ol>
+            <li><a href="#61-保存到-cpu加载到-cpu">6.1 保存到 CPU、加载到 CPU</a></li>
+            <li><a href="#62-保存到-gpu加载到-gpu">6.2 保存到 GPU、加载到 GPU</a></li>
+            <li><a href="#63-保存到-cpu加载到-gpu">6.3 保存到 CPU，加载到 GPU</a></li>
+            <li><a href="#64-保存-torchnndataparallel-模型">6.4 保存 torch.nn.DataParallel 模型</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/aml/projecttips/%E4%BF%9D%E5%AD%98%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B/">memo: PyTorch | Save Model</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 22, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="https://zhuanlan.zhihu.com/p/38056115"  target="_blank" rel="noopener"
+    >Pytorch 保存模型与加载模型</a>
+<a class="link" href="https://pytorch123.com/ThirdSection/SaveModel/"  target="_blank" rel="noopener"
+    >保存和加载模型</a></p>
+<p>保存模型与加载</p>
+<p>使用的三个核心功能：</p>
+<ol>
+<li><code>torch.save</code> 将序列化对象保存到磁盘。此函数调用<code>pickle</code>模块把（模型、tensor、字典等）对象序列化。</li>
+<li><code>torch.load</code> 函数调用<code>pickle</code>的<code>unpickling</code>功能把文件反序列化到内存。</li>
+<li><code>torch.nn.Module.load_state_dict</code> 调用反序列化函数<code>state_dict</code>加载模型的参数字典。</li>
+</ol>
+<h3 id="1-状态字典-state_dict">1. 状态字典 state_dict</h3>
+<ul>
+<li>模型的state_dict包括：各层网络的可学习参数（权重和偏置），优化器的state_dict包括优化器的状态和超参数。</li>
+<li>模型<code>torch.nn.Module</code>的可学习参数，用<code>model.parameters()</code>访问</li>
+</ul>
+<h3 id="2-两种方式">2. 两种方式：</h3>
+<ol>
+<li>
+<p>只保存网络中的参数（速度快，占空间少，推荐）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#保存参数</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">net1</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="s1">&#39;net_params.pt&#39;</span><span class="p">)</span>   <span class="c1">#或&#39;.pth&#39;,或&#39;pkl&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#加载</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">ModelClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1">#先实例化一个模型对象</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">))</span>  <span class="c1">#把文件反序列化成字典对象，把参数传给模型</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span> <span class="c1">#设置dropuout 和 batch normalization层为评估模式，否则可能导致模型推断结果不一致。</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>保存整个网络的结构和参数与加载：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#保存</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">net1</span><span class="p">,</span> <span class="s1">&#39;net.pkl&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#加载</span>
+</span></span><span class="line"><span class="cl"><span class="n">newmodel</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span> <span class="c1">#不需重构模型，直接load</span>
+</span></span><span class="line"><span class="cl"><span class="n">newmodel</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<h3 id="3-保存和加载checkpoint-用于推理继续训练">3. 保存和加载Checkpoint 用于推理/继续训练</h3>
+<ul>
+<li>
+<p>保存训练状态：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">({</span><span class="s1">&#39;epoch&#39;</span><span class="p">:</span> <span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>     <span class="c1">#保存当前的迭代次数</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;model_state_dict&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="c1">#保存模型参数</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;optimizer_state_dict&#39;</span><span class="p">:</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="c1">#保存优化器参数</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="c1">#其余一些想保持的参数都可以添加进来</span>
+</span></span><span class="line"><span class="cl">            <span class="o">...</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span> <span class="n">PATH</span><span class="p">)</span>  <span class="c1">#后缀可以用 &#39;.pth.tar&#39;或 &#39;.pth&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>加载：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">ModelClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">OptimizerClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>       <span class="c1">#**</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;model_state_dict&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizer</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;optimizer_state_dict&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">epoch</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;epoch&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># - or -</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<p>。。。。。部分内容需公众号验证</p>
+<h3 id="4-在一个文件中保存多个模型">4. 在一个文件中保存多个模型</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 保存</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;modelA_state_dict&#39;</span><span class="p">:</span> <span class="n">modelA</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;modelB_state_dict&#39;</span><span class="p">:</span> <span class="n">modelB</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;optimizerA_state_dict&#39;</span><span class="p">:</span> <span class="n">optimizerA</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">            <span class="s1">&#39;optimizerB_state_dict&#39;</span><span class="p">:</span> <span class="n">optimizerB</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">            <span class="o">...</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span> <span class="n">PATH</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 加载</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelA</span> <span class="o">=</span> <span class="n">TheModelAClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelB</span> <span class="o">=</span> <span class="n">TheModelBClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizerA</span> <span class="o">=</span> <span class="n">TheOptimizerAClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizerB</span> <span class="o">=</span> <span class="n">TheOptimizerBClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelA</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;modelA_state_dict&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelB</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;modelB_state_dict&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizerA</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;optimizerA_state_dict&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizerB</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;optimizerB_state_dict&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">modelA</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelB</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># - or -</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelA</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelB</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当保存一个模型由多个torch.nn.Modules组成时，例如GAN(对抗生成网络)、sequence-to-sequence (序列到序列模型), 或者是多个模 型融合, 可以采用与保存常规检查点相同的方法。换句话说，保存每个模型的 state_dict 的字典和相对应的优化器。如前所述，可以通 过简单地将它们附加到字典的方式来保存任何其他项目，这样有助于恢复训练。</p>
+<p>PyTorch 中常见的保存 checkpoint 是使用 .tar 文件扩展名。</p>
+<p>要加载项目，首先需要初始化模型和优化器，然后使用torch.load()来加载本地字典。这里，你可以非常容易的通过简单查询字典来访问你所保存的项目。</p>
+<p>请记住在运行推理之前，务必调用model.eval()去设置 dropout 和 batch normalization 为评估。如果不这样做，有可能得到不一致的推断结果。 如果你想要恢复训练，请调用model.train()以确保这些层处于训练模式。</p>
+<h3 id="5-使用在不同模型参数下的热启动模式">5. 使用在不同模型参数下的热启动模式</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">保存</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">modelA</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">PATH</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">加载</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelB</span> <span class="o">=</span> <span class="n">TheModelBClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">modelB</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在迁移学习或训练新的复杂模型时，部分加载模型或加载部分模型是常见的情况。利用训练好的参数，有助于热启动训练过程，并希望帮助你的模型比从头开始训练能够更快地收敛。</p>
+<p>无论是从缺少某些键的 state_dict 加载还是从键的数目多于加载模型的 state_dict , 都可以通过在load_state_dict()函数中将strict参数设置为 False 来忽略非匹配键的函数。</p>
+<p>如果要将参数从一个层加载到另一个层，但是某些键不匹配，主要修改正在加载的 state_dict 中的参数键的名称以匹配要在加载到模型中的键即可。</p>
+<h3 id="6通过设备保存加载模型">6.通过设备保存/加载模型</h3>
+<h4 id="61-保存到-cpu加载到-cpu">6.1 保存到 CPU、加载到 CPU</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">保存
+</span></span><span class="line"><span class="cl">torch.save(model.state_dict(), PATH)
+</span></span><span class="line"><span class="cl">加载
+</span></span><span class="line"><span class="cl">device = torch.device(&#39;cpu&#39;)
+</span></span><span class="line"><span class="cl">model = TheModelClass(*args, **kwargs)
+</span></span><span class="line"><span class="cl">model.load_state_dict(torch.load(PATH, map_location=device))
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当从CPU上加载模型在GPU上训练时, 将torch.device(&lsquo;cpu&rsquo;)传递给torch.load()函数中的map_location参数.在这种情况下，使用 map_location参数将张量下的存储器动态的重新映射到CPU设备。</p>
+<h4 id="62-保存到-gpu加载到-gpu">6.2 保存到 GPU、加载到 GPU</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">保存</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">PATH</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">加载</span>
+</span></span><span class="line"><span class="cl"><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&#34;cuda&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">TheModelClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 确保在你提供给模型的任何输入张量上调用input = input.to(device)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当在GPU上训练并把模型保存在GPU，只需要使用model.to(torch.device(&lsquo;cuda&rsquo;))，将初始化的 model 转换为 CUDA 优化模型。另外，请 务必在所有模型输入上使用.to(torch.device(&lsquo;cuda&rsquo;))函数来为模型准备数据。请注意，调用my_tensor.to(device)会在GPU上返回my_tensor的副本。 因此，请记住手动覆盖张量：my_tensor= my_tensor.to(torch.device(&lsquo;cuda&rsquo;))。</p>
+<h4 id="63-保存到-cpu加载到-gpu">6.3 保存到 CPU，加载到 GPU</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">保存</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">PATH</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">加载</span>
+</span></span><span class="line"><span class="cl"><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&#34;cuda&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">TheModelClass</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">&#34;cuda:0&#34;</span><span class="p">))</span>  <span class="c1"># Choose whatever GPU device number you want</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 确保在你提供给模型的任何输入张量上调用input = input.to(device)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在CPU上训练好并保存的模型加载到GPU时，将torch.load()函数中的map_location参数设置为cuda:device_id。这会将模型加载到 指定的GPU设备。接下来，请务必调用model.to(torch.device(&lsquo;cuda&rsquo;))将模型的参数张量转换为 CUDA 张量。最后，确保在所有模型输入上使用 .to(torch.device(&lsquo;cuda&rsquo;))函数来为CUDA优化模型。请注意，调用my_tensor.to(device)会在GPU上返回my_tensor的新副本。它不会覆盖my_tensor。 因此， 请手动覆盖张量my_tensor = my_tensor.to(torch.device(&lsquo;cuda&rsquo;))。</p>
+<h4 id="64-保存-torchnndataparallel-模型">6.4 保存 torch.nn.DataParallel 模型</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">保存</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">PATH</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">加载</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 加载任何你想要的设备</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>torch.nn.DataParallel是一个模型封装，支持并行GPU使用。要普通保存 DataParallel 模型, 请保存model.module.state_dict()。 这样，你就可以非常灵活地以任何方式加载模型到你想要的设备中。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

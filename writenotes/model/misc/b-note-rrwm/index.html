@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Reweighted Random Walks for Graph Matching (ECCV-2010)'>
+<title>read: RRWM</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/misc/b-note-rrwm/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: RRWM'>
+<meta property='og:description' content='Reweighted Random Walks for Graph Matching (ECCV-2010)'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/misc/b-note-rrwm/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-07-06T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-07-06T00:00:00&#43;00:00'/><meta property='og:image' content='https://cv.snu.ac.kr/research/~RRWM/paper_teaser.jpg' />
+<meta name="twitter:title" content="read: RRWM">
+<meta name="twitter:description" content="Reweighted Random Walks for Graph Matching (ECCV-2010)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://cv.snu.ac.kr/research/~RRWM/paper_teaser.jpg' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#intuitive-from-shakil">Intuitive from Shakil</a>
+      <ol>
+        <li><a href="#goal">Goal</a></li>
+        <li><a href="#affinity-matrix">Affinity matrix</a></li>
+        <li><a href="#random-walk">Random walk</a></li>
+        <li><a href="#associate-graph">Associate graph</a></li>
+      </ol>
+    </li>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#random-walks-for-graph-matching">Random Walks for Graph Matching</a>
+      <ol>
+        <li><a href="#affinity-preserving-random-walk">Affinity preserving random walk</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/writenotes/model/misc/b-note-rrwm/">
+                
+                    <img src="https://cv.snu.ac.kr/research/~RRWM/paper_teaser.jpg" loading="lazy" alt="Featured image of post read: RRWM" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/misc/b-note-rrwm/">read: RRWM</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Reweighted Random Walks for Graph Matching (ECCV-2010)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 06, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="https://github.com/jlowenz/rrwm"  target="_blank" rel="noopener"
+    >Code-matlab</a>
+| <a class="link" href="https://github.com/gimme1dollar/reweighted_randomwalks_graph_matching"  target="_blank" rel="noopener"
+    >Code-python</a>
+| <a class="link" href="https://cv.snu.ac.kr/research/~RRWM/"  target="_blank" rel="noopener"
+    >paper</a></p>
+<h2 id="intuitive-from-shakil">Intuitive from Shakil</h2>
+<h3 id="goal">Goal</h3>
+<p>Find the true matched keypoints and identify the outliers.</p>
+<h3 id="affinity-matrix">Affinity matrix</h3>
+<p>Measure the difference between any two edges in two graphs.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 144 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 32,32 L 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,32 L 112,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,64 L 112,96' fill='none' stroke='currentColor'></path>
+<circle cx='32' cy='32' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='32' cy='64' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='112' cy='32' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='112' cy='64' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='112' cy='96' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='96' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>Q</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>c is the outlier. Nodes can be SIFT feature points.</p>
+<p>$$W_{1a,2b} = 12 - ab$$</p>
+<p>The index of each element is a notation representing if i was a and if j was b.</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>W</th>
+<th>1a</th>
+<th>1b</th>
+<th>1c</th>
+<th>2a</th>
+<th>2b</th>
+<th>2c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1a</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1b</td>
+<td></td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1c</td>
+<td></td>
+<td></td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2a</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2b</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>2c</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="random-walk">Random walk</h3>
+<p>Iterations will not walk out of the area, i.e., the middle area has higher probability.</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th></th>
+<th>a</th>
+<th>b</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>probability</th>
+<th>node</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.75</td>
+<td>a</td>
+</tr>
+<tr>
+<td>0.1</td>
+<td>b</td>
+</tr>
+<tr>
+<td>0.05</td>
+<td>c</td>
+</tr>
+<tr>
+<td>0.25</td>
+<td>a</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>b</td>
+</tr>
+<tr>
+<td>0.25</td>
+<td>c</td>
+</tr>
+</tbody>
+</table></div>
+<p>The initial probility for each point is the same: 1/6:</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>probability</th>
+<th>node</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.16</td>
+<td>a</td>
+</tr>
+<tr>
+<td>0.16</td>
+<td>b</td>
+</tr>
+<tr>
+<td>0.16</td>
+<td>c</td>
+</tr>
+<tr>
+<td>0.16</td>
+<td>a</td>
+</tr>
+<tr>
+<td>0.16</td>
+<td>b</td>
+</tr>
+<tr>
+<td>0.16</td>
+<td>c</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="associate-graph">Associate graph</h3>
+<hr>
+<p>(2023-07-09)</p>
+<h2 id="abstract">Abstract</h2>
+<ul>
+<li>Association graph consistitue of nodes representing <strong>correspondence</strong> between two graphs.</li>
+<li>Random walk select nodes to enforce real correspondence on the association graph.</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<ul>
+<li>
+<p>Previous work didn&rsquo;t make a objective function</p>
+</li>
+<li>
+<p>IQP is NP hard, so its solution needs approximation.</p>
+</li>
+<li>
+<p>Random walk view: rank the nodes on the association graph.</p>
+</li>
+<li>
+<p>Previous methods</p>
+<ol>
+<li>Tensor eigen decomposition</li>
+</ol>
+</li>
+</ul>
+<h2 id="problem">Problem</h2>
+<ul>
+<li>
+<p>Each graph have a set of nodes (vertices) 𝐕, edges 𝐄, and attributes 𝐀.</p>
+<ul>
+<li>node is local appearance of feature</li>
+<li>edge is geometrical relationship of two nodes.</li>
+</ul>
+</li>
+<li>
+<p>Matching two graphs is to find the correspondence of nodes in two graphs</p>
+</li>
+<li>
+<p>Affinity matrix 𝐖 is recording the compatibility of pairs of edges</p>
+<ul>
+<li>diagonal is unary affinity, e.g. $𝐖_{ia;ia}$, between one correspondence and itself.</li>
+<li>non-diagonal $𝐖_{ia;jb}$ is the affinity of a pair of correspondence: $(vᵢᴾ,\ vₐ^Q)$ and $(vⱼᴾ,\ v_b^Q)$</li>
+</ul>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>W</th>
+<th>ia</th>
+<th>ib</th>
+<th>ic</th>
+<th>ja</th>
+<th>jb</th>
+<th>jc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ia</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ib</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ic</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ja</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>jb</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>jc</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>Each row is fixing one correspondence in one pair of correspondences, and changing the other correspondence.</p>
+<p>For example, 1 corresponds to a is fixed, then the neighbor of 1 and a is changing:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 200 137"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 24,48 L 32,48' fill='none' stroke='currentColor'></path>
+<path d='M 32,48 L 40,48' fill='none' stroke='currentColor'></path>
+<path d='M 128,48 L 136,48' fill='none' stroke='currentColor'></path>
+<path d='M 136,48 L 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 24,80 L 32,80' fill='none' stroke='currentColor'></path>
+<path d='M 32,80 L 40,80' fill='none' stroke='currentColor'></path>
+<path d='M 128,80 L 136,80' fill='none' stroke='currentColor'></path>
+<path d='M 136,80 L 144,80' fill='none' stroke='currentColor'></path>
+<path d='M 128,112 L 136,112' fill='none' stroke='currentColor'></path>
+<path d='M 136,112 L 144,112' fill='none' stroke='currentColor'></path>
+<path d='M 8,16 L 8,32' fill='none' stroke='currentColor'></path>
+<path d='M 56,16 L 56,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,16 L 112,32' fill='none' stroke='currentColor'></path>
+<path d='M 160,16 L 160,32' fill='none' stroke='currentColor'></path>
+<polygon points='16.000000,32.000000 4.000000,26.400000 4.000000,37.599998' fill='currentColor' transform='rotate(90.000000, 8.000000, 32.000000)'></polygon>
+<polygon points='64.000000,32.000000 52.000000,26.400000 52.000000,37.599998' fill='currentColor' transform='rotate(90.000000, 56.000000, 32.000000)'></polygon>
+<polygon points='120.000000,32.000000 108.000000,26.400000 108.000000,37.599998' fill='currentColor' transform='rotate(90.000000, 112.000000, 32.000000)'></polygon>
+<polygon points='168.000000,32.000000 156.000000,26.400000 156.000000,37.599998' fill='currentColor' transform='rotate(90.000000, 160.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='56' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='112' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='160' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='160' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>e</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>The correspondence assignment is stored in assignment matrix 𝐗;</p>
+<ul>
+<li>where 1 means matched correspondence, while 0 means the two nodes are not matched.</li>
+</ul>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>x</th>
+<th>a</th>
+<th>b</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>i</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>j</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+</li>
+<li>
+<p>Column vector 𝐱 is the reshape of matrix 𝐗 with length of $nᴾ×n^Q$</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>x_ia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x_ib</td>
+</tr>
+<tr>
+<td>x_ic</td>
+</tr>
+<tr>
+<td>x_ja</td>
+</tr>
+<tr>
+<td>x_jb</td>
+</tr>
+<tr>
+<td>x_jc</td>
+</tr>
+</tbody>
+</table></div>
+</li>
+<li>
+<p>Indicator vector 𝐱* is the target by maximizing the score of 𝐱ᵀ𝐖𝐱</p>
+</li>
+</ul>
+<h2 id="random-walks-for-graph-matching">Random Walks for Graph Matching</h2>
+<p>Convert the affinity matrix to an association graph for random walk</p>
+<ul>
+<li>
+<p>Association graph $G^{rw}$ is made up by nodes that represents a correspondence between $Gᴾ$ and $G^Q$.</p>
+<p>For example, the correspondence $(vᵢᴾ,\ vₐ^Q)$ is node $v_{ia}$ on the association graph.</p>
+</li>
+<li>
+<p>so the edge attributes are the elements of affinity matrix 𝐖 ;</p>
+<p>For example, the edge $e_{ia; jb}$ on the association graph is the affinity $𝐖_{ia;jb}$</p>
+</li>
+<li>
+<p>Ranking the nodes of association graph by random walk process</p>
+</li>
+</ul>
+<h3 id="affinity-preserving-random-walk">Affinity preserving random walk</h3>
+<ul>
+<li>
+<p><strong>Random walk process</strong>:</p>
+<p>A walker starts off with an arbitrary node and select as the next step one of its out-going edges based on the Markov transition kernel.</p>
+</li>
+<li>
+<p><strong>Internet democracy</strong>:</p>
+<p>Total vote that every webpage has is 1. This is realized by dividing the weight of its every out-going edge by the total number of its out-going edges.</p>
+</li>
+<li>
+<p><strong>Row stochastic</strong>:</p>
+<p>On to the association graph, its edges set 𝐖 is supposed to be normalized by 𝐃. That is <strong>each row</strong> is divided by the sum of the affinity values in that row.
+Then the normalized affinity matrix is <strong>row stochastic matrix</strong> 𝐏 = 𝐃⁻¹, where 𝐃 is a diagonal matrix.</p>
+</li>
+<li>
+<p><del>However, because there are outliers on the association graph, which are suppose to have small weight, the Internet democracy doesn&rsquo;t suit here.</del></p>
+</li>
+<li>
+<p>Outliers on the association graph are the mismatched correspondence.</p>
+<p>For example, the actual corespondences are $(v_1^P, v_1^Q)$, and $(v_2^P, v_2^Q)$, which are nodes $v_{11}$ and $v_{22}$ on the association graph.</p>
+<p>Therefore, on the association graph, the outliers are nodes other than $v_{11}$ and $v_{22}$, i.e., $v_{12},\ v_{13},\ v_{23},\ v_{21}$</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 304 105"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 72,32 L 88,32' fill='none' stroke='currentColor'></path>
+<path d='M 128,48 L 144,48' fill='none' stroke='currentColor'></path>
+<path d='M 8,48 L 8,64' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 L 96,48' fill='none' stroke='currentColor'></path>
+<path d='M 64,48 L 72,64' fill='none' stroke='currentColor'></path>
+<polygon points='152.000000,48.000000 140.000000,42.400002 140.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 144.000000, 48.000000)'></polygon>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>^</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>^</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>Q</text>
+<text text-anchor='middle' x='80' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>h</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

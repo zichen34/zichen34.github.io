@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='CUDA Impl (2024-03-05)
+Example from simple-knn:
+Use thread block to divide the sorted points
+Given 100K points, using only 1D grid and 1D block which length is 1024 (SO), the number of blocks is $\frac{100K &#43; 1024-1}{1024} = 97$
+Therefore, the kernel launch configuration parameters are &amp;lt;&amp;lt;&amp;lt;97, 1024&amp;gt;&amp;gt;&amp;gt;
+Convert 3D cartesian coordinates to Morton code
+Make up key-value pairs, where Morton code is key and points indices are values.
+Such that, the points (indices) are sorted and similar points will gather together.'>
+<title>memo: algo | KNN</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/algo/knn/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: algo | KNN'>
+<meta property='og:description' content='CUDA Impl (2024-03-05)
+Example from simple-knn:
+Use thread block to divide the sorted points
+Given 100K points, using only 1D grid and 1D block which length is 1024 (SO), the number of blocks is $\frac{100K &#43; 1024-1}{1024} = 97$
+Therefore, the kernel launch configuration parameters are &amp;lt;&amp;lt;&amp;lt;97, 1024&amp;gt;&amp;gt;&amp;gt;
+Convert 3D cartesian coordinates to Morton code
+Make up key-value pairs, where Morton code is key and points indices are values.
+Such that, the points (indices) are sorted and similar points will gather together.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/algo/knn/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2024-02-29T11:50:00&#43;00:00'/><meta property='article:modified_time' content='2024-02-29T11:50:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: algo | KNN">
+<meta name="twitter:description" content="CUDA Impl (2024-03-05)
+Example from simple-knn:
+Use thread block to divide the sorted points
+Given 100K points, using only 1D grid and 1D block which length is 1024 (SO), the number of blocks is $\frac{100K &#43; 1024-1}{1024} = 97$
+Therefore, the kernel launch configuration parameters are &amp;lt;&amp;lt;&amp;lt;97, 1024&amp;gt;&amp;gt;&amp;gt;
+Convert 3D cartesian coordinates to Morton code
+Make up key-value pairs, where Morton code is key and points indices are values.
+Such that, the points (indices) are sorted and similar points will gather together.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#cuda-impl">CUDA Impl</a>
+      <ol>
+        <li><a href="#test">Test</a></li>
+        <li><a href="#indices">Indices</a></li>
+      </ol>
+    </li>
+    <li><a href="#pytorch3d">pytorch3d</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/algo/knn/">memo: algo | KNN</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 29, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="cuda-impl">CUDA Impl</h2>
+<p>(2024-03-05)</p>
+<p>Example from <a class="link" href="https://gitlab.inria.fr/bkerbl/simple-knn"  target="_blank" rel="noopener"
+    >simple-knn</a>:</p>
+<p>Use thread block to divide the sorted points</p>
+<p>Given 100K points, using only 1D grid and 1D block which length is 1024 (<a class="link" href="https://stackoverflow.com/a/68185752/18003182"  target="_blank" rel="noopener"
+    >SO</a>),
+the number of blocks is $\frac{100K + 1024-1}{1024} = 97$</p>
+<p>Therefore, the kernel launch configuration parameters are <code>&lt;&lt;&lt;97, 1024&gt;&gt;&gt;</code></p>
+<ol>
+<li>
+<p>Convert 3D cartesian coordinates to Morton code</p>
+</li>
+<li>
+<p>Make up key-value pairs, where Morton code is key and points indices are values.</p>
+<p>Such that, the points (indices) are sorted and similar points will gather together.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">thrust</span><span class="o">::</span><span class="n">device_vector</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span> <span class="n">indices</span><span class="p">(</span><span class="n">P</span><span class="p">);</span>	<span class="c1">// indices for points
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">thrust</span><span class="o">::</span><span class="n">sequence</span><span class="p">(</span><span class="n">indices</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">indices</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>	<span class="c1">// indices: 0, 1, 2, 3. ... P
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">thrust</span><span class="o">::</span><span class="n">device_vector</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span> <span class="n">indices_sorted</span><span class="p">(</span><span class="n">P</span><span class="p">);</span>	<span class="c1">// the sorted indices
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="n">cub</span><span class="o">::</span><span class="n">DeviceRadixSort</span><span class="o">::</span><span class="n">SortPairs</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span> <span class="n">temp_storage_bytes</span><span class="p">,</span> <span class="n">morton</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">morton_sorted</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">indices</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">indices_sorted</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">P</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">temp_storage</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="n">temp_storage_bytes</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">cub</span><span class="o">::</span><span class="n">DeviceRadixSort</span><span class="o">::</span><span class="n">SortPairs</span><span class="p">(</span><span class="n">temp_storage</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">temp_storage_bytes</span><span class="p">,</span> <span class="n">morton</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">morton_sorted</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">indices</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">indices_sorted</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">P</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Once the points are spread onto blocks, points within a block are similar to each other.</p>
+</li>
+<li>
+<p>Find the min and max coordinates combinations in each block</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">boxMinMax</span> <span class="o">&lt;&lt;</span> <span class="o">&lt;</span><span class="n">num_boxes</span><span class="p">,</span> <span class="n">BOX_SIZE</span> <span class="o">&gt;&gt;</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">indices_sorted</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">(),</span> <span class="n">boxes</span><span class="p">.</span><span class="n">data</span><span class="p">().</span><span class="n">get</span><span class="p">());</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Each thread has a point index. The indices <code>indices_sorted</code> of points are already <strong>sorted</strong> based on the Morton (z-order) code.
+So points within a block are similar to each other, and their distances are supposed to be small.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 520 217"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,0 L 504,0' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 192,32' fill='none' stroke='currentColor'></path>
+<path d='M 208,32 L 384,32' fill='none' stroke='currentColor'></path>
+<path d='M 416,32 L 504,32' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 112,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,64 L 128,64' fill='none' stroke='currentColor'></path>
+<path d='M 160,64 L 176,64' fill='none' stroke='currentColor'></path>
+<path d='M 224,64 L 240,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 256,64' fill='none' stroke='currentColor'></path>
+<path d='M 256,64 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 272,64 L 288,64' fill='none' stroke='currentColor'></path>
+<path d='M 288,64 L 304,64' fill='none' stroke='currentColor'></path>
+<path d='M 304,64 L 320,64' fill='none' stroke='currentColor'></path>
+<path d='M 352,64 L 368,64' fill='none' stroke='currentColor'></path>
+<path d='M 432,64 L 448,64' fill='none' stroke='currentColor'></path>
+<path d='M 448,64 L 464,64' fill='none' stroke='currentColor'></path>
+<path d='M 464,64 L 480,64' fill='none' stroke='currentColor'></path>
+<path d='M 480,64 L 496,64' fill='none' stroke='currentColor'></path>
+<path d='M 496,64 L 504,64' fill='none' stroke='currentColor'></path>
+<path d='M 32,80 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 64,80' fill='none' stroke='currentColor'></path>
+<path d='M 64,80 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,80 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 112,80' fill='none' stroke='currentColor'></path>
+<path d='M 112,80 L 128,80' fill='none' stroke='currentColor'></path>
+<path d='M 160,80 L 176,80' fill='none' stroke='currentColor'></path>
+<path d='M 224,80 L 240,80' fill='none' stroke='currentColor'></path>
+<path d='M 240,80 L 256,80' fill='none' stroke='currentColor'></path>
+<path d='M 256,80 L 272,80' fill='none' stroke='currentColor'></path>
+<path d='M 272,80 L 288,80' fill='none' stroke='currentColor'></path>
+<path d='M 288,80 L 304,80' fill='none' stroke='currentColor'></path>
+<path d='M 304,80 L 320,80' fill='none' stroke='currentColor'></path>
+<path d='M 352,80 L 368,80' fill='none' stroke='currentColor'></path>
+<path d='M 432,80 L 448,80' fill='none' stroke='currentColor'></path>
+<path d='M 448,80 L 464,80' fill='none' stroke='currentColor'></path>
+<path d='M 464,80 L 480,80' fill='none' stroke='currentColor'></path>
+<path d='M 480,80 L 496,80' fill='none' stroke='currentColor'></path>
+<path d='M 496,80 L 504,80' fill='none' stroke='currentColor'></path>
+<path d='M 16,112 L 32,112' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 112,112' fill='none' stroke='currentColor'></path>
+<path d='M 112,112 L 192,112' fill='none' stroke='currentColor'></path>
+<path d='M 208,112 L 304,112' fill='none' stroke='currentColor'></path>
+<path d='M 304,112 L 384,112' fill='none' stroke='currentColor'></path>
+<path d='M 416,112 L 488,112' fill='none' stroke='currentColor'></path>
+<path d='M 488,112 L 504,112' fill='none' stroke='currentColor'></path>
+<path d='M 0,128 L 40,128' fill='none' stroke='currentColor'></path>
+<path d='M 40,128 L 112,128' fill='none' stroke='currentColor'></path>
+<path d='M 112,128 L 304,128' fill='none' stroke='currentColor'></path>
+<path d='M 304,128 L 488,128' fill='none' stroke='currentColor'></path>
+<path d='M 488,128 L 504,128' fill='none' stroke='currentColor'></path>
+<path d='M 0,0 L 0,128' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 16,112' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 32,80' fill='none' stroke='currentColor'></path>
+<path d='M 40,96 L 40,128' fill='none' stroke='currentColor'></path>
+<path d='M 40,128 L 40,144' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 64,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 112,64 L 112,80' fill='none' stroke='currentColor'></path>
+<path d='M 112,112 L 112,128' fill='none' stroke='currentColor'></path>
+<path d='M 112,128 L 112,176' fill='none' stroke='currentColor'></path>
+<path d='M 128,64 L 128,80' fill='none' stroke='currentColor'></path>
+<path d='M 160,64 L 160,80' fill='none' stroke='currentColor'></path>
+<path d='M 176,64 L 176,80' fill='none' stroke='currentColor'></path>
+<path d='M 192,32 L 192,112' fill='none' stroke='currentColor'></path>
+<path d='M 208,32 L 208,112' fill='none' stroke='currentColor'></path>
+<path d='M 224,64 L 224,80' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 240,80' fill='none' stroke='currentColor'></path>
+<path d='M 256,64 L 256,80' fill='none' stroke='currentColor'></path>
+<path d='M 272,64 L 272,80' fill='none' stroke='currentColor'></path>
+<path d='M 288,64 L 288,80' fill='none' stroke='currentColor'></path>
+<path d='M 304,64 L 304,80' fill='none' stroke='currentColor'></path>
+<path d='M 304,112 L 304,128' fill='none' stroke='currentColor'></path>
+<path d='M 304,128 L 304,176' fill='none' stroke='currentColor'></path>
+<path d='M 320,64 L 320,80' fill='none' stroke='currentColor'></path>
+<path d='M 352,64 L 352,80' fill='none' stroke='currentColor'></path>
+<path d='M 368,64 L 368,80' fill='none' stroke='currentColor'></path>
+<path d='M 384,32 L 384,112' fill='none' stroke='currentColor'></path>
+<path d='M 416,32 L 416,112' fill='none' stroke='currentColor'></path>
+<path d='M 432,64 L 432,80' fill='none' stroke='currentColor'></path>
+<path d='M 448,64 L 448,80' fill='none' stroke='currentColor'></path>
+<path d='M 464,64 L 464,80' fill='none' stroke='currentColor'></path>
+<path d='M 480,64 L 480,80' fill='none' stroke='currentColor'></path>
+<path d='M 488,112 L 488,128' fill='none' stroke='currentColor'></path>
+<path d='M 488,128 L 488,176' fill='none' stroke='currentColor'></path>
+<path d='M 496,64 L 496,80' fill='none' stroke='currentColor'></path>
+<path d='M 40,88 L 40,96' fill='none' stroke='currentColor'></path>
+<polygon points='56.000000,96.000000 44.000000,90.400002 44.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 40.000000, 96.000000)'></polygon>
+<polygon points='120.000000,176.000000 108.000000,170.399994 108.000000,181.600006' fill='currentColor' transform='rotate(90.000000, 112.000000, 176.000000)'></polygon>
+<polygon points='312.000000,176.000000 300.000000,170.399994 300.000000,181.600006' fill='currentColor' transform='rotate(90.000000, 304.000000, 176.000000)'></polygon>
+<polygon points='496.000000,176.000000 484.000000,170.399994 484.000000,181.600006' fill='currentColor' transform='rotate(90.000000, 488.000000, 176.000000)'></polygon>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='164' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='24' y='180' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='32' y='180' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='40' y='164' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='40' y='180' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='48' y='52' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='48' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='48' y='180' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='56' y='52' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='56' y='164' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='56' y='180' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='64' y='52' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='64' y='164' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='72' y='164' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='80' y='100' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='88' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='96' y='196' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='104' y='196' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='112' y='196' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='128' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='136' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='196' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='84' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='144' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='196' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='152' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='160' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='232' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='240' y='52' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='248' y='52' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='256' y='52' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='264' y='100' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='272' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='272' y='100' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='280' y='100' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='280' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='288' y='100' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='288' y='196' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='296' y='196' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='304' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='304' y='196' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='312' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='320' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='320' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='328' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='328' y='196' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='336' y='84' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='336' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='336' y='196' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='344' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='352' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='400' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='432' y='52' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='440' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='448' y='52' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='448' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='456' y='52' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='456' y='196' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='464' y='52' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='464' y='196' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='472' y='196' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='480' y='52' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='488' y='52' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='488' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='496' y='196' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='504' y='196' fill='currentColor' style='font-size:1em'>x</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>The vector <code>boxes</code> records each block&rsquo;s min and max coordinates:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 424 73"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,16 L 40,16' fill='none' stroke='currentColor'></path>
+<path d='M 40,16 L 80,16' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 120,16' fill='none' stroke='currentColor'></path>
+<path d='M 192,16 L 232,16' fill='none' stroke='currentColor'></path>
+<path d='M 0,48 L 40,48' fill='none' stroke='currentColor'></path>
+<path d='M 40,48 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 L 120,48' fill='none' stroke='currentColor'></path>
+<path d='M 192,48 L 232,48' fill='none' stroke='currentColor'></path>
+<path d='M 0,16 L 0,48' fill='none' stroke='currentColor'></path>
+<path d='M 40,16 L 40,48' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 120,16 L 120,48' fill='none' stroke='currentColor'></path>
+<path d='M 192,16 L 192,48' fill='none' stroke='currentColor'></path>
+<path d='M 232,16 L 232,48' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='96' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>z</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Based on the min and max coordinates, a point can quickly determine whether a block contains potential nearest neighbors.</p>
+<p>Specifically, if the distance of a point to the min or max of a block is larger than <code>reject</code>,
+the block won&rsquo;t be searched for possible nearest neighbors.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">P</span> <span class="o">+</span> <span class="n">BOX_SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BOX_SIZE</span><span class="p">;</span> <span class="n">b</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MinMax</span> <span class="n">box</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">[</span><span class="n">b</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">float</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">distBoxPoint</span><span class="p">(</span><span class="n">box</span><span class="p">,</span> <span class="n">point</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&gt;</span> <span class="n">reject</span> <span class="o">||</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">best</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The <code>reject</code> value is the distance of the 3-rd nearest neighbor based on the initially sorted points sequence.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">cg</span><span class="o">::</span><span class="n">this_grid</span><span class="p">().</span><span class="n">thread_rank</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">float3</span> <span class="n">point</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">idx</span><span class="p">]];</span>
+</span></span><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">best</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="n">FLT_MAX</span><span class="p">,</span> <span class="n">FLT_MAX</span><span class="p">,</span> <span class="n">FLT_MAX</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">idx</span> <span class="o">-</span> <span class="mi">3</span><span class="p">);</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">min</span><span class="p">(</span><span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">3</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">idx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">updateKBest</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">points</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">best</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>In this way, quiet amount of points are filtered out to save computation.</p>
+</li>
+<li>
+<p>Iterate every points in the potential block</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">P</span> <span class="o">+</span> <span class="n">BOX_SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">BOX_SIZE</span><span class="p">;</span> <span class="n">b</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">BOX_SIZE</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">min</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="p">(</span><span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">BOX_SIZE</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">idx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">updateKBest</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">points</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">best</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">dists</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">best</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">best</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">best</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mf">3.0f</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Compute distance every two points:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">__device__</span> <span class="kt">void</span> <span class="nf">updateKBest</span><span class="p">(</span><span class="k">const</span> <span class="n">float3</span><span class="o">&amp;</span> <span class="n">ref</span><span class="p">,</span> <span class="k">const</span> <span class="n">float3</span><span class="o">&amp;</span> <span class="n">point</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span> <span class="n">knn</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">float3</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{</span> <span class="n">point</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">ref</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">point</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">ref</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">point</span><span class="p">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">ref</span><span class="p">.</span><span class="n">z</span> <span class="p">};</span>	<span class="c1">// diff
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">float</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">d</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>	<span class="c1">// sequare error
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">K</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>	<span class="c1">// K-nearest
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">knn</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dist</span><span class="p">)</span>	<span class="c1">// closer than j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">float</span> <span class="n">t</span> <span class="o">=</span> <span class="n">knn</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>	<span class="c1">// tmp for previous j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">knn</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span><span class="p">;</span>	<span class="c1">// replace the previous j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">dist</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>	<span class="c1">// the previous j is compared with remaining neighbors
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h3 id="test">Test</h3>
+<p>(2024-03-06)</p>
+<p>Ubuntu 20.04, 1050Ti, cuda-11.6 (<code>nvcc -V</code>)</p>
+<ol>
+<li>
+<p>Clone: <code>git clone https://gitlab.inria.fr/bkerbl/simple-knn.git</code></p>
+</li>
+<li>
+<p>Environment: <code>conda env create -f environment.yml</code></p>
+<details>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">PCRefine</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">channels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">pytorch</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">conda-forge</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">defaults</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">dependencies</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">python=3.10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">pip</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">pip</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">torch==1.12.1+cu116</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">torchvision==0.13.1+cu116</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- --<span class="l">extra-index-url https://download.pytorch.org/whl/cu116</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">ipykernel</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">plyfile</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>Compile based on the steup.py: <code>pip install .</code></p>
+</li>
+<li>
+<p>Call from python:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">simple_knn._C</span> <span class="kn">import</span> <span class="n">distCUDA2</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">fetchPly</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pcd</span> <span class="o">=</span> <span class="n">fetchPly</span><span class="p">(</span><span class="s2">&#34;/home/yi/Downloads/nerf/data/nerf_synthetic/lego/points3d.ply&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">meanDist</span> <span class="o">=</span> <span class="n">distCUDA2</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pcd</span><span class="o">.</span><span class="n">points</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">())</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Output the mean distance from neighbors to each point:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>PCRefine<span class="o">)</span> yi@yi:~/Downloads/simple-knn-comments$ python test_knn.py 
+</span></span><span class="line"><span class="cl">tensor<span class="o">([</span>0.0013, 0.0020, 0.0008,  ..., 0.0023, 0.0017, 0.0007<span class="o">]</span>, <span class="nv">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h3 id="indices">Indices</h3>
+<p>(2024-03-08)</p>
+<p>Modify the original code to return the neighbors&rsquo; indices:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>casmvsnet_pl<span class="o">)</span> yi@yi:~/Downloads/CasMVSNet_pl-comments/submodules/simple-knn-comments$ python test_knn.py 
+</span></span><span class="line"><span class="cl">tensor<span class="o">([[</span>41057, 23085, 16403<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>21674, 59181, 31901<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>18699, 99481, 15716<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        ...,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>17352, 51604, 48154<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>90929, 45350, 94932<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span> 6797, 62182, 78410<span class="o">]]</span>, <span class="nv">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span>, <span class="nv">dtype</span><span class="o">=</span>torch.int32<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="pytorch3d">pytorch3d</h2>
+<p>(2024-03-12)</p>
+<p>Set up environment to compile pytorch3d:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda create -n casmvsnet_pl <span class="nv">python</span><span class="o">=</span>3.8
+</span></span><span class="line"><span class="cl">pip install <span class="nv">torch</span><span class="o">==</span>1.12.0+cu116 <span class="nv">torchvision</span><span class="o">==</span>0.13.0+cu116 --extra-index-url https://download.pytorch.org/whl/cu116
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pip install git+https://github.com/facebookresearch/pytorch3d.git
+</span></span><span class="line"><span class="cl">pip install -r requirements.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Example from <a class="link" href="https://github.com/yihua7/SC-GS/blob/1f835596c85422bb517df8c534cf8aaa6357ac5e/lap_deform.py#L101"  target="_blank" rel="noopener"
+    >SC-GS</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">nn_dist</span><span class="p">,</span> <span class="n">nn_idxs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pytorch3d</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">knn_points</span><span class="p">(</span><span class="n">init_pcl</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">init_pcl</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Use pytorch3d to find KNN in the lego point cloud:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">import numpy as np
+</span></span><span class="line"><span class="cl">from plyfile import PlyData
+</span></span><span class="line"><span class="cl">from typing import NamedTuple
+</span></span><span class="line"><span class="cl">import torch
+</span></span><span class="line"><span class="cl">import pytorch3d.ops
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">class BasicPointCloud<span class="o">(</span>NamedTuple<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">    points : np.array
+</span></span><span class="line"><span class="cl">    colors : np.array
+</span></span><span class="line"><span class="cl">    normals : np.array
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Code from: https://github.com/graphdeco-inria/gaussian-splatting</span>
+</span></span><span class="line"><span class="cl">def fetchPly<span class="o">(</span>path<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">    <span class="nv">plydata</span> <span class="o">=</span> PlyData.read<span class="o">(</span>path<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">vertices</span> <span class="o">=</span> plydata<span class="o">[</span><span class="s1">&#39;vertex&#39;</span><span class="o">]</span>    <span class="c1"># coordinates (x,y,z), normal (nx,ny,nz), r,g,b of 100K points</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">positions</span> <span class="o">=</span> np.vstack<span class="o">([</span>vertices<span class="o">[</span><span class="s1">&#39;x&#39;</span><span class="o">]</span>, vertices<span class="o">[</span><span class="s1">&#39;y&#39;</span><span class="o">]</span>, vertices<span class="o">[</span><span class="s1">&#39;z&#39;</span><span class="o">]])</span>.T  <span class="c1"># xyz: (3, 100K) -&gt; (100K,3)</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">colors</span> <span class="o">=</span> np.vstack<span class="o">([</span>vertices<span class="o">[</span><span class="s1">&#39;red&#39;</span><span class="o">]</span>, vertices<span class="o">[</span><span class="s1">&#39;green&#39;</span><span class="o">]</span>, vertices<span class="o">[</span><span class="s1">&#39;blue&#39;</span><span class="o">]])</span>.T / 255.0    <span class="c1"># rgb: (3, 100K) -&gt; (100K, 3)</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">normals</span> <span class="o">=</span> np.vstack<span class="o">([</span>vertices<span class="o">[</span><span class="s1">&#39;nx&#39;</span><span class="o">]</span>, vertices<span class="o">[</span><span class="s1">&#39;ny&#39;</span><span class="o">]</span>, vertices<span class="o">[</span><span class="s1">&#39;nz&#39;</span><span class="o">]])</span>.T <span class="c1"># normal xyz: (100K,3)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> BasicPointCloud<span class="o">(</span><span class="nv">points</span><span class="o">=</span>positions, <span class="nv">colors</span><span class="o">=</span>colors, <span class="nv">normals</span><span class="o">=</span>normals<span class="o">)</span>    <span class="c1"># NamedTuple</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">pcd</span> <span class="o">=</span> fetchPly<span class="o">(</span><span class="s2">&#34;/home/yi/Downloads/nerf/data/nerf_synthetic/lego/points3d.ply&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">init_pcl</span> <span class="o">=</span> torch.from_numpy<span class="o">(</span>np.asarray<span class="o">(</span>pcd.points<span class="o">))</span>.float<span class="o">()</span>.cuda<span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="nv">K</span><span class="o">=</span><span class="m">3</span>
+</span></span><span class="line"><span class="cl">nn_dist, nn_idxs, <span class="nv">_</span> <span class="o">=</span> pytorch3d.ops.knn_points<span class="o">(</span>init_pcl<span class="o">[</span>None<span class="o">]</span>, init_pcl<span class="o">[</span>None<span class="o">]</span>, None, None, <span class="nv">K</span><span class="o">=</span>K+1<span class="o">)</span>  <span class="c1"># Both are (1,100k,4)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print<span class="o">(</span>nn_dist<span class="o">[</span>0<span class="o">][</span>:3<span class="o">])</span>
+</span></span><span class="line"><span class="cl">print<span class="o">(</span>nn_idxs<span class="o">[</span>0<span class="o">][</span>:3<span class="o">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>pytorch3d&rsquo;s function can return nearest neighbors distance and indices at the same time.
+And the results are the same as the above cuda implementation:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">tensor<span class="o">([[</span>0.0000, 0.0008, 0.0016, 0.0017<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>0.0000, 0.0012, 0.0021, 0.0026<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>0.0000, 0.0006, 0.0008, 0.0009<span class="o">]]</span>, <span class="nv">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">tensor<span class="o">([[</span>    0, 41057, 23085, 16403<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>    1, 21674, 59181, 31901<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>    2, 18699, 99481, 15716<span class="o">]]</span>, <span class="nv">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>I also tested the point cloud predicted by casmvsnet_pl, but this time the pytorch3d is so much <strong>slower</strong> than the cuda code (1h).
+Dont&rsquo;t know why.</p>
+<details><summary>Results are the same:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">scan1 contains 9.03 M points
+</span></span><span class="line"><span class="cl"><span class="c1"># cuda result nn indices:</span>
+</span></span><span class="line"><span class="cl">tensor<span class="o">([[</span>2654648,  181848, 2654649<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>1825888, 2654649,  182085<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>1825889, 2025037,  182085<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        ...,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>1788118, 5669911, 1996297<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>2195795, 2814578, 1568896<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">[</span>2814579, 2597015, 2195796<span class="o">]]</span>, <span class="nv">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span>, <span class="nv">dtype</span><span class="o">=</span>torch.int32<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># pytorch3d result nn indices: (1, 9030200, 4)</span>
+</span></span><span class="line"><span class="cl">tensor<span class="o">([[[</span>      0, 2654648,  181848, 2654649<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>      1, 1825888, 2654649,  182085<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>      2, 1825889, 2025037,  182085<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         ...,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>9030197, 1788118, 5669911, 1996297<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>9030198, 2195795, 2814578, 1568896<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>9030199, 2814579, 2597015, 2195796<span class="o">]]]</span>, <span class="nv">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print<span class="o">(</span>nn_dist<span class="o">)</span>
+</span></span><span class="line"><span class="cl">tensor<span class="o">([[[</span>0.0000, 0.0137, 0.0167, 0.3456<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>0.0000, 0.2516, 0.3126, 0.3652<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>0.0000, 0.0262, 0.0991, 0.2446<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         ...,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>0.0000, 0.0775, 0.0991, 0.1228<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>0.0000, 0.0577, 0.0749, 0.0777<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>0.0000, 0.0449, 0.1124, 0.1350<span class="o">]]]</span>, <span class="nv">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<p>In simple-knn, the distance <code>dist</code> is a square error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">float3 <span class="nv">d</span> <span class="o">=</span> <span class="o">{</span> point.x - ref.x, point.y - ref.y, point.z - ref.z <span class="o">}</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">float <span class="nv">dist</span> <span class="o">=</span> d.x * d.x + d.y * d.y + d.z * d.z<span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

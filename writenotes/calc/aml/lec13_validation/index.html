@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Video 17 Validation 2021-12-08
+Outline:
+The validation set Model selection Cross validation Review of Lec12 (期末不涉及12)
+Regularization: add a overfit or complexity penalty term，与模型复杂度有关，使用这个&amp;quot;惩罚项&amp;quot;估计out-of-sample error
+两种正则化方法：
+constrained regularization: select some type of hypotheses unconstrained regularization: 不是最小化$E_{out}$，而是最小化 $E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) &#43; \underbrace{\frac{\lambda}{N} \mathbf w^T \bf w}_{\text{penalty term}}$ 选择一个 regularizer 去估计penalty项: $E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) &#43; \frac{\lambda}{N} \Omega(h)$
+其中 $\Omega(h)$ 是regularizer，$\lambda$ 是正则化参数(regularization parameter)
+$\Omega(h)$: 启发式地选择 heuristic，通常使用weight decay，找到一个 smooth, simple $h$'>
+<title>watch: AML 13 | Validation</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/aml/lec13_validation/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: AML 13 | Validation'>
+<meta property='og:description' content='Video 17 Validation 2021-12-08
+Outline:
+The validation set Model selection Cross validation Review of Lec12 (期末不涉及12)
+Regularization: add a overfit or complexity penalty term，与模型复杂度有关，使用这个&amp;quot;惩罚项&amp;quot;估计out-of-sample error
+两种正则化方法：
+constrained regularization: select some type of hypotheses unconstrained regularization: 不是最小化$E_{out}$，而是最小化 $E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) &#43; \underbrace{\frac{\lambda}{N} \mathbf w^T \bf w}_{\text{penalty term}}$ 选择一个 regularizer 去估计penalty项: $E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) &#43; \frac{\lambda}{N} \Omega(h)$
+其中 $\Omega(h)$ 是regularizer，$\lambda$ 是正则化参数(regularization parameter)
+$\Omega(h)$: 启发式地选择 heuristic，通常使用weight decay，找到一个 smooth, simple $h$'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/aml/lec13_validation/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2021-12-14T01:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-12-14T01:00:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: AML 13 | Validation">
+<meta name="twitter:description" content="Video 17 Validation 2021-12-08
+Outline:
+The validation set Model selection Cross validation Review of Lec12 (期末不涉及12)
+Regularization: add a overfit or complexity penalty term，与模型复杂度有关，使用这个&amp;quot;惩罚项&amp;quot;估计out-of-sample error
+两种正则化方法：
+constrained regularization: select some type of hypotheses unconstrained regularization: 不是最小化$E_{out}$，而是最小化 $E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) &#43; \underbrace{\frac{\lambda}{N} \mathbf w^T \bf w}_{\text{penalty term}}$ 选择一个 regularizer 去估计penalty项: $E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) &#43; \frac{\lambda}{N} \Omega(h)$
+其中 $\Omega(h)$ 是regularizer，$\lambda$ 是正则化参数(regularization parameter)
+$\Omega(h)$: 启发式地选择 heuristic，通常使用weight decay，找到一个 smooth, simple $h$">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#validation-vs-regularization">Validation vs Regularization</a></li>
+        <li><a href="#analyzing-the-estimate">Analyzing the estimate</a></li>
+      </ol>
+    </li>
+    <li><a href="#model-selection">Model selection</a>
+      <ol>
+        <li><a href="#how-much-bias">How much bias</a></li>
+        <li><a href="#data-contamination">Data contamination</a></li>
+        <li><a href="#cross-validation">Cross validation</a></li>
+        <li><a href="#cross-validation-in-action">Cross validation in action</a></li>
+      </ol>
+    </li>
+    <li><a href="#例题">例题</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/aml/lec13_validation/">watch: AML 13 | Validation</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 14, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Video 17 Validation 2021-12-08</p>
+<p>Outline:</p>
+<ol>
+<li>The validation set</li>
+<li>Model selection</li>
+<li>Cross validation</li>
+</ol>
+<p><strong>Review of Lec12</strong> (期末不涉及12)</p>
+<p>Regularization: add a overfit or complexity penalty term，与模型复杂度有关，使用这个&quot;惩罚项&quot;估计out-of-sample error</p>
+<p>两种正则化方法：</p>
+<ol>
+<li>constrained regularization: select some type of hypotheses</li>
+<li>unconstrained regularization: 不是最小化$E_{out}$，而是最小化 $E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) + \underbrace{\frac{\lambda}{N} \mathbf w^T \bf w}_{\text{penalty term}}$</li>
+</ol>
+<p>选择一个 regularizer 去估计penalty项:
+$E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) + \frac{\lambda}{N} \Omega(h)$</p>
+<p>其中 $\Omega(h)$ 是regularizer，$\lambda$ 是正则化参数(regularization parameter)</p>
+<p>$\Omega(h)$: 启发式地选择 heuristic，通常使用weight decay，找到一个 smooth, simple $h$</p>
+<p>$\lambda$ 决定了正则化被引入的程度。如果选了正确的$\lambda$，可以很好的估计未知目标函数。Validation 也要找到一个合适的$\lambda$</p>
+<h3 id="validation-vs-regularization">Validation vs Regularization</h3>
+<p>在learning 过程中，$E_{out}(h)$ 未知（因为目标函数未知），但是它等于 $E_{in}(h)+$ overfit penalty，Ein 是已知的（预测值与训练样本真实值的误差），还需要知道overfit penalty。
+所以为了计算 Eout 有两种方法：Regularization 是先估计出 overfit penalty。而Validation 是直接估计 Eout。
+$$
+\begin{aligned}
+\rm Regularization: E_{out}(h) = E_{in}(h) + \underbrace{\text{overfit penalty}}<em>{\mathclap{\text{regularization estimates this quantity}}} \
+\
+\rm Validation: \underbrace{E</em>{out}(h)}<em>{\mathclap{\text{validation estimates this quantity}}} = E</em>{in}(h) + \text{overfit penalty}
+\end{aligned}
+$$</p>
+<h3 id="analyzing-the-estimate">Analyzing the estimate</h3>
+<p>Out-of-sample point 是没有在训练阶段中使用的点，</p>
+<ul>
+<li>
+<p>在一个out-of-sample 点 $(\mathbf X,y)$ 上的误差是 $\mathbf e(h(\mathbf x),y)$。根据要解决问题的不同，误差函数有不同的形式：</p>
+<p>$$
+\begin{aligned}
+\text{回归, Squared error:} &amp; (h(\mathbf x)-y)^2 \
+\text{分类, Binary error:} &amp; [![ h(\mathbf x)\neq y]!]
+\end{aligned}
+$$</p>
+<ul>
+<li>
+<p>$h$ 在 out-of-sample分布 上的误差的期望是$E_{out}(h)$： $\mathbb E[\mathbf e(h(\mathbf x),y)] = E_{out}(h)$</p>
+</li>
+<li>
+<p>$h$ 在 out-of-sample分布 上的误差的方差是$\sigma^2$： $\operatorname{var}[\mathbf e(h(\mathbf x),y)] = \sigma^2$</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>从1个点到1组点：</strong> 从training set 中独立地选出K个点组成一个验证集(validation set) $(\mathbf x_1,y_1), \cdots, (\mathbf x_K, y_K)$，验证集上的误差是 $E_{\text{val}}(h) = \frac{1}{K} \sum_{k=1}^K \mathbf e(h(\mathbf x_k), y_k)$</p>
+<ul>
+<li>
+<p>不同验证集误差的期望：$\mathbb E[E_{\text{val}}(h)] = \frac{1}{K} \sum_{k=1}^K \mathbb E[\mathbf e(h(\mathbf x_k), y_k)] = E_{out}(h)$ (期望放里面，就是$E_{out}$)</p>
+</li>
+<li>
+<p>不同验证集误差的方差：$\operatorname{var} [E_{\text{val}}(h)] = \frac{1}{K^2} \sum_{k=1}^K \operatorname{var}[\mathbf e(h(\mathbf x_k), y_k)] = \frac{\sigma^2}{K}$ (因为各点互相独立，所以协方差矩阵除了对角线其他位置都是零)</p>
+</li>
+</ul>
+<p>验证集的误差等于Eout 加一个 $\frac{1}{\sqrt{K}}$ 阶（标准差）的偏置项：</p>
+<p>$$
+E_{\text{val}}(h) = E_{\text{out}}(h) \pm O(\frac{1}{\sqrt{K}})
+$$</p>
+<p>如果增加验证集样本数量 K，偏置项变小，验证集误差就越接近Eout。</p>
+</li>
+<li>
+<p>对于数据集 $\mathcal D = (\mathbf x_1, y_1), \cdots, (\mathbf x_N, y_N)$</p>
+<ul>
+<li>
+<p>选K个点作为验证集：$\mathcal D_{\rm val}$</p>
+</li>
+<li>
+<p>剩下 N-K 个点是训练集：$\mathcal D_{\rm train}$</p>
+</li>
+<li>
+<p>对于偏置项：$O(\frac{1}{\sqrt{K}})$，小K让Eval 与 Eout 差的远，而大K让Ein 与 Eout 差得远。所以K需要tradeoff</p>
+<div align="center"> <img src="./img/Lec13_s06.png" style="zoom:60%"> </div>
+<p>以前通常用全部的数据集来训练，得到g，现在只用了一部分数据 (reduced dataset) 来训练，得到$g^-$，所以它的 Ein和Eout 都比g大。然后计算 $g^-$ 在验证集上的误差 $E_{val}(g^-)$，作为Eout 的近似，如果K很大，近似效果会差。经验法则：$K= \frac{N}{5}$</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Validation set 不是 test set</strong></p>
+<p>$E_{val}(g^-)$ 也不是 $E_{out}$。测试集与训练无关 (unbiased)，而验证集会在训练阶段帮助我们选择超参数，从而影响了学习过程 (optimistic bias)。</p>
+<p>比如，有两个假设 $h_1$ 和 $h_2$，其实它们真正的Eout都是0.5：$E_{out}(h_1) = E_{out}(h_2) = 0.5$  ，但是未知。它们分别在验证集上的误差为 $\mathbf e_1,\ \mathbf e_2$，然后我们会选择留下误差小的那个：$\mathbf e = min(\mathbf{e_1,e_2})$, 它的 Eout $\mathbb E(\mathbf e)$  要小于真实值0.5，因为它用的训练数据少于全部数据集，所以validataion 给出的误差是偏向“乐观的”</p>
+<h2 id="model-selection">Model selection</h2>
+<p>比如要解决一个分类问题，有M个假设空间：$\mathcal H_1,\cdots, \mathcal H_M$ （比如svm的核可以为linear, polynomial, rbf，选哪种好呢？）。</p>
+<div align="center"> <img src="./img/Lec13_s11.png" style="zoom:80%"> </div>
+<p>根据 (有缩减的reduced) 训练集，从每个假设空间选出“最佳假设”(finalists model 决赛选手)。然后分别在验证集上计算Eval。根据这 M 个Eval，选出最佳 $E_{val}$ 和最佳假设空间 $\mathcal H_{m^<em>}$。然后再使用整个数据集在最佳假设空间中找出最佳假设 $g_{m^</em>}$</p>
+<p>使用$\mathcal D_{\rm val}$ 和 $E_{\rm val}(g_{m^<em>}^-)$ 选择的最佳假设空间 $\mathcal H_{m^</em>}$ 是 $E_{out}(g_{m^*}^-)$ 的一个 biased estimate，因为没有使用全部的数据集，所以叫biased。</p>
+<p>不同容量的验证集与预期偏差的关系如下图：</p>
+<div align="center"> <img src="./img/Lec13_s12.png" style="zoom:80%"> </div>
+<p>验证集中数据 K 越多，用于训练的样本越少，Eout越差，但是同时 $O(\frac{1}{\sqrt{K}})$ 减小，$E_{\rm val}$ 会越接近 $E_{\rm out}$。</p>
+<h3 id="how-much-bias">How much bias</h3>
+<p>对于 M 个假设空间：$\mathcal H_1, \cdots ,\mathcal H_M$，从中选出了 M 个 finalists model $H_{\rm val} = { g_1^-, g_2^-,\cdots, g_M^- }$，然后用验证集 $\mathcal D_{\rm val}$ 去“训练”它们，也就是再找出它们中的最佳 minus 假设 $g_{m^\star}^-$（$E_{\rm val}$最小）。</p>
+<p>对于一个&quot;训练&quot;过程，对于假设 $g_{m^\star}^-$ 有Hoeffding不等式成立：</p>
+<p>$$
+E_{out} (g_{m^\star}^-) \leq E_{val}(g_{m^\star}^-) + O \left( \sqrt{\frac{ln M}{K}} \right)
+$$</p>
+<p>如果有无穷多个假设集（无穷多个正则化参数，$\lambda$ 是连续值），所以 $O \left( \sqrt{\frac{ln M}{K}} \right)$ 就变得不再有效</p>
+<p>为了约束 M，就像之前那样，引入 VC 维。比如，我们不关心正则化参数 $\lambda$ 能取多少值，而是关心我们有几个参数（自由度），我们只有1个参数 $\lambda$，所以VC维是1。</p>
+<h3 id="data-contamination">Data contamination</h3>
+<ul>
+<li>在训练阶段用了多少数据样本</li>
+<li>$E_{in}，E_{out}(E_{test})，E_{\rm val}$</li>
+<li>Contamination: Optimistic (deceptive) bias in estimating Eout
+<ul>
+<li>Training set: totally contaminated</li>
+<li>Validation set: slightly contaminated (起到了“测试”的效果，但也被用于训练了)</li>
+<li>Test set: totally &lsquo;clean&rsquo; (完全用于测试)</li>
+</ul>
+</li>
+</ul>
+<h3 id="cross-validation">Cross validation</h3>
+<ul>
+<li>
+<p>把train set 分成n折，每次取n-1折做训练，计算在剩下那折上的准确率，n个准确率求平均就是该组超参数的表现。</p>
+</li>
+<li>
+<p>不使用test set，却可以估计在test set上的表现。</p>
+</li>
+<li>
+<p>目的是选最佳的超参数；不能根据在train set上的准确率判断好坏。</p>
+</li>
+<li>
+<p>选用不同超参数时，CV准确率的变化趋势与在test set上的变化趋势近似一致。</p>
+</li>
+<li>
+<p>K 进退两难: $g^-$是用 reduced训练集找出的最佳，K越小，用于训练的数据越多，越接近真实的Eout，而根据Hoeffding不等式，$E_{\rm val}(g^-)$需要很大的K，才能近似$E_{out}(g^-)$</p>
+<p>$$
+E_{\rm out}(g) \underset{\mathclap{\substack{\ \text{小K才近似}}}}{\approx}
+E_{\rm out}(g^-) \underset{\mathclap{\substack{\ \text{大K才近似}}}}{\approx} E_{\rm val}(g^-)
+$$</p>
+<p>$E_{out}$ 是最终目标，但是只知道验证误差 $E_{\rm val}(g^-)$</p>
+</li>
+<li>
+<p>have K both small and large</p>
+</li>
+<li>
+<p>两种交叉验证方法：</p>
+<ol>
+<li>
+<p><strong>Leave One Out</strong></p>
+<p>K=1，每次迭代选1个样本做验证，剩下N-1个样本做训练。去除第n个样本的训练集$\mathcal D_n:$</p>
+<p>$$
+\mathcal D_n = (\mathbf x_1,y_1),\cdots,(\mathbf x_{n-1},y_{n-1}),\sout{(\mathbf x_n, y_n)},(\mathbf x_{n+1},y_{n+1}),\cdots,(\mathbf x_N, y_N)
+$$</p>
+<p>从 $\mathcal D_n$ 中学到的假设是 $g_n^-$，验证误差 $\mathbf e_n = E_{\rm val}(g_n^-) = \mathbf e(g_n^- (\mathbf x_n),y_n)$</p>
+<p>对每个留出的样本点，计算验证误差，然后取平均，就是交叉验证误差 (cross validation error):
+$$
+E_{CV} = \frac{1}{N} \sum_{n=1}^N \mathbf e_n
+$$
+对于3个点，每次取出一个做验证集，剩下两个做训练集，线性回归问题，对于两个样本，误差最小的Linear假设，就是过两点的一条直线。</p>
+<div align="center"> <img src="./img/Lec13_s18.png" style="zoom:50%"> </div>
+<p>对于 Constant 假设：</p>
+<div align="center"> <img src="./img/Lec13_s19.png" style="zoom:70%"> </div>
+<p>对比 $E_{CV}$，constant 模型的交叉验证误差较小，所以最终选择constant模型</p>
+<p>N个样本的数据集要迭代 N 次，每次在 N-1 个样本上训练，如果有1千个样本就要迭代1千次，计算复杂度太高。</p>
+</li>
+<li>
+<p><strong>Leave More Out</strong></p>
+<p>把数据集划分成多份，划分成10份的话：$K = \frac{N}{10}$，只需迭代10 ($\frac{N}{K}$)次，每次在N-K个点上训练。</p>
+<div align="center"><img src="./img/Lec13_s22.png" style="zoom:70%"> </div>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="cross-validation-in-action">Cross validation in action</h3>
+<p>数字分类任务，把2个特征（symmetry和Average intensity）非线性变换到20维空间，最高幂次为5的多项式</p>
+<p>$$
+\left(1, x_{1}, x_{2}\right) \rightarrow\left(1, x_{1}, x_{2}, x_{1}^{2}, x_{1} x_{2}, x_{2}^{2}, x_{1}^{3}, x_{1}^{2} x_{2}, \ldots, x_{1}^{5}, x_{1}^{4} x_{2}, x_{1}^{3} x_{2}^{2}, x_{1}^{2} x_{2}^{3}, x_{1} x_{2}^{4}, x_2^{5}\right)
+$$</p>
+<div align="center"> <img src="./img/Lec13_s20.png" style="zoom:50%"> </div>
+<p>使用特征数量越多，模型越复杂，$E_{in}$ 越小（迭代了很多次），$E_{out}$先减小后增大，出现Overfitting，而$E_{CV}$的趋势与$E_{out}$相同，因为$E_{out}$未知，$E_{CV}$是 $E_{out}$ 的近似，所以可以根据 $E_{CV}$ 来决定该选用几个特征。Ecv 的最小值出现在5 和7，所以可以选用6个特征的模型。</p>
+<p>没用validation时，直接使用20个特征的模型很复杂，而且过拟合（噪音），Ein为零；使用validation后，决定只用6个特征，模型相对简单，Eout较小。</p>
+<div align="center"> <img src="./img/Lec13_s21.png" style="zoom:40%"> </div>
+<h2 id="例题">例题</h2>
+<p>Given three two-dimensional data examples $x_1 = (-1,1)，x_2=(0,2)$, and $x_3=(1,1)$, perform the leave-one-out cross validation for a <u>linear fit</u> using these data examples. What is $E_{CV}$?</p>
+<p>$$
+E_{CV} = \frac{1}{N} \sum_{n=1}^N \varepsilon_n
+$$</p>
+<p>where $\varepsilon_n = (y_n - g(x_n))^2$</p>
+<p>Note: The line passing through two-dimensional data points $(x_1, y_1)$ and $(x_2,y_2)$ can be obtained as follows: $y-y_1 = \frac{y_2 - y_1}{x_2-x_1} \times (x-x_1)$</p>
+<p>GA answer:</p>
+<ul>
+<li>
+<p>Keep $x_1$ as for the validation, while $x_2, x_3$ as for training:</p>
+<p>$g:\ y-2 = \frac{1-2}{1-0}(x-0) \Rightarrow y=-x+2$</p>
+<p>$\varepsilon_1 = (1-g(-1))^2 = (1-3)^2 = 4$</p>
+</li>
+<li>
+<p>Keep $x_2$ as for the validation:</p>
+<p>$g:\ y-1 = \frac{1-1}{1+1}(x+1) \Rightarrow y=1$</p>
+<p>$\varepsilon_2 = (2-g(0))^2 = (2-1)^2 = 1$</p>
+</li>
+<li>
+<p>Keep $x_3$ as for the validation:</p>
+<p>$g:\ y-1 = \frac{2-1}{0+1}(x+1) \Rightarrow y=x+2$</p>
+<p>$\varepsilon_3 = (1-g(1))^2 = (1-3)^2 = 4$</p>
+</li>
+</ul>
+<p>$E_{CV} = \frac{1}{3}(4+1+4) = 3$</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

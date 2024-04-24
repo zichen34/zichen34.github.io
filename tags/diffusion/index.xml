@@ -1,0 +1,1864 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Diffusion on Zichen Wang</title>
+        <link>https://zichen34.github.io/tags/diffusion/</link>
+        <description>Recent content in Diffusion on Zichen Wang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sat, 12 Aug 2023 09:40:00 +0000</lastBuildDate><atom:link href="https://zichen34.github.io/tags/diffusion/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>read: NVS with Pose-conditioned Diffusion Models</title>
+        <link>https://zichen34.github.io/writenotes/model/imagen/diffusion/b-note-nvs-dm-posecond/</link>
+        <pubDate>Sat, 12 Aug 2023 09:40:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/model/imagen/diffusion/b-note-nvs-dm-posecond/</guid>
+        <description>&lt;img src="https://ar5iv.labs.arxiv.org/html/2210.04628/assets/figures/training.png" alt="Featured image of post read: NVS with Pose-conditioned Diffusion Models" /&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/a6o/3d-diffusion-pytorch&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Code-pytroch&lt;/a&gt;
+| &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/2210.04628&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Arxiv&lt;/a&gt;
+| &lt;a class=&#34;link&#34; href=&#34;https://openreview.net/forum?id=HtoA0oT30jC&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;OpenReview&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;qa&#34;&gt;Q&amp;amp;A&lt;/h2&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;Condition image vs target image?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;abstract&#34;&gt;Abstract&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;A &lt;strong&gt;img2img&lt;/strong&gt; diffusion model is conditioned with &lt;strong&gt;pose&lt;/strong&gt; and a &lt;strong&gt;single&lt;/strong&gt; source view to generate multiviews.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Stochastic conditioning: Randomly select a view from &lt;strong&gt;avaliable views&lt;/strong&gt; as condition image at each &lt;strong&gt;denoising step&lt;/strong&gt; during &lt;strong&gt;sampling&lt;/strong&gt;?,
+rather than using only the given view.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Reconstruct a NeRF to &lt;strong&gt;measure&lt;/strong&gt; 3D consistency of multi-views.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;NeRF is not their ultimate objective.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Regressive&lt;/strong&gt; methods for NVS from sparse views based on NeRF are still not &lt;strong&gt;generalizable&lt;/strong&gt; enough or able to produce high-quality completion for the &lt;strong&gt;occluded&lt;/strong&gt; parts.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Regularized NeRF (RegNeRF) suffer from artifacts when only few views are given &lt;del&gt;because they&lt;/del&gt; and didn&amp;rsquo;t apply the features of commen prior of multiple scenes.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Regressing a NeRF from image feataures (pixel-NeRF) tend to get blurred images.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Geometry-free&lt;/strong&gt; methods for NVS obtain colors that aren&amp;rsquo;t directly derived from volume rendering.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Light field network&lt;/li&gt;
+&lt;li&gt;Scene Representation Transformer&lt;/li&gt;
+&lt;li&gt;EG3D combines StyleGAN and volume rendering&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;3D diffusion model is a &lt;strong&gt;generative and geometry-free&lt;/strong&gt; method.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Use &lt;strong&gt;pairs&lt;/strong&gt; of images of the &lt;strong&gt;same&lt;/strong&gt; scene to train a diffusion model.&lt;/li&gt;
+&lt;li&gt;During training, one of them serves as the original, and the other is the condition image.&lt;/li&gt;
+&lt;li&gt;The trained model can produce a multi-view set of a scene given one condition image.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;model&#34;&gt;Model&lt;/h2&gt;
+&lt;p&gt;They consider multiple views from a scene are &lt;strong&gt;not independent&lt;/strong&gt;, but follow the distribution of the &lt;strong&gt;training views&lt;/strong&gt;, to enhance multi-view consistency.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The distributions of different views, given a scene with a total observation set 𝐒, $p(𝐱|S)$ are conditionally independent (different).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;NeRF solves NVS under an even strict condition: each ray in the scen is conditionally independent.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;However, with this nature, the diffusion model cannot guarantee the samplings (generated images), conditioned with different source view, follow a common distribution,
+i.e., the diffusion model needs a unique distribution to learn.&lt;/p&gt;
+&lt;p&gt;Ideally, the common distribution should be p(S), but it&amp;rsquo;s difficult to approximate the entire scene based on sparse views. (Not sure, my guess.)&lt;/p&gt;
+&lt;p&gt;That&amp;rsquo;s why they reused the generated views previously for later condition.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pose-conditioned&#34;&gt;Pose-conditioned&lt;/h3&gt;
+&lt;p&gt;Given the data distribution p(𝐱₁, 𝐱₂), diffusion model learns the distribution of one of the two images conditioned on the other image and both poses.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Noise schedule involving signal-to-noise ratio λ.&lt;/li&gt;
+&lt;li&gt;Loss function of DDPM&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;stochastic-condition&#34;&gt;Stochastic condition&lt;/h3&gt;
+&lt;figure&gt;&lt;img src=&#34;https://ar5iv.labs.arxiv.org/html/2210.04628/assets/figures/stochastic_cond_shoe.png&#34;
+         alt=&#34;Figure 3: Stochastic conditioning sampler&#34;/&gt;&lt;figcaption&gt;
+            &lt;p&gt;Figure 3: Stochastic conditioning sampler&lt;/p&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Markovian model&lt;/strong&gt; didn&amp;rsquo;t perform well, where the next image is conditioned on (k) previously generated views.
+Thus, a scene can be represented as $p(𝐗) = ∏ᵢp(𝐱ᵢ|𝐱_{&amp;lt;i})$.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Using all previous sampled views is imfesible due to the &lt;strong&gt;limited memory&lt;/strong&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;They found &lt;strong&gt;k=2&lt;/strong&gt; can achieve 3D consistency, but more previous states impair the sampling quality.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;And instead of conditioning on the last few samplings as in the Markovian model,
+2 views are stochastically selected as condition images at &lt;strong&gt;each denoising step&lt;/strong&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Generating a new view $𝐱ₖ₊₁$ needs 256 denoising steps,
+where each time the condition image 𝐱ᵢ is &lt;strong&gt;randomly&lt;/strong&gt; chosen from the current views set 𝜲 = {𝐱₁,&amp;hellip;,𝐱ₖ}.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;In a denoising step, noise in the intermediate image $\hat 𝐱ₖ₊₁$ will be subtracted from $𝐳ₖ₊₁^{(λₜ)}$,
+which follows a &lt;strong&gt;forward&lt;/strong&gt; noising distribution 𝒒,
+given the noisy image $𝐳ₖ₊₁^{(λₜ₋₁)}$ of last step and the denoised image $\hat 𝐱ₖ₊₁$.&lt;/p&gt;
+&lt;p&gt;$$
+\hat 𝐱ₖ₊₁ = \frac{1}{\sqrt{σ(λₜ)}}
+\left( 𝐳ₖ₊₁^{(λₜ)} - \sqrt{σ(-λₜ)}\ ε_θ(𝐳ₖ₊₁^{(λₜ)}, 𝐱ᵢ) \right)  \\
+\ \\
+𝐳ₖ₊₁^{(λₜ₋₁)} \sim q(𝐳ₖ₊₁^{λₜ₋₁};\ 𝐳ₖ₊₁^{(λₜ)}, \hat 𝐱ₖ₊₁ )
+$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;( I guess 𝒒 gets &lt;strong&gt;&amp;ldquo;reversed&amp;rdquo;&lt;/strong&gt; after applying Bayes rule)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The first noisy image $𝐳ₖ₊₁^{(λ_T)}$ is Gaussian N(0,𝐈).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;After 256 steps finished, &lt;strong&gt;add&lt;/strong&gt; the result image 𝐱ₖ₊₁ to set 𝜲.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;256 can be larger to cover all the existing views.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;This scheme approximate the true autoregressive sampling.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Autoregressive model always use &lt;strong&gt;all&lt;/strong&gt; previous states to predict the next state,
+unlike Markov chain only considering &lt;strong&gt;limited recent&lt;/strong&gt; outputs,&lt;/p&gt;
+&lt;p&gt;Therefore, to train an autoregressive model, a &lt;strong&gt;sequence&lt;/strong&gt;, i.e. multi-view training data here, is needed.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;True autoregressive sampling needs a score model of the form
+$log\ q(𝐳ₖ₊₁^{(λ)} | 𝐱₁,&amp;hellip;,𝐱ₖ)$ and multi-view training data.&amp;rdquo;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;But they&amp;rsquo;re not interesting in multiple source views here.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;x-unet&#34;&gt;X-UNet&lt;/h3&gt;
+&lt;figure&gt;&lt;img src=&#34;https://ar5iv.labs.arxiv.org/html/2210.04628/assets/figures/unet.png&#34;
+         alt=&#34;Figure 4: X-UNet Architecture&#34;/&gt;&lt;figcaption&gt;
+            &lt;p&gt;Figure 4: X-UNet Architecture&lt;/p&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;UNet with only self-attention fails to generate images with multi-view consistency,
+given limited training images.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Different frame has a different noise-level&lt;/li&gt;
+&lt;li&gt;Positional encoding of pose is the same size of feature maps&lt;/li&gt;
+&lt;li&gt;Use cross-attention to make two images attend to each other.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Inputs:&lt;/p&gt;
+&lt;p&gt;Concat two images?
+such that the weights of Conv2d and self-attention layers are shared for the noisy image and condition image&lt;/p&gt;
+&lt;h3 id=&#34;experiments&#34;&gt;Experiments&lt;/h3&gt;
+&lt;p&gt;Dataset: SRN ShapeNet (synthetic cars and chairs) &lt;a class=&#34;link&#34; href=&#34;&#34; &gt;github&lt;/a&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;file&lt;/th&gt;
+&lt;th&gt;size&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;cars_train.zip&lt;/td&gt;
+&lt;td&gt;3.26GB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;chairs_train.zip&lt;/td&gt;
+&lt;td&gt;60.3GB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Use instant-NGP without view dependent modules&lt;/p&gt;
+&lt;div id=&#34;flow_0&#34;&gt;
+&lt;/div&gt;
+
+</description>
+        </item>
+        <item>
+        <title>read: MVDiffusion generates multi-view images</title>
+        <link>https://zichen34.github.io/writenotes/model/imagen/diffusion/b-note-mvdiffusion-scene/</link>
+        <pubDate>Thu, 10 Aug 2023 20:40:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/model/imagen/diffusion/b-note-mvdiffusion-scene/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/Tangshitao/MVDiffusion&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Code&lt;/a&gt;
+| &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/2307.01097&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Arxiv (2307)&lt;/a&gt;
+| &lt;a class=&#34;link&#34; href=&#34;https://mvdiffusion.github.io/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;ProjPage&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;abs--intro&#34;&gt;Abs &amp;amp; Intro&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Fine-tune&lt;/strong&gt; the pre-trained &lt;strong&gt;text&lt;/strong&gt;-to-image diffusion model (SD)&lt;/li&gt;
+&lt;li&gt;Insert &lt;strong&gt;cross-attention&lt;/strong&gt; blocks between UNet blocks;&lt;/li&gt;
+&lt;li&gt;Generate multiple views &lt;strong&gt;in parallel&lt;/strong&gt; using a SD,
+and &lt;strong&gt;fuse&lt;/strong&gt; multi views by attention;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Freeze&lt;/strong&gt; pre-trained weights while training the attention blocks&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Solving problems:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Generating panorama&lt;/li&gt;
+&lt;li&gt;Extrapolate one perspective image to a full 360-degree view&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;preliminary&#34;&gt;Preliminary&lt;/h2&gt;
+&lt;p&gt;MVDiffusion derives from &lt;strong&gt;LDM&lt;/strong&gt; (Latent Diffusion Model&lt;a class=&#34;link&#34; href=&#34;#1&#34; &gt;¹&lt;/a&gt;), which contains 3 modules:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;VAE&lt;/strong&gt; for transfering the generation process to a latent space,&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;denoising model&lt;/strong&gt; (UNet) for sampling from the distribution of the inputs&amp;rsquo; latent codes,&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;condition encoder&lt;/strong&gt; for providing descriptors.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Loss function is similar to original diffusion model: the MSE between original noise and predicted noise, which conditioned on noisy latents, timestep, and featues.&lt;/p&gt;
+&lt;p&gt;$$L_{LDM} = ∑$$&lt;/p&gt;
+&lt;p&gt;Convolution layers are insert in each UNet block:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Feature maps at each level will be added into UNet blocks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure&gt;&lt;img src=&#34;https://pbs.twimg.com/media/F0Q2fmwWwAEjOYo?format=jpg&amp;amp;name=large&#34;
+         alt=&#34;Figure 2&#34;/&gt;&lt;figcaption&gt;
+            &lt;p&gt;Figure 2&lt;/p&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;h2 id=&#34;pipeline&#34;&gt;Pipeline&lt;/h2&gt;
+&lt;p&gt;pixel-to-pixel correspondences enable the &lt;strong&gt;multi-view consistent&lt;/strong&gt; generation of panorama and depth2img,
+because they have homography matrix and projection matrix to determine the matched pixel pairs in two images.&lt;/p&gt;
+&lt;h3 id=&#34;panorama&#34;&gt;Panorama&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Text-conditioned model&lt;/strong&gt;: generate 8 &lt;strong&gt;target&lt;/strong&gt; images from noise conditioned by &lt;strong&gt;per-view&lt;/strong&gt; text prompts.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The final linear layer in CAA blocks are initialized to &lt;strong&gt;zero&lt;/strong&gt; to avoid disrupt the SD&amp;rsquo;s original capacity.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Multiple latents will be predict by UNet from noise images and then restored to images by the pre-trained VAE&amp;rsquo;s decoder.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Image&amp;amp;Text-conditioned model&lt;/strong&gt;: generate 7 target images based on 1 &lt;strong&gt;condition&lt;/strong&gt; image and respective text prompts.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Based on SD&amp;rsquo;s &lt;strong&gt;impainting&lt;/strong&gt; modle as it &lt;strong&gt;takes 1 condition image&lt;/strong&gt;.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Don&amp;rsquo;t impaint the condition image by concatenating the noise input with a all-one mask (4 channels in total)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Compeletly regenerate the input image by concatenating the noise input with a all-zero mask (4 channels in total)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Concatenating all-one and all-zero channel during training make the model learn to apply different processes to condition image and target image.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;depth2img&#34;&gt;depth2img&lt;/h3&gt;
+
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 376 281&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 96,16 L 112,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,64 L 112,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 264,64 L 280,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 272,128 L 304,128&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,192 L 88,192&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 32,80 L 32,176&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,32 L 168,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,160 L 168,176&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,224 L 168,240&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 320,96 L 320,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;96.000000,192.000000 84.000000,186.399994 84.000000,197.600006&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 88.000000, 192.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;120.000000,16.000000 108.000000,10.400000 108.000000,21.600000&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 112.000000, 16.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;120.000000,64.000000 108.000000,58.400002 108.000000,69.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 112.000000, 64.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;176.000000,48.000000 164.000000,42.400002 164.000000,53.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(90.000000, 168.000000, 48.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;176.000000,176.000000 164.000000,170.399994 164.000000,181.600006&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(90.000000, 168.000000, 176.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;176.000000,240.000000 164.000000,234.399994 164.000000,245.600006&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(90.000000, 168.000000, 240.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;280.000000,128.000000 268.000000,122.400002 268.000000,133.600006&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(180.000000, 272.000000, 128.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;288.000000,64.000000 276.000000,58.400002 276.000000,69.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 280.000000, 64.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;path d=&#39;M 320,112 A 16,16 0 0,1 304,128&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 32,176 A 16,16 0 0,0 48,192&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;S&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;&amp;amp;&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;T&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;q&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;h&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;104&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;I&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;A&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;T&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;y&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;M&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;S&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;k&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;&amp;amp;&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;b&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;y&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;w&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;T&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;260&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;v&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;256&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;256&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;264&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;272&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;296&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;k&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;304&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;304&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;312&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;y&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;312&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;320&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;320&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;328&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;328&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;336&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;336&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;344&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;344&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;352&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;360&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;p&gt;This two-stage design is because SD&amp;rsquo;s impainting modle &lt;strong&gt;doesn&amp;rsquo;t&lt;/strong&gt; support depth map condition.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;So the Text-conditioned model is reused to generate condition images.&lt;/li&gt;
+&lt;li&gt;Then the Image&amp;amp;Text-conditioned model interpolate the two condition images.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;correspondence-aware-attention&#34;&gt;Correspondence-aware attention&lt;/h3&gt;
+&lt;p&gt;Aggregate the features of KxK neighbor pixels on every target feature maps to each pixel their own feature vector.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The source pixel $s$ perform positional encoding γ(0)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The neighbor pixel $t_*^l$ around the corresponding pixel $t^l$ on the target image $l$ perform position encoding $γ(s_*^l-s)$,
+which means the neighbor pixel $t_*^l$ need to be warpped back to source feature map to find the distance from $s_*^l$ to the source pixel $s$.&lt;/p&gt;
+&lt;figure&gt;&lt;img src=&#34;https://pbs.twimg.com/media/F0Q2-IMWcAA5TC0?format=png&amp;amp;name=small&#34;
+           alt=&#34;Figure 3&#34;/&gt;&lt;figcaption&gt;
+              &lt;p&gt;Figure 3&lt;/p&gt;
+          &lt;/figcaption&gt;
+  &lt;/figure&gt;
+
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;ref&#34;&gt;Ref&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;div id=&#34;1&#34;&gt;&lt;a href=&#34;https://arxiv.org/abs/2112.10752&#34;&gt;High-Resolution Image Synthesis with Latent Diffusion Models - Robin Rombach&lt;/a&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>read: DiffuStereo reconstruct 3D human</title>
+        <link>https://zichen34.github.io/writenotes/model/imagen/diffusion/b-note-diffustereo-human/</link>
+        <pubDate>Thu, 10 Aug 2023 18:40:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/model/imagen/diffusion/b-note-diffustereo-human/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/2207.08000&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Arxiv&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;abstract&#34;&gt;Abstract&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Embed diffusion model into stereo matching network&lt;/li&gt;
+&lt;li&gt;Adopt multi-level network for high-resolution input&lt;/li&gt;
+&lt;li&gt;Fuse generated depth map to reconstruct 3D human model.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Sparse-view methods, which predict geometry based on appearance,
+cannot produce detailed human model because of lacking sufficient multiview stereo &lt;strong&gt;matching&lt;/strong&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Continuous models are basically obtained from traditional stereo methods based on a continuous varitional formulation, which can solved by diffusion model.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Pipeline:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Reconstruct &lt;strong&gt;coarse field&lt;/strong&gt; first by using DoubleField;&lt;/li&gt;
+&lt;li&gt;Render &lt;strong&gt;depth maps&lt;/strong&gt; from multiple viewpoints&lt;/li&gt;
+&lt;li&gt;Compute &lt;strong&gt;disparity&lt;/strong&gt; flow masks&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Refine&lt;/strong&gt; disparity flow with diffusion model
+&lt;ul&gt;
+&lt;li&gt;Level 1: Use CNN to extract &lt;strong&gt;feature maps&lt;/strong&gt; of disparity flow masks&lt;/li&gt;
+&lt;li&gt;Level 2: &lt;strong&gt;Condition&lt;/strong&gt; diffusion model with feature maps&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Fuse 3D points through interpolation.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;figure&gt;&lt;img src=&#34;http://www.liuyebin.com/diffustereo/assets/pipeline_v3.jpg&#34;/&gt;
+   &lt;/figure&gt;
+
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: Diffusion - Outlier | Explain 4 papers</title>
+        <link>https://zichen34.github.io/writenotes/model/imagen/diffusion/d-vid-outlier/</link>
+        <pubDate>Fri, 14 Jul 2023 21:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/model/imagen/diffusion/d-vid-outlier/</guid>
+        <description>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /writenotes/model/imagen/diffusion/imgs/Outlier_Explain.jpg width=&gt;
+  
+  
+
+
+&lt;ul&gt;
+&lt;li&gt;Source Video: &lt;a class=&#34;link&#34; href=&#34;https://youtu.be/HoKDTa5jHvg&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Diffusion Models | Paper Explanation | Math Explained - Outlier&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Code: &lt;a class=&#34;link&#34; href=&#34;https://github.com/dome272/Diffusion-Models-pytorch&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;dome272/Diffusion-Models-pytorch&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;(2023-08-02)&lt;/p&gt;
+&lt;h2 id=&#34;idea--theory&#34;&gt;Idea &amp;amp; Theory&lt;/h2&gt;
+&lt;p&gt;Diffusion model is a generative model, so it learns the distribution of data 𝐗.
+(Discrimitive model learns labels.
+And MLE is a strategy to determine the distribution through parameters 𝚯)&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The essential idea is to systematically and slowly &lt;br&gt;
+destroy structure in a &lt;strong&gt;data distribution&lt;/strong&gt; through &lt;br&gt;
+an iterative forward diffusion process. We then &lt;br&gt;
+learn a reverse diffusion process that restores &lt;br&gt;
+structure in data, yielding a highly flexible and &lt;br&gt;
+&lt;strong&gt;tractable&lt;/strong&gt; generative model of the data. [&lt;a class=&#34;link&#34; href=&#34;#2015&#34; &gt;1&lt;/a&gt;]&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Forward diffusion process&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;Sample noise from a normal distribution&lt;a class=&#34;link&#34; href=&#34;#2015&#34; &gt;¹&lt;/a&gt; and add it to an image iteratively,
+until the original distribution of the image has been completely destroyed,
+becoming the same as the noise distribution.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The noise level (mean, variance) of each timestep is scaled by a schedule to avoid the variance explosion along with adding more noise.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The image distribution should be destroyed slowly,
+and the noise redundency at the end stage should be reduced.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;OpenAI &lt;a class=&#34;link&#34; href=&#34;#2102&#34; &gt;³&lt;/a&gt; proposed Cosine schedule in favor of the Linear schedule in DDPM&lt;a class=&#34;link&#34; href=&#34;#2020&#34; &gt;²&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Reverse diffusion process&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;Predict the noise of each step.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Do not predict the full image in one-shot because that&amp;rsquo;s intractable and results in worse results&lt;a class=&#34;link&#34; href=&#34;#2015&#34; &gt;¹&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Predicting the mean of the noise distribution and predicting the noise in the image directly are equivalent,
+just being parameterized differently &lt;a class=&#34;link&#34; href=&#34;#2020&#34; &gt;²&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Predict noise directly, so it can be subtracted from image.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The variance σ² of the normal distribution followed by the noise can be fixed&lt;a class=&#34;link&#34; href=&#34;#2020&#34; &gt;²&lt;/a&gt;.
+But optimizing it together with the mean, the log-likehood will get improved &lt;a class=&#34;link&#34; href=&#34;#2102&#34; &gt;³&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;architecture&#34;&gt;Architecture&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;DDPM used UNet like model:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Multi-level downsample + resnet block ➔ Low-res feature maps ➔ Upsample to origianl size&lt;/li&gt;
+&lt;li&gt;Concatenate RHS feature maps with the LHS feature maps of the same resolution to supplement the location information for features at each pixel.&lt;/li&gt;
+&lt;li&gt;Attend some of LHS and RHS feature maps by attention blocks to fuse features further.&lt;/li&gt;
+&lt;li&gt;Time embedding is added to each level of feature maps for &amp;ldquo;identifying&amp;rdquo; the consistent amount of noise to be predicted during a forward pass at a timestep.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;OpenAI 2nd paper&lt;a class=&#34;link&#34; href=&#34;#2105&#34; &gt;(4)&lt;/a&gt; made improvement by modifying the model in:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Increase levels, reduce width;&lt;/li&gt;
+&lt;li&gt;More attention blocks, more heads;&lt;/li&gt;
+&lt;li&gt;BigGAN residual block when downsampling and upsampling;&lt;/li&gt;
+&lt;li&gt;Adaptive Group Normalization after each resnet block: GroupNorm + affine transform ( Time embedding * GN + Label embedding)&lt;/li&gt;
+&lt;li&gt;Classifier guidance is a separate classifier that helps to generate images of a certain category.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;math-derivation&#34;&gt;Math Derivation&lt;/h2&gt;
+&lt;p&gt;(2024-04-17)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;VAE and diffuseion model both follows MLE strategy to find the parameter corresponding to the desired data distribution.&lt;/li&gt;
+&lt;li&gt;VAE solves the dataset distribution P(𝐗) by approximating ELBO;&lt;/li&gt;
+&lt;li&gt;While diffusion model solves the dataset distribution P(𝐗) by minimizing the KL Divergence.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;(2023-08-04)&lt;/p&gt;
+&lt;h3 id=&#34;vae&#34;&gt;VAE&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;VAE also wants to get the distribution of dataset P(𝐗), and an 𝐱 is generated by a latent variable 𝐳.&lt;/p&gt;
+&lt;p&gt;Therefore, based on Bayes theorem, p(𝐱) = p(𝐳) p(𝐱|𝐳) / p(𝐳|𝐱), where p(𝐳) is the prior.&lt;/p&gt;
+&lt;p&gt;And p(𝐳|𝐱) is &lt;strong&gt;intractable&lt;/strong&gt; because in p(𝐳|𝐱) = p(𝐳)p(𝐱|𝐳) / p(𝐱), the p(𝐱) can&amp;rsquo;t be computed through ∫f(𝐱,𝐳)d𝐳 since 𝐳 is high dimensional continuous.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;By introducing an approximated posterior q(𝐳|𝐱), log p(𝐱) = ELBO + KL-divergence.&lt;/p&gt;
+&lt;p&gt;$log p(𝐱) = E_{q(𝐳|𝐱)} log \frac{p(𝐱,𝐳)}{q(𝐳|𝐱)} + ∫ q(𝐳|𝐱) log \frac{q(𝐳|𝐱)}{p(𝐳)} d𝐳$&lt;/p&gt;
+&lt;p&gt;The KL-divergence can be integrated analytically.&lt;/p&gt;
+&lt;p&gt;ELBO is an expectation w.r.t q(𝐳|𝐱), which can technically be estimated using Monte Carlo sampling directly.&lt;/p&gt;
+&lt;p&gt;But when sampled q(𝐳ⁱ|𝐱) is around 0, the variance of $log\ q(𝐳|𝐱)$ would be high and make its gradint unstable, then cause the optimization difficult.
+And the function to be estimated $log(\frac{p_θ(𝐱,𝐳)}{q_φ(𝐳|𝐱)})$ involves two approximate models containing a lot error.&lt;/p&gt;
+&lt;p&gt;Thus, it&amp;rsquo;s not feasible to approximate ELBO directly.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;To approximate ELBO, we analyse the &lt;strong&gt;generative model&lt;/strong&gt; (Decoder) p(𝐱|𝐳).&lt;/p&gt;
+&lt;p&gt;Base on Bayes theorem, p(𝐱|𝐳) = p(𝐱) p(𝐳|𝐱)/p(𝐳).&lt;/p&gt;
+&lt;p&gt;By introducing the posterior approximation q(𝐳|𝐱), p(𝐱|𝐳) can derive:
+E(log p(𝐱|𝐳)) = ELBO + KL-divergence, i.e.,&lt;/p&gt;
+&lt;p&gt;$E_{q(𝐳|𝐱)}[ log p(𝐱|𝐳)] = E_{q(𝐳|𝐱)}[ log(\frac{p(𝐳|𝐱) p(𝐱)}{q(𝐳|𝐱)})] + ∫ q(𝐳|𝐱) log \frac{q(𝐳|𝐱)}{p(𝐳)} d𝐳$&lt;/p&gt;
+&lt;p&gt;Given 𝐳, the likelihood p(𝐱|𝐳) is supposed to be maximized. (The probiblity that the real 𝐱 is sampled should be maximum.)&lt;/p&gt;
+&lt;p&gt;Therefore, the parameters θ of generative model p(𝐱|𝐳) should be optimized via &lt;strong&gt;MLE&lt;/strong&gt; (cross-entropy) loss.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Now since ELBO = E(log p(𝐱|𝐳)) - KL-divergence and KL-div is known, ELBO will be obtained by just computing E(log p(𝐱|𝐳)).&lt;/p&gt;
+&lt;p&gt;E(log p(𝐱|𝐳)) can be estimated by MC:
+sample a 𝐳 then compute log p(𝐱|𝐳), and repeat N times, take average.&lt;/p&gt;
+&lt;p&gt;The approximated E(log p(𝐱|𝐳)) should be close to the original 𝐱, so there is a &lt;strong&gt;MSE&lt;/strong&gt; loss to optimize the parameters ϕ of the distribution of 𝐳.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;(2023-10-30) 𝐳&amp;rsquo;s distribution needs to be learned as well for sampling 𝐱.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;But MC sampling is not differentiable, so ϕ cannot be optimized through gradient descent.&lt;/p&gt;
+&lt;p&gt;Therefore, reparameterization considers that 𝐳 comes from a differentiable determinstic transform of ε, a random noise, i.e.,
+𝐳 = μ + σε.&lt;/p&gt;
+&lt;p&gt;Then, parameters (μ, σ²) of 𝐳&amp;rsquo;s distribution (Encoder) will be optimized by MSE.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;forward-process&#34;&gt;Forward process&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The forward diffusion process is like the &amp;ldquo;Encoder&amp;rdquo; p(𝐳|𝐱) in VAE:&lt;/p&gt;
+&lt;p&gt;$$q(𝐳|𝐱) ⇒ q(𝐱ₜ | 𝐱ₜ₋₁)$$&lt;/p&gt;
+&lt;p&gt;The distribution of image 𝐱ₜ at timestep t is determined by the image 𝐱ₜ₋₁ at the previous timestep, where smaller t means less noise.&lt;/p&gt;
+&lt;p&gt;Specifically, 𝐱ₜ follows a normal distribution with a mean of $\sqrt{1-βₜ}𝐱ₜ₋₁$ and a variance of $\sqrt{βₜ}𝐈$:&lt;/p&gt;
+&lt;p&gt;$$q(𝐱ₜ | 𝐱ₜ₋₁) = N(𝐱ₜ; \sqrt{1-βₜ} 𝐱ₜ₋₁, \sqrt{βₜ}𝐈)$$&lt;/p&gt;
+&lt;p&gt;𝐱ₜ is similar to 𝐱ₜ₋₁ because its mean is around 𝐱ₜ₋₁.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;An image 𝐱 is  a &amp;ldquo;vector&amp;rdquo;, and each element of it is a pixel.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;As timestep t increase, βₜ increases and (1-βₜ) decreases, which indicates
+the variance gets larger and the mean value gets smaller.&lt;/p&gt;
+&lt;p&gt;Intuitively, the value of the original pixel xₜ₋₁ is &lt;strong&gt;fading&lt;/strong&gt; and more pixels become outliers resulting in a wider range of variation around the mean.&lt;/p&gt;
+&lt;script&gt;type=&#34;text/tikz&#34;
+\begin{tikzpicture}[scale=1.5]
+  \def\meanA{1}
+  \def\sdA{0.5}
+  \def\meanB{0.6}
+  \def\sdB{0.9}
+  \def\xmin{-2}
+  \def\xmax{4}
+  \def\ymin{-0.1}
+  \def\ymax{0.8}
+
+  \draw[-&gt;] (\xmin-.2,0) -- (\xmax+.2,0) node[right] {$x$};
+  \draw[-&gt;] (0,\ymin-.1) -- (0,\ymax+.1) node[above] {$y$};
+
+  \draw[domain=\xmin:\xmax,samples=100,smooth,variable=\x,blue] plot ({\x},{1/(\sdA*sqrt(2*pi))*exp(-((\x-\meanA)^2)/(2*\sdA^2))});
+
+  \draw[dashed] (\meanA,\ymin) -- (\meanA,\ymax);
+
+  \filldraw[black] (\meanA,\ymax) circle (1pt);
+
+  \node[above right] at (\meanA,\ymax) {$f(\mu_A)=\frac{1}{\sigma_A\sqrt{2\pi}}$};
+
+  \node[below right] at (\xmax,\ymin) {$f(x)=\frac{1}{\sigma_A\sqrt{2\pi}}e^{-\frac{(x-\mu_A)^2}{2\sigma_A^2}}$};
+
+  \draw[domain=\xmin:\xmax,samples=100,smooth,variable=\x,red] plot ({\x},{1/(\sdB*sqrt(2*pi))*exp(-((\x-\meanB)^2)/(2*\sdB^2))});
+
+  \draw[dashed] (\meanB,\ymin) -- (\meanB,\ymax);
+
+  \filldraw[black] (\meanB,\ymax) circle (1pt);
+
+  \node[above right] at (\meanB,\ymax) {$f(\mu_B)=\frac{1}{\sigma_B\sqrt{2\pi}}$};
+
+  \node[below right] at (\xmax,\ymin) {$f(x)=\frac{1}{\sigma_B\sqrt{2\pi}}e^{-\frac{(x-\mu_B)^2}{2\sigma_B^2}}$};
+
+\end{tikzpicture}
+&lt;/script&gt;
+&lt;script type=&#34;text/tikz&#34;&gt;
+\begin{tikzpicture}[scale=1.2]
+  % Background
+  \fill [white] (-2.5,-0.5) rectangle (4.5,1.5); % Adjust the rectangle size if needed
+
+  % Axes
+  \draw[-&gt;] (-2.5,0) -- (4.5,0) node[below] {$x$};
+  \draw[-&gt;] (0,0) -- (0,1.2) node[left] {$y$};
+
+  % Red bell curve
+  \draw[red, thick, smooth, domain=-2:4, samples=100]
+      plot (\x, {exp(-((\x-1)^2)/(2*0.4^2))/(0.4*sqrt(2*pi))});
+
+  % Blue bell curve
+  \draw[blue, thick, smooth, domain=-2:4, samples=100]
+      plot (\x, {exp(-((\x-0.7)^2)/(2*0.8^2))/(0.8*sqrt(2*pi))});
+
+  % Axis labels
+  \node[below] at (4,0) {$x$};
+  \node[left] at (0,1) {$y$};
+
+  % Legend
+  \draw[red, thick] (0.2,-1.2) -- (1.2,-1.2) node[right] {$\mu=1, \sigma^2=0.4$};
+  \draw[blue, thick] (0.2,-1.7) -- (1.2,-1.7) node[right] {$\mu=0.7, \sigma^2=0.8$};
+\end{tikzpicture}
+&lt;/script&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;By introducing a notation $α = 1-βₜ$, the t-step evolution from 𝐱₀ to 𝐱ₜ can be simplied to a &lt;strong&gt;single expression&lt;/strong&gt; instead of sampling t times iteratively.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Replace (1-βₜ) with α, the distribution becomes:&lt;/p&gt;
+&lt;p&gt;$q(𝐱ₜ | 𝐱ₜ₋₁) = N(𝐱ₜ; \sqrt{αₜ} 𝐱ₜ₋₁, (1-αₜ)𝐈)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Based on the &lt;strong&gt;reparameterization trick&lt;/strong&gt;, a sample from the distribution is:&lt;/p&gt;
+&lt;p&gt;$𝐱ₜ = \sqrt{αₜ} 𝐱ₜ₋₁ + \sqrt{1-αₜ} ε$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Similarly, $𝐱ₜ₋₁ = \sqrt{αₜ₋₁} 𝐱ₜ₋₂ + \sqrt{1-αₜ₋₁} ε$, and plug it into 𝐱ₜ.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Then $𝐱ₜ = \sqrt{αₜ₋₁} ( \sqrt{αₜ} 𝐱ₜ₋₂ + \sqrt{1-αₜ₋₁} ε ) + \sqrt{1-αₜ} ε$.
+Now, the &lt;strong&gt;mean&lt;/strong&gt; becomes $\sqrt{αₜαₜ₋₁} 𝐱ₜ₋₂$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Given variance = 1 - (mean/𝐱)² in the above normal distribution $N(𝐱ₜ; \sqrt{αₜ} 𝐱ₜ₋₁, (1-αₜ)𝐈)$,
+and here mean = $\sqrt{αₜαₜ₋₁} 𝐱ₜ₋₂$,&lt;/p&gt;
+&lt;p&gt;the standard deviation should be $\sqrt{1 - αₜαₜ₋₁}$, then 𝐱ₜ becomes:&lt;/p&gt;
+&lt;p&gt;$𝐱ₜ = \sqrt{αₜαₜ₋₁} 𝐱ₜ₋₂ + \sqrt{1 - αₜαₜ₋₁} ε$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Repeatedly substituting intermediate states, the 𝐱ₜ can be represented with 𝐱₀ :&lt;/p&gt;
+&lt;p&gt;$𝐱ₜ = \sqrt{αₜαₜ₋₁ &amp;hellip; α₁} 𝐱₀ + \sqrt{1 - αₜαₜ₋₁ &amp;hellip; α₁} ε$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Denote the cumulative product &amp;ldquo;αₜαₜ₋₁ &amp;hellip; α₁&amp;rdquo; as $\bar aₜ$,
+the 𝐱ₜ can be reached in one-shot.&lt;/p&gt;
+&lt;p&gt;$𝐱ₜ = \sqrt{\bar aₜ} 𝐱₀ + \sqrt{1 - \bar aₜ} ε$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The distribution of 𝐱ₜ given 𝐱₀ is:&lt;/p&gt;
+&lt;p&gt;$q(𝐱ₜ | 𝐱₀) = N(𝐱ₜ; \sqrt{\bar aₜ} 𝐱₀, (1 - \bar aₜ)𝐈)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;With this expression, the deterministic forward process is ready-to-use and only the reverse process needs to be learned by a network.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;That&amp;rsquo;s why in the formula below, they &amp;ldquo;reverse&amp;rdquo; the forward q(𝐱ₜ|𝐱ₜ₋₁) to q(𝐱ₜ₋₁|𝐱ₜ) resulting in the equation only containing &amp;ldquo;reverse process&amp;rdquo;: 𝐱ₜ₋₁|𝐱ₜ,
+which then can be learned by narrowing the gap between q(𝐱ₜ₋₁|𝐱ₜ) and p(𝐱ₜ₋₁|𝐱ₜ).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;reverse-process&#34;&gt;Reverse process&lt;/h3&gt;
+&lt;p&gt;The reverse diffusion process is like the Decoder in VAE.&lt;/p&gt;
+&lt;p&gt;$$p(𝐱|𝐳) ⇒ p(𝐱ₜ₋₁𝐱ₜ₋₂..𝐱₀ | 𝐱ₜ)$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Given a noise image 𝐱ₜ, the distribution of less-noise image 𝐱ₜ₋₁ is&lt;/p&gt;
+&lt;p&gt;$p(𝐱ₜ₋₁ | 𝐱ₜ) = N(𝐱ₜ₋₁; μ_θ(𝐱ₜ, t), Σ_θ(𝐱ₜ, t))$&lt;/p&gt;
+&lt;p&gt;where the variance can be a fixed schedule as βₜ, so only the mean $μ_θ(𝐱ₜ, t)$ needs to be learned with a network.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;vlb&#34;&gt;VLB&lt;/h3&gt;
+&lt;p&gt;VLB is the loss to be minimized.
+VLB gets simplied by:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Applying Bayes rule to &amp;ldquo;reverse&amp;rdquo; the direction of the forward process, which
+becomes &amp;ldquo;forward denoising&amp;rdquo; steps q(𝐱ₜ₋₁ | 𝐱ₜ), because
+it&amp;rsquo;s from a noise image to a less-noise image;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Adding extra conditioning on 𝐱₀ for each &amp;ldquo;forward denosing&amp;rdquo; step q(𝐱ₜ₋₁ | 𝐱ₜ, 𝐱₀).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Derivation by step:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Diffusion model wants a set of parameter 𝛉 letting the likelihood of the &lt;strong&gt;original image&lt;/strong&gt; 𝐱₀ maximum.&lt;/p&gt;
+&lt;p&gt;$$\rm θ = arg max_θ\ log\ p_θ(𝐱₀)$$&lt;/p&gt;
+&lt;p&gt;With adding a minus sign, the objective turns to find the minimum:&lt;/p&gt;
+&lt;p&gt;-log p(𝐱₀) = -ELBO - KL-divergence&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp; -log p(𝐱₀) \left( = -log \frac{p(𝐱₀, 𝐳)}{p(𝐳|𝐱₀)} \right) \\
+&amp;amp;= -log \frac{p(𝐱_{1:T}, 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)} \\
+&amp;amp; \text{(Introduce &amp;ldquo;approximate posterior&amp;rdquo; q :)} \\
+&amp;amp;= -(log \frac{ p(𝐱_{1:T}, 𝐱₀) }{ q(𝐱_{1:T} | 𝐱₀)}
+\ + log (\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)}) ) \\
+\end{aligned}
+$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Note that $q(𝐱_{1:T} | 𝐱₀)$ represents a &lt;strong&gt;joint distribution&lt;/strong&gt; of N conditional distributions 𝐱ₜ and 𝐱ₜ₋₁.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;It is the &lt;strong&gt;step-by-step&lt;/strong&gt; design that makes training a network to learn the data distribution possible.
+Meanwhile, the sampling process also has to be step-by-step.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Compute expection w.r.t. $q(𝐱_{1:T} | 𝐱₀)$ for both side.&lt;/p&gt;
+&lt;p&gt;$$
+E_{q(𝐱_{1:T} | 𝐱₀)} [ -log p(𝐱₀) ] \\
+\ = E_{q(𝐱_{1:T} | 𝐱₀)} \left[-log \frac{ p(𝐱_{0:T}) }{ q(𝐱_{1:T} | 𝐱₀)}\right]
+\ + E_{q(𝐱_{1:T} | 𝐱₀)} \left[-log (\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)})\right]
+$$&lt;/p&gt;
+&lt;p&gt;Expectation is equivalent to integration.&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp; \text{LHS:}
+∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * (-log p(𝐱₀)) d𝐱_{1:T} = -log p(𝐱₀) \\
+&amp;amp; \text{RHS:}
+\ = E_{q(𝐱_{1:T} | 𝐱₀)} \left[-log \frac{ p(𝐱_{0:T}) }{ q(𝐱_{1:T} | 𝐱₀)}\right] \\
+&amp;amp; + ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * \left(-log (\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)})\right) d𝐱_{1:T}
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Since KL-divergence is non-negative, there is:&lt;/p&gt;
+&lt;p&gt;-log p(𝐱₀) ≤ -log p(𝐱₀) + KL-divergence =&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp;  -log p(𝐱₀) + D_{KL}( q(𝐱_{1:T} | 𝐱₀) || p(𝐱_{1:T} | 𝐱₀) ) \\
+&amp;amp;= -log p(𝐱₀)
+\ + ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * \left(log (\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)})\right) d𝐱_{1:T}
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Break apart the denominator $p(𝐱_{1:T} | 𝐱₀)$ of the argument in the KL-divergence&amp;rsquo;s logarithm based on Bayes rule:&lt;/p&gt;
+&lt;p&gt;$$p(𝐱_{1:T} | 𝐱₀) = \frac{p(𝐱_{1:T}, 𝐱₀)}{p(𝐱₀)} = \frac{p(𝐱_{0:T})}{p(𝐱₀)}$$&lt;/p&gt;
+&lt;p&gt;Plug it back to KL-divergence:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp;∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * \left( log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)})\right) d𝐱_{1:T} \\
+&amp;amp;= ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * log (\frac{q(𝐱_{1:T} | 𝐱₀) p(𝐱₀)}{p(𝐱_{0:T})}) d𝐱_{1:T} \\
+&amp;amp;= ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * [ log(p(𝐱₀) + log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{0:T})})] d𝐱_{1:T}\\
+&amp;amp;= ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * log(p(𝐱₀) d𝐱_{1:T} \\
+&amp;amp;\quad  + ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{0:T})}) d𝐱_{1:T} \\
+&amp;amp;= log p(𝐱₀) + ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{0:T})}) d𝐱_{1:T}
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Plug this decomposed KL-divergence into the above inequality, and the incomputable log-likelihood (-log p(𝐱₀)) can be canceled,
+resulting in the &lt;strong&gt;Variational Lower Bound (VLB)&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;$$-log p(𝐱₀) ≤ ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀)\ log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{0:T})}) d𝐱_{1:T}$$&lt;/p&gt;
+&lt;p&gt;The argument of log is a ratio of the forward process and the reverse process.&lt;/p&gt;
+&lt;p&gt;The numerator is the distribution of $𝐱_{1:T}$ given the &lt;strong&gt;starting point&lt;/strong&gt; 𝐱₀.
+To make the numerator and denominator have symmetric steps, the starting point of the reverse process $p(𝐱_T)$ can be separated out.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Separate out $p(𝐱_T)$ from the denominator by rewriting the conditional probability as a &lt;strong&gt;cumulative product&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;$$
+p(𝐱_{0:T}) = p(𝐱_T) Π_{t=1}^T p(𝐱ₜ₋₁|𝐱ₜ)
+$$&lt;/p&gt;
+&lt;p&gt;Plug it back into the logarithm of the VLB, and &lt;strong&gt;break&lt;/strong&gt; the numerator joint distribution as a &lt;strong&gt;product of N-1 steps&lt;/strong&gt; as well:&lt;/p&gt;
+&lt;p&gt;$$
+log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_T) Π_{t=1}^T p(𝐱ₜ₋₁|𝐱ₜ)})
+= log \frac{ Π_{t=1}^T q(𝐱ₜ|𝐱ₜ₋₁)}{ p(𝐱_T) Π_{t=1}^T p(𝐱ₜ₋₁|𝐱ₜ)} \\
+= log \frac{ Π_{t=1}^T q(𝐱ₜ|𝐱ₜ₋₁)}{ Π_{t=1}^T p(𝐱ₜ₋₁|𝐱ₜ)} - log p(𝐱_T) \\
+= ∑_{t=1}^T log (\frac{q(𝐱ₜ|𝐱ₜ₋₁)}{p(𝐱ₜ₋₁|𝐱ₜ)}) - log\ p(𝐱_T)
+$$&lt;/p&gt;
+&lt;p&gt;This form includes every step rather than only focusing on the distribution of the all events $𝐱_{1:T}$.&lt;/p&gt;
+&lt;p&gt;(2023-08-11) DM wants the data distribution, but it doesn&amp;rsquo;t &lt;strong&gt;rebuild&lt;/strong&gt; the distribution transformation directly from Gaussian to data distribution,
+but approachs the &lt;strong&gt;corruption&lt;/strong&gt; process step-by-step to reduce the difficulty (variance).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Separate the first item (first step, t=1) from the summation,
+so that the &lt;strong&gt;other terms&lt;/strong&gt; can be conditioned on 𝐱₀, thus reducing the variance:&lt;/p&gt;
+&lt;p&gt;$$
+log \frac{q(𝐱₁|𝐱₀)}{p(𝐱₀|𝐱₁)} + ∑_{t=2}^T log (\frac{q(𝐱ₜ|𝐱ₜ₋₁)}{p(𝐱ₜ₋₁|𝐱ₜ)}) - log\ p(𝐱_T)
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Reformulate the numerator $q(𝐱ₜ|𝐱ₜ₋₁)$ based on &lt;strong&gt;Bayes rule&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;$$
+q(𝐱ₜ|𝐱ₜ₋₁) = \frac{q(𝐱ₜ₋₁|𝐱ₜ)q(𝐱ₜ)}{q(𝐱ₜ₋₁)}
+$$&lt;/p&gt;
+&lt;p&gt;In this form, forward adding noise $q$ and reverse denoising $p$ become the same process from 𝐱ₜ to 𝐱ₜ₋₁.
+Such that, in one pass, the model can both perform forward process and reverse process once.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Make each step &lt;strong&gt;conditioned on 𝐱₀&lt;/strong&gt; to reduce the variance (uncertainty).&lt;/p&gt;
+&lt;p&gt;$$
+q(𝐱ₜ|𝐱ₜ₋₁) = \frac{q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)q(𝐱ₜ| 𝐱₀)}{q(𝐱ₜ₋₁| 𝐱₀)}
+$$&lt;/p&gt;
+&lt;p&gt;And this distribution $q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)$ has a closed-form solution.&lt;/p&gt;
+&lt;p&gt;Here is why the first step is separated out:
+If t=1, the $q(𝐱₁|𝐱₀)$ conditioned on 𝐱₀ is:&lt;/p&gt;
+&lt;p&gt;$$
+q(𝐱₁|𝐱₀) = \frac{q(𝐱₀|𝐱₁, 𝐱₀)q(𝐱₁|𝐱₀)}{q(𝐱₀|𝐱₀)}
+$$&lt;/p&gt;
+&lt;p&gt;There is a loop of $q(𝐱₁|𝐱₀)$ if 𝐱₀ exists,
+and other terms $q(𝐱₀|𝐱₁, 𝐱₀)$ and $q(𝐱₀|𝐱₀)$ don&amp;rsquo;t make sense.&lt;/p&gt;
+&lt;p&gt;Plug the newly conditioned numerator back to the fraction, and break it apart based on log rule:&lt;/p&gt;
+&lt;p&gt;$$
+∑_{t=2}^T log \frac{q(𝐱ₜ|𝐱ₜ₋₁)}{p(𝐱ₜ₋₁|𝐱ₜ)}
+\ = ∑_{t=2}^T log \frac{q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)q(𝐱ₜ| 𝐱₀)}{p(𝐱ₜ₋₁|𝐱ₜ)q(𝐱ₜ₋₁| 𝐱₀)} \\
+\ = ∑_{t=2}^T log \frac{q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)}{p(𝐱ₜ₋₁|𝐱ₜ)} + ∑_{t=2}^T log \frac{q(𝐱ₜ| 𝐱₀)}{q(𝐱ₜ₋₁| 𝐱₀)} \\
+$$&lt;/p&gt;
+&lt;p&gt;The second term will be simplied to $log \frac{q(𝐱_T| 𝐱₀)}{q(𝐱₁| 𝐱₀)}$&lt;/p&gt;
+&lt;p&gt;Then, the variational lower bound becomes:&lt;/p&gt;
+&lt;p&gt;$$
+D_{KL}(q(𝐱_{1:T}|𝐱₀) || p(𝐱_{0:T})) = \\
+log \frac{q(𝐱₁|𝐱₀)}{p(𝐱₀|𝐱₁)}
+\ + ∑_{t=2}^T log \frac{q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)}{p(𝐱ₜ₋₁|𝐱ₜ)}
+\ + log \frac{q(𝐱_T| 𝐱₀)}{q(𝐱₁| 𝐱₀)}
+\ - log\ p(𝐱_T) \\
+\ \\
+\ = ∑_{t=2}^Tlog \frac{ q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) }{ p(𝐱ₜ₋₁|𝐱ₜ)}
+\ + log \frac{q(𝐱_T| 𝐱₀)}{p(𝐱₀|𝐱₁)}
+\ - log\ p(𝐱_T) \\
+\ \\
+\ = ∑_{t=2}^T log \frac{ q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) }{ p(𝐱ₜ₋₁|𝐱ₜ)}
+\ + log \frac{q(𝐱_T| 𝐱₀)}{p(𝐱_T)}
+\ - log p(𝐱₀|𝐱₁)
+$$&lt;/p&gt;
+&lt;p&gt;Write this formula as KL-divergence, so that a concrete expression can be determined later.&lt;/p&gt;
+&lt;font style=&#39;color: red&#39;&gt;
+How are those two fractions written as KL-divergence?
+&lt;/font&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp; ∑_{t=2}^T D_{KL} (q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) || p(𝐱ₜ₋₁|𝐱ₜ)) \\
+&amp;amp; + D_{KL} (q(𝐱_T| 𝐱₀) || p(𝐱_T)) \\
+&amp;amp; - log\ p(𝐱₀|𝐱₁)
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;loss-function&#34;&gt;Loss function&lt;/h3&gt;
+&lt;p&gt;The VLB to be minimized is eventually derived as a MSE loss function between the actual noise and the predicted noise.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;$D_{KL} (q(𝐱_T| 𝐱₀) || p(𝐱_T))$ can be &lt;strong&gt;ignored&lt;/strong&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$q(𝐱_T| 𝐱₀)$ has no learnable parameters because it just adds noise following a schedule.&lt;/li&gt;
+&lt;li&gt;And $p(𝐱_T)$ is the noise image sampled from normal distribution.
+Since $q(𝐱_T| 𝐱₀)$ is the eventual image which is supposed to follow the normal distribution,
+this KL-divergence should be small.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Then, the loss only contains the other two terms:&lt;/p&gt;
+&lt;p&gt;$$L = ∑_{t=2}^T D_{KL} (q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) || p(𝐱ₜ₋₁|𝐱ₜ)) - log\ p(𝐱₀|𝐱₁)$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$D_{KL} (q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) || p(𝐱ₜ₋₁|𝐱ₜ))$ is the MSE between the actual noise and the predicted noise.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;For the reverse pass, the distribution of the &lt;strong&gt;denoised&lt;/strong&gt; image $p(𝐱ₜ₋₁|𝐱ₜ)$ has a parametric expression:&lt;/p&gt;
+&lt;p&gt;$$p(𝐱ₜ₋₁|𝐱ₜ) = N(𝐱ₜ₋₁; μ_θ(𝐱ₜ,t), Σ_θ(𝐱ₜ,t)) \\ = N(𝐱ₜ₋₁; μ_θ(𝐱ₜ,t), β𝐈)$$&lt;/p&gt;
+&lt;p&gt;where Σ is fixed as βₜ𝐈, and only the mean $μ_θ(𝐱ₜ,t)$ will be learned and represented by a network (output) through the MSE loss of noise as below.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;For the (&amp;ldquo;reversed&amp;rdquo;) forward pass, the distribution of &lt;strong&gt;noise-added&lt;/strong&gt; image $q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)$ has a closed-form solution,
+which can be written as a similar expression as p(𝐱ₜ₋₁|𝐱ₜ):
+&lt;font style=&#34;color: red&#34;&gt;What&amp;rsquo;s the derivation?&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;$$
+q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) =
+N(𝐱ₜ₋₁; \tilde μₜ(𝐱ₜ,𝐱₀), \tilde βₜ𝐈) \\
+\ \\
+\tilde βₜ = \frac{1- \bar αₜ₋₁}{1-\bar αₜ} ⋅ βₜ \\
+\ \\
+\tilde μ(𝐱ₜ,𝐱₀) = \frac{\sqrt{αₜ} (1-\bar αₜ₋₁) }{1-\bar αₜ} 𝐱ₜ
+\ + \frac{\sqrt{\bar αₜ₋₁} βₜ}{1-\bar αₜ} 𝐱₀ \\
+\ \\
+\rm Is there \sqrt{αₜ} or \sqrt{\bar αₜ} ?
+$$&lt;/p&gt;
+&lt;p&gt;where the $\tilde βₜ$ is fixed, so only consider the $\tilde μ(𝐱ₜ,𝐱₀)$, which can
+be simplified by the &lt;strong&gt;one-step forward&lt;/strong&gt; process expression:
+$𝐱ₜ = \sqrt{\bar αₜ} 𝐱₀ + \sqrt{1 - \bar αₜ} ε$&lt;/p&gt;
+&lt;p&gt;$$
+𝐱₀ = \frac{𝐱ₜ - \sqrt{1 - \bar αₜ} ε}{\sqrt{\bar αₜ}}
+$$&lt;/p&gt;
+&lt;p&gt;Plug 𝐱₀ into $\tilde μ(𝐱ₜ,𝐱₀)$, then the mean of the noise-added image &lt;strong&gt;doesn&amp;rsquo;t depend&lt;/strong&gt; on 𝐱₀ anymore:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\tilde μ(𝐱ₜ,𝐱₀)
+&amp;amp; = \frac{\sqrt{αₜ} (1-\bar αₜ₋₁) }{1-\bar αₜ} 𝐱ₜ
+\ + \frac{\sqrt{\bar αₜ₋₁} βₜ}{1-\bar αₜ}
+\ \frac{𝐱ₜ - \sqrt{1 - \bar αₜ} ε}{\sqrt{\bar αₜ}} \\
+\ \\
+&amp;amp; =  ???\ How \ to \ do? \ ??? \\
+&amp;amp; = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε)
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;The mean of the distribution from which the noise-added image (𝐱ₜ,𝐱₀) at timestep t get sampled out is subtracting some random noise from image 𝐱ₜ.&lt;/p&gt;
+&lt;p&gt;𝐱ₜ is known from the forward process schedule, and the $\tilde μ(𝐱ₜ,𝐱₀)$ is the &lt;strong&gt;target&lt;/strong&gt; for the network to optimize weights
+to make the predicted mean $μ_θ(𝐱ₜ,t)$ same as $\tilde μ(𝐱ₜ,𝐱₀)$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Since network only output μ, the KL-divergence in the loss function can be simplified in favor of using MSE:&lt;/p&gt;
+&lt;p&gt;$$
+Lₜ = \frac{1}{2σₜ²} \| \tilde μ(𝐱ₜ,𝐱₀) - μ_θ(𝐱ₜ,t) \|²
+$$&lt;/p&gt;
+&lt;p&gt;This MSE indicates that the noise-added image in the forward process and the noise-removed image in the reverse process should be &lt;strong&gt;as close as possible&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Since the &lt;strong&gt;actual&lt;/strong&gt; mean $\tilde μ(𝐱ₜ,𝐱₀) = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε)$,
+where 𝐱ₜ is known, as it&amp;rsquo;s the input to the network.
+So the model is essentially estimating the actual $ε$ (random &lt;strong&gt;noise&lt;/strong&gt;) every time.&lt;/p&gt;
+&lt;p&gt;Hence, the &lt;strong&gt;predicted&lt;/strong&gt; mean $μ_θ(𝐱ₜ,t)$ by the model can be written in the same form as $\tilde μ(𝐱ₜ,𝐱₀)$, where only the noise $ε_θ$ has parameters:&lt;/p&gt;
+&lt;p&gt;$$μ_θ(𝐱ₜ,t) = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ((𝐱ₜ,t)))$$&lt;/p&gt;
+&lt;p&gt;Therefore, the loss term becomes:&lt;/p&gt;
+&lt;p&gt;$$
+Lₜ = \frac{1}{2σₜ²} \| \tilde μ(𝐱ₜ,𝐱₀) - μ_θ(𝐱ₜ,t) \|² \\
+\ = \frac{1}{2σₜ²} \left\| \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε)
+\ - \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t)) \right\|² \\
+\ = \frac{βₜ²}{2σₜ² αₜ (1-\bar αₜ)} \|ε - ε_θ(𝐱ₜ,t) \|²
+$$&lt;/p&gt;
+&lt;p&gt;Disregarding the scaling factor can bring better sampling quality and easier implementation, so the final loss for the KL-divergence is MSE between actual noise and predicted noise at time t:&lt;/p&gt;
+&lt;p&gt;$$\|ε - ε_θ(𝐱ₜ,t) \|²$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Once the mean $μ_θ(𝐱ₜ,t)$ has predicted out based on 𝐱ₜ and t, a &amp;ldquo;cleaner&amp;rdquo; image can be sampled from the distribution:&lt;/p&gt;
+&lt;p&gt;$$
+N(𝐱ₜ₋₁; μ_θ(𝐱ₜ,t), \sigma_θ(𝐱ₜ,t)) =
+N(𝐱ₜ₋₁; \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t), βₜ𝐈)
+$$&lt;/p&gt;
+&lt;div id=&#34;Sampling&#34;&gt;&lt;/div&gt;
+By using reparameterization trick, this sampled image is: 
+&lt;p&gt;$$
+𝐱ₜ₋₁ = μ_θ(𝐱ₜ,t) + σε
+\ = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t) + \sqrt{βₜ}ε
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The last term $log p(𝐱₀|𝐱₁)$ in the VLB is the predicted distribution for the original image 𝐱₀.
+Its goodness is measured by a &lt;strong&gt;probability&lt;/strong&gt;
+that the &lt;strong&gt;original&lt;/strong&gt; image $𝐱₀$ gets sampled from the estimated distribution $N(x; μ_θⁱ(𝐱₁,1), β₁)$.&lt;/p&gt;
+&lt;p&gt;The probability of an image should be a product of &lt;strong&gt;total D pixels&lt;/strong&gt;.
+And the probability a pixel should be an &lt;strong&gt;integral&lt;/strong&gt; over an interval [δ₋, δ₊] of the PDF curve:&lt;/p&gt;
+&lt;p&gt;$$
+p_θ(𝐱₀|𝐱₁) = ∏_{i=1}^D ∫_{δ₋(x₀ⁱ)}^{δ₊(x₀ⁱ)} N(x; μ_θⁱ(𝐱₁,1), β₁) dx
+$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;where $x₀$ is the pixel&amp;rsquo;s ground-truth.&lt;/li&gt;
+&lt;li&gt;$N(x; μ_θⁱ(𝐱₁,1), β₁)$ is the distribution to be integrated.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This interval is determined based on the &lt;strong&gt;actual pixel&lt;/strong&gt; value as:&lt;/p&gt;
+&lt;p&gt;$$
+δ₊(x) =
+\begin{cases}
+∞ &amp;amp; \text{if x = 1} \\ x+\frac{1}{255} &amp;amp; \text{if x &amp;lt; 1}
+\end{cases}, \quad
+δ₋(x) =
+\begin{cases}
+-∞ &amp;amp; \text{if x = -1} \\ x-\frac{1}{255} &amp;amp; \text{if x &amp;gt; -1}
+\end{cases}
+$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The original pixel range [0,255] has been normalized to [-1, 1] to align with the standard normal distribution $p(x_T) \sim N(0,1)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;If the actual value is 1, the integral upper bound in the distribution is ∞, and the lower bound is 1-1/255 = 0.996, the width of the interval is from 0.996 to infinity.&lt;/p&gt;
+&lt;p&gt;If the actual value is 0.5, the upper bound is 0.5+1/255, and the lower bound is 0.5-1/255, the width of the interval is 2/255.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;pic: area of the true pixel region in two predicted distributions.&lt;/p&gt;
+&lt;p&gt;If the area &lt;strong&gt;around the actual pixel value&lt;/strong&gt; under the predicted distribution PDF curve is large, the predicted distribution is good.
+Howerver, if the area around real pixel value is small, the estimated mean is wrongly located.&lt;/p&gt;
+&lt;p&gt;Hence, this probability (log-likelihood) should be maximized, and by condering the minus sign in front of it, the corresponding loss term comes.&lt;/p&gt;
+&lt;p&gt;However, the authors &lt;strong&gt;got rid of&lt;/strong&gt; this loss term $-log p(𝐱₀|𝐱₁)$ when training the network.
+And the consequense is at inference time, the final step from 𝐱₁ to 𝐱₀ doesn&amp;rsquo;t add noise, because this step &lt;strong&gt;wasn&amp;rsquo;t get optimized&lt;/strong&gt;.
+Therefore, The difference from other sampling steps is that the predicted 𝐱₀ doesn&amp;rsquo;t plus random noise.&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\text{t&amp;gt;1:}\quad
+𝐱_{t-1} &amp;amp;= \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t) + \sqrt βₜ ε) \\
+\text{t=1:}\quad
+𝐱_{t-1} &amp;amp;= \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t))
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;A simple reason is that we don&amp;rsquo;t want to add noise to the final denoised clear output image 𝐱₀. Otherwise, the generated image is low-quality.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The complete loss function is MSE:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\rm L_{simple} &amp;amp;= E_{t,𝐱₀,ε} [ || ε - ε_θ(𝐱ₜ,t)||² ]  \\
+&amp;amp;= E_{t,𝐱₀,ε} [ || ε - ε_θ( \sqrt{\bar aₜ} 𝐱₀ + \sqrt{1 - \bar aₜ} ε, t) ||² ]
+\end{aligned}
+$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;t is sampled from a uniform distribution between 1 and t;&lt;/li&gt;
+&lt;li&gt;𝐱ₜ is the one-step forward process.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;algorithms&#34;&gt;Algorithms&lt;/h2&gt;
+&lt;p&gt;DDPM paper&lt;/p&gt;
+&lt;p&gt;Training a model:&lt;/p&gt;
+&lt;pre class=&#34;pseudocode&#34; data-line-number=true&gt;\begin{algorithm}
+\caption{Training}
+\begin{algorithmic}
+\REPEAT
+  \STATE Sample a t from U(0,T)
+  \STATE Select an input image 𝐱₀ from dataset
+  \STATE Sample a noise from N(0,𝐈)
+  \STATE Perform gradient descent with loss: \\\\
+  $||ε - ε_θ(\sqrt{\bar aₜ} 𝐱₀ + \sqrt{1 - \bar aₜ} ε, t)||²$
+\UNTIL{converge}
+\end{algorithmic}
+\end{algorithm}
+&lt;/pre&gt;
+
+&lt;p&gt;Sampling from the learned data distribution by means of reparameterization trick:&lt;/p&gt;
+&lt;pre class=&#34;pseudocode&#34; data-line-number=true&gt;\begin{algorithm}
+\caption{Sampling}
+\begin{algorithmic}
+\STATE Sample a noise image $𝐱_T \sim N(0,𝐈)$
+\FOR{t = T:1}
+  \COMMENT{Remove noise step-by-step}
+  \IF{t=1}
+    \STATE ε=0
+  \ELSE
+    \STATE ε ~ N(0,𝐈)
+  \ENDIF
+
+  \STATE $𝐱ₜ₋₁ = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{1-αₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t) + \sqrt{σₜ}ε$
+  \COMMENT{Reparam trick}
+
+\ENDFOR
+\RETURN 𝐱₀
+\end{algorithmic}
+\end{algorithm}
+&lt;/pre&gt;
+
+&lt;p&gt;In this reparametrization formula change βₜ and $\sqrt{βₜ}$ to 1-αₜ and σₜ,
+which are different from the &lt;a class=&#34;link&#34; href=&#34;#Sampling&#34; &gt;above equation&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Training and Sampling share the common pipeline:&lt;/p&gt;
+
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 328 89&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 24,16 L 40,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,16 L 112,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;48.000000,16.000000 36.000000,10.400000 36.000000,21.600000&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 40.000000, 16.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;72.000000,32.000000 60.000000,26.400000 60.000000,37.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 64.000000, 32.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;120.000000,16.000000 108.000000,10.400000 108.000000,21.600000&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 112.000000, 16.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐱&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ₜ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;‖&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;U&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ε&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;N&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ε&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;_&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;88&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;θ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;‖&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;104&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;²&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ε&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;_&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;θ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋯&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;▶&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;μ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;_&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;θ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐱&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ₜ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;264&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋯&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;272&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;▶&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;288&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐱&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;296&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ₜ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;304&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;₋&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;312&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;₁&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;improvements&#34;&gt;Improvements&lt;/h2&gt;
+&lt;p&gt;Improvements from OpenAI&amp;rsquo;s 2021 papers.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Learn a scale factor for interpolating the upper and lower bound to get a flexible variance:&lt;/p&gt;
+&lt;p&gt;$$Σ_θ(xₜ,t) = exp(v\ log βₜ +(1-v)\ log(1- \tilde{βₜ}))$$&lt;/p&gt;
+&lt;p&gt;v is learned by adding an extra loss term $λ L_{VLB}$, and λ=0.001.&lt;/p&gt;
+&lt;p&gt;$$L_{hybrid} = E_{t,𝐱₀,ε} [ || ε - ε_θ(𝐱ₜ,t)||² ] + λ L_{VLB}$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Use cosine noise schedule $f(t)=cos(\frac{t/T+s}{1+s}⋅π/2)²$ in favor of linear schedule.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;reference&#34;&gt;Reference&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;div id=&#34;2015&#34;&gt;&lt;a href=&#34;https://arxiv.org/abs/1503.03585&#34;&gt;Deep Unsupervised Learning using Nonequilibrium Thermodynamics, 2015&lt;/a&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;div id=&#34;2020&#34;&gt;&lt;a href=&#34;https://arxiv.org/abs/2006.11239&#34;&gt;Denoising Diffusion Probabilistic Models, 2020&lt;/a&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;div id=&#34;2102&#34;&gt;&lt;a href=&#34;https://arxiv.org/abs/2102.09672&#34;&gt;Improved Denoising Diffusion Probabilistic Models, 2021 Feb&lt;/a&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;div id=&#34;2105&#34;&gt;&lt;a href=&#34;https://arxiv.org/abs/2105.05233&#34;&gt;Diffusion Models Beat GANs on Image Synthesis, 2021 May&lt;/a&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: DM - DLAI | How Diffusion Models Work</title>
+        <link>https://zichen34.github.io/writenotes/model/imagen/diffusion/d-vid-dlai/</link>
+        <pubDate>Sun, 09 Jul 2023 17:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/model/imagen/diffusion/d-vid-dlai/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://learn.deeplearning.ai/diffusion-models/lesson/1/introduction&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Course page&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;sampling&#34;&gt;Sampling&lt;/h2&gt;
+&lt;p&gt;Steps:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Sample a random noise image from &lt;strong&gt;normal&lt;/strong&gt; distribution;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Use the trained network to predict the &lt;strong&gt;noise&lt;/strong&gt; as opposed to the meaningful object for &lt;strong&gt;one step&lt;/strong&gt;;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Use DDPM algorithm to compute noise-level &lt;strong&gt;scaling factors&lt;/strong&gt; given a timestep:
+&lt;code&gt;s1, s2, s3 = ddpm_scaling(t)&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Subtract&lt;/strong&gt; the predicted noise from noise image and add extra noise,
+&lt;code&gt;sample = s1 * (sample - s2 * predicted_noise) + s3 * extra_noise&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Repeat steps 2 to 4 to remove noise &lt;strong&gt;progressively&lt;/strong&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;samples&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;torch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;randn&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;N_imgs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;height&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;height&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;timesteps&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;500&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;range&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;timesteps&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# reshape to match input image (N_imgs, 3, height, height)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;torch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tensor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;timesteps&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;)[:,&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;None&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# extra noise (except for the first step)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;z&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;torch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;randn_like&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;samples&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# predict noise&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;eps&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nn_model&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;samples&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# remove noise and add extra noise&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;samples&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;denoise_add_noise&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;samples&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;eps&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;z&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Adding extra noise before removing noise in the next step avoids collapsing to the average thing of the training dataset.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;unet&#34;&gt;UNet&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;UNet can output images of the same size as the input, and assign the image feature onto each pixel.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Compress image for compact representation;&lt;/li&gt;
+&lt;li&gt;Down sampling once, number of channel doubles&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Also UNet allows incorporating addtional information during the decoding period.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Each time up-sampling, the sample is multiplied with context embeddings and plus time embeddings.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Time embedding indicates timestep of the feature vector, so with that, the &amp;ldquo;time-dependent&amp;rdquo; noise level can be determined.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Context embedding can be text description, so the UNet will be guided to generate specific output.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 448 489&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 120,32 L 144,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 224,32 L 248,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 280,32 L 296,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 328,32 L 360,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 248,432 L 296,432&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 0,48 L 0,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,80 L 16,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 24,48 L 24,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 40,80 L 40,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,48 L 48,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,80 L 64,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 72,48 L 72,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 88,80 L 88,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,48 L 168,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,224 L 168,272&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,368 L 168,416&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 192,96 L 192,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 192,272 L 192,320&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 192,416 L 192,464&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,48 L 200,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,224 L 200,272&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,368 L 200,416&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 224,96 L 224,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 224,272 L 224,320&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 224,416 L 224,464&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 264,64 L 264,272&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 312,64 L 312,416&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 376,48 L 376,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 400,96 L 400,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 0,80 L 16,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,416 L 192,464&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 0,48 L 16,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 24,80 L 40,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,368 L 192,416&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,416 L 224,464&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 24,48 L 40,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,80 L 64,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,368 L 224,416&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,48 L 64,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 72,80 L 88,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,272 L 192,320&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 72,48 L 88,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,224 L 192,272&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,272 L 224,320&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,224 L 224,272&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,96 L 192,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,48 L 192,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,96 L 224,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,48 L 224,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 376,96 L 400,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 376,48 L 400,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;152.000000,32.000000 140.000000,26.400000 140.000000,37.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 144.000000, 32.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;256.000000,32.000000 244.000000,26.400000 244.000000,37.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 248.000000, 32.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;272.000000,64.000000 260.000000,58.400002 260.000000,69.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 264.000000, 64.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;320.000000,64.000000 308.000000,58.400002 308.000000,69.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 312.000000, 64.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;368.000000,32.000000 356.000000,26.400000 356.000000,37.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 360.000000, 32.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;path d=&#39;M 264,272 A 16,16 0 0,1 248,288&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 312,416 A 16,16 0 0,1 296,432&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;h&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;4&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;h&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;88&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;2&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;C&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;b&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;340&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;T&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;b&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;340&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;1&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;h&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;340&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;340&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;196&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;212&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;356&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;264&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⨂&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;312&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⨁&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;328&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;336&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;336&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;344&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;344&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;352&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;352&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;360&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;368&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;368&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;376&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;1&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;384&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;392&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;392&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;400&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;2&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;400&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;h&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;408&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;416&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;424&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# embed context and timestep&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;cemb1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;contextembed1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;c&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;view&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;n_feat&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;temb1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;timeembed1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;view&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;n_feat&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;up2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;up&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cemb1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;up1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;temb1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;down2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;hr&gt;
+&lt;p&gt;(2023-07-10)&lt;/p&gt;
+&lt;h2 id=&#34;training&#34;&gt;Training&lt;/h2&gt;
+&lt;p&gt;Train the UNet to identify the noise that was applied to the image.&lt;/p&gt;
+&lt;p&gt;UNet can segment image (classify each pixel), so here is it used to identify whether every pixel is noise or not?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;No, it&amp;rsquo;s used to make each pixel carried with extracted or introduced features.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Training steps:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Sample a random timestep (noise-level) to make noise;&lt;/li&gt;
+&lt;li&gt;Add the known noise onto a random training image;&lt;/li&gt;
+&lt;li&gt;UNet takes as input the noise image and predicts the applied noise as output;&lt;/li&gt;
+&lt;li&gt;Loss is the difference between the true noise and the predicted noise&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ep&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;range&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;n_epoch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;x&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dataloader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;c1&#34;&gt;# perturb data&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;torch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;randint&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timesteps&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;x&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;shape&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;],)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;to&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;device&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;noise&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;torch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;randn_like&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;x&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;x_pert&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;perturb_input&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;x&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;noise&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;c1&#34;&gt;# use network to recover noise&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;pred_noise&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nn_model&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;x_pert&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timesteps&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;c1&#34;&gt;# loss is MSE&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;loss&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;F&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mse_loss&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;pred_noise&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;noise&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;optim&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;zero_grad&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;loss&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backward&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;optim&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;step&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;hr&gt;
+&lt;p&gt;(2023-07-11)&lt;/p&gt;
+&lt;h2 id=&#34;controling&#34;&gt;Controling&lt;/h2&gt;
+&lt;p&gt;Use embedding vector to control the predicted noise.&lt;/p&gt;
+&lt;p&gt;Embedding is a vector (a set of numbers) that is a representation for something in another space.&lt;/p&gt;
+&lt;p&gt;Embeddings can perform arithmetic operations.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Paris   : &lt;br&gt;
+- France  : &lt;br&gt;
++ England : &lt;br&gt;
+= London  :&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Noise is what should be removed from the image.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Once the noise is fully subtracted out, what left is the generated image.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;By injecting context embeddings into decoder, the output feature vector of the predicted noise becomes specific for that given context.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;For example, the noise corresponding to &amp;ldquo;A ripe avocado&amp;rdquo; is pixels that are &lt;strong&gt;not&lt;/strong&gt; &amp;ldquo;A ripe avocado&amp;rdquo;, and they&amp;rsquo;ll be removed eventually.&lt;/p&gt;
+
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 344 185&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 72,16 L 104,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 184,32 L 296,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,64 L 48,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 224,64 L 256,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,80 L 80,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 112,80 L 128,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 192,80 L 208,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 272,80 L 288,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,96 L 48,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 224,96 L 256,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,128 L 48,128&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,144 L 96,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,144 L 296,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,160 L 48,160&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,64 L 16,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,128 L 16,160&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,64 L 48,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,128 L 48,160&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,96 L 96,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 152,32 L 152,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 168,48 L 168,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 224,64 L 224,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 256,64 L 256,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 312,48 L 312,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 312,96 L 312,128&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;104.000000,96.000000 92.000000,90.400002 92.000000,101.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 96.000000, 96.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;112.000000,16.000000 100.000000,10.400000 100.000000,21.600000&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 104.000000, 16.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;136.000000,80.000000 124.000000,74.400002 124.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 128.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;160.000000,64.000000 148.000000,58.400002 148.000000,69.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(90.000000, 152.000000, 64.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;176.000000,64.000000 164.000000,58.400002 164.000000,69.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(90.000000, 168.000000, 64.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;216.000000,80.000000 204.000000,74.400002 204.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 208.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;296.000000,80.000000 284.000000,74.400002 284.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 288.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;320.000000,96.000000 308.000000,90.400002 308.000000,101.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 312.000000, 96.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;path d=&#39;M 184,32 A 16,16 0 0,0 168,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 296,32 A 16,16 0 0,1 312,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 312,128 A 16,16 0 0,1 296,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;&#39;&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;A&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;v&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;&#39;&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⨁&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;E&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;C&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;b&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;U&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;N&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;304&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;312&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;320&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;328&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;And because the embedding vectors can be mixed, once the &lt;strong&gt;mixed noise&lt;/strong&gt; is removed, what is left is the combination of two objects, i.e. the thing that the context embedding stands for.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;For example, an embedding vector of &amp;ldquo;Avocado armchair&amp;rdquo; has the information of both &amp;ldquo;avocado&amp;rdquo; and &amp;ldquo;armchair&amp;rdquo;, so its context will lead the model to predict the noise that is neither &amp;ldquo;avocado&amp;rdquo; nor &amp;ldquo;armchair&amp;rdquo;.&lt;/p&gt;
+
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 384 153&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 80,16 L 96,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,64 L 48,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,64 L 232,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 328,64 L 360,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,80 L 96,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 160,80 L 184,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 248,80 L 264,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 296,80 L 312,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,96 L 48,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,96 L 232,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 328,96 L 360,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,128 L 264,128&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 16,64 L 16,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,64 L 48,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 128,32 L 128,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 200,64 L 200,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 232,64 L 232,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 280,96 L 280,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 328,64 L 328,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 360,64 L 360,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 32,104 L 32,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;104.000000,16.000000 92.000000,10.400000 92.000000,21.600000&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 96.000000, 16.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;104.000000,80.000000 92.000000,74.400002 92.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 96.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;136.000000,64.000000 124.000000,58.400002 124.000000,69.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(90.000000, 128.000000, 64.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;192.000000,80.000000 180.000000,74.400002 180.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 184.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;272.000000,80.000000 260.000000,74.400002 260.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 264.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;288.000000,96.000000 276.000000,90.400002 276.000000,101.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 280.000000, 96.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;320.000000,80.000000 308.000000,74.400002 308.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 312.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;path d=&#39;M 32,112 A 16,16 0 0,0 48,128&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 280,112 A 16,16 0 0,1 264,128&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;&#39;&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;A&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;v&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;h&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;&#39;&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;C&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;E&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;U&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;b&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;N&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;d&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;280&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⊖&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;336&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;344&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;352&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Context can be one-hot encoded vector for indicating categories, which will result in a specific class of images.&lt;/p&gt;
+&lt;h2 id=&#34;speeding-up&#34;&gt;Speeding Up&lt;/h2&gt;
+&lt;p&gt;DDIM skips some timesteps, so it breaks Markov chain process, where each timestep is probablisticly dependent on the previous one.&lt;/p&gt;
+&lt;p&gt;There is a hyper-parameter &lt;code&gt;step_size&lt;/code&gt; to decide how many timesteps are skipped.&lt;/p&gt;
+&lt;p&gt;DDIM performs better than DDPM &lt;strong&gt;under&lt;/strong&gt; 500 timesteps.
+The quality of images from DDIM may differs as opposed to DDPM.&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/2010.02502&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;&lt;em&gt;Denoising Diffusion implict model&lt;/em&gt;&lt;/a&gt;  predicts a &amp;ldquo;rough sketch&amp;rdquo; of the final output, and then it refines it with the denoising process.&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

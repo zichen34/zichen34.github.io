@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='10“拉格朗日对偶问题”如何直观理解？“KKT条件” “Slater条件” “凸优化”打包理解
+10.1 拉格朗日乘数法 一种寻找多元函数在其变量受到一个或多个约束条件时的极值的方法（自变量的取值范围有限制）
+将一个有n个变量与k个约束条件的最优化问题转换为一个解有 n&#43;k 个变量的方程组的解的问题。
+对每个约束条件用拉格朗日乘子(待定系数) λᵢ 加权，加到目标函数后面，就是拉格朗日函数。 拉格朗日函数与目标函数的最值是一样的，所以求目标函数的最值就转化为求拉格朗日函数的最值。
+$$ \begin{aligned} 目标函数求最小值：&amp;amp; min\ f_0(𝐱),\quad 𝐱 ∈ ℝⁿ \\ m个约束条件：&amp;amp; s.t. \quad f_i(𝐱) ≤ 0,\ 其中 i=1,2,3&amp;hellip;m \\ 拉格朗日函数：&amp;amp; L(𝐱,\pmb{λ}) = f_0(𝐱) &#43; \sum λ_i f_i(𝐱) \end{aligned} $$
+目标函数被加上了约束条件，变量只能在规定的范围内取值，求导得到的极值点可能不在规定范围内，而在规定范围内可能也没有极值点。拉格朗日乘数法把带约束问题转化为无约束问题。
+每个约束条件用拉格朗日乘子加权
+10.2 用梯度理解Lagrange Multiplier 一个约束条件的情况：
+求 $f(x,y)$ 的最小值，并且有一个约束条件 $y=g(x)$。
+该问题的拉格朗日函数为：$L(x,y) = f(x,y) &#43; λ(y-g(x))$；[约束条件=0 表示一条线]
+对拉格朗日函数求梯度，梯度等于0的点就是极值对应的点；
+把 $∇ L(x,y) = 0$，沿x,y两个方向展开，调整λ使两个方向上的偏导都为0，也就是梯度在两个方向上的分量都为0：
+$$ \begin{cases} \frac{∂f(x,y)}{∂x} &#43; λ\frac{∂(y-g(x))}{∂x} = 0 \\ \frac{∂f(x,y)}{∂y} &#43; λ\frac{∂(y-g(x))}{∂y} = 0 \end{cases} $$'>
+<title>watch: DL - 王木头 10 | Method of Lagrange Multipliers</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/10_%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: DL - 王木头 10 | Method of Lagrange Multipliers'>
+<meta property='og:description' content='10“拉格朗日对偶问题”如何直观理解？“KKT条件” “Slater条件” “凸优化”打包理解
+10.1 拉格朗日乘数法 一种寻找多元函数在其变量受到一个或多个约束条件时的极值的方法（自变量的取值范围有限制）
+将一个有n个变量与k个约束条件的最优化问题转换为一个解有 n&#43;k 个变量的方程组的解的问题。
+对每个约束条件用拉格朗日乘子(待定系数) λᵢ 加权，加到目标函数后面，就是拉格朗日函数。 拉格朗日函数与目标函数的最值是一样的，所以求目标函数的最值就转化为求拉格朗日函数的最值。
+$$ \begin{aligned} 目标函数求最小值：&amp;amp; min\ f_0(𝐱),\quad 𝐱 ∈ ℝⁿ \\ m个约束条件：&amp;amp; s.t. \quad f_i(𝐱) ≤ 0,\ 其中 i=1,2,3&amp;hellip;m \\ 拉格朗日函数：&amp;amp; L(𝐱,\pmb{λ}) = f_0(𝐱) &#43; \sum λ_i f_i(𝐱) \end{aligned} $$
+目标函数被加上了约束条件，变量只能在规定的范围内取值，求导得到的极值点可能不在规定范围内，而在规定范围内可能也没有极值点。拉格朗日乘数法把带约束问题转化为无约束问题。
+每个约束条件用拉格朗日乘子加权
+10.2 用梯度理解Lagrange Multiplier 一个约束条件的情况：
+求 $f(x,y)$ 的最小值，并且有一个约束条件 $y=g(x)$。
+该问题的拉格朗日函数为：$L(x,y) = f(x,y) &#43; λ(y-g(x))$；[约束条件=0 表示一条线]
+对拉格朗日函数求梯度，梯度等于0的点就是极值对应的点；
+把 $∇ L(x,y) = 0$，沿x,y两个方向展开，调整λ使两个方向上的偏导都为0，也就是梯度在两个方向上的分量都为0：
+$$ \begin{cases} \frac{∂f(x,y)}{∂x} &#43; λ\frac{∂(y-g(x))}{∂x} = 0 \\ \frac{∂f(x,y)}{∂y} &#43; λ\frac{∂(y-g(x))}{∂y} = 0 \end{cases} $$'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/10_%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2022-10-01T14:14:00&#43;00:00'/><meta property='article:modified_time' content='2022-10-01T14:14:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: DL - 王木头 10 | Method of Lagrange Multipliers">
+<meta name="twitter:description" content="10“拉格朗日对偶问题”如何直观理解？“KKT条件” “Slater条件” “凸优化”打包理解
+10.1 拉格朗日乘数法 一种寻找多元函数在其变量受到一个或多个约束条件时的极值的方法（自变量的取值范围有限制）
+将一个有n个变量与k个约束条件的最优化问题转换为一个解有 n&#43;k 个变量的方程组的解的问题。
+对每个约束条件用拉格朗日乘子(待定系数) λᵢ 加权，加到目标函数后面，就是拉格朗日函数。 拉格朗日函数与目标函数的最值是一样的，所以求目标函数的最值就转化为求拉格朗日函数的最值。
+$$ \begin{aligned} 目标函数求最小值：&amp;amp; min\ f_0(𝐱),\quad 𝐱 ∈ ℝⁿ \\ m个约束条件：&amp;amp; s.t. \quad f_i(𝐱) ≤ 0,\ 其中 i=1,2,3&amp;hellip;m \\ 拉格朗日函数：&amp;amp; L(𝐱,\pmb{λ}) = f_0(𝐱) &#43; \sum λ_i f_i(𝐱) \end{aligned} $$
+目标函数被加上了约束条件，变量只能在规定的范围内取值，求导得到的极值点可能不在规定范围内，而在规定范围内可能也没有极值点。拉格朗日乘数法把带约束问题转化为无约束问题。
+每个约束条件用拉格朗日乘子加权
+10.2 用梯度理解Lagrange Multiplier 一个约束条件的情况：
+求 $f(x,y)$ 的最小值，并且有一个约束条件 $y=g(x)$。
+该问题的拉格朗日函数为：$L(x,y) = f(x,y) &#43; λ(y-g(x))$；[约束条件=0 表示一条线]
+对拉格朗日函数求梯度，梯度等于0的点就是极值对应的点；
+把 $∇ L(x,y) = 0$，沿x,y两个方向展开，调整λ使两个方向上的偏导都为0，也就是梯度在两个方向上的分量都为0：
+$$ \begin{cases} \frac{∂f(x,y)}{∂x} &#43; λ\frac{∂(y-g(x))}{∂x} = 0 \\ \frac{∂f(x,y)}{∂y} &#43; λ\frac{∂(y-g(x))}{∂y} = 0 \end{cases} $$">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#101-拉格朗日乘数法">10.1 拉格朗日乘数法</a></li>
+        <li><a href="#102-用梯度理解lagrange-multiplier">10.2 用梯度理解Lagrange Multiplier</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/10_%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E5%AF%B9%E5%81%B6/">watch: DL - 王木头 10 | Method of Lagrange Multipliers</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 01, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="https://www.bilibili.com/video/BV1HP4y1Y79e"  target="_blank" rel="noopener"
+    >10“拉格朗日对偶问题”如何直观理解？“KKT条件” “Slater条件” “凸优化”打包理解</a></p>
+<h3 id="101-拉格朗日乘数法">10.1 拉格朗日乘数法</h3>
+<ul>
+<li>
+<p>一种寻找多元函数在其变量受到一个或多个<strong>约束条件</strong>时的极值的方法（自变量的取值范围有限制）</p>
+</li>
+<li>
+<p>将一个有n个变量与k个约束条件的最优化问题转换为一个解有 n+k 个变量的方程组的解的问题。</p>
+</li>
+<li>
+<p>对每个约束条件用拉格朗日乘子(待定系数) λᵢ 加权，加到目标函数后面，就是拉格朗日函数。
+拉格朗日函数与目标函数的最值是一样的，所以求目标函数的最值就转化为求拉格朗日函数的最值。</p>
+<p>$$
+\begin{aligned}
+目标函数求最小值：&amp; min\ f_0(𝐱),\quad 𝐱 ∈ ℝⁿ \\
+m个约束条件：&amp; s.t. \quad f_i(𝐱) ≤ 0,\ 其中 i=1,2,3&hellip;m \\
+拉格朗日函数：&amp; L(𝐱,\pmb{λ}) = f_0(𝐱) + \sum λ_i f_i(𝐱)
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>目标函数被加上了约束条件，变量只能在规定的范围内取值，求导得到的极值点可能不在规定范围内，而在规定范围内可能也没有极值点。拉格朗日乘数法把带约束问题转化为无约束问题。</p>
+</li>
+<li></li>
+<li>
+<p>每个约束条件用拉格朗日乘子加权</p>
+</li>
+</ul>
+<hr>
+<h3 id="102-用梯度理解lagrange-multiplier">10.2 用梯度理解Lagrange Multiplier</h3>
+<ul>
+<li></li>
+<li>
+<p>一个约束条件的情况：</p>
+<p>求 $f(x,y)$ 的最小值，并且有一个约束条件 $y=g(x)$。</p>
+<p>该问题的拉格朗日函数为：$L(x,y) = f(x,y) + λ(y-g(x))$；[约束条件=0 表示一条线]</p>
+<p>对拉格朗日函数求梯度，梯度等于0的点就是极值对应的点；</p>
+<p>把 $∇ L(x,y) = 0$，沿x,y两个方向展开，调整λ使两个方向上的偏导都为0，也就是梯度在两个方向上的分量都为0：</p>
+<p>$$
+\begin{cases}
+\frac{∂f(x,y)}{∂x} + λ\frac{∂(y-g(x))}{∂x} = 0 \\
+\frac{∂f(x,y)}{∂y} + λ\frac{∂(y-g(x))}{∂y} = 0
+\end{cases}
+$$</p>
+<div class="table-wrapper"><table><tr>
+  <td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/%E7%8E%8B%E6%9C%A8%E5%A4%B4%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E6%95%B0%E6%B3%95.png width=>
+  
+  
+
+1</td>
+  <td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/%E7%8E%8B%E6%9C%A8%E5%A4%B4%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B9%98%E6%95%B0%E6%B3%95_%E6%A2%AF%E5%BA%A6.png width=>
+  
+  
+
+2</td>
+</table></div>
+<p>在图1中，坐标系是x-y，同心圆是目标函数 $f(x,y)$ 的等高线，圆心点对应的函数值最小，越往外值越大。红线是(x,y)约束条件。</p>
+<p>图2显示了两个函数的梯度，只有在相切的位置，目标函数的梯度方向与约束条件的梯度方向才是<strong>共线</strong>的，再通过拉格朗日乘子 λ 调整向量长短，使两个梯度相加才可能为零。除了相切点位置，都无法实现两梯度之和为零。</p>
+</li>
+<li>
+<p>多个约束条件：</p>
+<p>$$
+\begin{aligned}
+目标函数：&amp; min \ f(𝐱), \quad 𝐱∈ ℝⁿ &amp; \text{(𝐱 是个n维向量)}\\
+m个约束条件：&amp; s.t. \quad g_i(𝐱) = \pmb{a_i^T} ⋅ 𝐱 + b_i ≤ 0, &amp;\text{(m个超平面围成的区域)}\\
+&amp; 其中i=1,2,3&hellip;m, \pmb{a_i} ∈ ℝⁿ, \ b_i ∈ ℝⁿ \\
+拉格朗日函数：&amp; L(𝐱, \pmb λ) = f(𝐱) + \sum λ_i g_i(𝐱)
+\end{aligned}
+$$</p>
+<p>假设有5个一维的约束条件，就是5条直线，并且假设它们围成了一个五边形，还要假设五边形的内部是5个约束条件同时满足的区域，如下图1。</p>
+<p>(对于二维平面上的一条直线:$y=ax+b$，想知道 $y≤0$ 表示的是哪块区域，可以根据(x,0)这个点判断。
+$y=ax+b ≤0 \Rightarrow x≤\frac{-b}{a}$，
+所以在$\frac{-b}{a}$左侧就是规定的区域。
+如果a是负数，符号就会改变，从而多条直线能围出一个封闭的限制区域。
+)</p>
+<div class="table-wrapper"><table><tr>
+  <td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/%E7%8E%8B%E6%9C%A8%E5%A4%B4_%E5%A4%9A%E4%B8%AA%E7%BA%A6%E6%9D%9F%E6%9D%A1%E4%BB%B6.png width=>
+  
+  
+
+1</td>
+  <td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/img/%E7%8E%8B%E6%9C%A8%E5%A4%B4_%E5%A4%9A%E4%B8%AA%E7%BA%A6%E6%9D%9F%E6%9D%A1%E4%BB%B6_2.png width=>
+  
+  
+
+2</td>
+</table></div>
+<p>对拉格朗日函数求梯度，令其等于零：</p>
+<p>$$
+\begin{aligned}
+\pmb ∇ L(𝐱,\pmb λ) = 0
+\Downarrow
+-\pmb ∇ f(\pmb λ) = ∑ λ_i ⋅ \pmb∇ g_i(𝐱)
+\end{aligned}
+$$</p>
+<p>目标函数梯度的反方向应等于所有约束条件的梯度加权和。</p>
+<p>由图2可知，真正起贡献的只有两个约束条件在，只需求两个约束条件的梯度和，五边形内部是 ≤ 0，则外部是&gt;0，所以梯度方向指向外面，两个梯度通过 λ 调节成与目标函数梯度等大反向.</p>
+<p>两约束条件的交点 x&rsquo; 既满足这两个约束条件，在这点的梯度=0：</p>
+<p>$$
+\begin{aligned}
+&amp; g_α(x&rsquo;) = g_β(x&rsquo;) = 0 \
+&amp; λ_α ∇ g_α(x&rsquo;) + λ_β ∇ g_β(x&rsquo;) = -∇ f(x) ⇒ λ_α, λ_β≠0
+\end{aligned}
+$$</p>
+<p>而该点 x&rsquo; 也满足其他约束条件 gᵢ(x&rsquo;)&lt;0，但它们的 λᵢ 都等于0，不起作用: λᵢ∇ gᵢ(x)=0 ⇒ λᵢ=0 (i≠α,β)
+λ 不能小于 0，否则会把梯度方向取反，会参与梯度叠加。</p>
+<p>所有的 λᵢ 都≥0，如果λᵢ=0, 它对应的约束条件 gᵢ(x) 是松弛的；如果λᵢ&gt;0, 它对应的约束条件 gᵢ(x) 是紧致的。约束条件像皮筋，把最优解从最值点拽到了极值点。
+当目标函数的最小值落在可行域范围内，则所有的约束条件都是松弛的。</p>
+<p>拉格朗日乘数法本质还是求导=0，梯度等于0的点是极值点，但不一定是最值点</p>
+<p>KKT 条件中的互补松弛</p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

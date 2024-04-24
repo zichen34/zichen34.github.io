@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Source video: 深度学习-啃花书0103伪逆矩阵最小二乘 (2021-07-22) - 科研小灰灰
+Solve linear regression For a n-dimensional linear regression problem,
+There are N input samples: x₁,x₂,&amp;hellip;,$x_N$, where each sample is a n-dimension vector xᵢ∈ ℝⁿ Their corresponding target outputs are: y₁,y₂,&amp;hellip;,$y_N$, where each output is a scalar yᵢ∈ ℝ Hence, these data can be represented as a linear system:
+$$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙaₙ = y₁ \\ x₂₁a₁ &#43; x₂₂a₂ &#43; &amp;hellip; &#43; x₂ₙaₙ = y₁ \\ \vdots \\ x_{N1}a₁ &#43; x_{N2}a₂ &#43; &amp;hellip; &#43; x_{Nn}aₙ = y_N \\ \end{cases} $$'>
+<title>memo: Calc | Pseudo-Inverse</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/pseudo-inverse/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: Calc | Pseudo-Inverse'>
+<meta property='og:description' content='Source video: 深度学习-啃花书0103伪逆矩阵最小二乘 (2021-07-22) - 科研小灰灰
+Solve linear regression For a n-dimensional linear regression problem,
+There are N input samples: x₁,x₂,&amp;hellip;,$x_N$, where each sample is a n-dimension vector xᵢ∈ ℝⁿ Their corresponding target outputs are: y₁,y₂,&amp;hellip;,$y_N$, where each output is a scalar yᵢ∈ ℝ Hence, these data can be represented as a linear system:
+$$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙaₙ = y₁ \\ x₂₁a₁ &#43; x₂₂a₂ &#43; &amp;hellip; &#43; x₂ₙaₙ = y₁ \\ \vdots \\ x_{N1}a₁ &#43; x_{N2}a₂ &#43; &amp;hellip; &#43; x_{Nn}aₙ = y_N \\ \end{cases} $$'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/pseudo-inverse/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-02-04T12:23:00-05:00'/><meta property='article:modified_time' content='2023-02-04T12:23:00-05:00'/>
+<meta name="twitter:title" content="memo: Calc | Pseudo-Inverse">
+<meta name="twitter:description" content="Source video: 深度学习-啃花书0103伪逆矩阵最小二乘 (2021-07-22) - 科研小灰灰
+Solve linear regression For a n-dimensional linear regression problem,
+There are N input samples: x₁,x₂,&amp;hellip;,$x_N$, where each sample is a n-dimension vector xᵢ∈ ℝⁿ Their corresponding target outputs are: y₁,y₂,&amp;hellip;,$y_N$, where each output is a scalar yᵢ∈ ℝ Hence, these data can be represented as a linear system:
+$$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙaₙ = y₁ \\ x₂₁a₁ &#43; x₂₂a₂ &#43; &amp;hellip; &#43; x₂ₙaₙ = y₁ \\ \vdots \\ x_{N1}a₁ &#43; x_{N2}a₂ &#43; &amp;hellip; &#43; x_{Nn}aₙ = y_N \\ \end{cases} $$">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#solve-linear-regression">Solve linear regression</a></li>
+    <li><a href="#shift-from-𝐗-to-𝐗ᵀ𝐗">Shift from 𝐗 to 𝐗ᵀ𝐗</a></li>
+    <li><a href="#is-𝐗ᵀ𝐗-invertible">Is 𝐗ᵀ𝐗 invertible?</a></li>
+    <li><a href="#effect-of-the-regularization-term">Effect of the regularization term</a></li>
+    <li><a href="#proof">Proof</a></li>
+    <li><a href="#use-gpu-to-solve-inverse-faster">Use GPU to solve inverse faster?</a></li>
+    <li><a href="#how-to-solve-inverse-matrix">How to solve inverse matrix?</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/pseudo-inverse/">memo: Calc | Pseudo-Inverse</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 04, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1364y1678r/"  target="_blank" rel="noopener"
+    >深度学习-啃花书0103伪逆矩阵最小二乘 (2021-07-22) - 科研小灰灰</a></p>
+<h2 id="solve-linear-regression">Solve linear regression</h2>
+<p>For a n-dimensional linear regression problem,</p>
+<ul>
+<li>There are N input samples: x₁,x₂,&hellip;,$x_N$, where each sample is a n-dimension vector xᵢ∈ ℝⁿ</li>
+<li>Their corresponding target outputs are:  y₁,y₂,&hellip;,$y_N$, where each output is a scalar yᵢ∈ ℝ</li>
+</ul>
+<p>Hence, these data can be represented as a linear system:</p>
+<p>$$
+\begin{cases}
+x₁₁a₁ + x₁₂a₂ + &hellip; + x₁ₙaₙ = y₁ \\
+x₂₁a₁ + x₂₂a₂ + &hellip; + x₂ₙaₙ = y₁ \\
+\vdots \\
+x_{N1}a₁ + x_{N2}a₂ + &hellip; + x_{Nn}aₙ = y_N \\
+\end{cases}
+$$</p>
+<p>Further, this system can be represented with matrix and vector:</p>
+<p>$$
+\begin{bmatrix}
+x₁₁ &amp; x₁₂ &amp; … &amp; x₁ₙ \\
+x₁₁ &amp; x₁₂ &amp; … &amp; x₁ₙ \\
+⋮ &amp; ⋮ &amp; ⋱ &amp; ⋮ \\
+x_{N1} &amp; x_{N2} &amp; … &amp; x_{Nn}
+\end{bmatrix}
+\begin{bmatrix}
+a₁ \\ a₂ \\ ⋮ \\ aₙ
+\end{bmatrix} =
+\begin{bmatrix}
+y₁ \\ y₂ \\ ⋮ \\ y_N
+\end{bmatrix}
+$$</p>
+<p>The objective of the linear regression is to solve the weights vector:
+$[ ^{^{a₁}_{a₂}} _{^{\ ⁞}_{aₙ}} ]$
+from the linear equation: $𝐗_{N×n} 𝐚_{n×1} = 𝐘_{N×1}$.</p>
+<p>If N=n (the coefficient matrix is a square matrix), and the data matrix $𝐗_{N×n}$ is a <strong>invertible matrix</strong>,
+then there will be 𝐚=𝐗⁻¹𝐘, such that the weights vector is determined directly.</p>
+<p>But in general, the number of samples N is not equal to the number of features n (N ≠ n), that is 𝐗 is not invertible and 𝐚 cannot be represented as 𝐗⁻¹𝐘.</p>
+<h2 id="shift-from-𝐗-to-𝐗ᵀ𝐗">Shift from 𝐗 to 𝐗ᵀ𝐗</h2>
+<p>Therefore, when the 𝐚 cannot be reached directly, the solution should be as close to the optimal as possible.</p>
+<p>That means the objective is to minimize the distance of two vectors:</p>
+<p>J=‖𝐗𝐚-𝐘‖² (without constraints)</p>
+<p>And the optimal solution is obtained when</p>
+<p>∂J/∂𝐚 = 𝐗ᵀ(𝐗𝐚-𝐘) = 0 ⇒ 𝐗ᵀ𝐗𝐚 = 𝐗ᵀ𝐘.</p>
+<p>Now, the previous 𝐗 is shifted to here 𝐗ᵀ𝐗 ∈ ℝⁿᕁⁿ, which is a <strong>square matrix</strong>. And if 𝐗ᵀ𝐗 is invertible, then the optimal 𝐚 can be calculated in one-shot.</p>
+<h2 id="is-𝐗ᵀ𝐗-invertible">Is 𝐗ᵀ𝐗 invertible?</h2>
+<p>An invertible matrix has to satisfy 2 conditions:
+it&rsquo;s a square matrix and its rank equals to the number of variables n (#columns).</p>
+<p>According to this video, there are two cases:</p>
+<ol>
+<li>
+<p>If N &gt; n, for example N=5, n=3, then (𝐗ᵀ𝐗)₃ₓ₃ is inverible generally. So</p>
+<p>𝐚=(𝐗ᵀ𝐗)⁻¹𝐗ᵀ𝐘,</p>
+<p>where the coefficient in front of 𝐘, (𝐗ᵀ𝐗)⁻¹𝐗ᵀ, is called the <strong>pseudo-inverse matrix</strong>.
+And 𝐚 = (𝐗ᵀ𝐗)⁻¹𝐗ᵀ𝐘 is called the least-square solution. (最小二乘解)</p>
+<p>(Because 𝐗 has no inverse matrix, so we find its &ldquo;pseudo&rdquo; inverse matrix. Or if 𝐗 is invertible, 𝐗⁻¹=(𝐗ᵀ𝐗)⁻¹𝐗ᵀ, they&rsquo;re equivalent, but the latter suits more general scenarios.). <br></p>
+</li>
+<li>
+<p>If N &lt; n, for example N=3, n=5, then (𝐗ᵀ𝐗)₅ₓ₅ is not invertible, because: <br>
+rank(𝐗ᵀ𝐗) ≤ rank(𝐗₃ₓ₅) ≤ N=3 &lt; n=5.</p>
+<p>In this case, 𝐚 cannot be calculated as (𝐗ᵀ𝐗)⁻¹𝐗ᵀ𝐘.</p>
+</li>
+</ol>
+<p>The problem can be understood that there are too many parameters (n is too high). When the parameters are much more than samples, there will be overfitting.
+And one of the solutions is regularization.</p>
+<h2 id="effect-of-the-regularization-term">Effect of the regularization term</h2>
+<p>Since the reason why the optimal solution of the loss function J cannot be solved in one-shot is that the there are too many parameters,
+a regularization is added to the loss funciton as follows:</p>
+<p>$$J = ‖𝐗𝐚-𝐘‖² + λ‖𝐚‖², λ&gt;0$$</p>
+<p>Then the derivative becomes:</p>
+<p>∂J/∂𝐚 = 𝐗ᵀ𝐗𝐚 - 𝐗ᵀ𝐘 + λ𝐚 = 0.</p>
+<p>By moving items, the equation becomes:</p>
+<p>(𝐗ᵀ𝐗 + λ𝐈)𝐚 = 𝐗ᵀ𝐘,</p>
+<p>where the (𝐗ᵀ𝐗 + λ𝐈) is invertible.
+The proof is as follows.</p>
+<h2 id="proof">Proof</h2>
+<p>Since 𝐗ᵀ𝐗 is a symmetric matrix, it can be diagonalized. Thus, 𝐗ᵀ𝐗 can be written as:</p>
+<p>$$
+𝐗ᵀ𝐗 = 𝐏⁻¹
+\begin{bmatrix}
+λ₁ &amp;   &amp;    \\
+&amp; ⋱ &amp;    \\
+&amp;   &amp; λₙ
+\end{bmatrix}
+𝐏
+$$</p>
+<p>The determinant of 𝐗ᵀ𝐗 is: <br>
+|𝐗ᵀ𝐗| = |𝐏⁻¹| ⋅ |$^{^{λ₁}_{\quad ⋱}} _{\qquad λₙ}$| ⋅ |𝐏|
+= λ₁ ⋅ λ₂ … ⋅ λₙ</p>
+<p>And λ₁, λ₂ …, λₙ are the eigen values for the 𝐗ᵀ𝐗</p>
+<p>Then the invertibility can be judged from this determinant:</p>
+<ul>
+<li>If |𝐗ᵀ𝐗| = 0, then 𝐗ᵀ𝐗 is not invertible,
+because there are some zero lines in the matrix (after elementary row operations), that means r(𝐗ᵀ𝐗) &lt; n.</li>
+<li>But if |𝐗ᵀ𝐗| &gt; 0, the matrix 𝐗ᵀ𝐗 is invertible, because it has full rank, which is equal to the number of lines of rows. <a class="link" href="#%e9%ab%98%e5%b1%b119" >²</a></li>
+</ul>
+<p>Analyze the two cases without and with adding the regularization term:</p>
+<ol>
+<li>
+<p>Only the 𝐗ᵀ𝐗:</p>
+<ul>
+<li>Let this matrix be enclosed by a non-zero real row vector 𝛂ᵀ and its column vector 𝛂 to constuct a quadratic form: 𝛂ᵀ(𝐗ᵀ𝐗)𝛂, which is used to characterize the definiteness of 𝐗ᵀ𝐗. <a class="link" href="#wiki_Def" >³</a></li>
+<li>Based on the combination law of the matrix multiplication, it can be written as: (𝛂ᵀ𝐗ᵀ)(𝐗𝛂) = (𝐗𝛂)ᵀ(𝐗𝛂), which is the norm of the vector 𝐗𝛂. <br></li>
+<li>Because the norm is ≥ 0 definitely, the 𝛂ᵀ(𝐗ᵀ𝐗)𝛂 ≥ 0 (indicating 𝐗ᵀ𝐗 is positive semi-definite matrix).</li>
+<li>Based on the properties of quadratic form, eigen values λᵢ of 𝐗ᵀ𝐗 are all ≥ 0</li>
+</ul>
+<p>Then the above determinant is |𝐗ᵀ𝐗|= λ₁ ⋅ λ₂ … ⋅ λₙ ≥ 0, so when |𝐗ᵀ𝐗| = 0, the rank of the matrix 𝐗ᵀ𝐗 is not full (≠ n), so the matrix 𝐗ᵀ𝐗 is not invertible. <br></p>
+</li>
+<li>
+<p>For 𝐗ᵀ𝐗+λ𝐈 (where λ is a hyper-parameter), it can be considered as a matrix:</p>
+<ul>
+<li>A quadratic form is constructed as: 𝛂ᵀ(𝐗ᵀ𝐗+λ𝐈)𝛂 = (𝛂ᵀ𝐗ᵀ)(𝐗𝛂) + λ𝛂ᵀ𝛂.</li>
+<li>The second item is always &gt;0 because 𝛂 is not a zero vector, so its norm 𝛂ᵀ𝛂 &gt; 0.</li>
+<li>Therefore, the matrix (𝐗ᵀ𝐗+λ𝐈) is a positive definite matrix.
+The eigen values λᵢ of (𝐗ᵀ𝐗+λ𝐈) are all &gt; 0.</li>
+</ul>
+<p>The determinant of 𝐗ᵀ𝐗+λ𝐈 is the product of its eigen values, i.e., the determinant |𝐗ᵀ𝐗+λ𝐈|&gt;0. So the matrix 𝐗ᵀ𝐗+λ𝐈 has full rank, and 𝐗ᵀ𝐗+λ𝐈 is invertible.</p>
+<p>Therefore, the optimal solution can be solved as 𝐚 = (𝐗ᵀ𝐗 + λ𝐈)⁻¹ 𝐗ᵀ𝐘. This is called the &ldquo;least square - least norm solution&rdquo;. (最小二乘-最小范数解)</p>
+<p>L2 regularization is originally added to make the 𝐗ᵀ𝐗 invertible.</p>
+</li>
+</ol>
+<p>(bilibili search: &ldquo;伪逆矩阵&rdquo;)</p>
+<p>todo: <a class="link" href="https://www.bilibili.com/video/BV14G411n7HY/"  target="_blank" rel="noopener"
+    >01 2、最小二乘与pca（新） - 深度之眼官方账号-bilibili</a></p>
+<p>todo: <a class="link" href="https://www.bilibili.com/video/BV1ns411r7dE/"  target="_blank" rel="noopener"
+    >【熟肉】线性代数的本质 - 06 - 逆矩阵、列空间与零空间 - 3B1B -bili</a></p>
+<p>todo: <a class="link" href="https://www.bilibili.com/video/BV1gm4y1Q7hA/"  target="_blank" rel="noopener"
+    >【26 深入理解逆矩阵】- cf98982002 -bili</a></p>
+<h2 id="use-gpu-to-solve-inverse-faster">Use GPU to solve inverse faster?</h2>
+<p>(DDG search: &ldquo;矩阵求逆 gpu&rdquo;)</p>
+<p>The acceleration ratio of GPU to CPU is more than 16 times. <a class="link" href="#zhihu-%e5%86%af%e5%8d%9a%e5%a3%ab" >⁴</a>.</p>
+<h2 id="how-to-solve-inverse-matrix">How to solve inverse matrix?</h2>
+<p>4 ways <a class="link" href="#zhihu-%e7%96%af%e7%8b%82%e7%bb%85%e5%a3%ab" >⁵</a>:</p>
+<ol>
+<li>Gaussian Eliminate</li>
+<li>LU decomposition, commenly used by computer because it can be performed parallelly.</li>
+<li>SVD decomposition</li>
+<li>QR decomposition</li>
+</ol>
+<h2 id="ref">Ref</h2>
+<ol start="2">
+<li>
+<div id="高山19"><a href="https://www.bilibili.com/video/BV1ci4y1975D">【俗说矩阵】行列式等于0意味着什么？你一定要了解哦~ - 晓之车高山老师 - bilibili</a></div>
+</li>
+<li>
+<div id="wiki_Def"><a href="https://en.wikipedia.org/wiki/Definite_matrix">Definite matrix -wiki</a></div>
+</li>
+<li>
+<div id="zhihu-冯博士"><a href="https://zhuanlan.zhihu.com/p/320545275">GPU矩阵计算是否会更快？（基于Pytorch） - 半个冯博士的文章 - 知乎</a></div>
+</li>
+<li>
+<div id="zhihu-疯狂绅士"><a href="https://www.zhihu.com/question/356880062/answer/2135670915">求逆矩阵的4种方法? - 疯狂绅士的回答 - 知乎</a></div>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

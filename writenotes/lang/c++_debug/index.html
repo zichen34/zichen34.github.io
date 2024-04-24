@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Debug Config Open &amp;ldquo;launch.json&amp;rdquo; ➡ Clik blue button &amp;ldquo;Add Configuration&amp;hellip;&amp;rdquo; at right-bottom corner ➡ Select &amp;ldquo;C/C&#43;&#43;: (gdb) Launch&amp;rdquo;.
+Then, a snippest of configuration with name &amp;quot;(gdb) Launch&amp;quot; is inserted into the &amp;ldquo;configurations&amp;rdquo; field in the config file.
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 { &amp;#34;version&amp;#34;: &amp;#34;0.'>
+<title>memo: C&#43;&#43; | Debug with VS Code</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/lang/c&#43;&#43;_debug/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: C&#43;&#43; | Debug with VS Code'>
+<meta property='og:description' content='Debug Config Open &amp;ldquo;launch.json&amp;rdquo; ➡ Clik blue button &amp;ldquo;Add Configuration&amp;hellip;&amp;rdquo; at right-bottom corner ➡ Select &amp;ldquo;C/C&#43;&#43;: (gdb) Launch&amp;rdquo;.
+Then, a snippest of configuration with name &amp;quot;(gdb) Launch&amp;quot; is inserted into the &amp;ldquo;configurations&amp;rdquo; field in the config file.
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 { &amp;#34;version&amp;#34;: &amp;#34;0.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/lang/c&#43;&#43;_debug/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-11-13T11:49:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-13T11:49:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: C&#43;&#43; | Debug with VS Code">
+<meta name="twitter:description" content="Debug Config Open &amp;ldquo;launch.json&amp;rdquo; ➡ Clik blue button &amp;ldquo;Add Configuration&amp;hellip;&amp;rdquo; at right-bottom corner ➡ Select &amp;ldquo;C/C&#43;&#43;: (gdb) Launch&amp;rdquo;.
+Then, a snippest of configuration with name &amp;quot;(gdb) Launch&amp;quot; is inserted into the &amp;ldquo;configurations&amp;rdquo; field in the config file.
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 { &amp;#34;version&amp;#34;: &amp;#34;0.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#debug-config">Debug Config</a></li>
+    <li><a href="#view-memory">View Memory</a></li>
+    <li><a href="#inspect-array">Inspect array</a></li>
+    <li><a href="#read-address">Read Address</a></li>
+    <li><a href="#python-calls-cpp">Python Calls Cpp</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/lang/c&#43;&#43;_debug/">memo: C&#43;&#43; | Debug with VS Code</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 13, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="debug-config">Debug Config</h2>
+<ol>
+<li>
+<p>Open <strong>&ldquo;launch.json&rdquo;</strong>
+➡ Clik blue button &ldquo;Add Configuration&hellip;&rdquo; at right-bottom corner
+➡ Select &ldquo;C/C++: (gdb) Launch&rdquo;.</p>
+<p>Then, a snippest of configuration with name <code>&quot;(gdb) Launch&quot;</code> is inserted into the &ldquo;configurations&rdquo; field in the config file.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;version&#34;</span>: <span class="s2">&#34;0.2.0&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;configurations&#34;</span>: <span class="o">[</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;(gdb) Launch&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;cppdbg&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;request&#34;</span>: <span class="s2">&#34;launch&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;program&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/test&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;args&#34;</span>: <span class="o">[]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;stopAtEntry&#34;</span>: false,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;cwd&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">fileDirname</span><span class="si">}</span><span class="s2">&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;environment&#34;</span>: <span class="o">[]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;externalConsole&#34;</span>: false,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;MIMode&#34;</span>: <span class="s2">&#34;gdb&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;setupCommands&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;description&#34;</span>: <span class="s2">&#34;Enable pretty-printing for gdb&#34;</span>,
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;-enable-pretty-printing&#34;</span>,
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;ignoreFailures&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">                <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;description&#34;</span>: <span class="s2">&#34;Set Disassembly Flavor to Intel&#34;</span>,
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;-gdb-set disassembly-flavor intel&#34;</span>,
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;ignoreFailures&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;preLaunchTask&#34;</span>: <span class="s2">&#34;g++ compile&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This newly created configuration can be selected in the drop-down box beside the gear.</p>
+</li>
+<li>
+<p>Add a task in tasks.json.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;version&#34;</span>: <span class="s2">&#34;2.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;tasks&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">      <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;label&#34;</span>: <span class="s2">&#34;g++ compile&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;shell&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;command&#34;</span>: <span class="s2">&#34;g++&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;args&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/test.cpp&#34;</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;-g&#34;</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;-o&#34;</span>, <span class="s2">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;options&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;cwd&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">&#34;</span>  
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;group&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;build&#34;</span>,
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;isDefault&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p>The code &ldquo;test.cpp&rdquo; to be debugged is as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">exampleArray</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">exampleArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span><span class="o">*</span> <span class="n">exampleArray_heap</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">exampleArray_heap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">delete</span><span class="p">[]</span> <span class="n">exampleArray_heap</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="view-memory">View Memory</h2>
+<p>After debugging <strong>started</strong>,</p>
+<ol>
+<li>
+<p>Find the address of a variable <code>x</code>:</p>
+<p>Add expression <code>&amp;x</code> into &ldquo;Watch&rdquo; panel. <a class="link" href="https://stackoverflow.com/q/71882092/18003182"  target="_blank" rel="noopener"
+    >SO</a></p>
+</li>
+<li>
+<p>Use VS Code&rsquo;s generic <a class="link" href="https://code.visualstudio.com/updates/v1_64#_viewing-and-editing-binary-data"  target="_blank" rel="noopener"
+    >memory view</a></p>
+<ul>
+<li>Install extention Hex Editor;</li>
+<li>Clik the binary data icon $[^{01}_{10}]$ following the <strong>address</strong> (not variables).</li>
+</ul>
+</li>
+</ol>
+<p>Another ways to view memory</p>
+<ol>
+<li>
+<p>Using extension <a class="link" href="https://github.com/mcu-debug/memview"  target="_blank" rel="noopener"
+    >Memmory View</a></p>
+<ul>
+<li>
+<p>Press F1, <code>MemoryView: Add new memory view (for debugger)</code></p>
+</li>
+<li>
+<p>Type the address of <code>x</code>: <code>0x7fffffffdbf0</code>. Then, &ldquo;MEMORY&rdquo; section appers in the bottom panel.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Use GDB command <code>-exec x/64xb 0x7fffffffdc00</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">-exec x/64xb 0x555558854e20
+</span></span><span class="line"><span class="cl">0x555558854e20:	0x03	0x00	0x00	0x00	0x00	0x00	0x00	0x00
+</span></span><span class="line"><span class="cl">0x555558854e28:	0x00	0x00	0x00	0x00	0x00	0x00	0x00	0x00
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>The byte at <code>0x555558854e20</code> is 3.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="inspect-array">Inspect array</h2>
+<ol>
+<li>
+<p><strong>Array on stack</strong> is the pointer to the array. The pointer is stored in:
+<code>&amp;exampleArray</code>= <code>0x7fffffffdc00</code></p>
+</li>
+<li>
+<p>After initializing, memory at <code>exampleArray</code> is 0,1,2,3,4:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">00007fffffffdc00  <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">01</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">02</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">03</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span>
+</span></span><span class="line"><span class="cl">00007fffffffdc10  <span class="m">04</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> ff 7f <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">50</span> <span class="m">58</span> 2b fa da <span class="nb">fc</span> <span class="m">53</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>This array takes 16 bytes.</li>
+</ul>
+</li>
+<li>
+<p><strong>Array on heap</strong> is the address of pointer, which is stored in:
+<code>&amp;exampleArray_heap</code>= <code>0x7fffffffdbf8</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">00007fffffffdbf0  <span class="m">01</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">04</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> c0 b2 <span class="m">56</span> <span class="m">55</span> <span class="m">55</span> <span class="m">55</span> <span class="m">00</span> <span class="m">00</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>That&rsquo;s an address: 00 00 55 55 55 56 b2 c0 (<code>0x000055555556b2c0</code>), because the endianness of computer is in reverse order.</p>
+<p>After initializing by the for loop, heap memory of the array is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">000055555556b2c0  <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">01</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">02</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> <span class="m">03</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span>
+</span></span><span class="line"><span class="cl">000055555556b2d0  <span class="m">04</span> <span class="m">00</span> <span class="m">00</span> <span class="m">00</span> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="read-address">Read Address</h2>
+<p>Pointer&rsquo;s value is an address.</p>
+<ol>
+<li>
+<p>Use <code>for</code> loop to read 8 bytes <strong>one-by-one</strong>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// Read the &#34;address&#34; (0x55555556b2c0) from memory (0x7fffffffdbf0) in bytes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">bytePointer</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">exampleArray_heap</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">int</span> <span class="n">numBytesToRead</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="n">numBytesToRead</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">numBytesToRead</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">buffer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">bytePointer</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">numBytesToRead</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buffer</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; &#34;</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Output:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">c0 b2 <span class="m">56</span> <span class="m">55</span> <span class="m">55</span> <span class="m">55</span> <span class="m">0</span> <span class="m">0</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Another way is <strong>converting the type</strong> of pointer to <code>(long long*)</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">std::cout <span class="s">&lt;&lt; std::hex &lt;&lt; *(long long*)&amp;exampleArray_heap &lt;&lt; std</span>::endl<span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And it will automatically reverse the number:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">55555556b2c0
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="python-calls-cpp">Python Calls Cpp</h2>
+<p>(2024-01-29)</p>
+<p>Attach the GDB used for C++ application to the running Python debugger,
+following steps in <a class="link" href="https://nadiah.org/2020/03/01/example-debug-mixed-python-c-in-visual-studio-code/"  target="_blank" rel="noopener"
+    >Example debugging mixed Python C++ in VS Code - Nadiah Pardede Kristensen</a></p>
+<ul>
+<li>
+<p>Preparation: Compile the C++ code to a python package:</p>
+<ol>
+<li>
+<p>Make a folder for compiling the cpp package:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>AIkui<span class="o">)</span> yi@yi-Alien:~/Downloads/Cpp_Study$ tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── cpp_ext_myadd
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   ├── debug_w_cpp.py
+</span></span><span class="line"><span class="cl">│   ├── myAdd.cpp
+</span></span><span class="line"><span class="cl">│   ├── setup.cfg
+</span></span><span class="line"><span class="cl">│   └── setup.py
+</span></span><span class="line"><span class="cl">└── .vscode
+</span></span><span class="line"><span class="cl">    ├── c_cpp_properties.json
+</span></span><span class="line"><span class="cl">    ├── launch.json
+</span></span><span class="line"><span class="cl">    └── settings.json
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>where the myAdd.cpp file refers to <a class="link" href="https://nadiah.org/2020/03/01/example-debug-mixed-python-c-in-visual-studio-code/#step-2-write-example-code"  target="_blank" rel="noopener"
+    >code</a></p>
+<details><summary> The "setup.py" looks like:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span><span class="p">,</span> <span class="n">Extension</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&#34;myadd&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">ext_modules</span><span class="o">=</span><span class="p">[</span><span class="n">Extension</span><span class="p">(</span><span class="s2">&#34;myadd&#34;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&#34;myAdd.cpp&#34;</span><span class="p">])],</span>
+</span></span><span class="line"><span class="cl">          <span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">main</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>Install package:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>AIkui<span class="o">)</span> yi@yi-Alie:~/Downloads/Cpp_Study$ pip install ./cpp_ext_myadd/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The customize package <code>myadd</code> will be installed in the current environment.
+So, VS Code requires &ldquo;Python:Select Interpreter&rdquo; by pressing F1 to match the envrionment.</p>
+</li>
+<li>
+<details><summary> Pyhon code:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">myadd</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;going to ADD SOME NUMBERS&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">myadd</span><span class="o">.</span><span class="n">myadd</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<p>Add a breakpoint at line 2 before getting into package functions.
+And add a breakpoint (at <code>z = x + y;</code>) in the cpp file. Otherwise, the debugger won&rsquo;t pause.</p>
+</li>
+</ol>
+</li>
+</ul>
+<hr>
+<ol>
+<li>
+<p>The method that needs to manually find the process ID:</p>
+<ol>
+<li>
+<p>Add 2 <strong>configurations</strong> for &ldquo;Python&rdquo; and &ldquo;C/C++: gdb (Attach)&rdquo; separately in the <code>launch.json</code>.</p>
+<details><summary> Default contents generated after clicking the blue button "Add Configuration..."</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;version&#34;</span>: <span class="s2">&#34;0.2.0&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;configurations&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;(gdb) Attach&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;cppdbg&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;request&#34;</span>: <span class="s2">&#34;attach&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;program&#34;</span>: <span class="s2">&#34;/home/yi/anaconda3/envs/AIkui/bin/python3.10&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;processId&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">command</span><span class="p">:</span><span class="nv">pickProcess</span><span class="si">}</span><span class="s2">&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;MIMode&#34;</span>: <span class="s2">&#34;gdb&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;setupCommands&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;description&#34;</span>: <span class="s2">&#34;Enable pretty-printing for gdb&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;-enable-pretty-printing&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;ignoreFailures&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;description&#34;</span>: <span class="s2">&#34;Set Disassembly Flavor to Intel&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;-gdb-set disassembly-flavor intel&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;ignoreFailures&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;Python: Current File&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;python&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;request&#34;</span>: <span class="s2">&#34;launch&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;program&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">file</span><span class="si">}</span><span class="s2">&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;console&#34;</span>: <span class="s2">&#34;integratedTerminal&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;justMyCode&#34;</span>: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="o">]</span> <span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>With focusing on <code>debug_w_cpp.py</code>, select the dubugger &ldquo;Python: Current File&rdquo;, and then click the green start button to kick off the debugging.</p>
+<p>When the debugger hits the breakpoint in <code>debug_w_cpp.py</code>, find its process ID:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi-Alien:~$ ps aux <span class="p">|</span> grep python
+</span></span><span class="line"><span class="cl">root         <span class="m">905</span>  0.0  0.0  <span class="m">42744</span>  <span class="m">1680</span> ?        Ss    <span class="m">2023</span>   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+</span></span><span class="line"><span class="cl">root        <span class="m">1278</span>  0.0  0.0 <span class="m">121200</span>  <span class="m">1436</span> ?        Ssl   <span class="m">2023</span>   0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+</span></span><span class="line"><span class="cl">yi       <span class="m">1605315</span>  0.0  0.1  <span class="m">38840</span> <span class="m">26336</span> pts/5    S+   16:17   0:04 /usr/bin/python3.8 -O /usr/bin/ranger
+</span></span><span class="line"><span class="cl">yi       <span class="m">1698762</span>  2.9  0.9 <span class="m">1179385796</span> <span class="m">150624</span> ?   Sl   18:42   0:04 /usr/share/code/code --ms-enable-electron-run-as-node /home/yi/.vscode/extensions/ms-python.vscode-pylance-2023.12.1/dist/server.bundle.js --cancellationReceive<span class="o">=</span>file:bad7d71dedf58b5bb22a36398d8eb2bcf4447338c7 --node-ipc --clientProcessId<span class="o">=</span><span class="m">1698586</span>
+</span></span><span class="line"><span class="cl">yi       <span class="m">1700442</span>  0.4  0.1 <span class="m">840012</span> <span class="m">18472</span> ?        Sl   18:44   0:00 /home/yi/anaconda3/envs/AIkui/bin/python /home/yi/.vscode/extensions/ms-python.python-2023.22.1/pythonFiles/lib/python/debugpy/adapter
+</span></span><span class="line"><span class="cl">yi       <span class="m">1700450</span>  0.3  0.1 <span class="m">250260</span> <span class="m">18376</span> pts/6    Sl   18:44   0:00 /home/yi/anaconda3/envs/AIkui/bin/python /home/yi/.vscode/extensions/ms-python.python-2023.22.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher <span class="m">45763</span> -- /home/yi/Downloads/Cpp_Study/cross_lang_debug_host.py
+</span></span><span class="line"><span class="cl">yi       <span class="m">1700456</span>  3.1  0.1 <span class="m">414788</span> <span class="m">30468</span> pts/6    Sl+  18:44   0:00 /home/yi/anaconda3/envs/AIkui/bin/python /home/yi/.vscode/extensions/ms-python.python-2023.22.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher/../../debugpy
+</span></span><span class="line"><span class="cl">--connect 127.0.0.1:55977 --configure-qt none --adapter-access-token 2bb19c19a6a1592229fd27c7c8e3e0a37c002b320568e3b3c8fe450a3d343404 /home/yi/Downloads/Cpp_Study/cross_lang_debug_host.py
+</span></span><span class="line"><span class="cl">yi       <span class="m">1700778</span>  0.0  0.0  <span class="m">12116</span>  <span class="m">2776</span> pts/7    S+   18:45   0:00 grep --color<span class="o">=</span>auto python
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The desired process is the one attached with a <strong>token</strong>: 1700456</p>
+</li>
+<li>
+<p>Switch the debugger to &ldquo;gdb (Attach)&rdquo;, and then click the green start button again, it will ask the process ID just found.</p>
+<p>Then, a prompt pops:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi-Alienware:~/Downloads/Cpp_Study$  /usr/bin/env /bin/sh /tmp/Microsoft-MIEngine-Cmd-00cvveuw.5cg 
+</span></span><span class="line"><span class="cl">Superuser access is required to attach to a process. Attaching as superuser can potentially harm your computer. Do you want to <span class="k">continue</span>? <span class="o">[</span>y/N<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>However, after I input &ldquo;y&rdquo;, the terminal said executing GDB requires elevated permission,
+but it didn&rsquo;t prompt me to enter password.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">====</span> AUTHENTICATING FOR org.freedesktop.policykit.exec <span class="o">===</span>
+</span></span><span class="line"><span class="cl">Authentication is needed to run <span class="sb">`</span>/usr/bin/gdb<span class="err">&#39;</span> as the super user
+</span></span><span class="line"><span class="cl">Authenticating as: Yi Cao,,, <span class="o">(</span>yi<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Password: <span class="o">[</span>1<span class="o">]</span> + Stopped <span class="o">(</span>tty output<span class="o">)</span>       /usr/bin/pkexec <span class="s2">&#34;/usr/bin/gdb&#34;</span> --interpreter<span class="o">=</span>mi --tty<span class="o">=</span><span class="si">${</span><span class="nv">DbgTerm</span><span class="si">}</span> 0&lt;<span class="s2">&#34;/tmp/Microsoft-MIEngine-In-tkwd0bog.wdj&#34;</span> 1&gt;<span class="s2">&#34;/tmp/Microsoft-MIEngine-Out-n1p4gbjg.vvb&#34;</span>
+</span></span><span class="line"><span class="cl">You have stopped jobs.
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+</ol>
+<hr>
+<ol start="2">
+<li>
+<p>Extension: <a class="link" href="https://marketplace.visualstudio.com/items?itemName=benjamin-simmonds.pythoncpp-debug"  target="_blank" rel="noopener"
+    >Python C++ Debugger</a>
+eliminates the need of manually entering process ID.</p>
+<p>Its default configuration in <code>launch.json</code> is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;version&#34;</span>: <span class="s2">&#34;0.2.0&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;configurations&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;Python C++ Debug&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;pythoncpp&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;request&#34;</span>: <span class="s2">&#34;launch&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;pythonConfig&#34;</span>: <span class="s2">&#34;default&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;cppConfig&#34;</span>: <span class="s2">&#34;default (gdb) Attach&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>However, the authentication error persists.</p>
+</li>
+</ol>
+<hr>
+<ol start="3">
+<li>
+<p>Bypass the authentication:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="m">0</span> <span class="p">|</span> sudo tee /proc/sys/kernel/yama/ptrace_scope 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Refer to: <a class="link" href="https://stackoverflow.com/a/69296878/18003182"  target="_blank" rel="noopener"
+    >Debugging mixed Python C++ in VS Code. Can&rsquo;t enter sudo password - SO</a></p>
+<ul>
+<li>
+<p>&ldquo;This solution doesn&rsquo;t require reboot, but it&rsquo;s not permanent.&rdquo;
+, as explained in <a class="link" href="https://stackoverflow.com/a/77570780/18003182"  target="_blank" rel="noopener"
+    >Attaching gdb (C++ debugger) to remote python process in VSCode - SO (OP is Mark Harris)</a>
+(Found by <a class="link" href="https://www.perplexity.ai/search/base-yiyiAlienwareAu-usrbinenv-5cDXOYYZQNidA3KeBJ7vPA?s=u"  target="_blank" rel="noopener"
+    >Perplexity</a>)</p>
+<details><summary>Original answer</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ gdb --pid<span class="o">=</span><span class="m">30428</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Attaching to process <span class="m">30428</span>
+</span></span><span class="line"><span class="cl">Could not attach to process.  If your uid matches the uid of the target
+</span></span><span class="line"><span class="cl">process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try
+</span></span><span class="line"><span class="cl">again as the root user.  For more details, see /etc/sysctl.d/10-ptrace.conf
+</span></span><span class="line"><span class="cl">ptrace: Operation not permitted.
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ul>
+</li>
+</ol>
+<p>In this example, I found that the debugger cannot step downward after entering the cpp file,
+instead, it gets stuck at the line following the breakpoint.</p>
+<p>However, the method works in the project of AIkui&rsquo;s <a class="link" href="https://github.com/zichen34/CppCudaExt_PT_Tut_AIkui/tree/ea9f100a24a6690ef5211660b2fbcc54f1a4f4d3"  target="_blank" rel="noopener"
+    >CUDA extension tutorial</a>,
+where the debugger moves line-by-line after jumping into &ldquo;interpolation_kernel.cu&rdquo; files (function: <code>trilinear_fw_cu()</code>),
+whereas it can&rsquo;t step into kernel functions, which may require <a class="link" href="https://docs.nvidia.com/nsight-visual-studio-code-edition/cuda-debugger/index.html"  target="_blank" rel="noopener"
+    >CUDA-GDB</a>,
+rather than GDB.</p>
+<ul>
+<li>It seems that after GDB concludes the execution of C++ programm, it will stay at the last line,
+and won&rsquo;t automatically return to the Python debugger.
+So, I have to click the &ldquo;disconnect&rdquo; button on the control bar to free the GDB.</li>
+</ul>
+<hr>
+<p><strong>Other problems</strong>:</p>
+<ol>
+<li>
+<p>If the file currently open in the editor is not the Python file &ldquo;debug_w_cpp.py&rdquo;, but rather &ldquo;myAdd.cpp&rdquo;,
+an error pops upon clicking the start button:</p>
+
+   
+   
+   
+   
+     
+     
+     
+     
+      
+     
+     
+      
+     
+     <img src= /writenotes/lang/img/ptrace_scope_error_2024-01-30.png width=>
+     
+     
+   
+
+</li>
+<li>
+<p>The following command for installing cpp packege, referring
+<a class="link" href="https://stackoverflow.com/a/61792456/18003182"  target="_blank" rel="noopener"
+    >How to pass &ndash;debug to build_ext when invoking setup.py install?</a>,
+requires the path to source file relative path to workspaceFolder in the &ldquo;setup.py&rdquo;:
+<code>ext_modules=[Extension(&quot;myadd&quot;, [&quot;./cpp_ext_myadd/myAdd.cpp&quot;])]</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>AIkui<span class="o">)</span> yi@yi-Alienware:~/Downloads/Cpp_Study$ python3.10 ./cpp_ext_myadd/setup.py build_ext --debug install
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<p>(2024-04-18)</p>
+<ul>
+<li>
+<p>Will&rsquo;s practice: <a class="link" href="https://zhuanlan.zhihu.com/p/687791444"  target="_blank" rel="noopener"
+    >使用PythonCppDebugger联合调试Python与Cpp，以及应用到3DGS的若干尝试 - will的文章 - 知乎</a></p>
+<blockquote>
+<p>利用vscode的插件PythonCppDebugger，gdb选用cuda拓展的cuda-gdb；
+相比于：“利用vscode的插件PythonCppDebugger，gdb选用cpp拓展的cppdbg”，
+程序会突然崩溃，(chatGPT)怀疑是gs本身显存管理过于复杂，长时间的debug容易崩溃所致。
+最终由于实在不稳定，笔者放弃使用该方法，选用笨办法：
+把python端数据存成txt，然后另起一个c++项目调试cuda代码。
+另可见笔者的issue：
+<a class="link" href="https://github.com/benibenj/vscode-pythonCpp/issues/32"  target="_blank" rel="noopener"
+    >Question aboud cuda-gdb extension in attach process · Issue #32 · benibenj/vscode-pythonCpp</a></p>
+</blockquote>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

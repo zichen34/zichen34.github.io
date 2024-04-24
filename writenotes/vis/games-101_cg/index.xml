@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Games101-Compute Graphics on Zichen Wang</title>
+        <link>https://zichen34.github.io/writenotes/vis/games-101_cg/</link>
+        <description>Recent content in Games101-Compute Graphics on Zichen Wang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Mon, 02 May 2022 09:24:00 +0000</lastBuildDate><atom:link href="https://zichen34.github.io/writenotes/vis/games-101_cg/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>watch: CG - 闫令琪 15 | Ray-Training-3</title>
+        <link>https://zichen34.github.io/writenotes/vis/games-101_cg/15-light_transport_global_illumination/</link>
+        <pubDate>Mon, 02 May 2022 09:24:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/vis/games-101_cg/15-light_transport_global_illumination/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1X7411F744?p=15&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P15&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;irradiance&#34;&gt;Irradiance&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The power per (perpendicular/projected) unit area incident on a surface point.
+$E(x)≡\frac{dΦ}{dA} cos\theta$&lt;/li&gt;
+&lt;li&gt;单位面积上的能量(垂直与表面的分量)&lt;/li&gt;
+&lt;li&gt;光线在单位球面的能量与距离呈平方反比，&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: CG - 闫令琪 14 | Ray-Tracing-2</title>
+        <link>https://zichen34.github.io/writenotes/vis/games-101_cg/14-ray_tracing2/</link>
+        <pubDate>Sun, 01 May 2022 18:28:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/vis/games-101_cg/14-ray_tracing2/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1X7411F744?p=14&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P14&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;spatial-partitioning&#34;&gt;Spatial Partitioning&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;对空间做划分&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;tree
+&lt;ol&gt;
+&lt;li&gt;八叉树Oct-Tree
+&lt;ul&gt;
+&lt;li&gt;把一个3维的包围盒切成8份(2^3)&lt;/li&gt;
+&lt;li&gt;高维空间就是2^n 叉树，&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;KD-Tree
+&lt;ul&gt;
+&lt;li&gt;每次划分只在1个维度上划分(二叉树)&lt;/li&gt;
+&lt;li&gt;n个维度依次循环被划分，保证空间上是均匀的&lt;/li&gt;
+&lt;li&gt;问题：包围盒是否包围三角面需要对包围盒与三角面求交，不好写; 一个物体与多个叶子节点相交，所以每个叶子节点中都有存储这个物体（冗余？），最好是一个物体只存在于一个格子中（基于物体划分）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;BSP-Tree
+&lt;ul&gt;
+&lt;li&gt;每次划分方向并不与坐标轴平行&lt;/li&gt;
+&lt;li&gt;计算量大&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;kd-tree-preprocessing&#34;&gt;KD-Tree Preprocessing&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;对场景建立KD-Tree&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;traversing-a-kd-tree&#34;&gt;Traversing a KD-Tree&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;从最大的包围盒开始，判断光线是否与之有交点，如果有交点，分别对它的两个子节点判断是否与光线有交点，如果没交点就不判断其子节点。走到叶子节点，就对包围盒中的所有物体求交。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;object-partitions--bounding-volume-hierarchy-bvh&#34;&gt;Object Partitions &amp;amp; Bounding Volume Hierarchy (BVH)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;把三角形分成两组，再分别重新求它们的包围盒，知道一个盒子中最多含有5个三角形就停止划分&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;一个物体只会存在于一个包围盒中,(各盒子会有重叠)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;How to subdivide a node?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Choose a dimension to split&lt;/li&gt;
+&lt;li&gt;Heurstic #1: Always choose the longest axis in node (沿最长轴划分)&lt;/li&gt;
+&lt;li&gt;Heurstic #2: Split node at location of median object (以中间物体的位置划分，两侧物体数量相等，平衡意味着最大深度小，搜索次数少)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Data Structure for BVHs&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Internal nodes store: Bounding box and Pointers to its child nodes&lt;/li&gt;
+&lt;li&gt;Leaf nodes store: Bounding box and Objects&lt;/li&gt;
+&lt;li&gt;Nodes represent subset of primitives(基础元素) in scene. All objects in subtree&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;遍历方式与KD-Tree 相同：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;Intersect&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Ray&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ray&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;BVH&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ray&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;misses&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;bbox&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;node&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;is&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;leaf&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;n&#34;&gt;test&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;intersection&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;with&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;all&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;objs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;closest&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;intersection&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;hit1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Intersect&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ray&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;child1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;hit2&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Intersect&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ray&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;child2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;the&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;closer&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;of&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;hit1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;hit2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;radiometry&#34;&gt;Radiometry&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Termiology
+&lt;ol&gt;
+&lt;li&gt;Radiant energy: 电磁辐射的能量 Q&lt;/li&gt;
+&lt;li&gt;Radiant flux: 单位时间的能量 Φ=dQ/dt [Watt]（功率：单位时间射出多少光子）&lt;/li&gt;
+&lt;li&gt;Radiant intensity: 从光源发出的光&lt;/li&gt;
+&lt;li&gt;Irradiance: 表面接收的光&lt;/li&gt;
+&lt;li&gt;Radiance: 沿光线传播的光&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;radiant-intensity&#34;&gt;Radiant intensity&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The radiant (luminous) intensity I is the power Φ per unit solid angle ω emitted by a point light source.
+$I(w) ≡ \frac{dΦ}{dω}$ [candela]; $Φ = \int_S² I dw = 4πI$&lt;/li&gt;
+&lt;li&gt;某一方向上的能量&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: CG - 闫令琪 13</title>
+        <link>https://zichen34.github.io/writenotes/vis/games-101_cg/13/</link>
+        <pubDate>Sun, 01 May 2022 14:24:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/vis/games-101_cg/13/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1X7411F744?p=13&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P13&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;判断点是否在多边形内部：以该点为起点沿任意方向做一条射线，与多边形的交点个数是奇数（相切情况认为是两个相同的实根？）可以推广至三维。&lt;/p&gt;
+&lt;p&gt;夹板&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: CG - 闫令琪 04 | Transformation Cont.</title>
+        <link>https://zichen34.github.io/writenotes/vis/games-101_cg/04-transform-cont/</link>
+        <pubDate>Tue, 21 Sep 2021 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/vis/games-101_cg/04-transform-cont/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1X7411F744?p=4&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P4&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;3d-transformations&#34;&gt;3D Transformations&lt;/h2&gt;
+&lt;h3 id=&#34;3d-scale&#34;&gt;3D Scale&lt;/h3&gt;
+&lt;p&gt;$$
+\mathbf S(s_x, s_y, s_z) =
+\begin{pmatrix}
+s_x &amp;amp; 0 &amp;amp; 0 &amp;amp; 0 \\
+0 &amp;amp; s_y &amp;amp; 0 &amp;amp; 0 \\
+0 &amp;amp; 0 &amp;amp; s_z &amp;amp; 0 \\
+0 &amp;amp; 0 &amp;amp; 0 &amp;amp; 1
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;h3 id=&#34;3d-translation&#34;&gt;3D Translation&lt;/h3&gt;
+&lt;p&gt;$$
+\mathbf T(t_x,t_y,t_z) =
+\begin{pmatrix}
+1 &amp;amp; 0 &amp;amp; 0 &amp;amp; t_x \\
+0 &amp;amp; 1 &amp;amp; 0 &amp;amp; t_y \\
+0 &amp;amp; 0 &amp;amp; 1 &amp;amp; t_z \\
+0 &amp;amp; 0 &amp;amp; 0 &amp;amp; 1
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;h3 id=&#34;rotaion-around-axises&#34;&gt;Rotaion around axises&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;绕x轴旋转：&lt;br&gt;
+x方向坐标不变，所以旋转矩阵各列向量的x分量都不贡献，所以第一行是1 0 0；&lt;br&gt;
+为了保证逆时针旋转是正向旋转，其余两轴的顺序如图：&lt;br&gt;&lt;/p&gt;
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    &lt;img src= /writenotes/vis/games-101_cg/img/4_positiveRotate.png width=&gt;
+    
+    
+  
+
+&lt;p&gt;y-z平面旋转，用待定系数法或展开三角函数，可得旋转关系为：
+$\begin{cases} x&amp;rsquo;=x \\ y&amp;rsquo;=ycosθ-zsinθ \\ z&amp;rsquo;=ysinθ+zcosθ \end{cases}$，&lt;br&gt;
+则旋转矩阵为
+$\begin{pmatrix} x&amp;rsquo; \\ y&amp;rsquo; \\ z&amp;rsquo; \end{pmatrix} = \begin{pmatrix} 1&amp;amp;0&amp;amp;0\\ 0 &amp;amp; cosθ &amp;amp; -sinθ \\0 &amp;amp; sinθ &amp;amp; cosθ \end{pmatrix} \begin{pmatrix} x\\y\\z\end{pmatrix}$；&lt;br&gt;
+写成齐次坐标，不考虑平移，所以仿射变换矩阵为：&lt;/p&gt;
+&lt;p&gt;$$
+R_x(α)=
+\begin{pmatrix}
+1 &amp;amp; 0    &amp;amp; 0     &amp;amp; 0 \\
+0 &amp;amp; cosθ &amp;amp; -sinθ &amp;amp; 0 \\
+0 &amp;amp; sinθ &amp;amp; cosθ  &amp;amp; 0 \\
+0 &amp;amp; 0    &amp;amp; 0     &amp;amp; 1 \\
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;绕y轴旋转：&lt;br&gt;
+y方向不变，所以矩阵第2行为：0 1 0；&lt;br&gt;
+x-z平面旋转，用&lt;strong&gt;待定系数法&lt;/strong&gt;，可得旋转关系：
+$\begin{pmatrix}z&amp;rsquo;\\x&amp;rsquo; \end{pmatrix} = \begin{pmatrix}cosθ&amp;amp; -sinθ\\sinθ &amp;amp; cosθ\end{pmatrix} \begin{pmatrix} z\\x \end{pmatrix}$ &lt;br&gt;
+(或者&lt;strong&gt;展开三角函数&lt;/strong&gt;，可得旋转关系为：
+$\begin{cases} x&amp;rsquo;=zsinθ+xcosθ \\ z&amp;rsquo;=zcosθ-xsinθ\end{cases}$) &lt;br&gt;
+写成旋转矩阵为：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+x&amp;rsquo; \\ y&amp;rsquo; \\ z&amp;rsquo;
+\end{pmatrix} =
+\begin{pmatrix}
+cosθ  &amp;amp; 0 &amp;amp; sinθ \\
+0     &amp;amp; 1 &amp;amp; 0    \\
+-sinθ &amp;amp; 0 &amp;amp; cosθ
+\end{pmatrix}
+\begin{pmatrix}
+x \\ y \\ z
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;三个轴循环对称：$x\boxed{yzx}y\boxed{zxy}z\boxed{xyz}$，即给定任意两个可得后面一个，所以Y是由$Z×X$的到的 $\begin{pmatrix}Z\\ X\\ Y\end{pmatrix}$，这与通常书写
+矩阵顺序$\begin{pmatrix}X\\ Y\\ Z\end{pmatrix}$不同，导致系数易位，$-sinθ$不在左上角，看起来与绕其他两轴的旋转矩阵不一致。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;绕z轴旋转：&lt;br&gt;
+z方向不变，所以矩阵第3行为：0 0 1；&lt;br&gt;
+x-y平面旋转，有旋转关系
+$\begin{cases}x&amp;rsquo;=rcos(α+θ)\\y&amp;rsquo;=rcos(α+θ)\end{cases}$
+以及 $\begin{cases}x=rcosα\\y=rsinα\end{cases}$ &lt;br&gt;
+可得：$\begin{cases}x&amp;rsquo;=xcosθ-ysinθ\\y&amp;rsquo;=ycosθ+xsinθ\end{cases}$ &lt;br&gt;
+写成旋转矩阵为：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+x&amp;rsquo; \\ y&amp;rsquo; \\z&amp;rsquo;
+\end{pmatrix} =
+\begin{pmatrix}
+cosθ &amp;amp; -sinθ &amp;amp; 0 \\
+sinθ &amp;amp; cosθ  &amp;amp; 0 \\
+0    &amp;amp; 0     &amp;amp; 1 \\&lt;br&gt;
+\end{pmatrix}
+\begin{pmatrix}
+x \\ y \\z
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;任意三维旋转&#34;&gt;任意三维旋转&lt;/h3&gt;
+&lt;h3 id=&#34;渲染&#34;&gt;渲染&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;给三维物体拍照片&lt;/li&gt;
+&lt;li&gt;
+&lt;ol&gt;
+&lt;li&gt;摆好模型 &lt;strong&gt;M&lt;/strong&gt;odel transformation&lt;/li&gt;
+&lt;li&gt;摆好照相机 &lt;strong&gt;View&lt;/strong&gt; transformation&lt;/li&gt;
+&lt;li&gt;投影到相片 &lt;strong&gt;Projection&lt;/strong&gt; transformation&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;view-transformation&#34;&gt;View Transformation&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;通过旋转和平移，把世界坐标系中的相机调整到标准姿态&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;相机的姿态包括：位置、朝向和旋转&lt;/p&gt;
+&lt;p&gt;标准姿态：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;光心在原点；&lt;/li&gt;
+&lt;li&gt;朝着-z方向看；&lt;/li&gt;
+&lt;li&gt;向上是y轴&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;从标准姿态变换到当前姿态，再取逆，就是视图变换&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;正交投影&#34;&gt;正交投影&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;平行光&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;把空间中的长方体映射到一个边长为2的立方体（左右下上远近的边界都是1）
+&lt;ol&gt;
+&lt;li&gt;中心平移到原点:
+$\begin{pmatrix} 1 &amp;amp; 0 &amp;amp; 0  &amp;amp; -\frac{r+l}{2} \\ 0 &amp;amp; 1 &amp;amp; 0 &amp;amp; -\frac{t+b}{2} \\ 0 &amp;amp; 0 &amp;amp; 1 &amp;amp; -\frac{n+f}{2} \\ 0 &amp;amp; 0 &amp;amp; 0 &amp;amp; 1 \end{pmatrix}$&lt;/li&gt;
+&lt;li&gt;缩放到2:
+$\begin{pmatrix}\frac{2}{r-l} &amp;amp; 0 &amp;amp; 0 &amp;amp; 0 \\ 0 &amp;amp; \frac{2}{t-b} &amp;amp; 0 &amp;amp; 0 \\ 0 &amp;amp; 0 &amp;amp; \frac{2}{n-f} &amp;amp; 0 \\ 0 &amp;amp; 0 &amp;amp; 0 &amp;amp; 1\end{pmatrix}$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;透视投影&#34;&gt;透视投影&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;视锥&lt;/li&gt;
+&lt;li&gt;近大远小&lt;/li&gt;
+&lt;li&gt;把棱台挤压成长方体，长方体再做正交投影
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;远平面缩放到与近平面相同大小&lt;/p&gt;
+&lt;p&gt;根据相似，确定不同深度的缩放系数&lt;/p&gt;
+
+     
+     
+     
+     
+       
+       
+       
+       
+        
+       
+       
+        
+       
+       &lt;img src= /writenotes/vis/games-101_cg/img/4_squishFrustum.png width=&gt;
+       
+       
+     
+
+&lt;p&gt;$$
+\begin{cases}
+y&amp;rsquo;=\frac{n}{z}y \\
+x&amp;rsquo;=\frac{n}{z}x \\
+z&amp;rsquo;=unknow
+\end{cases}
+$$&lt;/p&gt;
+&lt;p&gt;远平面缩放之后各点坐标：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+\frac{nx}{z} \\
+\frac{ny}{z} \\
+unknown \\
+1
+\end{pmatrix}
+\overset{乘以深度z}{==}
+\begin{pmatrix}
+nx \\
+ny \\
+unkown \\
+z
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;确定$M_{persp→ortho}$&lt;/p&gt;
+&lt;p&gt;$$
+M_{persp→ortho}^{(4×4)}
+\begin{pmatrix}
+x \\ y \\ z \\ 1
+\end{pmatrix}=
+\begin{pmatrix}
+nx \\ ny \\ unknown \\ z
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;$$
+M_{persp→ortho}^{(4×4)} =
+\begin{pmatrix}
+n &amp;amp; 0 &amp;amp; 0 &amp;amp; 0 \\
+0 &amp;amp; n &amp;amp; 0 &amp;amp; 0 \\
+? &amp;amp; ? &amp;amp; ? &amp;amp; ? \\
+0 &amp;amp; 0 &amp;amp; 1 &amp;amp; 0 \\
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;近平面上的点作用之后不变：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+n &amp;amp; 0 &amp;amp; 0 &amp;amp; 0 \\
+0 &amp;amp; n &amp;amp; 0 &amp;amp; 0 \\
+? &amp;amp; ? &amp;amp; ? &amp;amp; ? \\
+0 &amp;amp; 0 &amp;amp; 1 &amp;amp; 0 \\
+\end{pmatrix}
+\begin{pmatrix}
+x \\ y \\ n \\ 1
+\end{pmatrix} =
+\begin{pmatrix}
+x \\ y \\ n \\ 1
+\end{pmatrix} =
+\begin{pmatrix}
+nx \\ ny \\ n^2 \\ n
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;因为$n^2$与x,y无关，所以第三行为：(0 0 A B), $An+B=n^2$&lt;/p&gt;
+&lt;p&gt;远平面的中心点也没变，满足：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+n &amp;amp; 0 &amp;amp; 0 &amp;amp; 0 \\
+0 &amp;amp; n &amp;amp; 0 &amp;amp; 0 \\
+0 &amp;amp; 0 &amp;amp; A &amp;amp; B \\
+0 &amp;amp; 0 &amp;amp; 1 &amp;amp; 0 \\
+\end{pmatrix}
+\begin{pmatrix}
+0 \\ 0 \\ f \\ 1
+\end{pmatrix} =
+\begin{pmatrix}
+0 \\ 0 \\ f \\ 1
+\end{pmatrix} =
+\begin{pmatrix}
+0 \\ 0 \\ f^2 \\ f
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;所以$Af+B=f^2$&lt;/p&gt;
+&lt;p&gt;联立可解得A,B:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+An+B=n^2 \\
+Af+B=f^2
+\end{cases} ⇒
+\begin{cases}
+A=n+f \\
+B=-nf
+\end{cases}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;透视投影矩阵：$M_{persp} = M_{ortho} M_{persp→ortho}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: CG - 闫令琪 05 | Rasterization-1(Triangles)</title>
+        <link>https://zichen34.github.io/writenotes/vis/games-101_cg/05-rasterization-1triangles/</link>
+        <pubDate>Mon, 20 Sep 2021 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/vis/games-101_cg/05-rasterization-1triangles/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1X7411F744?p=5&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P5&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;光栅化rasterize&#34;&gt;光栅化Rasterize&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;把物体画在屏幕上&lt;/li&gt;
+&lt;li&gt;把$[-1,1]^3$标准立方体(canonical cube)投影到屏幕上&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;viewing-frustum&#34;&gt;viewing frustum&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;摄像机的视野&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/ViewFrustum.svg/800px-ViewFrustum.svg.png&#34; alt=&#34;viewing frustum&#34; style=&#34;zoom: 30%;&#34; /&gt; &lt;center&gt;图4 视体&lt;/center&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;三维世界中屏幕上可见的区域&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;作用：确定哪些物体会被屏幕显示&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;视体可用&lt;strong&gt;近平面的宽高比&lt;/strong&gt;($\frac{width}{height}$)和&lt;strong&gt;垂直可视角度&lt;/strong&gt;定义&lt;/p&gt;
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    &lt;img src= /writenotes/vis/games-101_cg/img/5_viewFrustum.png width=&gt;
+    
+    
+  
+
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;屏幕&#34;&gt;屏幕&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;二维数组&lt;/li&gt;
+&lt;li&gt;每个元素是一个像素&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: CG - 闫令琪 03 | Transformation</title>
+        <link>https://zichen34.github.io/writenotes/vis/games-101_cg/03-transformation/</link>
+        <pubDate>Sun, 19 Sep 2021 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/vis/games-101_cg/03-transformation/</guid>
+        <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1X7411F744?p=3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;P3 Transformation&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;旋转矩阵&#34;&gt;旋转矩阵&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;乘以一个向量时，改变向量方向的矩阵&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;表示了不同维度坐标的线性变换&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;作用：把向量(默认绕原点、逆时针)的旋转用矩阵乘法表示&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于一个二维向量，旋转关系用矩阵乘法形式为：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+x&amp;rsquo; \\ y&#39;
+\end{pmatrix} =
+M_{2×2}
+\begin{pmatrix}
+x \\ y
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;用待定系数法可以确定各元素&lt;/p&gt;
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    &lt;img src= /writenotes/vis/games-101_cg/img/3_RotationMatrix.png width=&gt;
+    
+    
+  
+
+&lt;p&gt;对于(a,0)点：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+acosθ \\ asinθ
+\end{pmatrix} =
+\begin{pmatrix}
+A &amp;amp; B \\ C &amp;amp; D
+\end{pmatrix}&lt;/p&gt;
+&lt;p&gt;\begin{pmatrix}
+a \\ 0
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;解得：$A=cosθ, C=sinθ$；
+同理代入(0,b)点，可解得：$B=-sinθ, D=cosθ$，所以旋转矩阵为：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+cosθ &amp;amp; -sinθ \\
+sinθ &amp;amp; cosθ
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;旋转矩阵的逆&#34;&gt;旋转矩阵的逆&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;等于它的转置（$R_θ^{-1}=R_θ^T$）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;因为旋转矩阵是一个正交矩阵&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;逆操作就是顺时针旋转相同的角度，也就是正向旋转$-θ$，代入得：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+cosθ &amp;amp; sinθ \\
+-sinθ &amp;amp; cosθ
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;即为旋转矩阵的转置&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;齐次坐标&#34;&gt;齐次坐标&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;向量最后加个0，点最后加个1&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;3D vector: $(x,y,z,0)^T$ &lt;br&gt;
+3D point: $(x,y,z,1)^T$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;作用：平移变换也可写成一个矩阵&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于平移关系：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{cases}
+x&amp;rsquo; = x + t_x \\
+y&amp;rsquo; = y + t_y
+\end{cases}
+$$&lt;/p&gt;
+&lt;p&gt;x,y方向都没有旋转，所以旋转矩阵为：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+1 &amp;amp; 0 \\
+0 &amp;amp; 1
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;写成齐次坐标：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+1 &amp;amp; 0 \\
+0 &amp;amp; 1 \\
+0 &amp;amp; 0
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;只有平移，附加到后面：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+x&amp;rsquo; \\ y&amp;rsquo; \\ 0
+\end{pmatrix} =
+\begin{pmatrix}
+1 &amp;amp; 0 &amp;amp; t_x \\
+0 &amp;amp; 1 &amp;amp; t_y \\
+0 &amp;amp; 0 &amp;amp; 1
+\end{pmatrix}
+\begin{pmatrix}
+x \\ y \\ 0
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;同一点的表示不唯一：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{pmatrix}
+x \\ y \\ z \\ 1
+\end{pmatrix} =
+\begin{pmatrix}
+kx \\ ky \\ kz \\ k
+\end{pmatrix}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;仿射变换&#34;&gt;仿射变换&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;旋转变换和平移变换拼成一个矩阵&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>images</title>
+        <link>https://zichen34.github.io/writenotes/vis/games-101_cg/img/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://zichen34.github.io/writenotes/vis/games-101_cg/img/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>

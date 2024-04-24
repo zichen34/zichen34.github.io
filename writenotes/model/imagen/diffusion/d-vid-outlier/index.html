@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Source Video: Diffusion Models | Paper Explanation | Math Explained - Outlier Code: dome272/Diffusion-Models-pytorch (2023-08-02)
+Idea &amp;amp; Theory Diffusion model is a generative model, so it learns the distribution of data 𝐗. (Discrimitive model learns labels. And MLE is a strategy to determine the distribution through parameters 𝚯)
+The essential idea is to systematically and slowly destroy structure in a data distribution through an iterative forward diffusion process. We then learn a reverse diffusion process that restores structure in data, yielding a highly flexible and tractable generative model of the data.'>
+<title>watch: Diffusion - Outlier | Explain 4 papers</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/imagen/diffusion/d-vid-outlier/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: Diffusion - Outlier | Explain 4 papers'>
+<meta property='og:description' content='Source Video: Diffusion Models | Paper Explanation | Math Explained - Outlier Code: dome272/Diffusion-Models-pytorch (2023-08-02)
+Idea &amp;amp; Theory Diffusion model is a generative model, so it learns the distribution of data 𝐗. (Discrimitive model learns labels. And MLE is a strategy to determine the distribution through parameters 𝚯)
+The essential idea is to systematically and slowly destroy structure in a data distribution through an iterative forward diffusion process. We then learn a reverse diffusion process that restores structure in data, yielding a highly flexible and tractable generative model of the data.'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/imagen/diffusion/d-vid-outlier/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='Diffusion' /><meta property='article:published_time' content='2023-07-14T21:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-07-14T21:00:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: Diffusion - Outlier | Explain 4 papers">
+<meta name="twitter:description" content="Source Video: Diffusion Models | Paper Explanation | Math Explained - Outlier Code: dome272/Diffusion-Models-pytorch (2023-08-02)
+Idea &amp;amp; Theory Diffusion model is a generative model, so it learns the distribution of data 𝐗. (Discrimitive model learns labels. And MLE is a strategy to determine the distribution through parameters 𝚯)
+The essential idea is to systematically and slowly destroy structure in a data distribution through an iterative forward diffusion process. We then learn a reverse diffusion process that restores structure in data, yielding a highly flexible and tractable generative model of the data.">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#idea--theory">Idea &amp; Theory</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#math-derivation">Math Derivation</a>
+      <ol>
+        <li><a href="#vae">VAE</a></li>
+        <li><a href="#forward-process">Forward process</a></li>
+        <li><a href="#reverse-process">Reverse process</a></li>
+        <li><a href="#vlb">VLB</a></li>
+        <li><a href="#loss-function">Loss function</a></li>
+      </ol>
+    </li>
+    <li><a href="#algorithms">Algorithms</a></li>
+    <li><a href="#improvements">Improvements</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/imagen/diffusion/d-vid-outlier/">watch: Diffusion - Outlier | Explain 4 papers</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 14, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    18 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/imagen/diffusion/imgs/Outlier_Explain.jpg width=>
+  
+  
+
+
+<ul>
+<li>Source Video: <a class="link" href="https://youtu.be/HoKDTa5jHvg"  target="_blank" rel="noopener"
+    >Diffusion Models | Paper Explanation | Math Explained - Outlier</a></li>
+<li>Code: <a class="link" href="https://github.com/dome272/Diffusion-Models-pytorch"  target="_blank" rel="noopener"
+    >dome272/Diffusion-Models-pytorch</a></li>
+</ul>
+<hr>
+<p>(2023-08-02)</p>
+<h2 id="idea--theory">Idea &amp; Theory</h2>
+<p>Diffusion model is a generative model, so it learns the distribution of data 𝐗.
+(Discrimitive model learns labels.
+And MLE is a strategy to determine the distribution through parameters 𝚯)</p>
+<blockquote>
+<p>The essential idea is to systematically and slowly <br>
+destroy structure in a <strong>data distribution</strong> through <br>
+an iterative forward diffusion process. We then <br>
+learn a reverse diffusion process that restores <br>
+structure in data, yielding a highly flexible and <br>
+<strong>tractable</strong> generative model of the data. [<a class="link" href="#2015" >1</a>]</p>
+</blockquote>
+<p><strong>Forward diffusion process</strong>:</p>
+<p>Sample noise from a normal distribution<a class="link" href="#2015" >¹</a> and add it to an image iteratively,
+until the original distribution of the image has been completely destroyed,
+becoming the same as the noise distribution.</p>
+<ul>
+<li>
+<p>The noise level (mean, variance) of each timestep is scaled by a schedule to avoid the variance explosion along with adding more noise.</p>
+</li>
+<li>
+<p>The image distribution should be destroyed slowly,
+and the noise redundency at the end stage should be reduced.</p>
+</li>
+<li>
+<p>OpenAI <a class="link" href="#2102" >³</a> proposed Cosine schedule in favor of the Linear schedule in DDPM<a class="link" href="#2020" >²</a>.</p>
+</li>
+</ul>
+<p><strong>Reverse diffusion process</strong>:</p>
+<p>Predict the noise of each step.</p>
+<ul>
+<li>
+<p>Do not predict the full image in one-shot because that&rsquo;s intractable and results in worse results<a class="link" href="#2015" >¹</a>.</p>
+</li>
+<li>
+<p>Predicting the mean of the noise distribution and predicting the noise in the image directly are equivalent,
+just being parameterized differently <a class="link" href="#2020" >²</a>.</p>
+</li>
+<li>
+<p>Predict noise directly, so it can be subtracted from image.</p>
+</li>
+<li>
+<p>The variance σ² of the normal distribution followed by the noise can be fixed<a class="link" href="#2020" >²</a>.
+But optimizing it together with the mean, the log-likehood will get improved <a class="link" href="#2102" >³</a>.</p>
+</li>
+</ul>
+<hr>
+<h2 id="architecture">Architecture</h2>
+<ol>
+<li>
+<p>DDPM used UNet like model:</p>
+<ul>
+<li>Multi-level downsample + resnet block ➔ Low-res feature maps ➔ Upsample to origianl size</li>
+<li>Concatenate RHS feature maps with the LHS feature maps of the same resolution to supplement the location information for features at each pixel.</li>
+<li>Attend some of LHS and RHS feature maps by attention blocks to fuse features further.</li>
+<li>Time embedding is added to each level of feature maps for &ldquo;identifying&rdquo; the consistent amount of noise to be predicted during a forward pass at a timestep.</li>
+</ul>
+</li>
+<li>
+<p>OpenAI 2nd paper<a class="link" href="#2105" >(4)</a> made improvement by modifying the model in:</p>
+<ol>
+<li>Increase levels, reduce width;</li>
+<li>More attention blocks, more heads;</li>
+<li>BigGAN residual block when downsampling and upsampling;</li>
+<li>Adaptive Group Normalization after each resnet block: GroupNorm + affine transform ( Time embedding * GN + Label embedding)</li>
+<li>Classifier guidance is a separate classifier that helps to generate images of a certain category.</li>
+</ol>
+</li>
+</ol>
+<hr>
+<h2 id="math-derivation">Math Derivation</h2>
+<p>(2024-04-17)</p>
+<ul>
+<li>VAE and diffuseion model both follows MLE strategy to find the parameter corresponding to the desired data distribution.</li>
+<li>VAE solves the dataset distribution P(𝐗) by approximating ELBO;</li>
+<li>While diffusion model solves the dataset distribution P(𝐗) by minimizing the KL Divergence.</li>
+</ul>
+<hr>
+<p>(2023-08-04)</p>
+<h3 id="vae">VAE</h3>
+<ol>
+<li>
+<p>VAE also wants to get the distribution of dataset P(𝐗), and an 𝐱 is generated by a latent variable 𝐳.</p>
+<p>Therefore, based on Bayes theorem, p(𝐱) = p(𝐳) p(𝐱|𝐳) / p(𝐳|𝐱), where p(𝐳) is the prior.</p>
+<p>And p(𝐳|𝐱) is <strong>intractable</strong> because in p(𝐳|𝐱) = p(𝐳)p(𝐱|𝐳) / p(𝐱), the p(𝐱) can&rsquo;t be computed through ∫f(𝐱,𝐳)d𝐳 since 𝐳 is high dimensional continuous.</p>
+</li>
+<li>
+<p>By introducing an approximated posterior q(𝐳|𝐱), log p(𝐱) = ELBO + KL-divergence.</p>
+<p>$log p(𝐱) = E_{q(𝐳|𝐱)} log \frac{p(𝐱,𝐳)}{q(𝐳|𝐱)} + ∫ q(𝐳|𝐱) log \frac{q(𝐳|𝐱)}{p(𝐳)} d𝐳$</p>
+<p>The KL-divergence can be integrated analytically.</p>
+<p>ELBO is an expectation w.r.t q(𝐳|𝐱), which can technically be estimated using Monte Carlo sampling directly.</p>
+<p>But when sampled q(𝐳ⁱ|𝐱) is around 0, the variance of $log\ q(𝐳|𝐱)$ would be high and make its gradint unstable, then cause the optimization difficult.
+And the function to be estimated $log(\frac{p_θ(𝐱,𝐳)}{q_φ(𝐳|𝐱)})$ involves two approximate models containing a lot error.</p>
+<p>Thus, it&rsquo;s not feasible to approximate ELBO directly.</p>
+</li>
+<li>
+<p>To approximate ELBO, we analyse the <strong>generative model</strong> (Decoder) p(𝐱|𝐳).</p>
+<p>Base on Bayes theorem, p(𝐱|𝐳) = p(𝐱) p(𝐳|𝐱)/p(𝐳).</p>
+<p>By introducing the posterior approximation q(𝐳|𝐱), p(𝐱|𝐳) can derive:
+E(log p(𝐱|𝐳)) = ELBO + KL-divergence, i.e.,</p>
+<p>$E_{q(𝐳|𝐱)}[ log p(𝐱|𝐳)] = E_{q(𝐳|𝐱)}[ log(\frac{p(𝐳|𝐱) p(𝐱)}{q(𝐳|𝐱)})] + ∫ q(𝐳|𝐱) log \frac{q(𝐳|𝐱)}{p(𝐳)} d𝐳$</p>
+<p>Given 𝐳, the likelihood p(𝐱|𝐳) is supposed to be maximized. (The probiblity that the real 𝐱 is sampled should be maximum.)</p>
+<p>Therefore, the parameters θ of generative model p(𝐱|𝐳) should be optimized via <strong>MLE</strong> (cross-entropy) loss.</p>
+</li>
+<li>
+<p>Now since ELBO = E(log p(𝐱|𝐳)) - KL-divergence and KL-div is known, ELBO will be obtained by just computing E(log p(𝐱|𝐳)).</p>
+<p>E(log p(𝐱|𝐳)) can be estimated by MC:
+sample a 𝐳 then compute log p(𝐱|𝐳), and repeat N times, take average.</p>
+<p>The approximated E(log p(𝐱|𝐳)) should be close to the original 𝐱, so there is a <strong>MSE</strong> loss to optimize the parameters ϕ of the distribution of 𝐳.</p>
+<ul>
+<li>(2023-10-30) 𝐳&rsquo;s distribution needs to be learned as well for sampling 𝐱.</li>
+</ul>
+<p>But MC sampling is not differentiable, so ϕ cannot be optimized through gradient descent.</p>
+<p>Therefore, reparameterization considers that 𝐳 comes from a differentiable determinstic transform of ε, a random noise, i.e.,
+𝐳 = μ + σε.</p>
+<p>Then, parameters (μ, σ²) of 𝐳&rsquo;s distribution (Encoder) will be optimized by MSE.</p>
+</li>
+</ol>
+<h3 id="forward-process">Forward process</h3>
+<ul>
+<li>
+<p>The forward diffusion process is like the &ldquo;Encoder&rdquo; p(𝐳|𝐱) in VAE:</p>
+<p>$$q(𝐳|𝐱) ⇒ q(𝐱ₜ | 𝐱ₜ₋₁)$$</p>
+<p>The distribution of image 𝐱ₜ at timestep t is determined by the image 𝐱ₜ₋₁ at the previous timestep, where smaller t means less noise.</p>
+<p>Specifically, 𝐱ₜ follows a normal distribution with a mean of $\sqrt{1-βₜ}𝐱ₜ₋₁$ and a variance of $\sqrt{βₜ}𝐈$:</p>
+<p>$$q(𝐱ₜ | 𝐱ₜ₋₁) = N(𝐱ₜ; \sqrt{1-βₜ} 𝐱ₜ₋₁, \sqrt{βₜ}𝐈)$$</p>
+<p>𝐱ₜ is similar to 𝐱ₜ₋₁ because its mean is around 𝐱ₜ₋₁.</p>
+</li>
+<li>
+<p>An image 𝐱 is  a &ldquo;vector&rdquo;, and each element of it is a pixel.</p>
+</li>
+<li>
+<p>As timestep t increase, βₜ increases and (1-βₜ) decreases, which indicates
+the variance gets larger and the mean value gets smaller.</p>
+<p>Intuitively, the value of the original pixel xₜ₋₁ is <strong>fading</strong> and more pixels become outliers resulting in a wider range of variation around the mean.</p>
+<script>type="text/tikz"
+\begin{tikzpicture}[scale=1.5]
+  \def\meanA{1}
+  \def\sdA{0.5}
+  \def\meanB{0.6}
+  \def\sdB{0.9}
+  \def\xmin{-2}
+  \def\xmax{4}
+  \def\ymin{-0.1}
+  \def\ymax{0.8}
+
+  \draw[->] (\xmin-.2,0) -- (\xmax+.2,0) node[right] {$x$};
+  \draw[->] (0,\ymin-.1) -- (0,\ymax+.1) node[above] {$y$};
+
+  \draw[domain=\xmin:\xmax,samples=100,smooth,variable=\x,blue] plot ({\x},{1/(\sdA*sqrt(2*pi))*exp(-((\x-\meanA)^2)/(2*\sdA^2))});
+
+  \draw[dashed] (\meanA,\ymin) -- (\meanA,\ymax);
+
+  \filldraw[black] (\meanA,\ymax) circle (1pt);
+
+  \node[above right] at (\meanA,\ymax) {$f(\mu_A)=\frac{1}{\sigma_A\sqrt{2\pi}}$};
+
+  \node[below right] at (\xmax,\ymin) {$f(x)=\frac{1}{\sigma_A\sqrt{2\pi}}e^{-\frac{(x-\mu_A)^2}{2\sigma_A^2}}$};
+
+  \draw[domain=\xmin:\xmax,samples=100,smooth,variable=\x,red] plot ({\x},{1/(\sdB*sqrt(2*pi))*exp(-((\x-\meanB)^2)/(2*\sdB^2))});
+
+  \draw[dashed] (\meanB,\ymin) -- (\meanB,\ymax);
+
+  \filldraw[black] (\meanB,\ymax) circle (1pt);
+
+  \node[above right] at (\meanB,\ymax) {$f(\mu_B)=\frac{1}{\sigma_B\sqrt{2\pi}}$};
+
+  \node[below right] at (\xmax,\ymin) {$f(x)=\frac{1}{\sigma_B\sqrt{2\pi}}e^{-\frac{(x-\mu_B)^2}{2\sigma_B^2}}$};
+
+\end{tikzpicture}
+</script>
+<script type="text/tikz">
+\begin{tikzpicture}[scale=1.2]
+  % Background
+  \fill [white] (-2.5,-0.5) rectangle (4.5,1.5); % Adjust the rectangle size if needed
+
+  % Axes
+  \draw[->] (-2.5,0) -- (4.5,0) node[below] {$x$};
+  \draw[->] (0,0) -- (0,1.2) node[left] {$y$};
+
+  % Red bell curve
+  \draw[red, thick, smooth, domain=-2:4, samples=100]
+      plot (\x, {exp(-((\x-1)^2)/(2*0.4^2))/(0.4*sqrt(2*pi))});
+
+  % Blue bell curve
+  \draw[blue, thick, smooth, domain=-2:4, samples=100]
+      plot (\x, {exp(-((\x-0.7)^2)/(2*0.8^2))/(0.8*sqrt(2*pi))});
+
+  % Axis labels
+  \node[below] at (4,0) {$x$};
+  \node[left] at (0,1) {$y$};
+
+  % Legend
+  \draw[red, thick] (0.2,-1.2) -- (1.2,-1.2) node[right] {$\mu=1, \sigma^2=0.4$};
+  \draw[blue, thick] (0.2,-1.7) -- (1.2,-1.7) node[right] {$\mu=0.7, \sigma^2=0.8$};
+\end{tikzpicture}
+</script>
+</li>
+<li>
+<p>By introducing a notation $α = 1-βₜ$, the t-step evolution from 𝐱₀ to 𝐱ₜ can be simplied to a <strong>single expression</strong> instead of sampling t times iteratively.</p>
+<ul>
+<li>
+<p>Replace (1-βₜ) with α, the distribution becomes:</p>
+<p>$q(𝐱ₜ | 𝐱ₜ₋₁) = N(𝐱ₜ; \sqrt{αₜ} 𝐱ₜ₋₁, (1-αₜ)𝐈)$</p>
+</li>
+<li>
+<p>Based on the <strong>reparameterization trick</strong>, a sample from the distribution is:</p>
+<p>$𝐱ₜ = \sqrt{αₜ} 𝐱ₜ₋₁ + \sqrt{1-αₜ} ε$</p>
+</li>
+<li>
+<p>Similarly, $𝐱ₜ₋₁ = \sqrt{αₜ₋₁} 𝐱ₜ₋₂ + \sqrt{1-αₜ₋₁} ε$, and plug it into 𝐱ₜ.</p>
+</li>
+<li>
+<p>Then $𝐱ₜ = \sqrt{αₜ₋₁} ( \sqrt{αₜ} 𝐱ₜ₋₂ + \sqrt{1-αₜ₋₁} ε ) + \sqrt{1-αₜ} ε$.
+Now, the <strong>mean</strong> becomes $\sqrt{αₜαₜ₋₁} 𝐱ₜ₋₂$</p>
+</li>
+<li>
+<p>Given variance = 1 - (mean/𝐱)² in the above normal distribution $N(𝐱ₜ; \sqrt{αₜ} 𝐱ₜ₋₁, (1-αₜ)𝐈)$,
+and here mean = $\sqrt{αₜαₜ₋₁} 𝐱ₜ₋₂$,</p>
+<p>the standard deviation should be $\sqrt{1 - αₜαₜ₋₁}$, then 𝐱ₜ becomes:</p>
+<p>$𝐱ₜ = \sqrt{αₜαₜ₋₁} 𝐱ₜ₋₂ + \sqrt{1 - αₜαₜ₋₁} ε$</p>
+</li>
+<li>
+<p>Repeatedly substituting intermediate states, the 𝐱ₜ can be represented with 𝐱₀ :</p>
+<p>$𝐱ₜ = \sqrt{αₜαₜ₋₁ &hellip; α₁} 𝐱₀ + \sqrt{1 - αₜαₜ₋₁ &hellip; α₁} ε$</p>
+</li>
+<li>
+<p>Denote the cumulative product &ldquo;αₜαₜ₋₁ &hellip; α₁&rdquo; as $\bar aₜ$,
+the 𝐱ₜ can be reached in one-shot.</p>
+<p>$𝐱ₜ = \sqrt{\bar aₜ} 𝐱₀ + \sqrt{1 - \bar aₜ} ε$</p>
+</li>
+<li>
+<p>The distribution of 𝐱ₜ given 𝐱₀ is:</p>
+<p>$q(𝐱ₜ | 𝐱₀) = N(𝐱ₜ; \sqrt{\bar aₜ} 𝐱₀, (1 - \bar aₜ)𝐈)$</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>With this expression, the deterministic forward process is ready-to-use and only the reverse process needs to be learned by a network.</p>
+<ul>
+<li>That&rsquo;s why in the formula below, they &ldquo;reverse&rdquo; the forward q(𝐱ₜ|𝐱ₜ₋₁) to q(𝐱ₜ₋₁|𝐱ₜ) resulting in the equation only containing &ldquo;reverse process&rdquo;: 𝐱ₜ₋₁|𝐱ₜ,
+which then can be learned by narrowing the gap between q(𝐱ₜ₋₁|𝐱ₜ) and p(𝐱ₜ₋₁|𝐱ₜ).</li>
+</ul>
+<h3 id="reverse-process">Reverse process</h3>
+<p>The reverse diffusion process is like the Decoder in VAE.</p>
+<p>$$p(𝐱|𝐳) ⇒ p(𝐱ₜ₋₁𝐱ₜ₋₂..𝐱₀ | 𝐱ₜ)$$</p>
+<ul>
+<li>
+<p>Given a noise image 𝐱ₜ, the distribution of less-noise image 𝐱ₜ₋₁ is</p>
+<p>$p(𝐱ₜ₋₁ | 𝐱ₜ) = N(𝐱ₜ₋₁; μ_θ(𝐱ₜ, t), Σ_θ(𝐱ₜ, t))$</p>
+<p>where the variance can be a fixed schedule as βₜ, so only the mean $μ_θ(𝐱ₜ, t)$ needs to be learned with a network.</p>
+</li>
+</ul>
+<h3 id="vlb">VLB</h3>
+<p>VLB is the loss to be minimized.
+VLB gets simplied by:</p>
+<ol>
+<li>
+<p>Applying Bayes rule to &ldquo;reverse&rdquo; the direction of the forward process, which
+becomes &ldquo;forward denoising&rdquo; steps q(𝐱ₜ₋₁ | 𝐱ₜ), because
+it&rsquo;s from a noise image to a less-noise image;</p>
+</li>
+<li>
+<p>Adding extra conditioning on 𝐱₀ for each &ldquo;forward denosing&rdquo; step q(𝐱ₜ₋₁ | 𝐱ₜ, 𝐱₀).</p>
+</li>
+</ol>
+<p>Derivation by step:</p>
+<ul>
+<li>
+<p>Diffusion model wants a set of parameter 𝛉 letting the likelihood of the <strong>original image</strong> 𝐱₀ maximum.</p>
+<p>$$\rm θ = arg max_θ\ log\ p_θ(𝐱₀)$$</p>
+<p>With adding a minus sign, the objective turns to find the minimum:</p>
+<p>-log p(𝐱₀) = -ELBO - KL-divergence</p>
+<p>$$
+\begin{aligned}
+&amp; -log p(𝐱₀) \left( = -log \frac{p(𝐱₀, 𝐳)}{p(𝐳|𝐱₀)} \right) \\
+&amp;= -log \frac{p(𝐱_{1:T}, 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)} \\
+&amp; \text{(Introduce &ldquo;approximate posterior&rdquo; q :)} \\
+&amp;= -(log \frac{ p(𝐱_{1:T}, 𝐱₀) }{ q(𝐱_{1:T} | 𝐱₀)}
+\ + log (\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)}) ) \\
+\end{aligned}
+$$</p>
+<ul>
+<li>
+<p>Note that $q(𝐱_{1:T} | 𝐱₀)$ represents a <strong>joint distribution</strong> of N conditional distributions 𝐱ₜ and 𝐱ₜ₋₁.</p>
+</li>
+<li>
+<p>It is the <strong>step-by-step</strong> design that makes training a network to learn the data distribution possible.
+Meanwhile, the sampling process also has to be step-by-step.</p>
+</li>
+</ul>
+<p>Compute expection w.r.t. $q(𝐱_{1:T} | 𝐱₀)$ for both side.</p>
+<p>$$
+E_{q(𝐱_{1:T} | 𝐱₀)} [ -log p(𝐱₀) ] \\
+\ = E_{q(𝐱_{1:T} | 𝐱₀)} \left[-log \frac{ p(𝐱_{0:T}) }{ q(𝐱_{1:T} | 𝐱₀)}\right]
+\ + E_{q(𝐱_{1:T} | 𝐱₀)} \left[-log (\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)})\right]
+$$</p>
+<p>Expectation is equivalent to integration.</p>
+<p>$$
+\begin{aligned}
+&amp; \text{LHS:}
+∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * (-log p(𝐱₀)) d𝐱_{1:T} = -log p(𝐱₀) \\
+&amp; \text{RHS:}
+\ = E_{q(𝐱_{1:T} | 𝐱₀)} \left[-log \frac{ p(𝐱_{0:T}) }{ q(𝐱_{1:T} | 𝐱₀)}\right] \\
+&amp; + ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * \left(-log (\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)})\right) d𝐱_{1:T}
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>Since KL-divergence is non-negative, there is:</p>
+<p>-log p(𝐱₀) ≤ -log p(𝐱₀) + KL-divergence =</p>
+<p>$$
+\begin{aligned}
+&amp;  -log p(𝐱₀) + D_{KL}( q(𝐱_{1:T} | 𝐱₀) || p(𝐱_{1:T} | 𝐱₀) ) \\
+&amp;= -log p(𝐱₀)
+\ + ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * \left(log (\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)})\right) d𝐱_{1:T}
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>Break apart the denominator $p(𝐱_{1:T} | 𝐱₀)$ of the argument in the KL-divergence&rsquo;s logarithm based on Bayes rule:</p>
+<p>$$p(𝐱_{1:T} | 𝐱₀) = \frac{p(𝐱_{1:T}, 𝐱₀)}{p(𝐱₀)} = \frac{p(𝐱_{0:T})}{p(𝐱₀)}$$</p>
+<p>Plug it back to KL-divergence:</p>
+<p>$$
+\begin{aligned}
+&amp;∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * \left( log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{1:T} | 𝐱₀)})\right) d𝐱_{1:T} \\
+&amp;= ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * log (\frac{q(𝐱_{1:T} | 𝐱₀) p(𝐱₀)}{p(𝐱_{0:T})}) d𝐱_{1:T} \\
+&amp;= ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * [ log(p(𝐱₀) + log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{0:T})})] d𝐱_{1:T}\\
+&amp;= ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * log(p(𝐱₀) d𝐱_{1:T} \\
+&amp;\quad  + ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{0:T})}) d𝐱_{1:T} \\
+&amp;= log p(𝐱₀) + ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀) * log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{0:T})}) d𝐱_{1:T}
+\end{aligned}
+$$</p>
+</li>
+<li>
+<p>Plug this decomposed KL-divergence into the above inequality, and the incomputable log-likelihood (-log p(𝐱₀)) can be canceled,
+resulting in the <strong>Variational Lower Bound (VLB)</strong>:</p>
+<p>$$-log p(𝐱₀) ≤ ∫_{𝐱_{1:T}} q(𝐱_{1:T} | 𝐱₀)\ log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_{0:T})}) d𝐱_{1:T}$$</p>
+<p>The argument of log is a ratio of the forward process and the reverse process.</p>
+<p>The numerator is the distribution of $𝐱_{1:T}$ given the <strong>starting point</strong> 𝐱₀.
+To make the numerator and denominator have symmetric steps, the starting point of the reverse process $p(𝐱_T)$ can be separated out.</p>
+</li>
+<li>
+<p>Separate out $p(𝐱_T)$ from the denominator by rewriting the conditional probability as a <strong>cumulative product</strong>:</p>
+<p>$$
+p(𝐱_{0:T}) = p(𝐱_T) Π_{t=1}^T p(𝐱ₜ₋₁|𝐱ₜ)
+$$</p>
+<p>Plug it back into the logarithm of the VLB, and <strong>break</strong> the numerator joint distribution as a <strong>product of N-1 steps</strong> as well:</p>
+<p>$$
+log(\frac{q(𝐱_{1:T} | 𝐱₀)}{p(𝐱_T) Π_{t=1}^T p(𝐱ₜ₋₁|𝐱ₜ)})
+= log \frac{ Π_{t=1}^T q(𝐱ₜ|𝐱ₜ₋₁)}{ p(𝐱_T) Π_{t=1}^T p(𝐱ₜ₋₁|𝐱ₜ)} \\
+= log \frac{ Π_{t=1}^T q(𝐱ₜ|𝐱ₜ₋₁)}{ Π_{t=1}^T p(𝐱ₜ₋₁|𝐱ₜ)} - log p(𝐱_T) \\
+= ∑_{t=1}^T log (\frac{q(𝐱ₜ|𝐱ₜ₋₁)}{p(𝐱ₜ₋₁|𝐱ₜ)}) - log\ p(𝐱_T)
+$$</p>
+<p>This form includes every step rather than only focusing on the distribution of the all events $𝐱_{1:T}$.</p>
+<p>(2023-08-11) DM wants the data distribution, but it doesn&rsquo;t <strong>rebuild</strong> the distribution transformation directly from Gaussian to data distribution,
+but approachs the <strong>corruption</strong> process step-by-step to reduce the difficulty (variance).</p>
+</li>
+<li>
+<p>Separate the first item (first step, t=1) from the summation,
+so that the <strong>other terms</strong> can be conditioned on 𝐱₀, thus reducing the variance:</p>
+<p>$$
+log \frac{q(𝐱₁|𝐱₀)}{p(𝐱₀|𝐱₁)} + ∑_{t=2}^T log (\frac{q(𝐱ₜ|𝐱ₜ₋₁)}{p(𝐱ₜ₋₁|𝐱ₜ)}) - log\ p(𝐱_T)
+$$</p>
+</li>
+<li>
+<p>Reformulate the numerator $q(𝐱ₜ|𝐱ₜ₋₁)$ based on <strong>Bayes rule</strong>:</p>
+<p>$$
+q(𝐱ₜ|𝐱ₜ₋₁) = \frac{q(𝐱ₜ₋₁|𝐱ₜ)q(𝐱ₜ)}{q(𝐱ₜ₋₁)}
+$$</p>
+<p>In this form, forward adding noise $q$ and reverse denoising $p$ become the same process from 𝐱ₜ to 𝐱ₜ₋₁.
+Such that, in one pass, the model can both perform forward process and reverse process once.</p>
+</li>
+<li>
+<p>Make each step <strong>conditioned on 𝐱₀</strong> to reduce the variance (uncertainty).</p>
+<p>$$
+q(𝐱ₜ|𝐱ₜ₋₁) = \frac{q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)q(𝐱ₜ| 𝐱₀)}{q(𝐱ₜ₋₁| 𝐱₀)}
+$$</p>
+<p>And this distribution $q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)$ has a closed-form solution.</p>
+<p>Here is why the first step is separated out:
+If t=1, the $q(𝐱₁|𝐱₀)$ conditioned on 𝐱₀ is:</p>
+<p>$$
+q(𝐱₁|𝐱₀) = \frac{q(𝐱₀|𝐱₁, 𝐱₀)q(𝐱₁|𝐱₀)}{q(𝐱₀|𝐱₀)}
+$$</p>
+<p>There is a loop of $q(𝐱₁|𝐱₀)$ if 𝐱₀ exists,
+and other terms $q(𝐱₀|𝐱₁, 𝐱₀)$ and $q(𝐱₀|𝐱₀)$ don&rsquo;t make sense.</p>
+<p>Plug the newly conditioned numerator back to the fraction, and break it apart based on log rule:</p>
+<p>$$
+∑_{t=2}^T log \frac{q(𝐱ₜ|𝐱ₜ₋₁)}{p(𝐱ₜ₋₁|𝐱ₜ)}
+\ = ∑_{t=2}^T log \frac{q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)q(𝐱ₜ| 𝐱₀)}{p(𝐱ₜ₋₁|𝐱ₜ)q(𝐱ₜ₋₁| 𝐱₀)} \\
+\ = ∑_{t=2}^T log \frac{q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)}{p(𝐱ₜ₋₁|𝐱ₜ)} + ∑_{t=2}^T log \frac{q(𝐱ₜ| 𝐱₀)}{q(𝐱ₜ₋₁| 𝐱₀)} \\
+$$</p>
+<p>The second term will be simplied to $log \frac{q(𝐱_T| 𝐱₀)}{q(𝐱₁| 𝐱₀)}$</p>
+<p>Then, the variational lower bound becomes:</p>
+<p>$$
+D_{KL}(q(𝐱_{1:T}|𝐱₀) || p(𝐱_{0:T})) = \\
+log \frac{q(𝐱₁|𝐱₀)}{p(𝐱₀|𝐱₁)}
+\ + ∑_{t=2}^T log \frac{q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)}{p(𝐱ₜ₋₁|𝐱ₜ)}
+\ + log \frac{q(𝐱_T| 𝐱₀)}{q(𝐱₁| 𝐱₀)}
+\ - log\ p(𝐱_T) \\
+\ \\
+\ = ∑_{t=2}^Tlog \frac{ q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) }{ p(𝐱ₜ₋₁|𝐱ₜ)}
+\ + log \frac{q(𝐱_T| 𝐱₀)}{p(𝐱₀|𝐱₁)}
+\ - log\ p(𝐱_T) \\
+\ \\
+\ = ∑_{t=2}^T log \frac{ q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) }{ p(𝐱ₜ₋₁|𝐱ₜ)}
+\ + log \frac{q(𝐱_T| 𝐱₀)}{p(𝐱_T)}
+\ - log p(𝐱₀|𝐱₁)
+$$</p>
+<p>Write this formula as KL-divergence, so that a concrete expression can be determined later.</p>
+<font style='color: red'>
+How are those two fractions written as KL-divergence?
+</font>
+<p>$$
+\begin{aligned}
+&amp; ∑_{t=2}^T D_{KL} (q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) || p(𝐱ₜ₋₁|𝐱ₜ)) \\
+&amp; + D_{KL} (q(𝐱_T| 𝐱₀) || p(𝐱_T)) \\
+&amp; - log\ p(𝐱₀|𝐱₁)
+\end{aligned}
+$$</p>
+</li>
+</ul>
+<h3 id="loss-function">Loss function</h3>
+<p>The VLB to be minimized is eventually derived as a MSE loss function between the actual noise and the predicted noise.</p>
+<ol>
+<li>
+<p>$D_{KL} (q(𝐱_T| 𝐱₀) || p(𝐱_T))$ can be <strong>ignored</strong>.</p>
+<ul>
+<li>$q(𝐱_T| 𝐱₀)$ has no learnable parameters because it just adds noise following a schedule.</li>
+<li>And $p(𝐱_T)$ is the noise image sampled from normal distribution.
+Since $q(𝐱_T| 𝐱₀)$ is the eventual image which is supposed to follow the normal distribution,
+this KL-divergence should be small.</li>
+</ul>
+<p>Then, the loss only contains the other two terms:</p>
+<p>$$L = ∑_{t=2}^T D_{KL} (q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) || p(𝐱ₜ₋₁|𝐱ₜ)) - log\ p(𝐱₀|𝐱₁)$$</p>
+</li>
+<li>
+<p>$D_{KL} (q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) || p(𝐱ₜ₋₁|𝐱ₜ))$ is the MSE between the actual noise and the predicted noise.</p>
+<ul>
+<li>
+<p>For the reverse pass, the distribution of the <strong>denoised</strong> image $p(𝐱ₜ₋₁|𝐱ₜ)$ has a parametric expression:</p>
+<p>$$p(𝐱ₜ₋₁|𝐱ₜ) = N(𝐱ₜ₋₁; μ_θ(𝐱ₜ,t), Σ_θ(𝐱ₜ,t)) \\ = N(𝐱ₜ₋₁; μ_θ(𝐱ₜ,t), β𝐈)$$</p>
+<p>where Σ is fixed as βₜ𝐈, and only the mean $μ_θ(𝐱ₜ,t)$ will be learned and represented by a network (output) through the MSE loss of noise as below.</p>
+</li>
+<li>
+<p>For the (&ldquo;reversed&rdquo;) forward pass, the distribution of <strong>noise-added</strong> image $q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀)$ has a closed-form solution,
+which can be written as a similar expression as p(𝐱ₜ₋₁|𝐱ₜ):
+<font style="color: red">What&rsquo;s the derivation?</font></p>
+<p>$$
+q(𝐱ₜ₋₁|𝐱ₜ, 𝐱₀) =
+N(𝐱ₜ₋₁; \tilde μₜ(𝐱ₜ,𝐱₀), \tilde βₜ𝐈) \\
+\ \\
+\tilde βₜ = \frac{1- \bar αₜ₋₁}{1-\bar αₜ} ⋅ βₜ \\
+\ \\
+\tilde μ(𝐱ₜ,𝐱₀) = \frac{\sqrt{αₜ} (1-\bar αₜ₋₁) }{1-\bar αₜ} 𝐱ₜ
+\ + \frac{\sqrt{\bar αₜ₋₁} βₜ}{1-\bar αₜ} 𝐱₀ \\
+\ \\
+\rm Is there \sqrt{αₜ} or \sqrt{\bar αₜ} ?
+$$</p>
+<p>where the $\tilde βₜ$ is fixed, so only consider the $\tilde μ(𝐱ₜ,𝐱₀)$, which can
+be simplified by the <strong>one-step forward</strong> process expression:
+$𝐱ₜ = \sqrt{\bar αₜ} 𝐱₀ + \sqrt{1 - \bar αₜ} ε$</p>
+<p>$$
+𝐱₀ = \frac{𝐱ₜ - \sqrt{1 - \bar αₜ} ε}{\sqrt{\bar αₜ}}
+$$</p>
+<p>Plug 𝐱₀ into $\tilde μ(𝐱ₜ,𝐱₀)$, then the mean of the noise-added image <strong>doesn&rsquo;t depend</strong> on 𝐱₀ anymore:</p>
+<p>$$
+\begin{aligned}
+\tilde μ(𝐱ₜ,𝐱₀)
+&amp; = \frac{\sqrt{αₜ} (1-\bar αₜ₋₁) }{1-\bar αₜ} 𝐱ₜ
+\ + \frac{\sqrt{\bar αₜ₋₁} βₜ}{1-\bar αₜ}
+\ \frac{𝐱ₜ - \sqrt{1 - \bar αₜ} ε}{\sqrt{\bar αₜ}} \\
+\ \\
+&amp; =  ???\ How \ to \ do? \ ??? \\
+&amp; = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε)
+\end{aligned}
+$$</p>
+<p>The mean of the distribution from which the noise-added image (𝐱ₜ,𝐱₀) at timestep t get sampled out is subtracting some random noise from image 𝐱ₜ.</p>
+<p>𝐱ₜ is known from the forward process schedule, and the $\tilde μ(𝐱ₜ,𝐱₀)$ is the <strong>target</strong> for the network to optimize weights
+to make the predicted mean $μ_θ(𝐱ₜ,t)$ same as $\tilde μ(𝐱ₜ,𝐱₀)$.</p>
+</li>
+<li>
+<p>Since network only output μ, the KL-divergence in the loss function can be simplified in favor of using MSE:</p>
+<p>$$
+Lₜ = \frac{1}{2σₜ²} \| \tilde μ(𝐱ₜ,𝐱₀) - μ_θ(𝐱ₜ,t) \|²
+$$</p>
+<p>This MSE indicates that the noise-added image in the forward process and the noise-removed image in the reverse process should be <strong>as close as possible</strong>.</p>
+<p>Since the <strong>actual</strong> mean $\tilde μ(𝐱ₜ,𝐱₀) = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε)$,
+where 𝐱ₜ is known, as it&rsquo;s the input to the network.
+So the model is essentially estimating the actual $ε$ (random <strong>noise</strong>) every time.</p>
+<p>Hence, the <strong>predicted</strong> mean $μ_θ(𝐱ₜ,t)$ by the model can be written in the same form as $\tilde μ(𝐱ₜ,𝐱₀)$, where only the noise $ε_θ$ has parameters:</p>
+<p>$$μ_θ(𝐱ₜ,t) = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ((𝐱ₜ,t)))$$</p>
+<p>Therefore, the loss term becomes:</p>
+<p>$$
+Lₜ = \frac{1}{2σₜ²} \| \tilde μ(𝐱ₜ,𝐱₀) - μ_θ(𝐱ₜ,t) \|² \\
+\ = \frac{1}{2σₜ²} \left\| \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε)
+\ - \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t)) \right\|² \\
+\ = \frac{βₜ²}{2σₜ² αₜ (1-\bar αₜ)} \|ε - ε_θ(𝐱ₜ,t) \|²
+$$</p>
+<p>Disregarding the scaling factor can bring better sampling quality and easier implementation, so the final loss for the KL-divergence is MSE between actual noise and predicted noise at time t:</p>
+<p>$$\|ε - ε_θ(𝐱ₜ,t) \|²$$</p>
+</li>
+<li>
+<p>Once the mean $μ_θ(𝐱ₜ,t)$ has predicted out based on 𝐱ₜ and t, a &ldquo;cleaner&rdquo; image can be sampled from the distribution:</p>
+<p>$$
+N(𝐱ₜ₋₁; μ_θ(𝐱ₜ,t), \sigma_θ(𝐱ₜ,t)) =
+N(𝐱ₜ₋₁; \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t), βₜ𝐈)
+$$</p>
+<div id="Sampling"></div>
+By using reparameterization trick, this sampled image is: 
+<p>$$
+𝐱ₜ₋₁ = μ_θ(𝐱ₜ,t) + σε
+\ = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t) + \sqrt{βₜ}ε
+$$</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The last term $log p(𝐱₀|𝐱₁)$ in the VLB is the predicted distribution for the original image 𝐱₀.
+Its goodness is measured by a <strong>probability</strong>
+that the <strong>original</strong> image $𝐱₀$ gets sampled from the estimated distribution $N(x; μ_θⁱ(𝐱₁,1), β₁)$.</p>
+<p>The probability of an image should be a product of <strong>total D pixels</strong>.
+And the probability a pixel should be an <strong>integral</strong> over an interval [δ₋, δ₊] of the PDF curve:</p>
+<p>$$
+p_θ(𝐱₀|𝐱₁) = ∏_{i=1}^D ∫_{δ₋(x₀ⁱ)}^{δ₊(x₀ⁱ)} N(x; μ_θⁱ(𝐱₁,1), β₁) dx
+$$</p>
+<ul>
+<li>where $x₀$ is the pixel&rsquo;s ground-truth.</li>
+<li>$N(x; μ_θⁱ(𝐱₁,1), β₁)$ is the distribution to be integrated.</li>
+</ul>
+<p>This interval is determined based on the <strong>actual pixel</strong> value as:</p>
+<p>$$
+δ₊(x) =
+\begin{cases}
+∞ &amp; \text{if x = 1} \\ x+\frac{1}{255} &amp; \text{if x &lt; 1}
+\end{cases}, \quad
+δ₋(x) =
+\begin{cases}
+-∞ &amp; \text{if x = -1} \\ x-\frac{1}{255} &amp; \text{if x &gt; -1}
+\end{cases}
+$$</p>
+<ul>
+<li>
+<p>The original pixel range [0,255] has been normalized to [-1, 1] to align with the standard normal distribution $p(x_T) \sim N(0,1)$</p>
+</li>
+<li>
+<p>If the actual value is 1, the integral upper bound in the distribution is ∞, and the lower bound is 1-1/255 = 0.996, the width of the interval is from 0.996 to infinity.</p>
+<p>If the actual value is 0.5, the upper bound is 0.5+1/255, and the lower bound is 0.5-1/255, the width of the interval is 2/255.</p>
+</li>
+</ul>
+<p>pic: area of the true pixel region in two predicted distributions.</p>
+<p>If the area <strong>around the actual pixel value</strong> under the predicted distribution PDF curve is large, the predicted distribution is good.
+Howerver, if the area around real pixel value is small, the estimated mean is wrongly located.</p>
+<p>Hence, this probability (log-likelihood) should be maximized, and by condering the minus sign in front of it, the corresponding loss term comes.</p>
+<p>However, the authors <strong>got rid of</strong> this loss term $-log p(𝐱₀|𝐱₁)$ when training the network.
+And the consequense is at inference time, the final step from 𝐱₁ to 𝐱₀ doesn&rsquo;t add noise, because this step <strong>wasn&rsquo;t get optimized</strong>.
+Therefore, The difference from other sampling steps is that the predicted 𝐱₀ doesn&rsquo;t plus random noise.</p>
+<p>$$
+\begin{aligned}
+\text{t&gt;1:}\quad
+𝐱_{t-1} &amp;= \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t) + \sqrt βₜ ε) \\
+\text{t=1:}\quad
+𝐱_{t-1} &amp;= \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{βₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t))
+\end{aligned}
+$$</p>
+<p>A simple reason is that we don&rsquo;t want to add noise to the final denoised clear output image 𝐱₀. Otherwise, the generated image is low-quality.</p>
+</li>
+</ol>
+<p>The complete loss function is MSE:</p>
+<p>$$
+\begin{aligned}
+\rm L_{simple} &amp;= E_{t,𝐱₀,ε} [ || ε - ε_θ(𝐱ₜ,t)||² ]  \\
+&amp;= E_{t,𝐱₀,ε} [ || ε - ε_θ( \sqrt{\bar aₜ} 𝐱₀ + \sqrt{1 - \bar aₜ} ε, t) ||² ]
+\end{aligned}
+$$</p>
+<ul>
+<li>t is sampled from a uniform distribution between 1 and t;</li>
+<li>𝐱ₜ is the one-step forward process.</li>
+</ul>
+<hr>
+<h2 id="algorithms">Algorithms</h2>
+<p>DDPM paper</p>
+<p>Training a model:</p>
+<pre class="pseudocode" data-line-number=true>\begin{algorithm}
+\caption{Training}
+\begin{algorithmic}
+\REPEAT
+  \STATE Sample a t from U(0,T)
+  \STATE Select an input image 𝐱₀ from dataset
+  \STATE Sample a noise from N(0,𝐈)
+  \STATE Perform gradient descent with loss: \\\\
+  $||ε - ε_θ(\sqrt{\bar aₜ} 𝐱₀ + \sqrt{1 - \bar aₜ} ε, t)||²$
+\UNTIL{converge}
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+<p>Sampling from the learned data distribution by means of reparameterization trick:</p>
+<pre class="pseudocode" data-line-number=true>\begin{algorithm}
+\caption{Sampling}
+\begin{algorithmic}
+\STATE Sample a noise image $𝐱_T \sim N(0,𝐈)$
+\FOR{t = T:1}
+  \COMMENT{Remove noise step-by-step}
+  \IF{t=1}
+    \STATE ε=0
+  \ELSE
+    \STATE ε ~ N(0,𝐈)
+  \ENDIF
+
+  \STATE $𝐱ₜ₋₁ = \frac{1}{\sqrt{αₜ}} (𝐱ₜ - \frac{1-αₜ}{\sqrt{1 - \bar αₜ}} ε_θ(𝐱ₜ,t) + \sqrt{σₜ}ε$
+  \COMMENT{Reparam trick}
+
+\ENDFOR
+\RETURN 𝐱₀
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+<p>In this reparametrization formula change βₜ and $\sqrt{βₜ}$ to 1-αₜ and σₜ,
+which are different from the <a class="link" href="#Sampling" >above equation</a>.</p>
+<p>Training and Sampling share the common pipeline:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 328 89"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 24,16 L 40,16' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 112,16' fill='none' stroke='currentColor'></path>
+<polygon points='48.000000,16.000000 36.000000,10.400000 36.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 40.000000, 16.000000)'></polygon>
+<polygon points='72.000000,32.000000 60.000000,26.400000 60.000000,37.599998' fill='currentColor' transform='rotate(270.000000, 64.000000, 32.000000)'></polygon>
+<polygon points='120.000000,16.000000 108.000000,10.400000 108.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 112.000000, 16.000000)'></polygon>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>ₜ</text>
+<text text-anchor='middle' x='48' y='68' fill='currentColor' style='font-size:1em'>‖</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>U</text>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>ε</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='64' y='52' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='64' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='72' y='68' fill='currentColor' style='font-size:1em'>ε</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='88' y='68' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>‖</text>
+<text text-anchor='middle' x='104' y='68' fill='currentColor' style='font-size:1em'>²</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>ε</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>▶</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>μ</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>_</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>ₜ</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>▶</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>ₜ</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>₋</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>₁</text>
+</g>
+
+    </svg>
+  
+</div>
+<hr>
+<h2 id="improvements">Improvements</h2>
+<p>Improvements from OpenAI&rsquo;s 2021 papers.</p>
+<ol>
+<li>
+<p>Learn a scale factor for interpolating the upper and lower bound to get a flexible variance:</p>
+<p>$$Σ_θ(xₜ,t) = exp(v\ log βₜ +(1-v)\ log(1- \tilde{βₜ}))$$</p>
+<p>v is learned by adding an extra loss term $λ L_{VLB}$, and λ=0.001.</p>
+<p>$$L_{hybrid} = E_{t,𝐱₀,ε} [ || ε - ε_θ(𝐱ₜ,t)||² ] + λ L_{VLB}$$</p>
+</li>
+<li>
+<p>Use cosine noise schedule $f(t)=cos(\frac{t/T+s}{1+s}⋅π/2)²$ in favor of linear schedule.</p>
+</li>
+</ol>
+<hr>
+<h2 id="reference">Reference</h2>
+<ol>
+<li>
+<div id="2015"><a href="https://arxiv.org/abs/1503.03585">Deep Unsupervised Learning using Nonequilibrium Thermodynamics, 2015</a></div>
+</li>
+<li>
+<div id="2020"><a href="https://arxiv.org/abs/2006.11239">Denoising Diffusion Probabilistic Models, 2020</a></div>
+</li>
+<li>
+<div id="2102"><a href="https://arxiv.org/abs/2102.09672">Improved Denoising Diffusion Probabilistic Models, 2021 Feb</a></div>
+</li>
+<li>
+<div id="2105"><a href="https://arxiv.org/abs/2105.05233">Diffusion Models Beat GANs on Image Synthesis, 2021 May</a></div>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/diffusion/">Diffusion</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"
+              integrity="sha512-EKW5YvKU3hpyyOcN6jQnAxO/L8gts+YdYV6Yymtl8pk9YlYFtqJgihORuRoBXK8/cOIlappdU6Ms8KdK6yBCgA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer">
+      </script>
+    
+      
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+      </script>
+    
+      
+      <script>
+        pseudocode.renderClass("pseudocode");
+      </script>
+    
+
+
+    
+    
+      <link rel="stylesheet" type="text/css" href="https://tikzjax.com/v1/fonts.css">
+      <script src="https://tikzjax.com/v1/tikzjax.js"></script>
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/writenotes/model/imagen/diffusion/d-vid-dlai/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: DM - DLAI | How Diffusion Models Work</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

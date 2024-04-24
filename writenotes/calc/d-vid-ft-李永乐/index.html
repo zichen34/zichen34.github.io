@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Source video: 傅立叶变换如何理解？美颜和变声都是什么原理？李永乐老师告诉你
+变换 向量可以从图形“变换”成数，也可以从数“逆变换”回图形
+y B A ( ( 1 2 , , C - 4 2 ) ( ) 4 , 2 ) x 变 换 = A B C ( ( 2 1 ( , , 3 , 4 - ) 2 2 ) ) 向量的图像与数组是一一对应的。向量相加对应数组相加。
+向量 A 被表示为 (2,4)，其含义为 A 在 x 方向上有 2 个单位长度 ex，在 y 方向上有 4 个单位长度 ey。
+因为：
+𝒆x 和 𝒆y 的长度（自己与自己的内积）都等于 1 ： 𝒆x⋅ex = ey⋅ey = 1'>
+<title>watch: FT - 李永乐 | Fourier Transform</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/calc/d-vid-ft-%E6%9D%8E%E6%B0%B8%E4%B9%90/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='watch: FT - 李永乐 | Fourier Transform'>
+<meta property='og:description' content='Source video: 傅立叶变换如何理解？美颜和变声都是什么原理？李永乐老师告诉你
+变换 向量可以从图形“变换”成数，也可以从数“逆变换”回图形
+y B A ( ( 1 2 , , C - 4 2 ) ( ) 4 , 2 ) x 变 换 = A B C ( ( 2 1 ( , , 3 , 4 - ) 2 2 ) ) 向量的图像与数组是一一对应的。向量相加对应数组相加。
+向量 A 被表示为 (2,4)，其含义为 A 在 x 方向上有 2 个单位长度 ex，在 y 方向上有 4 个单位长度 ey。
+因为：
+𝒆x 和 𝒆y 的长度（自己与自己的内积）都等于 1 ： 𝒆x⋅ex = ey⋅ey = 1'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/calc/d-vid-ft-%E6%9D%8E%E6%B0%B8%E4%B9%90/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-06-20T15:30:00&#43;00:00'/><meta property='article:modified_time' content='2023-06-20T15:30:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: FT - 李永乐 | Fourier Transform">
+<meta name="twitter:description" content="Source video: 傅立叶变换如何理解？美颜和变声都是什么原理？李永乐老师告诉你
+变换 向量可以从图形“变换”成数，也可以从数“逆变换”回图形
+y B A ( ( 1 2 , , C - 4 2 ) ( ) 4 , 2 ) x 变 换 = A B C ( ( 2 1 ( , , 3 , 4 - ) 2 2 ) ) 向量的图像与数组是一一对应的。向量相加对应数组相加。
+向量 A 被表示为 (2,4)，其含义为 A 在 x 方向上有 2 个单位长度 ex，在 y 方向上有 4 个单位长度 ey。
+因为：
+𝒆x 和 𝒆y 的长度（自己与自己的内积）都等于 1 ： 𝒆x⋅ex = ey⋅ey = 1">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#变换">变换</a></li>
+    <li><a href="#傅里叶级数">傅里叶级数</a></li>
+    <li><a href="#连续傅里叶变换">连续傅里叶变换</a>
+      <ol>
+        <li><a href="#欧拉公式">欧拉公式</a></li>
+        <li><a href="#ft-用正交基摘分量">FT: 用正交基&quot;摘&quot;分量</a></li>
+        <li><a href="#ift-正交基加权和">IFT: 正交基加权和</a></li>
+      </ol>
+    </li>
+    <li><a href="#应用">应用</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/calc/d-vid-ft-%E6%9D%8E%E6%B0%B8%E4%B9%90/">watch: FT - 李永乐 | Fourier Transform</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 20, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>Source video: <a class="link" href="https://youtu.be/0LuyxzqI3Hk"  target="_blank" rel="noopener"
+    >傅立叶变换如何理解？美颜和变声都是什么原理？李永乐老师告诉你</a></p>
+<h2 id="变换">变换</h2>
+<p>向量可以从图形“变换”成数，也可以从数“逆变换”回图形</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 280 137"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 16,64 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 112,64' fill='none' stroke='currentColor'></path>
+<path d='M 152,64 L 176,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,16 L 16,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,64 L 16,112' fill='none' stroke='currentColor'></path>
+<path d='M 16,64 L 40,16' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 64,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,64 L 32,96' fill='none' stroke='currentColor'></path>
+<path d='M 56,32 L 64,48' fill='none' stroke='currentColor'></path>
+<polygon points='24.000000,16.000000 12.000000,10.400000 12.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 16.000000, 16.000000)'></polygon>
+<polygon points='44.000000,96.000000 32.000000,90.400002 32.000000,101.599998' fill='currentColor' transform='rotate(60.000000, 32.000000, 96.000000)'></polygon>
+<polygon points='52.000000,16.000000 40.000000,10.400000 40.000000,21.600000' fill='currentColor' transform='rotate(300.000000, 40.000000, 16.000000)'></polygon>
+<polygon points='120.000000,64.000000 108.000000,58.400002 108.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 112.000000, 64.000000)'></polygon>
+<polygon points='184.000000,64.000000 172.000000,58.400002 172.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 176.000000, 64.000000)'></polygon>
+<circle cx='64' cy='48' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='72' y='116' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='88' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='96' y='52' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>变</text>
+<text text-anchor='middle' x='160' y='52' fill='currentColor' style='font-size:1em'>换</text>
+<text text-anchor='middle' x='192' y='100' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='208' y='100' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='224' y='100' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='232' y='100' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='240' y='100' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='248' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='256' y='68' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='256' y='100' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='264' y='68' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='264' y='100' fill='currentColor' style='font-size:1em'>)</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>向量的图像与数组是一一对应的。向量相加对应数组相加。</p>
+<p>向量 A 被表示为 (2,4)，其含义为 A 在 x 方向上有 2 个单位长度 ex，在 y 方向上有 4 个单位长度 ey。</p>
+<p>因为：</p>
+<ol>
+<li>
+<p>𝒆x 和 𝒆y 的长度（自己与自己的内积）都等于 1 ：
+𝒆x⋅ex = ey⋅ey = 1</p>
+</li>
+<li>
+<p>ex 与 ey 正交（垂直），两者内积等于 0：
+ex ⋅ ey = |ex|⋅|ey|⋅cos90° = 0</p>
+</li>
+</ol>
+<p>所以 ex 和 ey 是一组标准正交基。
+空间中的任何一个向量都可以变成标准正交基的组合。</p>
+<h2 id="傅里叶级数">傅里叶级数</h2>
+<p>任何一个周期性的函数 f(t) 都可以变换为一系列正余弦函数的和。
+正弦余弦函数就是一组正交基。</p>
+<p>它的逆变换是显而易见的，因为 sin 和 cos 都是周期性的，它们组合出来的函数也一定是周期性的。</p>
+<p>对于一个周期性函数，按照不同频率 w 分解出不同的正余弦函数（波）：</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/img/%E6%9D%8E%E6%B0%B8%E4%B9%90_Fourier_7-25.png width=>
+  
+  
+
+
+<p>如上图，在频率方向上，一个周期性波可以分解成一个频率为 w 的正弦函数，与一个频率为 2w 的分量（振幅比较大），再与一个频率为 3w 的分量（振幅比较小）相加。</p>
+<p>从后方观察，以时间为坐标系，只能看到信号随时间的变化；
+从侧面观察，以频率为坐标系，一个信号是多个信号的累加。</p>
+<p>因为分量是有限个，所以频谱图上是一条条竖线，不同的高度代表振幅的大小。
+不同频率的分量，除了振幅不同，起始点也不同，所以还需要一个轴表示相位：</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/img/%E6%9D%8E%E6%B0%B8%E4%B9%90_Fourier_8-4.png width=>
+  
+  
+
+
+<p>时域里的信号 f 变换到频域里的三个维度：频率 w，振幅 F(f)，相位 φ。</p>
+<p>如果已知频域中的 w, F(f), φ，就可以把它们组合起来，逆变换到时域中的信号。</p>
+<p>$$
+f(t) = \frac{a_0}{2} + \sum_i a_n sin(n w t + φ_n) \\
+\quad = \frac{a_0}{2} + \sum_i a_n sin(n w t) + \sum_i b_n cos(n w t)
+$$</p>
+<p>n 是整数，nw 是不同的频率，aₙ 是振幅，φₙ 是相位。
+按照第2行的写法，标准正交基有 3 个：1， sin(nwt), cos(nwt)</p>
+<p>任何一个<strong>周期性</strong>的函数都可以分解成以上 3 个标准正交基的线性组合。
+（sin(nwt) 与 cos(nwt) 是一对，拆不开？）</p>
+<h2 id="连续傅里叶变换">连续傅里叶变换</h2>
+<p>非周期信号可以看作是周期无穷大的周期性信号。</p>
+<h3 id="欧拉公式">欧拉公式</h3>
+<p>用一个平面坐标系表示虚数，则横轴表示实部，纵轴表示虚部。
+横轴的单位为1，纵轴的单位为虚数单位 i，则单位圆上任何一点 A 可以表示为：
+cosθ + i⋅sinθ。</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/img/%E6%9D%8E%E6%B0%B8%E4%B9%90_Fourier_13-51.png width=>
+  
+  
+
+
+<p>令 θ = wt，w 取不同的频率，对应 A 点在圆上逆时针转动不同的角度</p>
+<p>根据欧拉公式：</p>
+<p>$$
+cosθ + i⋅sinθ = e^{iθ} \\
+cos(wt) + i⋅sin(wt) = e^{iwt}
+$$</p>
+<p>所以 A 在逆时针旋转时，每时每刻都代表了两个正交基 cosθ, sinθ。
+如果是 $e^{-iwt}$ 就是顺时针旋转。</p>
+<h3 id="ft-用正交基摘分量">FT: 用正交基&quot;摘&quot;分量</h3>
+<p>一个非周期性的时域信号肯定也包含各种频率的信号分量，
+又因为标准正交基与自己的内积为 1，与其他正交基的内积为 0，
+所以可以用各个正交基与该信号内积，则留下的就只是在这个基向量上的分量。</p>
+<p>非周期性时域信号的频率分量有无穷个，所以傅里叶变换是用积分：</p>
+<p>$$
+\^F_T(w) = ∫_{-∞}^{+∞} f(t) e^{-jwt} dt  \\
+\ \\
+f(t) e^{-jwt}
+\begin{cases}
+=0 &amp; \text{f(t) 不含 sin(wt),cos(wt)} \\
+\neq 0 &amp; \text{f(t) 含有 sin(wt),cos(wt)}
+\end{cases}
+$$</p>
+<p>其中 $e^{-jwt}$ 是一组正交基 sin(wt) 和 cos(wt)。</p>
+<p>$\^F_T(w)$ 是个复数（带 i），实部表示振幅，虚部是相位，而且是连续的
+，意味着每个频率的正（余）弦函数都有分量，</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/calc/img/%E6%9D%8E%E6%B0%B8%E4%B9%90%E8%80%81%E5%B8%88_Fourier_15-17.png width=>
+  
+  
+
+
+<h3 id="ift-正交基加权和">IFT: 正交基加权和</h3>
+<p>$F_T(w)$ 是各正交基（正弦余弦函数）的”系数“，即在各正交基上的”长度“。</p>
+<p>从频域信号逆变换回时域信号，就把系数乘到基向量上，再加起来：</p>
+<p>$$
+f(t) = ∫_{-∞}^{+∞} F_T(w) e^{-jwt} dw
+$$</p>
+<h2 id="应用">应用</h2>
+<p>声音信号是时域，横坐标是时间；图像信号是空间域，横坐标是空间位置</p>
+<p>低频分量是图像的轮廓，高频分量是细节</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
