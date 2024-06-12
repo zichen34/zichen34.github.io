@@ -2,16 +2,16 @@
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='3D Gaussian Splatting for Real-Time Radiance Field Rendering (Siggraph 2023 Best)'>
-<title>read: NVS - 3D Gaussian Splatting</title>
+<title>read: Render - NVS | 3D Gaussian Splatting</title>
 
 <link rel='canonical' href='https://zichen34.github.io/writenotes/model/splat/b-note-3dgs-read/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: NVS - 3D Gaussian Splatting'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: Render - NVS | 3D Gaussian Splatting'>
 <meta property='og:description' content='3D Gaussian Splatting for Real-Time Radiance Field Rendering (Siggraph 2023 Best)'>
 <meta property='og:url' content='https://zichen34.github.io/writenotes/model/splat/b-note-3dgs-read/'>
 <meta property='og:site_name' content='Zichen Wang'>
 <meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='Splatting' /><meta property='article:published_time' content='2023-05-14T13:41:00&#43;00:00'/><meta property='article:modified_time' content='2023-05-14T13:41:00&#43;00:00'/><meta property='og:image' content='https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&f=1&ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&ipo=images' />
-<meta name="twitter:title" content="read: NVS - 3D Gaussian Splatting">
+<meta name="twitter:title" content="read: Render - NVS | 3D Gaussian Splatting">
 <meta name="twitter:description" content="3D Gaussian Splatting for Real-Time Radiance Field Rendering (Siggraph 2023 Best)"><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&f=1&ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&ipo=images' />
     <link rel="shortcut icon" href="/favicon-32x32.png" />
@@ -237,7 +237,12 @@
             <li><a href="#ubuntu-2204">Ubuntu 22.04</a></li>
           </ol>
         </li>
-        <li><a href="#train">Train</a></li>
+        <li><a href="#train">Train</a>
+          <ol>
+            <li><a href="#dtu">DTU</a></li>
+            <li><a href="#tt">T&amp;T</a></li>
+          </ol>
+        </li>
         <li><a href="#sibr-viewer">SIBR viewer</a>
           <ol>
             <li><a href="#ubuntu-2004-1">Ubuntu 20.04</a></li>
@@ -263,7 +268,7 @@
         <div class="article-image">
             <a href="/writenotes/model/splat/b-note-3dgs-read/">
                 
-                    <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&amp;f=1&amp;ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&amp;ipo=images" loading="lazy" alt="Featured image of post read: NVS - 3D Gaussian Splatting" />
+                    <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&amp;f=1&amp;ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&amp;ipo=images" loading="lazy" alt="Featured image of post read: Render - NVS | 3D Gaussian Splatting" />
                 
             </a>
         </div>
@@ -271,10 +276,18 @@
 
     <div class="article-details">
     
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                read
+            </a>
+        
+    </header>
+    
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/writenotes/model/splat/b-note-3dgs-read/">read: NVS - 3D Gaussian Splatting</a>
+            <a href="/writenotes/model/splat/b-note-3dgs-read/">read: Render - NVS | 3D Gaussian Splatting</a>
         </h2>
     
         
@@ -315,7 +328,7 @@
 
 
                 <time class="article-time--reading">
-                    19 minute read
+                    21 minute read
                 </time>
             </div>
         
@@ -599,8 +612,14 @@ $$</p>
 <li>
 <p>Omit the mean vector 𝛍, becuase it&rsquo;s 0. Every 3D Gaussian distribution&rsquo;s center has been shifted to the origin.
 Once the optimization finished, ellipsoids will be reverted to the world space for rasterization.</p>
-<p>The front fraction is omitted as the integral (&ldquo;volume&rdquo;) of 3D Gaussian isn&rsquo;t limited to 1 to be a probability distribution,
+<p>The front fraction is <strong>omitted</strong> as the integral (&ldquo;volume&rdquo;) of 3D Gaussian isn&rsquo;t limited to 1 to be a probability distribution,
 and considering a 3D Gaussian can be any size.</p>
+<p>(2024-05-15)</p>
+<ul>
+<li>seh_sjij 解释为: 系数$\frac{1}{(2π)^{\frac{3}{2}}|Σ|^½}$被包含到了 opacity 中，然后 opacity 会自己优化。
+<a class="link" href="https://blog.csdn.net/qaqwqaqwq/article/details/136886008#:~:text=%E8%BF%99%E4%B8%AA%E5%B8%B8%E9%87%8F%E5%8F%AF%E4%BB%A5-,%E5%8C%85%E6%8B%AC%E8%BF%9B%E5%8E%BB,-%E3%80%82"  target="_blank" rel="noopener"
+    >CSDN</a></li>
+</ul>
 </li>
 <li>
 <p>𝐀 is for rotating and stretching an ellipsoid. Thus, 𝐀=𝐑𝐒.
@@ -1146,6 +1165,42 @@ instead of the <strong>subset</strong> cudatoolkit for runtime installed by cond
 </div>
 </div><p><a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/issues/151"  target="_blank" rel="noopener"
     >SIBR viewer install fails (Ubuntu 22.04) #151</a></p>
+<p>(2024-05-17)</p>
+<ul>
+<li>
+<p>The <code>glm</code> module missed because I forgot add <code>--recursive</code> (when cloning submodule <code>depth-diff-gaussian-rasterization</code> solely:
+<code>git submodule update --init --recursive</code>).
+And the error about pyproject appears either:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Compiling objects...
+</span></span><span class="line"><span class="cl">- - - - -
+</span></span><span class="line"><span class="cl">In file included from /home/zichen/Downloads/CasMVSNet_pl-comments/_3DGS/submodules/depth-diff-gaussian-rasterization/cuda_rasterizer/backward.cu:12:
+</span></span><span class="line"><span class="cl">/home/zichen/Downloads/CasMVSNet_pl-comments/_3DGS/submodules/depth-diff-gaussian-rasterization/cuda_rasterizer/backward.h:19:10: fatal error: glm/glm.hpp: No such file or directory
+</span></span><span class="line"><span class="cl">   <span class="m">19</span> <span class="p">|</span> <span class="c1">#include &lt;glm/glm.hpp&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">|</span>          ^~-~-~-~-~-~-~-~-~-~-~-~
+</span></span><span class="line"><span class="cl">compilation terminated.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">- - - - -
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ERROR: Could not build wheels <span class="k">for</span> diff_gaussian_rasterization, which is required to install pyproject.toml-based projects
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
 <hr>
 <h3 id="train">Train</h3>
 <ol>
@@ -1162,13 +1217,213 @@ instead of the <strong>subset</strong> cudatoolkit for runtime installed by cond
 </div></li>
 </ol>
 <hr>
+<h4 id="dtu">DTU</h4>
 <p>(2024-04-15)</p>
-<p>Test DTU dataset:</p>
+<p>Train with DTU dataset:</p>
 <ol>
 <li>
 <p>Install Colmap.</p>
 <p>To get the CUDA support on Linux, a local compilation is required. <a class="link" href="https://colmap.github.io/install.html#build-from-source"  target="_blank" rel="noopener"
     >Docs</a></p>
+</li>
+<li>
+<p>Use COLMAP to prepare training dataset:</p>
+<p>(2024-05-26)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">zichen@homepc:~/Downloads/gaussian-splatting$ tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── convert.py
+</span></span><span class="line"><span class="cl">⋮
+</span></span><span class="line"><span class="cl">└── DTU_scan1
+</span></span><span class="line"><span class="cl">    └─── input
+</span></span><span class="line"><span class="cl">         ├── 00000000.jpg
+</span></span><span class="line"><span class="cl">         ├── 00000002.jpg
+</span></span><span class="line"><span class="cl">         └── 00000004.jpg
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Execute:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">python convert.py -s DTU_scan1
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Train:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>3dgs<span class="o">)</span> zichen@homepc:~/Downloads/gaussian-splatting$ python train.py -s DTU_scan1
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The result point cloud doesn&rsquo;t perserve a good geometry:</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>input.ply</th>
+<th>iter30K</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/splat/img/3dgs_DTUscan1_3views_input_240526.png width=>
+  
+  
+
+</td>
+<td>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/model/splat/img/3dgs_DTUscan1_3views_30K_240526.png width=250>
+  
+  
+
+</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>
+<p>Given 3 views, COLMAP produced very sparse points.</p>
+</li>
+<li>
+<p>The gaussian clone and split maybe not accurate enough for recovering the geometry.</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="tt">T&amp;T</h4>
+<p>(2024-05-26)</p>
+<p>Ref:</p>
+<ul>
+<li><a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting?tab=readme-ov-file#processing-your-own-scenes"  target="_blank" rel="noopener"
+    >3DGS guide</a></li>
+<li><a class="link" href="https://github.com/zhengzhang01/Pixel-GS?tab=readme-ov-file#tanks-and-temples-dataset"  target="_blank" rel="noopener"
+    >Pixel-GS</a></li>
+</ul>
+<p>Steps:</p>
+<ol>
+<li>
+<p>Use COLMAP to estimate camera poses from input images:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">zichen@homepc:~/Downloads/gaussian-splatting$ tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── convert.py
+</span></span><span class="line"><span class="cl">⋮
+</span></span><span class="line"><span class="cl">└── TnT_Barn
+</span></span><span class="line"><span class="cl">    └─── input
+</span></span><span class="line"><span class="cl">         ├── 000010.jpg
+</span></span><span class="line"><span class="cl">         ├── 000179.jpg
+</span></span><span class="line"><span class="cl">         └── 000184.jpg
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Execute:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">python convert.py -s TnT_Barn --resize
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>I <strong>removed</strong> the <code>magick_command</code> variable when constructing commands:
+<code>exit_code = os.system(&quot; mogrify -resize 50% &quot; + destination_file)</code>
+as Ubuntu 22.04 doesn&rsquo;t have <code>magick</code>.</li>
+</ul>
+</li>
+<li>
+<p>Train:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>3dgs<span class="o">)</span> zichen@homepc:~/Downloads/gaussian-splatting$ python train.py -s TnT_Barn
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Result model of Barn with 2 views (<code>010.jpg</code> and <code>184.jpg</code>) input:</p>
+
+   
+   
+   
+   
+     
+     
+     
+     
+      
+     
+     
+      
+     
+     <img src= /writenotes/model/splat/img/TnT_Barn_2views_30K_240527.jpg width=>
+     
+     
+   
+
+<ul>
+<li>As Pixel-GS descriped (in abstract): there are lots of &ldquo;needle-like artifacts&rdquo;.</li>
+</ul>
 </li>
 </ol>
 <hr>
@@ -1370,6 +1625,7 @@ and extract: <code>tar -zxvf cmake-{version number}.tar.gz</code></p>
 <hr>
 <h4 id="ubuntu-2204-1">Ubuntu 22.04</h4>
 <p>(2023-11-04)</p>
+<p><strong>Install</strong>:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -1390,7 +1646,7 @@ and extract: <code>tar -zxvf cmake-{version number}.tar.gz</code></p>
 </div>
 </div><p><strong>Train</strong>: <code>python train.py -s ../Dataset/nerf_synthetic/lego</code></p>
 <p><strong>Real-time viewer</strong>: <code>sudo ./SIBR_viewers/install/bin/SIBR_gaussianViewer_app -m output/4ee28b3c-9</code></p>
-<p><strong>Run Network viewer</strong></p>
+<p><strong>Run Network viewer</strong>:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -1413,7 +1669,71 @@ and extract: <code>tar -zxvf cmake-{version number}.tar.gz</code></p>
 </span></span><span class="line"><span class="cl">Aborted <span class="o">(</span>core dumped<span class="o">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><hr>
+</div><p>(2024-05-09)</p>
+<ul>
+<li>
+<p>Use SIBR to view the trained model with point cloud initialization from CasMVSNet</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>3dgs<span class="o">)</span> zichen@homepc:~/Downloads/gaussian-splatting$ ./SIBR_viewers/install/bin/SIBR_gaussianViewer_app -m ../CasMVSNet_pl-comments/output/no_densify_0509/
+</span></span><span class="line"><span class="cl">./SIBR_viewers/install/bin/SIBR_gaussianViewer_app: error <span class="k">while</span> loading shared libraries: libassimp.so.5: cannot open shared object file: No such file or directory
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">(</span>3dgs<span class="o">)</span> zichen@homepc:~/Downloads/gaussian-splatting$ sudo apt install -y libglew-dev libassimp-dev libboost-all-dev libgtk-3-dev libopencv-dev libglfw3-dev libavdevice-dev libavcodec-dev libeigen3-dev libxxf86vm-dev libembree-dev
+</span></span><span class="line"><span class="cl">有一些软件包无法被安装。如果您用的是 unstable 发行版，这也许是
+</span></span><span class="line"><span class="cl">因为系统无法达到您要求的状态造成的。该版本中可能会有一些您需要的软件
+</span></span><span class="line"><span class="cl">包尚未被创建或是它们已被从新到<span class="o">(</span>Incoming<span class="o">)</span>目录移出。
+</span></span><span class="line"><span class="cl">下列信息可能会对解决问题有所帮助：
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">下列软件包有未满足的依赖关系：
+</span></span><span class="line"><span class="cl"> libminizip-dev : 依赖: libminizip1 <span class="o">(=</span> 1.1-8build1<span class="o">)</span> 但是 1.1.1-1+rebuild 正要被安装
+</span></span><span class="line"><span class="cl">E: 无法修正错误，因为您要求某些软件包保持现状，就是它们破坏了软件包间的依赖关系。
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">(</span>3dgs<span class="o">)</span> zichen@homepc:~/Downloads/gaussian-splatting$ sudo aptitude install -y libglew-dev libassimp-dev libboost-all-dev libgtk-3-dev libopencv-dev libglfw3-dev libavdevice-dev libavcodec-dev libeigen3-dev libxxf86vm-dev libembree-dev
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">(</span>3dgs<span class="o">)</span> zichen@homepc:~/Downloads/gaussian-splatting$ ./SIBR_viewers/install/bin/SIBR_gaussianViewer_app -m ../CasMVSNet_pl-comments/output/no_densify_0509/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Then, it works:</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/model/splat/img/Sibr_test_240509.jpg width=50%>
+    
+    
+  
+
+</li>
+</ul>
+<hr>
 <h4 id="ubuntu-1804-1">Ubuntu 18.04</h4>
 <p>(2024-04-05)</p>
 <p>The current cmake on server is 3.10, which is too old.</p>

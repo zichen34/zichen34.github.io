@@ -1451,18 +1451,45 @@ Alpha is a converted point opacity ranging in [0,1].</p>
 i.e., the <strong>evaluation</strong> of 2D Gaussian Gₙ at the viewing pixel:</p>
 <p>$$αₙ = oₙ ⋅ Gₙ, \text{where } Gₙ = e^{-\frac{\bm Δₙᵀ \bm Δₙ}{2\bm Σ&rsquo;}}$$</p>
 <ul>
-<li>oₙ is the opacity (the footprint qₙ) of the n-th 3D Gaussian.
-qₙ is an <strong>integral of the Gaussian</strong> in the 3D ray space along the viewing ray: $qₙ(𝐱) = ∫rₙ&rsquo;(𝐱,x₂)dx₂$.</li>
-<li>oₙ will get <strong>optimized</strong> directly via gradient descent during training.</li>
-<li>Gₙ is a 2D Gaussian with the normalization factor omitted.
-Its mean and covariance matrix will get optimized.</li>
-<li>Δₙ is the displacement of a pixel center from the 2D Gaussian&rsquo;s mean.</li>
+<li>
+<p>oₙ is the opacity (the footprint qₙ) of the n-th 3D Gaussian.
+qₙ is an <strong>integral of the Gaussian</strong> in the 3D ray space along the viewing ray: $qₙ(𝐱) = ∫rₙ&rsquo;(𝐱,x₂)dx₂$.</p>
+</li>
+<li>
+<p>oₙ will get <strong>optimized</strong> directly via gradient descent during training.</p>
+</li>
+<li>
+<p>Gₙ is a 2D Gaussian with the normalization factor omitted.
+Its mean and covariance matrix will get optimized.</p>
+</li>
+<li>
+<p>Δₙ is the displacement of a pixel center from the 2D Gaussian&rsquo;s mean.</p>
+
+    
+    
+    
+    
+      
+      
+      
+      
+       
+      
+      
+       
+      
+      <img src= /writenotes/model/splat/img/alpha_opacity.jpg width=>
+      
+      
+    
+
+</li>
 </ul>
 </li>
 <li>
 <p>Initially, the opacity of an arbitrary 3D location in the <strong>object space</strong> is considered as
 an expectation of the <strong>contributions</strong> from all 3D Gaussians on that location.</p>
-<p>After ❶ substituting the perspectively <strong>projected</strong> kernel within the 3D ray space into the rendering equation,
+<p>After ❶ substituting the perspectively <strong>projected</strong> (&ldquo;squashed&rdquo;) kernel within the 3D ray space into the rendering equation,
 ❷ <strong>switching</strong> the sequence of integral and expectation,
 ❸ and applying <strong>simplifying</strong> assumptions,
 the opacity becomes a 1-D (depth) <strong>integral</strong> along the viewing ray for <strong>each</strong> kernel in the 3D ray space.</p>
@@ -2243,6 +2270,7 @@ and then their colors are composited from <strong>near to far</strong> with mult
 <p>$$C_{pred} = ∑_{n≤N} Tₙ⋅αₙ⋅cₙ, \quad \text{where } αₙ=oₙ⋅e^{-\frac{\bm Δₙᵀ \bm Δₙ}{2\bm Σ&rsquo;}}$$</p>
 <p>Loss:</p>
 <p>$$L = ‖C_{targ} - C_{pred}‖₂$$</p>
+<details><summary>The paper used Frobenius product to analyze.</summary>
 <p>A Frobenius inner product is like a linear layer:</p>
 <p>$$⟨𝐗,𝐘⟩ = \operatorname{vec}(𝐗)ᵀ \operatorname{vec}(𝐘)$$</p>
 <div class="highlight"><div class="chroma">
@@ -2305,6 +2333,7 @@ and then their colors are composited from <strong>near to far</strong> with mult
 \frac{∂f}{∂x} &amp;= \frac{∂f}{∂X}⋅\frac{∂X}{∂AY}⋅\frac{∂AY}{∂x} \\
 &amp;= \frac{∂f}{∂X}⋅\frac{∂X}{∂AY}⋅(\frac{∂A}{∂x}Y + A\frac{∂Y}{∂x})\\
 \end{aligned}$$</p>
+</details>
 <hr>
 <p>Since the passed kernels on the ray path (starting from a pixel)
 have influences on the next kernel&rsquo;s contribution, which is scaled by the previous accumulated transmittance,
@@ -3533,7 +3562,20 @@ according to the <a class="link" href="https://en.wikipedia.org/wiki/68%E2%80%93
         
 
         <div class="article-details">
-            <h2 class="article-title">read: EWA Splatting</h2>
+            <h2 class="article-title">read: Render - Points | EWA Splatting</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/writenotes/model/splat/b-note-3dgs-debug/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: 3DGS | Debug Code</h2>
         </div>
     </a>
 </article>
@@ -3571,7 +3613,7 @@ according to the <a class="link" href="https://en.wikipedia.org/wiki/68%E2%80%93
         
 
         <div class="article-details">
-            <h2 class="article-title">read: NVS - 3D Gaussian Splatting</h2>
+            <h2 class="article-title">read: Render - NVS | 3D Gaussian Splatting</h2>
         </div>
     </a>
 </article>

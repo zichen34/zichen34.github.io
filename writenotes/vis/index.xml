@@ -1457,7 +1457,21 @@ But the structure-based metrics usually give opposite judgement on the too-smoot
         <pubDate>Sat, 03 Dec 2022 17:30:00 -0500</pubDate>
         
         <guid>https://zichen34.github.io/writenotes/vis/planar_homography/</guid>
-        <description>&lt;p&gt;Homography warps two images to a common plane, or maps a pixel from a camera plane to another camera plane.&lt;/p&gt;
+        <description>&lt;p&gt;(2024-05-16)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Homography 是把一张照片变到另一个视角下&lt;/p&gt;
+&lt;p&gt;ex: 桌子上放着一张 &lt;strong&gt;照片&lt;/strong&gt;，从不同视角去看，除了正视，从其他视角看，看到照片里的内容就变形了。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;注意：必须是照片，不要关注照片里的 3D 物体。
+Homography 就是描述从不同角度看 &lt;strong&gt;照片&lt;/strong&gt;，看到的照片的样子。
+不论你从哪看，它就只是一个平面，所以斜着看照片，上面的内容就会拉伸收缩：比如上面的字放大缩小，一个正方形变成梯形。
+变换视角时，不会出现物体间的遮挡，因为只是在分析一个 &lt;strong&gt;平面&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Homography warps two images to a common plane, or maps a pixel from a camera plane to another camera plane.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;A pixel can be mapped to another camera because the 2 pixels are the projections of a &lt;strong&gt;common 3D point&lt;/strong&gt;.&lt;/p&gt;
@@ -2089,6 +2103,9 @@ With it, the &lt;strong&gt;target pixel&lt;/strong&gt; on camera-2 is: $𝐊&amp
 &lt;p&gt;Thus, 𝐐 can be given by specifying z directly or a plane (𝐧,d) equivalently.&lt;/p&gt;
 &lt;p&gt;And 𝐐&amp;rsquo; can be represented by two cameras&amp;rsquo; poses or the transformation from one camera to the other.&lt;/p&gt;
 &lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;(2024-05-30) The point 𝐐 is written as a form with a plane, because the object described by homography is &lt;strong&gt;a plane&lt;/strong&gt;.&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Suppose two cameras have different intrinsics 𝐊 and 𝐊&amp;rsquo;, so their projection pixels are 𝐩 and 𝐪 respectively:&lt;/p&gt;
 &lt;p&gt;$$ 𝐩 = 𝐊𝐐  \quad \text{and} \quad 𝐪 = 𝐊&amp;rsquo; 𝐐&amp;rsquo;  $$&lt;/p&gt;
@@ -2096,6 +2113,14 @@ With it, the &lt;strong&gt;target pixel&lt;/strong&gt; on camera-2 is: $𝐊&amp
 &lt;p&gt;$$ 𝐪 = 𝐊&amp;rsquo; (𝐑-𝐭 \frac{𝐧ᵀ}{d})𝐐 = 𝐊&amp;rsquo; (𝐑-𝐭 \frac{𝐧ᵀ}{d}) 𝐊⁻¹𝐩 $$&lt;/p&gt;
 &lt;p&gt;Hence, the homography from 𝐩 to 𝐪 is:
 $$ 𝐇 = 𝐊&amp;rsquo; (𝐑-𝐭 \frac{𝐧ᵀ}{d}) 𝐊⁻¹ $$&lt;/p&gt;
+&lt;p&gt;(2024-05-10)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The way of introducing plane parameters in this homography formula is representing the coordinates of 𝐐 in camera1 by plane normal and d.&lt;/p&gt;
+&lt;p&gt;Although $\frac{d}{𝐧ᵀ}$ is not enough to determine the 𝐐,
+the transformation [𝐑|𝐭] serves as another constraint to ensure that the relationship between 𝐐&amp;rsquo; and 𝐐 holds.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;hr&gt;
 &lt;p&gt;(2023-12-06)&lt;/p&gt;
 &lt;p&gt;$𝐊⁻¹ ⋅(u,v,1)ᵀ$ &lt;strong&gt;can&amp;rsquo;t restore&lt;/strong&gt; a 3D point uniquely because z has been absorbed into u,v. (i.e., z is unknown in $\rm 𝐐 = 𝐊⁻¹⋅ z⋅ (u,v,1)ᵀ$)
@@ -2747,68 +2772,6 @@ Define least squares problem: min_𝐡 ‖A𝐡‖², such that ‖𝐡‖²=1. 
 &lt;/li&gt;
 &lt;li&gt;
 &lt;div id=&#34;csdn&#34;&gt;&lt;a href=&#34;https://blog.csdn.net/u010087338/article/details/118344523&#34;&gt;3D投影变换（含透视投影Perspective Projection）-子燕若水 -CSDN&lt;/a&gt;&lt;/div&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-</description>
-        </item>
-        <item>
-        <title>memo: Vis | Saliency map</title>
-        <link>https://zichen34.github.io/writenotes/vis/saliency_map/</link>
-        <pubDate>Mon, 17 Oct 2022 14:29:00 +0000</pubDate>
-        
-        <guid>https://zichen34.github.io/writenotes/vis/saliency_map/</guid>
-        <description>&lt;p&gt;The first paper: &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/1312.6034&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;Deep Inside Convolutional Networks: Visualising Image Classification Models and Saliency Maps&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;saliency-in-images&#34;&gt;Saliency in images&lt;/h2&gt;
-&lt;p&gt;unique features &lt;a class=&#34;link&#34; href=&#34;#1-AIM&#34; &gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;saliency-map&#34;&gt;Saliency map&lt;/h2&gt;
-&lt;p&gt;A scalar quantity representing the conspicuity to guide the selection of attended locations, based on the spatial distribution of saliency. &lt;a class=&#34;link&#34; href=&#34;#2-ltti&#34; &gt;&lt;sup&gt;2&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Steps:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Process input image: colors, intensity and orientations
-&lt;ul&gt;
-&lt;li&gt;Color: the input image is convert to red-green-blue-yellow color space.&lt;/li&gt;
-&lt;li&gt;Intensity: the input image is converted to grayscale.&lt;/li&gt;
-&lt;li&gt;Orientation feature: the input image are processed by Gabor filters with respect to 4 angles&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Create Gaussian pyramids for each of the 3 processed images&lt;/li&gt;
-&lt;li&gt;Saliency map is the mean of 3 Gaussian pyramids&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;improvements-in-saliency&#34;&gt;Improvements in saliency&lt;/h2&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;Deep Gaze I: Boosting Saliency Prediction with Feature Maps Trained on ImageNet  &lt;a class=&#34;link&#34; href=&#34;#ref-DGI&#34; &gt;&lt;sup&gt;3&lt;/sup&gt;&lt;/a&gt; 从 CNN feature map 中预测 saliency&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Saliency Detection by Multi-Context Deep Learning &lt;a class=&#34;link&#34; href=&#34;#ref-SD&#34; &gt;&lt;sup&gt;4&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;another-saliency-map-&#34;&gt;Another Saliency Map ?&lt;/h2&gt;
-&lt;p&gt;To interpret how a deep learning model achieve classification. One way is to see the amount of contribution to the predicted class score for each pixel .&lt;/p&gt;
-&lt;p&gt;Since pixels are combined together with different weights (𝐖ᵀ𝐈+𝐛) to form ultimately another representation to perform classification, the weight of the pixel indicates its importance to the class label.&lt;a class=&#34;link&#34; href=&#34;#5-Irfan&#34; &gt;&lt;sup&gt;5&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;The gradient of the objective function (correct label score Sc=𝐖ᵀ𝐈+𝐛) with respect to a pixel: w=∂Sc / ∂I&lt;/p&gt;
-&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://gist.github.com/Raspberrycai1/dbae9967ebce682c123b47ee207a9cdd&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;code&lt;/a&gt;:
-&lt;script type=&#34;application/javascript&#34; src=&#34;https://gist.github.com/Raspberrycai1/dbae9967ebce682c123b47ee207a9cdd.js&#34;&gt;&lt;/script&gt;
-&lt;/p&gt;
-&lt;hr&gt;
-&lt;h2 id=&#34;ref&#34;&gt;Ref&lt;/h2&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;div id=&#34;1-AIM&#34;&gt;&lt;a href=&#34;https://analyticsindiamag.com/what-are-saliency-maps-in-deep-learning/&#34;&gt;What Are Saliency Maps In Deep Learning?&lt;/a&gt;&lt;/div&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;div id=&#34;2-ltti&#34;&gt;&lt;a href=&#34;&#34;&gt;A Model of Saliency-Based Visual Attention for Rapid Scene Analysis - Laurent Itti, Christof Koch and Ernst Niebur  98 pami&lt;/a&gt;&lt;/div&gt; 
-&lt;/li&gt;
-&lt;li&gt;
-&lt;div&gt;&lt;a href=&#34;https://arxiv.org/abs/1411.1045&#34;&gt;Deep Gaze I: Boosting Saliency Prediction with Feature Maps Trained on ImageNet&lt;/a&gt;&lt;/div&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;div id=&#34;#4-SD&#34;&gt;&lt;a href=&#34;https://www.researchgate.net/publication/308822673_Saliency_detection_by_multi-context_deep_learning&#34;&gt;Saliency Detection by Multi-Context Deep Learning&lt;/a&gt;&lt;/div&gt; 
-&lt;/li&gt;
-&lt;li&gt;
-&lt;div id=&#34;#5-Irfan&#34;&gt;&lt;a href=&#34;https://towardsdatascience.com/saliency-map-using-pytorch-68270fe45e80&#34;&gt;Saliency Map for Visualizing Deep Learning Model Using PyTorch -medium-Irfan&lt;/a&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 </description>

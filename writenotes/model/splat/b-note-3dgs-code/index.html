@@ -238,11 +238,13 @@ s q c u a a l t i e n r g n i v o e n c S R t o r t e a c t h i i o n n g m m a 
         <li><a href="#preprocesscuda">preprocessCUDA</a></li>
         <li><a href="#prepare-tiles">Prepare Tiles</a></li>
         <li><a href="#render-pixel">Render Pixel</a></li>
+        <li><a href="#render-depth">Render Depth</a></li>
       </ol>
     </li>
     <li><a href="#backward">Backward</a>
       <ol>
-        <li><a href="#back-render">back render</a></li>
+        <li><a href="#bw-render-pixel-color">bw render pixel color</a></li>
+        <li><a href="#bw-render-pixel-depth">bw render pixel depth</a></li>
         <li><a href="#bw-cov2d">bw cov2D</a>
           <ol>
             <li><a href="#dσdσ">dΣ&rsquo;⁻¹/dΣ'</a></li>
@@ -328,7 +330,7 @@ s q c u a a l t i e n r g n i v o e n c S R t o r t e a c t h i i o n n g m m a 
 
 
                 <time class="article-time--reading">
-                    43 minute read
+                    52 minute read
                 </time>
             </div>
         
@@ -1507,113 +1509,113 @@ and for keys with identical tile id, the depths are then sorted.</p>
 <path d='M 272,32 A 16,16 0 0,1 288,48' fill='none' stroke='currentColor'></path>
 <path d='M 304,32 A 16,16 0 0,0 288,48' fill='none' stroke='currentColor'></path>
 <path d='M 424,32 A 16,16 0 0,1 440,48' fill='none' stroke='currentColor'></path>
-<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>G</text>
 <text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>K</text>
-<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>G</text>
 <text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>u</text>
-<text text-anchor='middle' x='16' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>a</text>
 <text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>y</text>
-<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='24' y='132' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='24' y='132' fill='currentColor' style='font-size:1em'>i</text>
 <text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>s</text>
 <text text-anchor='middle' x='32' y='116' fill='currentColor' style='font-size:1em'>s</text>
-<text text-anchor='middle' x='32' y='132' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='32' y='132' fill='currentColor' style='font-size:1em'>d</text>
 <text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>:</text>
-<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='48' y='132' fill='currentColor' style='font-size:1em'>9</text>
-<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>4</text>
-<text text-anchor='middle' x='56' y='132' fill='currentColor' style='font-size:1em'>7</text>
-<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='40' y='132' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='56' y='132' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='64' y='132' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='64' y='148' fill='currentColor' style='font-size:1em'>0</text>
 <text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>t</text>
-<text text-anchor='middle' x='72' y='116' fill='currentColor' style='font-size:1em'>3</text>
-<text text-anchor='middle' x='72' y='132' fill='currentColor' style='font-size:1em'>8</text>
 <text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>i</text>
-<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>0</text>
-<text text-anchor='middle' x='80' y='132' fill='currentColor' style='font-size:1em'>5</text>
-<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='80' y='132' fill='currentColor' style='font-size:1em'>8</text>
 <text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='88' y='116' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='88' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='88' y='148' fill='currentColor' style='font-size:1em'>3</text>
 <text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>7</text>
-<text text-anchor='middle' x='96' y='132' fill='currentColor' style='font-size:1em'>5</text>
-<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>6</text>
-<text text-anchor='middle' x='104' y='132' fill='currentColor' style='font-size:1em'>0</text>
-<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='104' y='132' fill='currentColor' style='font-size:1em'>5</text>
 <text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>0</text>
-<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>3</text>
-<text text-anchor='middle' x='120' y='132' fill='currentColor' style='font-size:1em'>6</text>
-<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>5</text>
-<text text-anchor='middle' x='128' y='132' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>9</text>
-<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>4</text>
-<text text-anchor='middle' x='144' y='132' fill='currentColor' style='font-size:1em'>7</text>
-<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='152' y='132' fill='currentColor' style='font-size:1em'>6</text>
-<text text-anchor='middle' x='152' y='148' fill='currentColor' style='font-size:1em'>7</text>
-<text text-anchor='middle' x='168' y='116' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='168' y='132' fill='currentColor' style='font-size:1em'>0</text>
-<text text-anchor='middle' x='176' y='116' fill='currentColor' style='font-size:1em'>7</text>
-<text text-anchor='middle' x='176' y='132' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='112' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='128' y='132' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='136' y='116' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='136' y='132' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='136' y='148' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='152' y='132' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='160' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='160' y='132' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='160' y='148' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='176' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='176' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='184' y='116' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='184' y='132' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='184' y='148' fill='currentColor' style='font-size:1em'>0</text>
 <text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>t</text>
-<text text-anchor='middle' x='192' y='116' fill='currentColor' style='font-size:1em'>3</text>
-<text text-anchor='middle' x='192' y='132' fill='currentColor' style='font-size:1em'>5</text>
 <text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>i</text>
-<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>9</text>
-<text text-anchor='middle' x='200' y='132' fill='currentColor' style='font-size:1em'>6</text>
-<text text-anchor='middle' x='200' y='148' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='200' y='132' fill='currentColor' style='font-size:1em'>5</text>
 <text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='208' y='116' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='208' y='132' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='208' y='148' fill='currentColor' style='font-size:1em'>8</text>
 <text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>6</text>
-<text text-anchor='middle' x='216' y='132' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>5</text>
-<text text-anchor='middle' x='224' y='132' fill='currentColor' style='font-size:1em'>5</text>
-<text text-anchor='middle' x='224' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='224' y='132' fill='currentColor' style='font-size:1em'>8</text>
 <text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>3</text>
-<text text-anchor='middle' x='240' y='132' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='248' y='148' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='264' y='132' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>9</text>
-<text text-anchor='middle' x='272' y='132' fill='currentColor' style='font-size:1em'>4</text>
-<text text-anchor='middle' x='272' y='148' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='288' y='116' fill='currentColor' style='font-size:1em'>3</text>
-<text text-anchor='middle' x='288' y='132' fill='currentColor' style='font-size:1em'>4</text>
-<text text-anchor='middle' x='296' y='116' fill='currentColor' style='font-size:1em'>5</text>
-<text text-anchor='middle' x='296' y='132' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='296' y='148' fill='currentColor' style='font-size:1em'>4</text>
-<text text-anchor='middle' x='312' y='116' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='312' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='232' y='132' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='232' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='256' y='132' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='256' y='148' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='272' y='132' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='280' y='116' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='280' y='132' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='280' y='148' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='296' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='296' y='132' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='304' y='116' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='304' y='132' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='304' y='148' fill='currentColor' style='font-size:1em'>4</text>
 <text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>-</text>
-<text text-anchor='middle' x='320' y='116' fill='currentColor' style='font-size:1em'>6</text>
-<text text-anchor='middle' x='320' y='132' fill='currentColor' style='font-size:1em'>0</text>
-<text text-anchor='middle' x='320' y='148' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='320' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='320' y='132' fill='currentColor' style='font-size:1em'>5</text>
 <text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='328' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='328' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='328' y='148' fill='currentColor' style='font-size:1em'>9</text>
 <text text-anchor='middle' x='352' y='84' fill='currentColor' style='font-size:1em'>⋯</text>
 <text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>t</text>
-<text text-anchor='middle' x='368' y='116' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='368' y='132' fill='currentColor' style='font-size:1em'>5</text>
 <text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>i</text>
-<text text-anchor='middle' x='376' y='116' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='376' y='132' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='376' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='376' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='376' y='132' fill='currentColor' style='font-size:1em'>5</text>
 <text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='384' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='384' y='132' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='384' y='148' fill='currentColor' style='font-size:1em'>3</text>
 <text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>e</text>
-<text text-anchor='middle' x='392' y='116' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='392' y='132' fill='currentColor' style='font-size:1em'>0</text>
 <text text-anchor='middle' x='400' y='116' fill='currentColor' style='font-size:1em'>1</text>
-<text text-anchor='middle' x='400' y='132' fill='currentColor' style='font-size:1em'>4</text>
-<text text-anchor='middle' x='400' y='148' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='400' y='132' fill='currentColor' style='font-size:1em'>0</text>
 <text text-anchor='middle' x='408' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='408' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='408' y='132' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='408' y='148' fill='currentColor' style='font-size:1em'>3</text>
 <text text-anchor='middle' x='416' y='4' fill='currentColor' style='font-size:1em'>8</text>
-<text text-anchor='middle' x='416' y='116' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='416' y='132' fill='currentColor' style='font-size:1em'>0</text>
 <text text-anchor='middle' x='424' y='116' fill='currentColor' style='font-size:1em'>2</text>
-<text text-anchor='middle' x='424' y='132' fill='currentColor' style='font-size:1em'>3</text>
-<text text-anchor='middle' x='424' y='148' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='424' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='432' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='432' y='132' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='432' y='148' fill='currentColor' style='font-size:1em'>5</text>
 </g>
 
     </svg>
@@ -1879,6 +1881,32 @@ and for keys with identical tile id, the depths are then sorted.</p>
     </svg>
   
 </div>
+<ul>
+<li>
+<p><strong>Count</strong> the number of tile-Gaussian pairs for each tile,
+as the <code>threadIdx</code> is the counter.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">auto</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">cg</span><span class="o">::</span><span class="n">this_grid</span><span class="p">().</span><span class="n">thread_rank</span><span class="p">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<ul>
+<li>Identify the tile&rsquo;s boundary by detecting the change of tiles index in the list of the <strong>sorted</strong> tile-Gaussian keys:
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">currtile</span> <span class="o">!=</span> <span class="n">prevtile</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
 </li>
 </ol>
 <hr>
@@ -1903,7 +1931,7 @@ Ultimately, in the end, a thread in a block corresponds to a pixel.</p>
 </li>
 <li>
 <p>All pixels in a tile correspond to the same Gaussians, but with different weights,
-as the weights depend on distance from the pixel coordinates to the 2D Gaussian center.</p>
+as the weights depend on distance from the pixel coordinates to the 2D Gaussian center: $exp(-½ (𝐱-\bm μ)^T \bm Σ_{(2D)}^{-1} (𝐱-\bm μ))$.</p>
 
 
 
@@ -2001,16 +2029,16 @@ as the weights depend on distance from the pixel coordinates to the 2D Gaussian 
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">!</span><span class="n">done</span> <span class="o">&amp;&amp;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">min</span><span class="p">(</span><span class="n">BLOCK_SIZE</span><span class="p">,</span> <span class="n">toDo</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">     <span class="p">...</span>
-</span></span><span class="line"><span class="cl">     <span class="n">float2</span> <span class="n">xy</span> <span class="o">=</span> <span class="n">collected_xy</span><span class="p">[</span><span class="n">j</span><span class="p">];</span> <span class="c1">// pixel coords
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="n">float2</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{</span> <span class="n">xy</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">pixf</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">xy</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">pixf</span><span class="p">.</span><span class="n">y</span> <span class="p">};</span> <span class="c1">// dist
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="n">float4</span> <span class="n">con_o</span> <span class="o">=</span> <span class="n">collected_conic_opacity</span><span class="p">[</span><span class="n">j</span><span class="p">];</span> <span class="c1">// cov
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="kt">float</span> <span class="n">power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="p">(</span><span class="n">con_o</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">con_o</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">con_o</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="p">...</span>
+</span></span><span class="line"><span class="cl">   <span class="n">float2</span> <span class="n">xy</span> <span class="o">=</span> <span class="n">collected_xy</span><span class="p">[</span><span class="n">j</span><span class="p">];</span> <span class="c1">// pixel coords
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="n">float2</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{</span> <span class="n">xy</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">pixf</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">xy</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">pixf</span><span class="p">.</span><span class="n">y</span> <span class="p">};</span> <span class="c1">// dist
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="n">float4</span> <span class="n">con_o</span> <span class="o">=</span> <span class="n">collected_conic_opacity</span><span class="p">[</span><span class="n">j</span><span class="p">];</span> <span class="c1">// cov
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="kt">float</span> <span class="n">power</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="p">(</span><span class="n">con_o</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">con_o</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">con_o</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>
-<p>The coordinates of the pixel to be rendered by a thread is obtained as followes:</p>
+<p>The coordinates of the pixel to be rendered by a thread is obtained as follows:</p>
 
 
 
@@ -2259,7 +2287,7 @@ as the weights depend on distance from the pixel coordinates to the 2D Gaussian 
 <ul>
 <li><code>pix_min</code> = (2 * BLOCK_X, 1 * BLOCK_Y) = (32, 16)</li>
 <li><code>pix_max</code> = (max(32+BLOCK_X, W), max(16+BLOCK_Y, H)) = (48, 32)</li>
-<li><code>pix</code> = (48+block.thread_index().x, 32+block.thread_index().y)</li>
+<li><code>pix</code> = (32+block.thread_index().x, 16+block.thread_index().y)</li>
 <li><code>pix_id</code> = 100*pix.y + pix.x</li>
 <li>tile id = 1*7 + 2 = 9</li>
 <li><code>range = ranges[9]</code>, number of Gaussians for this tile.</li>
@@ -2499,10 +2527,222 @@ i.e., T is close to 0:</p>
 as the cumulative summation is definite and independent of the adding sequence.</p>
 </li>
 </ul>
+<p>(2024-04-27)</p>
+<ol>
+<li>
+<p>A tile (16x16 pixels) is rendered from many tile-Gaussian pairs,
+which are composited <strong>batch-by-batch</strong> iteratively.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 472 185"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 88,48 L 160,48' fill='none' stroke='currentColor'></path>
+<path d='M 160,48 L 240,48' fill='none' stroke='currentColor'></path>
+<path d='M 360,48 L 400,48' fill='none' stroke='currentColor'></path>
+<path d='M 400,48 L 440,48' fill='none' stroke='currentColor'></path>
+<path d='M 32,112 L 88,112' fill='none' stroke='currentColor'></path>
+<path d='M 16,80 L 16,144' fill='none' stroke='currentColor'></path>
+<path d='M 48,16 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 160,48' fill='none' stroke='currentColor'></path>
+<path d='M 400,32 L 400,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,80 L 48,16' fill='none' stroke='currentColor'></path>
+<path d='M 16,144 L 32,112' fill='none' stroke='currentColor'></path>
+<path d='M 32,112 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 88,48 A 16,16 0 0,0 72,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,48 A 16,16 0 0,1 256,64' fill='none' stroke='currentColor'></path>
+<path d='M 360,48 A 16,16 0 0,0 344,64' fill='none' stroke='currentColor'></path>
+<path d='M 440,48 A 16,16 0 0,1 456,64' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='8' y='164' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>■</text>
+<text text-anchor='middle' x='24' y='164' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='32' y='164' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='40' y='164' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='48' y='164' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='88' y='84' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='96' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='104' y='84' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='112' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='120' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='144' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='152' y='100' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='168' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='184' y='84' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='192' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='200' y='84' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='200' y='100' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='216' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='280' y='84' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='288' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='296' y='84' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='296' y='100' fill='currentColor' style='font-size:1em'>j</text>
+<text text-anchor='middle' x='296' y='116' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='304' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='312' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='344' y='116' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='360' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='376' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='384' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='384' y='84' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='384' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='392' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='392' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='392' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='400' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='400' y='84' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='400' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='400' y='116' fill='currentColor' style='font-size:1em'>▨</text>
+<text text-anchor='middle' x='408' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='408' y='100' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='416' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='416' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='432' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>r</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>Each iteration processes 16x16 (256) tile-Gaussian pairs, because each tile is allocated with 16x16 threads.</p>
+</li>
+<li>
+<p>The shared memory is leverage to speed up the inner <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/forward.cu#L325"  target="_blank" rel="noopener"
+    ><code>for</code> loop</a>,
+which is for compositing the contributing Gaussians for the pixel processed by the thread.</p>
+</li>
+</ol>
+<hr>
+<h3 id="render-depth">Render Depth</h3>
+<p>(2024-04-28)</p>
+<p>Refer to code <a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/compare/8064f52ca233942bdec2d1a1451c026deedd320b..d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea"  target="_blank" rel="noopener"
+    >ashawkey/diff-gaussian-rasterization</a></p>
+<p>The depth of <strong>a pixel</strong> is composited behind the alpha compositing of colors.
+<a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/forward.cu#L360-L361"  target="_blank" rel="noopener"
+    >Code</a>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">D</span> <span class="o">+=</span> <span class="n">depths</span><span class="p">[</span><span class="n">collected_id</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">T</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>depths</code> is the z coordinate of 3D Gaussian centers in the camera space.</li>
+<li><code>collected_id</code> is the Gaussians index stored in shared memory.
+<code>j</code> is the index of a Gaussian in a round.</li>
+<li><code>alpha</code> is the portion of Gaussian&rsquo;s color that will be used.</li>
+<li><code>T</code> is the accumulated decay factor for the current Gaussian color passing through filter before it.</li>
+</ul>
+<p>Similar to <a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/run_nerf.py#L149-L150"  target="_blank" rel="noopener"
+    >NeRF</a>,
+where α is the probability of ray terminating and T is the prob of ray passing,
+the depth map is an <strong>expectation</strong> of Gaussians (&ldquo;probability * depth&rdquo;), where the weights (&ldquo;probability&rdquo;) are <code>alpha * T</code>.</p>
+<p>(2024-05-05)</p>
+<ul>
+<li>
+<p>Similar to MVSNet, by regarding the αT as the probability of depth,
+the &ldquo;pre-defined hypothetical&rdquo; depth values are aggregated by probabilities to form a predicted pixel depth.</p>
+</li>
+<li>
+<p><a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/pull/30#issuecomment-1744888689"  target="_blank" rel="noopener"
+    >Ziyi Yang</a>
+believes: Using z-coordinate in camera space to represent depth is acceptable,
+because the depth essentially represents relative spatial relations, similar to z coordinate.</p>
+<ul>
+<li>However, robot0321 rebuttuled that regarding the z-value expectation as depth may cause error.
+And the depth map can be accquired by locating the frontmost point if there&rsquo;s only one surface.
+<a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/pull/30#issuecomment-1769956571"  target="_blank" rel="noopener"
+    >conversation</a></li>
+</ul>
+</li>
+</ul>
+<p>Other papers also applied this form:
+<a class="link" href="https://github.com/VITA-Group/FSGS/tree/main/submodules/diff-gaussian-rasterization-confidence"  target="_blank" rel="noopener"
+    >FSGS</a>,
+<a class="link" href="https://github.com/ForMyCat/SparseGS/tree/master/submodules/diff-gaussian-rasterization-softmax"  target="_blank" rel="noopener"
+    >SparseGS</a></p>
+<hr>
+<p>(2024-05-02)</p>
+<ul>
+<li>
+<p>The depths of Gaussians in the <strong>camera space</strong> are already included in the
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/rasterizer_impl.cu#L158"  target="_blank" rel="noopener"
+    ><code>geometryBuffer</code></a>.</p>
+</li>
+<li>
+<p>The &ldquo;buffer&rdquo; memory allocated on GPU is for <strong>input</strong> data to kernel functions (<code>depths</code>, <code>radii</code>, <code>points_xy_image</code>, &hellip;)
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/rasterize_points.cu#L73-L78"  target="_blank" rel="noopener"
+    >Code</a>.</p>
+</li>
+<li>
+<p>The forward pass only performs depth rendering and return it, by mofifying files:
+<a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/compare/8064f52ca233942bdec2d1a1451c026deedd320b..d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea#diff-21fc0605026bb360b391ae3bc00aea857add7ec5a3d77cf3f69ba82dca77f220"  target="_blank" rel="noopener"
+    ><code>cuda_rasterizer/forward.cu</code></a></p>
+<p>And change the function signatures in <a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/compare/8064f52ca233942bdec2d1a1451c026deedd320b..d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea#diff-adff69c988bc22c0e0eed2a0d4d7012322e0afefbd83638fd523f7d74b22a621"  target="_blank" rel="noopener"
+    ><code>cuda_rasterizer/rasterizer_impl.cu</code></a>.</p>
+</li>
+</ul>
 <hr>
 <h2 id="backward">Backward</h2>
-<p>Looking up definitions: &ldquo;backward.cu&rdquo; ← &ldquo;rasterizer_impl.cu&rdquo; ← &ldquo;rasterize_points.cu&rdquo; ← &ldquo;__init__.py&rdquo;</p>
-<h3 id="back-render">back render</h3>
+<p>Looking up definitions: <code>backward.cu</code> ⬅ <code>rasterizer_impl.cu</code> ⬅ <code>rasterize_points.cu</code> ⬅ <code>__init__.py</code></p>
+<h3 id="bw-render-pixel-color">bw render pixel color</h3>
 <p>(2024-02-09)  <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/rasterizer_impl.cu#L390"  target="_blank" rel="noopener"
     >Calling entry</a></p>
 <p>The rendered pixel is derived from color (R,G,B) and opacity of each Gaussian.</p>
@@ -2623,38 +2863,59 @@ as the contribution is a summation?</p>
 $T_{curr} = \frac{T_{curr+1}}{(1-α_{curr})} $</li>
 </ul>
 <p>(2024-02-10)</p>
-<p>For color scalar (R,G,B) in each channel k:</p>
+<p>For pixel color scalar (R,G,B) in each channel k:</p>
 <ol>
 <li>
-<p>Partial derivative of Loss w.r.t. each Gaussian&rsquo;s color: <code>d</code></p>
+<p>Partial derivative of pixel color w.r.t. <strong>each</strong> Gaussian&rsquo;s color: α⋅T</p>
 <p>$$\rm \frac{∂C_{pixel}}{∂C_{k}} = α_{curr}⋅ T_{curr}$$</p>
+<p><a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/backward.cu#L523"  target="_blank" rel="noopener"
+    ><code>dL_dcolors</code></a>
+is the <strong>sum</strong> of 3 channels of all Gaussians that contribute to this pixel.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
-</span><span class="lnt">9
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">T</span> <span class="o">=</span> <span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dchannel_dcolor</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">T</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ch</span> <span class="o">&lt;</span> <span class="n">C</span><span class="p">;</span> <span class="n">ch</span><span class="o">++</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">{</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// Batchify Gaussians responsible for the pixel
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">rounds</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">toDo</span> <span class="o">-=</span> <span class="n">BLOCK_SIZE</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">  <span class="p">...</span>
-</span></span><span class="line"><span class="cl">  <span class="k">const</span> <span class="kt">float</span> <span class="n">dL_dchannel</span> <span class="o">=</span> <span class="n">dL_dpixel</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
-</span></span><span class="line"><span class="cl">  <span class="c1">// add to previous dL_dcolors
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">dL_dcolors</span><span class="p">[</span><span class="n">global_id</span> <span class="o">*</span> <span class="n">C</span> <span class="o">+</span> <span class="n">ch</span><span class="p">]),</span> <span class="n">dchannel_dcolor</span> <span class="o">*</span> <span class="n">dL_dchannel</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Each round calculate a BLOCK_SIZE Gaussians
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">!</span><span class="n">done</span> <span class="o">&amp;&amp;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">min</span><span class="p">(</span><span class="n">BLOCK_SIZE</span><span class="p">,</span> <span class="n">toDo</span><span class="p">);</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="n">T</span> <span class="o">=</span> <span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="kt">float</span> <span class="n">dchannel_dcolor</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">T</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ch</span> <span class="o">&lt;</span> <span class="n">C</span><span class="p">;</span> <span class="n">ch</span><span class="o">++</span><span class="p">){</span>  <span class="c1">// C=3 channels
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="p">...</span>
+</span></span><span class="line"><span class="cl">      <span class="k">const</span> <span class="kt">float</span> <span class="n">dL_dchannel</span> <span class="o">=</span> <span class="n">dL_dpixel</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// add to previous dL_dcolors
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">dL_dcolors</span><span class="p">[</span><span class="n">global_id</span> <span class="o">*</span> <span class="n">C</span> <span class="o">+</span> <span class="n">ch</span><span class="p">]),</span> <span class="n">dchannel_dcolor</span> <span class="o">*</span> <span class="n">dL_dchannel</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div></li>
 <li>
-<p>Partial derivative of Loss w.r.t. each Gaussian&rsquo;s alpha: <code>d</code></p>
+<p>Partial derivative of (pixel color) Loss w.r.t. each Gaussian&rsquo;s alpha:
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/backward.cu#L509-L519"  target="_blank" rel="noopener"
+    ><code>dL_dalpha</code></a></p>
 
 
 
@@ -2757,7 +3018,7 @@ $$</p>
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ch</span> <span class="o">&lt;</span> <span class="n">C</span><span class="p">;</span> <span class="n">ch</span><span class="o">++</span><span class="p">)</span>  <span class="c1">// R,G,B 3 chnls
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ch</span> <span class="o">&lt;</span> <span class="n">C</span><span class="p">;</span> <span class="n">ch</span><span class="o">++</span><span class="p">)</span>  <span class="c1">// C=3 chnls
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="k">const</span> <span class="kt">float</span> <span class="n">c</span> <span class="o">=</span> <span class="n">collected_colors</span><span class="p">[</span><span class="n">ch</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span> <span class="o">+</span> <span class="n">j</span><span class="p">];</span>
 </span></span><span class="line"><span class="cl">  <span class="n">accum_rec</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_alpha</span> <span class="o">*</span> <span class="n">last_color</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">last_alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">accum_rec</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
@@ -2778,10 +3039,14 @@ $$</p>
 <p>As the solving process starts from the rare Gaussian that depends on all previous Gaussians to,
 when calculating the current Gaussian, the summation of Gaussians affected by it is ready to use.</p>
 </details>
-<p>Consider the contribution of background color to the pixel color finally:</p>
+<hr>
+<p>Consider the contribution of background color to the pixel color finally:
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/cuda_rasterizer/backward.cu#L531-L534"  target="_blank" rel="noopener"
+    >Code</a></p>
 <p>$$
 \begin{aligned}
 \rm C_{pix} &amp;= \rm C_{gs} + T_{final}C_{bg} \\
+&amp;= \rm α_{gs} c_{gs} + (1-α_{gs}) T_{final-1} C_{bg} \\ \\
 \rm \frac{∂ L}{∂ α_{gs}} &amp;= \rm \frac{∂ L}{∂ C_{pix}} ⋅ ( \frac{∂C_{pix}}{∂α_{gs}} +
 \frac{∂C_{pix}}{∂T_{final}} ⋅ \frac{∂T_{final}}{∂α_{gs}} ) \\
 &amp;= \rm \frac{∂L}{∂α_{gs}} + \frac{∂ L}{∂ C_{pix}} ⋅ C_{bg} ⋅ (-\frac{T_{final}}{(1-α_{gs})})
@@ -2873,6 +3138,610 @@ based on $α = o⋅G = o⋅exp(-\frac{1}{2}Δₓᵀ[^{a\ b}_{d\ c}]Δₓ)$:</p>
 <p>$$ \frac{∂L}{∂o} = \frac{∂L}{∂α} ⋅ \frac{∂α}{∂o} = \frac{∂L}{∂α}⋅ G $$</p>
 </li>
 </ol>
+<hr>
+<h3 id="bw-render-pixel-depth">bw render pixel depth</h3>
+<p>(2024-05-04)</p>
+<ul>
+<li>Ziyi Yang has a PR only for depth forward and backward.
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/pull/5"  target="_blank" rel="noopener"
+    >3DGS-PR#5</a></li>
+</ul>
+<p>(2024-04-29)</p>
+<p>The forward pass of <a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization"  target="_blank" rel="noopener"
+    >ashawkey/diff-gaussian-rasterization</a>
+also rendered alpha in addition to the depth map:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 520 233"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 24,0 L 80,0' fill='none' stroke='currentColor'></path>
+<path d='M 144,0 L 336,0' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 L 200,16' fill='none' stroke='currentColor'></path>
+<path d='M 352,48 L 384,48' fill='none' stroke='currentColor'></path>
+<path d='M 448,48 L 464,48' fill='none' stroke='currentColor'></path>
+<path d='M 56,80 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 152,80 L 160,80' fill='none' stroke='currentColor'></path>
+<path d='M 248,96 L 272,96' fill='none' stroke='currentColor'></path>
+<path d='M 336,96 L 352,96' fill='none' stroke='currentColor'></path>
+<path d='M 352,96 L 384,96' fill='none' stroke='currentColor'></path>
+<path d='M 448,96 L 464,96' fill='none' stroke='currentColor'></path>
+<path d='M 160,112 L 232,112' fill='none' stroke='currentColor'></path>
+<path d='M 336,160 L 352,160' fill='none' stroke='currentColor'></path>
+<path d='M 352,160 L 384,160' fill='none' stroke='currentColor'></path>
+<path d='M 448,160 L 464,160' fill='none' stroke='currentColor'></path>
+<path d='M 0,192 L 88,192' fill='none' stroke='currentColor'></path>
+<path d='M 104,192 L 424,192' fill='none' stroke='currentColor'></path>
+<path d='M 8,16 L 8,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,184 L 96,200' fill='none' stroke='currentColor'></path>
+<path d='M 216,32 L 216,48' fill='none' stroke='currentColor'></path>
+<path d='M 352,16 L 352,48' fill='none' stroke='currentColor'></path>
+<path d='M 352,48 L 352,96' fill='none' stroke='currentColor'></path>
+<path d='M 352,96 L 352,160' fill='none' stroke='currentColor'></path>
+<path d='M 432,184 L 432,200' fill='none' stroke='currentColor'></path>
+<polygon points='88.000000,0.000000 76.000000,-5.600000 76.000000,5.600000' fill='currentColor' transform='rotate(0.000000, 80.000000, 0.000000)'></polygon>
+<polygon points='88.000000,80.000000 76.000000,74.400002 76.000000,85.599998' fill='currentColor' transform='rotate(0.000000, 80.000000, 80.000000)'></polygon>
+<polygon points='168.000000,80.000000 156.000000,74.400002 156.000000,85.599998' fill='currentColor' transform='rotate(0.000000, 160.000000, 80.000000)'></polygon>
+<polygon points='224.000000,48.000000 212.000000,42.400002 212.000000,53.599998' fill='currentColor' transform='rotate(90.000000, 216.000000, 48.000000)'></polygon>
+<polygon points='280.000000,96.000000 268.000000,90.400002 268.000000,101.599998' fill='currentColor' transform='rotate(0.000000, 272.000000, 96.000000)'></polygon>
+<polygon points='392.000000,48.000000 380.000000,42.400002 380.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 384.000000, 48.000000)'></polygon>
+<polygon points='392.000000,96.000000 380.000000,90.400002 380.000000,101.599998' fill='currentColor' transform='rotate(0.000000, 384.000000, 96.000000)'></polygon>
+<polygon points='392.000000,160.000000 380.000000,154.399994 380.000000,165.600006' fill='currentColor' transform='rotate(0.000000, 384.000000, 160.000000)'></polygon>
+<polygon points='472.000000,48.000000 460.000000,42.400002 460.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 464.000000, 48.000000)'></polygon>
+<polygon points='472.000000,96.000000 460.000000,90.400002 460.000000,101.599998' fill='currentColor' transform='rotate(0.000000, 464.000000, 96.000000)'></polygon>
+<polygon points='472.000000,160.000000 460.000000,154.399994 460.000000,165.600006' fill='currentColor' transform='rotate(0.000000, 464.000000, 160.000000)'></polygon>
+<path d='M 24,0 A 16,16 0 0,0 8,16' fill='none' stroke='currentColor'></path>
+<path d='M 336,0 A 16,16 0 0,1 352,16' fill='none' stroke='currentColor'></path>
+<path d='M 200,16 A 16,16 0 0,1 216,32' fill='none' stroke='currentColor'></path>
+<path d='M 232,80 A 16,16 0 0,1 248,96' fill='none' stroke='currentColor'></path>
+<path d='M 248,96 A 16,16 0 0,1 232,112' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='0' y='212' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='8' y='212' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='212' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='24' y='212' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='32' y='212' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='40' y='212' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='48' y='212' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='56' y='212' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='64' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='64' y='212' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='72' y='68' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='72' y='212' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>j</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='96' y='84' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='104' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='112' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='120' y='84' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='128' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='136' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='176' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='84' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='176' y='212' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='184' y='68' fill='currentColor' style='font-size:1em'>^</text>
+<text text-anchor='middle' x='184' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='184' y='212' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='192' y='68' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='192' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='192' y='212' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='200' y='84' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='200' y='212' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='208' y='212' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='216' y='84' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='212' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='240' y='68' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='256' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='264' y='84' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='288' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='288' y='164' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='296' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='296' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='304' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='304' y='164' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='312' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='312' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='320' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='320' y='164' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='360' y='36' fill='currentColor' style='font-size:1em'>∑</text>
+<text text-anchor='middle' x='360' y='84' fill='currentColor' style='font-size:1em'>∑</text>
+<text text-anchor='middle' x='360' y='148' fill='currentColor' style='font-size:1em'>∑</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='368' y='84' fill='currentColor' style='font-size:1em'>α</text>
+<text text-anchor='middle' x='368' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='376' y='36' fill='currentColor' style='font-size:1em'>α</text>
+<text text-anchor='middle' x='376' y='84' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='376' y='148' fill='currentColor' style='font-size:1em'>α</text>
+<text text-anchor='middle' x='384' y='36' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='384' y='148' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='400' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='400' y='52' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='400' y='84' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='400' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='400' y='148' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='400' y='164' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='408' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='408' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='408' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='408' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='408' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='408' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='416' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='416' y='52' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='416' y='84' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='416' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='416' y='148' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='416' y='164' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='424' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='424' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='424' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='424' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='424' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='424' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='432' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='432' y='52' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='432' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='432' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='432' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='432' y='164' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='472' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='472' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='480' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='480' y='52' fill='currentColor' style='font-size:1em'>L</text>
+<text text-anchor='middle' x='480' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='480' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='480' y='148' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='480' y='164' fill='currentColor' style='font-size:1em'>L</text>
+<text text-anchor='middle' x='488' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='488' y='52' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='488' y='84' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='488' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='488' y='148' fill='currentColor' style='font-size:1em'>G</text>
+<text text-anchor='middle' x='488' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='496' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='496' y='52' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='496' y='84' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='496' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='496' y='148' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='496' y='164' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='504' y='36' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='504' y='52' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='504' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='504' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='504' y='164' fill='currentColor' style='font-size:1em'>s</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>The weight of each Gaussian&rsquo;s opacity is the exponential function,
+where the power depends on the <strong>distance</strong> from pixel (processed by the thread) to a Gaussian&rsquo;s mean.</p>
+<p>$$
+\begin{aligned}
+α &amp;= \text{opacity} ⋅ e^{-½\bm Δᵀ \bm Σ_{(2D)}^{-1} \bm Δ} \\
+&amp;= o ⋅ exp(-½ \begin{bmatrix} Δ_x &amp; Δ_y \end{bmatrix}
+\begin{bmatrix} a &amp; b \\ d &amp; c \end{bmatrix}
+\begin{bmatrix} Δ_x \\ Δ_y \end{bmatrix} ) \\
+&amp;= o ⋅ exp(-0.5 ⋅(a ⋅ Δ_x^2 + c ⋅ Δ_y^2) - b ⋅ Δ_x Δ_y)
+\end{aligned}
+$$</p>
+<p>Depth loss:</p>
+<p>$$
+\begin{aligned}
+L_d &amp;= ½(d_{render} - d_{target})² \\
+&amp;= ½(∑_{n}dₙ αₙ Tₙ - d_{target})²
+\end{aligned}
+$$</p>
+<ul>
+<li>where n is the index of a Gaussian.</li>
+</ul>
+<ol>
+<li>
+<p>The partial derivative of pixel depth w.r.t. a Gaussian&rsquo;s depth:
+<a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/backward.cu#L536"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>$$
+\frac{∂d_{render}}{∂dₙ} = αₙ Tₙ
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dpixel_depth_ddepth</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">T</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The partial derivative of Loss of depth w.r.t. a Gaussian&rsquo;s alpha:</p>
+<p>Similar to rendering the color for a pixel:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 368 57"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 200,0 L 224,0' fill='none' stroke='currentColor'></path>
+<polygon points='208.000000,0.000000 196.000000,-5.600000 196.000000,5.600000' fill='currentColor' transform='rotate(180.000000, 200.000000, 0.000000)'></polygon>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='96' y='36' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>✚</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>✚</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='344' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>h</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>$$
+\begin{aligned}
+L_d &amp;= ½(∑_{n}dₙ αₙ Tₙ - d_{target})² \\
+&amp;= ½(d_{curr} α_{curr} T_{curr} + d_{last} ⋅α_{last}⋅ (1-α_{curr}) T_{curr} \\
+&amp;\quad + d_{last-1}⋅ α_{last-1}⋅ (1-α_{last})(1-α_{curr}) T_{curr} \\
+&amp;\quad + ⋯ - d_{target})²
+\end{aligned}
+$$</p>
+<p>The partial derivative of Loss of depth w.r.t. alpha of the current Gaussian:</p>
+<p>$$
+\begin{aligned}
+\frac{∂L_d}{∂α_{curr}} &amp;= d_{curr}⋅T_{curr} - d_{last} ⋅α_{last}⋅T_{curr} \\
+&amp;\quad - d_{last-1}⋅ α_{last-1}⋅ (1-α_{last})T_{curr} \\
+&amp;\quad - d_{last-2}⋅ α_{last-2} ⋅ (1-α_{last}) (1-α_{last-1})T_{curr} \\
+&amp;\quad + &hellip; \\
+&amp;= d_{curr}⋅T_{curr} - d_{last} ⋅α_{last}⋅\frac{T_{last}}{1-α_{curr}} \\
+&amp;\quad - d_{last-1}⋅ α_{last-1}⋅\frac{T_{last-1}}{1-α_{curr}} \\
+&amp;\quad - d_{last-2}⋅ α_{last-2} ⋅\frac{T_{last-2}}{1-α_{curr}} \\
+&amp;\quad + &hellip; \\
+\end{aligned}
+$$</p>
+<p>Therefore, the general term for each Gaussian is:</p>
+<p>$$
+\frac{∂L_d}{∂α_{curr}} = d_{curr}⋅T_{curr} - ∑_{m&lt;curr} \frac{d_m α_m T_m}{1-α_{curr}}
+$$</p>
+<p>where the computation of the cumulative sum can be simplified using a <strong>recurrence relation</strong>
+(refer to <a class="link" href="https://github.com/will-zzy/2dgs-non-official/blob/2dgs/2DGS_code_supp.pdf"  target="_blank" rel="noopener"
+    >will&rsquo;s derivation</a>):</p>
+<p>$$
+\begin{aligned}
+&amp; ∑_{m&lt;curr} \frac{d_m α_m T_m}{1-α_{curr}} \\
+&amp;= ∑_{m&lt;curr} \frac{d_m α_m T_m}{(1-α_{curr})T_{curr}}T_{curr} \\
+&amp;= ∑_{m&lt;curr} \frac{d_m α_m T_m}{T_{last}}T_{curr} \\
+&amp;= \frac{d_{last} α_{last} \cancel{T_{last} }}{ \cancel{ T_{last} } }T_{curr} +
+∑_{m&lt;last} \frac{d_m α_m T_m}{T_{last}}T_{curr} \\
+&amp;= d_{last} α_{last}T_{curr} +
+(1-α_{last}) ∑_{m&lt;last} \frac{d_m α_m T_m}{T_{last-1}}T_{curr} \\
+\end{aligned}
+$$</p>
+<p>Therefore, the summation $∑_{m&lt;curr}$ got split into 2 parts:
+the summation of terms before the previous 2 Gaussians (<code>last-1</code>), plus the previous one (<code>last</code>):</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 272 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 128,16 L 208,16' fill='none' stroke='currentColor'></path>
+<path d='M 56,80 L 128,80' fill='none' stroke='currentColor'></path>
+<path d='M 216,8 L 216,24' fill='none' stroke='currentColor'></path>
+<polygon points='136.000000,16.000000 124.000000,10.400000 124.000000,21.600000' fill='currentColor' transform='rotate(180.000000, 128.000000, 16.000000)'></polygon>
+<path d='M 40,64 A 16,16 0 0,0 56,80' fill='none' stroke='currentColor'></path>
+<path d='M 144,64 A 16,16 0 0,1 128,80' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>↓</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>⬯</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='64' y='100' fill='currentColor' style='font-size:1em'>∑</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>…</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>ₘ</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='80' y='100' fill='currentColor' style='font-size:1em'>&lt;</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>ₗ</text>
+<text text-anchor='middle' x='96' y='52' fill='currentColor' style='font-size:1em'>…</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>ₐ</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>ₛ</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>ₜ</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='144' y='52' fill='currentColor' style='font-size:1em'>⬯</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='192' y='52' fill='currentColor' style='font-size:1em'>⬯</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='240' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='240' y='52' fill='currentColor' style='font-size:1em'>⬯</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>r</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>The graph illustrates that the preceding result can be <strong>reused</strong> to compute the derivatives of the current Gaussian.</p>
+<p>The reuseable term, i.e., <a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/backward.cu#L560"  target="_blank" rel="noopener"
+    ><code>accum_depth_rec</code></a>,
+is: $∑_{m&lt;curr} \frac{d_m α_m T_m}{T_{last}}T_{curr}$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">accum_depth_rec</span> <span class="o">=</span> <span class="n">last_alpha</span> <span class="o">*</span> <span class="n">last_depth</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">last_alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">accum_depth_rec</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>(2024-05-03)</p>
+<p>Since depth map (∑zαT) and RGB image (∑cαT) have similar generation process, just with different number of channels.
+the code of back-propagation for Gaussians&rsquo; depths can mimic the code of Gaussians&rsquo; colors.
+<a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/backward.cu#L558-L569"  target="_blank" rel="noopener"
+    >Code</a></p>
+</li>
+<li>
+<p>The <a class="link" href="https://3ii.cc/2jl"  target="_blank" rel="noopener"
+    >ashawkey&rsquo;s code</a>
+also renders each pixel&rsquo;s alpha besides depth (∑αT)
+during <a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/forward.cu#L378"  target="_blank" rel="noopener"
+    >forward</a>,
+and produces a loss for pixel alpha $L_{alpha}$.</p>
+<p>Thus, the loss  $L_{alpha}$ will affect the derivative of each pixel&rsquo;s alpha <a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/backward.cu#L685"  target="_blank" rel="noopener"
+    ><code>dL_dalphas</code></a>,
+and futhur each Gaussian&rsquo;s alpha.</p>
+<p>To compute the derivative of the pixel alpha w.r.t. a Gaussian&rsquo;s alpha,
+only Gaussians <strong>behind</strong> the current Gaussian will be considered.</p>
+<p>$$
+\begin{aligned}
+α_{pixel} &amp;= &hellip;+ α_{curr}T_{curr} + α_{last}(1-α_{curr})T_{curr} + α_{last-1}(1-α_{last})(1-α_{curr})T_{curr} + &hellip; \\
+\frac{∂α_{pixel}}{∂α_{curr}} &amp;= [1 - α_{last}
+-α_{last-1}(1-α_{last}) -α_{last-2}(1-α_{last-1})(1-α_{last})+&hellip;] T_{curr}\\
+&amp;= [1 - α_{last} - α_{last-1} \frac{T_{last-1}}{T_{last}}
+-α_{last-2}\frac{T_{last-2}}{T_{last}} + &hellip; ] T_{curr} \\
+&amp;= \cancel{[1 - α_{last} - ∑_{m&lt;last}\frac{α_mT_m}{T_{last}}] T_{curr}}
+\quad \text{Can&rsquo;t be recursive or explain the final $(1-α_{last})$}\\
+&amp;= [1 - ∑_{m&lt;curr}\frac{α_mT_m}{T_{last}}] T_{curr} \\
+&amp;= [1 - α_{last} - (1-α_{last}) ∑_{m&lt;last}\frac{α_mT_m}{T_{last-1}}] T_{curr}
+\end{aligned}
+$$</p>
+<ul>
+<li>Multiplying by $(1-α_{last})$ is to use the sum of previously computed Gaussian</li>
+</ul>
+<p>(2024-05-04)</p>
+<ul>
+<li>The recursive term should be a single term, instead of two-term combination.
+As shown above, if the sum $∑_{m&lt;curr}$ doesn&rsquo;t include $α_{last}$,
+the $∑_{m&lt;last}$ indeed can be written as the previous result by multiplying with ($(1-α_{last})$),
+however when reversing back, the $- α_{last} - (1-α_{last}) ∑_{m&lt;last}\frac{α_mT_m}{T_{last-1}}$ is not
+the $- ∑_{m&lt;last}\frac{α_mT_m}{T_{last}}$, whereas it should equal to the 2-term sum:
+$- α_{last} - ∑_{m&lt;last}\frac{α_mT_m}{T_{last}}$.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">accum_alpha_rec</span> <span class="o">=</span> <span class="n">last_alpha</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.f</span> <span class="o">-</span> <span class="n">last_alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">accum_alpha_rec</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">dL_dopa</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">accum_alpha_rec</span><span class="p">)</span> <span class="o">*</span> <span class="n">dL_dalpha</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The partial derivative of depth loss w.r.t. each Gaussian&rsquo;s opacity:
+<a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/backward.cu#L598"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>Based on the relationship: $α=oG$</p>
+<p>$$
+\frac{∂α}{∂o} = G, \quad \frac{∂L}{∂o} = \frac{∂L}{∂α} G
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">dL_dopacity</span><span class="p">[</span><span class="n">global_id</span><span class="p">]),</span> <span class="n">G</span> <span class="o">*</span> <span class="n">dL_dopa</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>I don&rsquo;t know why he changed <code>dL_dalpha</code> to <code>dL_dopa</code>?</li>
+</ul>
+</li>
+<li>
+<p>Subsequently, the partial derivative of alpha w.r.t. mean2D (or $\bm Δ$) and cov2D (a,b,c):
+<a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/backward.cu#L581-L595"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>Based on the formula: $α = o ⋅ exp(-0.5 ⋅(a ⋅ Δ_x^2 + c ⋅ Δ_y^2) - b ⋅ Δ_x Δ_y)$</p>
+<p>$$
+\begin{aligned}
+\frac{∂α}{∂Δ_x} &amp;= o ⋅ e^{-½\bm Δᵀ \bm Σ_{(2D)}^{-1} \bm Δ} ⋅ (-aΔ_x - bΔ_y) \\
+\frac{∂α}{∂Δ_y} &amp;= o ⋅ e^{-½\bm Δᵀ \bm Σ_{(2D)}^{-1} \bm Δ} ⋅ (-cΔ_y - bΔ_x) \\
+\frac{∂α}{∂a} &amp;= o ⋅ e^{-½\bm Δᵀ \bm Σ_{(2D)}^{-1} \bm Δ}⋅(-0.5Δ_x^2) \\
+\frac{∂α}{∂b} &amp;= o ⋅ e^{-½\bm Δᵀ \bm Σ_{(2D)}^{-1} \bm Δ}⋅(-Δ_x Δ_y) \\
+\frac{∂α}{∂c} &amp;= o ⋅ e^{-½\bm Δᵀ \bm Σ_{(2D)}^{-1} \bm Δ}⋅(-0.5Δ_y^2) \\
+\end{aligned}
+$$</p>
+<details><summary>snippet</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">ddelx_dx</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">W</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">ddely_dy</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">H</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dL_dG</span> <span class="o">=</span> <span class="n">con_o</span><span class="p">.</span><span class="n">w</span> <span class="o">*</span> <span class="n">dL_dopa</span><span class="p">;</span> <span class="c1">//I think it&#39;s dL_dalpha
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">const</span> <span class="kt">float</span> <span class="n">gdx</span> <span class="o">=</span> <span class="n">G</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">gdy</span> <span class="o">=</span> <span class="n">G</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dG_ddelx</span> <span class="o">=</span> <span class="o">-</span><span class="n">gdx</span> <span class="o">*</span> <span class="n">con_o</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">gdy</span> <span class="o">*</span> <span class="n">con_o</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">float</span> <span class="n">dG_ddely</span> <span class="o">=</span> <span class="o">-</span><span class="n">gdy</span> <span class="o">*</span> <span class="n">con_o</span><span class="p">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">gdx</span> <span class="o">*</span> <span class="n">con_o</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Update gradients w.r.t. 2D mean position of the Gaussian
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dmean2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">x</span><span class="p">,</span> <span class="n">dL_dG</span> <span class="o">*</span> <span class="n">dG_ddelx</span> <span class="o">*</span> <span class="n">ddelx_dx</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dmean2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">y</span><span class="p">,</span> <span class="n">dL_dG</span> <span class="o">*</span> <span class="n">dG_ddely</span> <span class="o">*</span> <span class="n">ddely_dy</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Update gradients w.r.t. 2D covariance (2x2 matrix, symmetric)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dconic2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="n">gdx</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">dL_dG</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dconic2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="n">gdx</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">dL_dG</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">atomicAdd</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dL_dconic2D</span><span class="p">[</span><span class="n">global_id</span><span class="p">].</span><span class="n">w</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="n">gdy</span> <span class="o">*</span> <span class="n">d</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">dL_dG</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>The partial derivative of mean2D to mean3D:
+<a class="link" href="https://github.com/ashawkey/diff-gaussian-rasterization/blob/d986da0d4cf2dfeb43b9a379b6e9fa0a7f3f7eea/cuda_rasterizer/backward.cu#L391-L403"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>(2024-05-04)</p>
+<p>Given transformation $mean3D_{cam} = W2C ⋅ mean3D_{world}$, only consider the z and the homogeneous coordinates.</p>
+<p>$$
+\begin{bmatrix} \\ \\ mul3 \\ homo \end{bmatrix} =
+\begin{bmatrix} &amp; &amp; &amp; \\ &amp; &amp; &amp; \\ 2 &amp; 6 &amp; 10 &amp; 14 \\ 3 &amp; 7 &amp; 11 &amp; 15 \end{bmatrix}
+\begin{bmatrix} m.x \\ m.y \\ m.z \\ 1 \end{bmatrix}
+$$</p>
+<p>$$
+\begin{aligned}
+depth_{cam} &amp;= \frac{mul3}{homo} \\
+\frac{∂depth_{cam}}{∂m.x} &amp;= \frac{w2c[2] ⋅homo - mul3⋅ w2c[3]}{homo^2}
+\end{aligned}
+$$</p>
+<p>I don&rsquo;t know why his code omitted the homo:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">mul3</span> <span class="o">=</span> <span class="n">view</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">m</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">view</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="n">m</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">view</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">*</span> <span class="n">m</span><span class="p">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">view</span><span class="p">[</span><span class="mi">14</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">dL_dmean2</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">view</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">view</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">mul3</span><span class="p">)</span> <span class="o">*</span> <span class="n">dL_ddepth</span><span class="p">[</span><span class="n">idx</span><span class="p">];</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
 <hr>
 <h3 id="bw-cov2d">bw cov2D</h3>
 <p>The cov2D $\bm Σ&rsquo;_{ray}$ is originated from the 3D covariance matrix 𝚺 and the mean vector 𝐱 (ie, 𝛍) in world space.
@@ -4145,7 +5014,20 @@ $$</p>
         
 
         <div class="article-details">
-            <h2 class="article-title">read: EWA Splatting</h2>
+            <h2 class="article-title">read: Render - Points | EWA Splatting</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/writenotes/model/splat/b-note-3dgs-debug/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: 3DGS | Debug Code</h2>
         </div>
     </a>
 </article>
@@ -4183,7 +5065,7 @@ $$</p>
         
 
         <div class="article-details">
-            <h2 class="article-title">read: NVS - 3D Gaussian Splatting</h2>
+            <h2 class="article-title">read: Render - NVS | 3D Gaussian Splatting</h2>
         </div>
     </a>
 </article>

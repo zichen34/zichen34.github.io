@@ -7,11 +7,11 @@ llff 使用了batching，每一个 epoch 使用的(4096)光线来自所有训练
 N_samples决定每条光线上的采样点数量和NeRF的渲染质量;
 chunk是model一次计算的rays, netchunk 是实际每次输入model的3D points量（模型的train和test都与它们有关）。 chunk 和 netchunk 是两层循环。
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 # Select N_rand rays for training. # Or input all rays in an image (H,W) for rendering def render(rays): for each ray-chunk in rays: ret = render_rays(ray-chunk) def render_rays(): # Sampling 3D points and do PE for each point-netchunk in all points of this ray-chunk: raw.'>
-<title>read: NeRF | Code</title>
+<title>read: Render - NVS | NeRF Code</title>
 
 <link rel='canonical' href='https://zichen34.github.io/writenotes/model/nerfs/b-note-nerf_code_notes/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: NeRF | Code'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: Render - NVS | NeRF Code'>
 <meta property='og:description' content='(2022-07-20)
 Hyper-params N_rand 或 batch_rays 是一个 epoch/iteration 要训练的光线, no_batching是每epoch只从一张图中选像素训练，False则打乱所有图像的像素（都与test阶段渲染全图无关）。
 llff 使用了batching，每一个 epoch 使用的(4096)光线来自所有训练图像；而blender 不batching，每epoch只从一张图中取光线，所以N_rand 也较小(1024)，有人说是因为 blender 包含360度的图片，可能会采到完全对立的两条光线（一个从正面看，一个从反面看），可能影响训练（影响density分布？）。NeRF源码解析-什度学习
@@ -21,7 +21,7 @@ chunk是model一次计算的rays, netchunk 是实际每次输入model的3D point
 <meta property='og:url' content='https://zichen34.github.io/writenotes/model/nerfs/b-note-nerf_code_notes/'>
 <meta property='og:site_name' content='Zichen Wang'>
 <meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='NeRF' /><meta property='article:published_time' content='2022-05-17T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-05-17T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="read: NeRF | Code">
+<meta name="twitter:title" content="read: Render - NVS | NeRF Code">
 <meta name="twitter:description" content="(2022-07-20)
 Hyper-params N_rand 或 batch_rays 是一个 epoch/iteration 要训练的光线, no_batching是每epoch只从一张图中选像素训练，False则打乱所有图像的像素（都与test阶段渲染全图无关）。
 llff 使用了batching，每一个 epoch 使用的(4096)光线来自所有训练图像；而blender 不batching，每epoch只从一张图中取光线，所以N_rand 也较小(1024)，有人说是因为 blender 包含360度的图片，可能会采到完全对立的两条光线（一个从正面看，一个从反面看），可能影响训练（影响density分布？）。NeRF源码解析-什度学习
@@ -255,10 +255,18 @@ chunk是model一次计算的rays, netchunk 是实际每次输入model的3D point
 
     <div class="article-details">
     
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                read
+            </a>
+        
+    </header>
+    
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/writenotes/model/nerfs/b-note-nerf_code_notes/">read: NeRF | Code</a>
+            <a href="/writenotes/model/nerfs/b-note-nerf_code_notes/">read: Render - NVS | NeRF Code</a>
         </h2>
     
         
@@ -1154,7 +1162,7 @@ But once I installed other packages:</p>
         
 
         <div class="article-details">
-            <h2 class="article-title">read: NeRF</h2>
+            <h2 class="article-title">read: Render - NVS | NeRF</h2>
         </div>
     </a>
 </article>

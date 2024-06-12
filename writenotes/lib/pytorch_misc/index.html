@@ -229,6 +229,7 @@ pytorch教程之nn.Module类详解——使用Module类来自定义模型- CSDN 
     <li><a href="#torchdiff">torch.diff</a></li>
     <li><a href="#count-params">Count #params</a></li>
     <li><a href="#param_group">param_group</a></li>
+    <li><a href="#torchunbind">torch.unbind</a></li>
   </ol>
 </nav>
         </div>
@@ -761,6 +762,78 @@ then the result is [[6,7,5], [6,7,6]]</p>
 <p>Example in <a class="link" href="https://github.com/graphdeco-inria/gaussian-splatting/blob/472689c0dc70417448fb451bf529ae532d32c095/scene/gaussian_model.py#L154-L163"  target="_blank" rel="noopener"
     >3DGS</a></p>
 </li>
+</ul>
+<hr>
+<h2 id="torchunbind">torch.unbind</h2>
+<p><a class="link" href="https://pytorch.org/docs/stable/generated/torch.unbind.html"  target="_blank" rel="noopener"
+    >Docs</a></p>
+<p>(2024-05-17)</p>
+<p>Break <strong>one dimension</strong> apart.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nv">a</span> <span class="o">=</span> torch.tensor<span class="o">([[</span>1, 2, 3<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">                  <span class="o">[</span>4, 5, 6<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">                  <span class="o">[</span>7, 8, 9<span class="o">]])</span>
+</span></span><span class="line"><span class="cl">torch.unbind<span class="o">(</span>a<span class="o">)</span> <span class="c1"># out a tuple: ([1,2,3], [4,5,6], [7,8,9])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><a class="link" href="https://pytorch.org/docs/stable/generated/torch.chunk.html"  target="_blank" rel="noopener"
+    ><code>torch.chunk</code></a>
+can get the same effect, but it requires specifying the number of <strong>chunks</strong>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">&gt;&gt;&gt; torch.chunk<span class="o">(</span>a, 3, <span class="nv">dim</span><span class="o">=</span>0<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>tensor<span class="o">([[</span>1, 2, 3<span class="o">]])</span>, tensor<span class="o">([[</span>4, 5, 6<span class="o">]])</span>, tensor<span class="o">([[</span>7, 8, 9<span class="o">]]))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>In contrast, <a class="link" href="https://pytorch.org/docs/stable/generated/torch.split.html"  target="_blank" rel="noopener"
+    ><code>torch.split</code></a>
+requires specifying the number of <strong>entries</strong> contained in a chunk:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">&gt;&gt;&gt; torch.split<span class="o">(</span>a, 3, <span class="nv">dim</span><span class="o">=</span>0<span class="o">)</span> <span class="c1"># return a tuple</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>tensor<span class="o">([[</span>1, 2, 3<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>4, 5, 6<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>7, 8, 9<span class="o">]])</span>,<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; torch.split<span class="o">(</span>a, 2, <span class="nv">dim</span><span class="o">=</span>0<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>tensor<span class="o">([[</span>1, 2, 3<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">         <span class="o">[</span>4, 5, 6<span class="o">]])</span>,
+</span></span><span class="line"><span class="cl"> tensor<span class="o">([[</span>7, 8, 9<span class="o">]]))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; torch.split<span class="o">(</span>a, 1, <span class="nv">dim</span><span class="o">=</span>0<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>tensor<span class="o">([[</span>1, 2, 3<span class="o">]])</span>, tensor<span class="o">([[</span>4, 5, 6<span class="o">]])</span>, tensor<span class="o">([[</span>7, 8, 9<span class="o">]]))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
 </ul>
 
 </section>

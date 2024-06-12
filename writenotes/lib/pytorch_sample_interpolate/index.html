@@ -226,10 +226,11 @@ As shown below, black points are input datapoints. In the left figure, the datap
   <ol>
     <li><a href="#fgrid_sample">F.grid_sample</a>
       <ol>
-        <li><a href="#ex-in-gnt">Ex in GNT</a></li>
+        <li><a href="#example-in-gnt">Example in GNT</a></li>
       </ol>
     </li>
     <li><a href="#finterpolate">F.interpolate</a></li>
+    <li><a href="#scipy-zoom">scipy zoom</a></li>
     <li><a href="#nnupsample">nn.Upsample</a></li>
     <li><a href="#downsample">Downsample</a></li>
     <li><a href="#trilinear-interp">Trilinear Interp</a></li>
@@ -532,7 +533,7 @@ Whereas, the right figure isn&rsquo;t.</p>
 </div></li>
 </ul>
 <hr>
-<h3 id="ex-in-gnt">Ex in GNT</h3>
+<h3 id="example-in-gnt">Example in GNT</h3>
 <p><code>train_imgs</code> is a 4D tesnor.</p>
 <p><code>featmaps</code> is a 5D tensor (N, Chanl, D, H, W,), the first dimension also vary determined by the indexing tensor</p>
 <div class="highlight"><div class="chroma">
@@ -570,6 +571,88 @@ Whereas, the right figure isn&rsquo;t.</p>
 插值算法为mode。可以处理3D,4D,5D input。4D input的维度：(B, chnls, H, W)
 <a class="link" href="https://pytorch.org/docs/stable/generated/torch.nn.functional.interpolate.html"  target="_blank" rel="noopener"
     >Docs</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="n">depth_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&#34;mvsnet_depth.npy&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">480</span><span class="p">,</span><span class="mi">640</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">depth_data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">depth_ref</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">depth_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">rsz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">depth_data</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&#34;bicubic&#34;</span><span class="p">,</span> <span class="n">align_corners</span><span class="o">=</span><span class="kc">False</span><span class="p">,)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">rsz</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="c1"># (480,640)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rsz</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&#34;PT_F_intrpl_exmpl.jpg&#34;</span><span class="p">,</span><span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">dpi</span> <span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /writenotes/lib/img/PT_F_intrpl_exmpl.jpg width=200>
+  
+  
+
+
+<hr>
+<h2 id="scipy-zoom">scipy zoom</h2>
+<p>(2024-05-06)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">from scipy.ndimage import zoom
+</span></span><span class="line"><span class="cl"><span class="nv">scale_f_depth</span> <span class="o">=</span> 1/8
+</span></span><span class="line"><span class="cl"><span class="nv">depth_rsz</span> <span class="o">=</span> zoom<span class="o">(</span>depth_ref, <span class="o">(</span>scale_f_depth, scale_f_depth<span class="o">)</span>, <span class="nv">order</span><span class="o">=</span>3<span class="o">)</span> <span class="c1"># (8,10)</span>
+</span></span><span class="line"><span class="cl">plt.imshow<span class="o">(</span>depth_rsz<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>If <code>mode=&quot;constant&quot;</code>, the <strong>bottom row</strong> is 0 (<code>cval</code>).</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/lib/img/scipy_zoom_exmpl.jpg width=200>
+    
+    
+  
+
+</li>
+</ul>
 <hr>
 <p>(2023-10-10)</p>
 <h2 id="nnupsample">nn.Upsample</h2>

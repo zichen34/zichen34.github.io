@@ -191,12 +191,15 @@ the 2nd and 3rd rows in w2c need flips:&lt;/p&gt;
 </description>
         </item>
         <item>
-        <title>test: MVSNets | Restore Point Cloud</title>
+        <title>test: Points - MVSNets | Restore Point Cloud from Depth Map</title>
         <link>https://zichen34.github.io/writenotes/model/mvs/b-test-mvs_ply/</link>
         <pubDate>Wed, 21 Feb 2024 09:00:00 +0000</pubDate>
         
         <guid>https://zichen34.github.io/writenotes/model/mvs/b-test-mvs_ply/</guid>
-        <description>&lt;p&gt;Restoring point cloud: Fuse depth maps of multi-views, and then unproject the depth map to 3D points.&lt;/p&gt;
+        <description>&lt;img src="https://github.com/kwea123/CasMVSNet_pl/raw/master/assets/demo.png" alt="Featured image of post test: Points - MVSNets | Restore Point Cloud from Depth Map" /&gt;&lt;p&gt;&lt;small&gt;(Feature image is from: &lt;a class=&#34;link&#34; href=&#34;https://github.com/kwea123/CasMVSNet_pl/tree/master/evaluations/dtu&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;CasMVSNet_pl&lt;/a&gt;)&lt;/small&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Restoring point cloud: Fuse depth maps of multi-views, and then unproject the depth map to 3D points.&lt;/p&gt;
 &lt;h2 id=&#34;mvsnet-pytorch&#34;&gt;MVSNet-PyTorch&lt;/h2&gt;
 &lt;p&gt;Source code: &lt;a class=&#34;link&#34; href=&#34;https://github.com/xy-guo/MVSNet_pytorch/tree/master?tab=readme-ov-file#testing&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;MVSNet-PyTorch&lt;/a&gt;&lt;/p&gt;
@@ -311,8 +314,22 @@ may be mismatched with the training data folder.&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;ul&gt;
-&lt;li&gt;To evaluate point clouds of &lt;strong&gt;all&lt;/strong&gt; scans, the folder &amp;ldquo;Points&amp;rdquo; needs to be the &lt;a class=&#34;link&#34; href=&#34;https://roboimagedata.compute.dtu.dk/?page_id=36&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;full version&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;To evaluate point clouds of &lt;strong&gt;all&lt;/strong&gt; scans, the folder &amp;ldquo;Points&amp;rdquo; needs to be &lt;strong&gt;replaced&lt;/strong&gt; with the
+&lt;a class=&#34;link&#34; href=&#34;https://roboimagedata.compute.dtu.dk/?page_id=36&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;full version &amp;ldquo;Points/&amp;rdquo;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Create a symbolic link &lt;code&gt;Points&lt;/code&gt; in &lt;code&gt;SampleSet/MVS Data&lt;/code&gt; for the folder &lt;code&gt;Points/&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ln -s Points/ SampleSet/MVS&lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;Data/Points
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Or: ln -s Points/ SampleSet/MVS\ Data/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Modify the paths and specify the scan to be evaluated in the matlab code:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -440,6 +457,7 @@ the directory &amp;ldquo;Depths/&amp;rdquo; under &amp;ldquo;mvs_training/dtu/&a
 Environment &lt;code&gt;casmvsnet_pl&lt;/code&gt; requires python 3.7 for pytorch 1.4.0, and the packages listed in &lt;code&gt;requirements.txt&lt;/code&gt;.
 If using python 3.10, the available pytorch version is higher than 1.11.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;hr&gt;
 &lt;p&gt;(2024-04-07)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -511,15 +529,23 @@ Unfortunately, the same error ocurred.&lt;/p&gt;
 &lt;p&gt;I compiled the source code on Ubuntu 20.04 and ctk-11.6 (I had created a same conda env using the above 2 lines.
 When using the &lt;code&gt;pip install&lt;/code&gt; manner, it will find the previous cache of the inplace-abn package on the machine.).
 Superisingly, the compilation suceeded.&lt;/p&gt;
-&lt;p&gt;The crucial difference between two trials could be the gcc version &lt;code&gt;gcc --version&lt;/code&gt;. The return values are:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;After I changed to gcc-9 on Ubuntu 22.04, the compilation for inplace-abn successed.&lt;/p&gt;
+&lt;p&gt;The crucial &lt;strong&gt;difference&lt;/strong&gt; between the 2 trials could be the &lt;strong&gt;gcc version&lt;/strong&gt; &lt;code&gt;gcc --version&lt;/code&gt;. Their return values are:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;gcc &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Ubuntu 9.4.0-1ubuntu1~20.04.2&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; 9.4.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;gcc &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Ubuntu 11.4.0-1ubuntu1~22.04&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; 11.4.0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;After I changed to &lt;strong&gt;gcc-9&lt;/strong&gt; on Ubuntu 22.04, the compilation for inplace-abn &lt;strong&gt;succeeded&lt;/strong&gt;.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;I was reminded to check gcc due to chatGPT (prompted with the error),
+&lt;p&gt;I was reminded to check &lt;code&gt;gcc&lt;/code&gt; due to ChatGPT&amp;rsquo;s response (prompted with the above error),
 and the issuse &lt;a class=&#34;link&#34; href=&#34;https://github.com/mapillary/inplace_abn/issues/232#issuecomment-1522625045&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;CUDA version (12.1) #232&lt;/a&gt;
 and this issue asked gcc: &lt;a class=&#34;link&#34; href=&#34;https://github.com/mapillary/inplace_abn/issues/143#issuecomment-557562119&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -577,7 +603,51 @@ But I didn&amp;rsquo;t try it.&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 &lt;span class=&#34;m&#34;&gt;11&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;/li&gt;
+&lt;/div&gt;&lt;p&gt;(2024-05-13)&lt;/p&gt;
+&lt;details&gt;&lt;summary&gt; Install gcc-7 &lt;/summary&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;I want to use gcc-7 to compile PCL. I installed g++-7 as below, and specify it as default:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt update &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; apt install g++-7 -y
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 &lt;span class=&#34;m&#34;&gt;60&lt;/span&gt; --slave /usr/bin/g++ g++ /usr/bin/g++-7
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;However, an error prompted when install g++-9, because it &lt;code&gt;can&#39;t be master&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;base&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; yi@Alien:~$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 &lt;span class=&#34;m&#34;&gt;9&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;base&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; yi@Alien:~$ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 &lt;span class=&#34;m&#34;&gt;9&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;update-alternatives: error: alternative g++ can&lt;span class=&#34;err&#34;&gt;&amp;#39;&lt;/span&gt;t be master: it is a slave of gcc
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;So, I use a one-line command similar to the above gcc-7:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;base&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; yi@Alien:~$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 &lt;span class=&#34;m&#34;&gt;9&lt;/span&gt; --slave /usr/bin/g++ g++ /usr/bin/g++-9
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;(Ref: &lt;a class=&#34;link&#34; href=&#34;https://stackoverflow.com/a/70653945/18003182&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Update gcc alternatives in Ubuntu 18.04 - g++ cannot be slave of gcc&lt;/a&gt;)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/details&gt;
+&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;Later, the versions can be chosen from a list:&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;sudo update-alternatives --config gcc&lt;/code&gt;&lt;/p&gt;
@@ -591,15 +661,15 @@ But I didn&amp;rsquo;t try it.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;Not found GPU:&lt;/p&gt;
-&lt;p&gt;Although the pytorch 1.4.0 (installed by &lt;code&gt;pip&lt;/code&gt;) was compiled with cuda 10.1
+&lt;p&gt;Although the Pytorch 1.4.0 (installed with &lt;code&gt;pip&lt;/code&gt;) was compiled with cuda 10.1
 (&lt;a class=&#34;link&#34; href=&#34;https://pytorch.org/get-started/previous-versions/#linux-and-windows-47&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;download&lt;/a&gt;),
 the cudatoolkit (&lt;code&gt;nvcc -V&lt;/code&gt;) on the PATH is &lt;strong&gt;not&lt;/strong&gt; neccessary to match the cuda version.&lt;/p&gt;
-&lt;p&gt;For example, with using the same conda environemnt,
-Alien-PC (Ubuntu 20.04) using cuda-11.6 and the lambda server (Ubuntu 18.04) using cuda-10.2 both can detect gpu and run.&lt;/p&gt;
+&lt;p&gt;For example, with using the &lt;strong&gt;same&lt;/strong&gt; conda environemnt,
+Alien-PC (Ubuntu 20.04) using cuda-11.6 and the lambda server (Ubuntu 18.04) using cuda-10.2 both can detect GPU and run.&lt;/p&gt;
 &lt;p&gt;The error: &lt;code&gt;torch.cuda.is_available()&lt;/code&gt; returns &lt;code&gt;False&lt;/code&gt;here is not
 due to cuda, but my debug settings!!! Fuck!!
-the &lt;code&gt;CUDA_VISIBLE_DEVICES&lt;/code&gt; was 6 for server, which should be 0 on my PC.&lt;/p&gt;
+the &lt;strong&gt;environment variable&lt;/strong&gt; &lt;code&gt;CUDA_VISIBLE_DEVICES&lt;/code&gt; in &lt;code&gt;launch.json&lt;/code&gt; was set to 6 for server, which should be 0 on my PC.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
@@ -682,8 +752,8 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;The code has some path templates that don&amp;rsquo;t match the DTU &lt;strong&gt;testing&lt;/strong&gt; data directory structure.&lt;/p&gt;
-&lt;details&gt;&lt;summary&gt;Changes&lt;/summary&gt;
-&lt;p&gt;&lt;code&gt;datasets/dtu.py&lt;/code&gt;, &lt;code&gt;build_metas()&lt;/code&gt; (line #40-42):&lt;/p&gt;
+&lt;details&gt;&lt;summary&gt; Code Modifications &lt;/summary&gt;
+&lt;p&gt;File: &lt;code&gt;datasets/dtu.py&lt;/code&gt;, &lt;code&gt;build_metas()&lt;/code&gt; (line #40-42):&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -696,7 +766,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;k&#34;&gt;with&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;open&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;bp&#34;&gt;self&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;root_dir&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;scan&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pair_file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;&lt;code&gt;datasets/dtu.py&lt;/code&gt;, &lt;code&gt;build_proj_mats&lt;/code&gt; (Line #58-59):&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;File: &lt;code&gt;datasets/dtu.py&lt;/code&gt;, &lt;code&gt;build_proj_mats&lt;/code&gt; (Line #58-59):&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -709,7 +779,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                    &lt;span class=&#34;sa&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;cams/&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vid&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;08d&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;_cam.txt&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;&lt;code&gt;datasets/dtu.py&lt;/code&gt;, &lt;code&gt;__getitem__()&lt;/code&gt; (Line #165-166):&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;File: &lt;code&gt;datasets/dtu.py&lt;/code&gt;, &lt;code&gt;__getitem__()&lt;/code&gt; (Line #165-166):&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -722,7 +792,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                &lt;span class=&#34;sa&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;images/&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vid&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;08d&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;.jpg&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;&lt;code&gt;eval.py&lt;/code&gt;, &lt;code&gt;read_image()&lt;/code&gt; (line #87):&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;File: &lt;code&gt;eval.py&lt;/code&gt;, &lt;code&gt;read_image()&lt;/code&gt; (line #87):&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -733,7 +803,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;imread&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;os&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;root_dir&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;scan&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;sa&#34;&gt;f&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;images/&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vid&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;08d&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;.jpg&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;p&gt;&lt;code&gt;eval.py&lt;/code&gt;, (Line #352): set name format to align the matlab code (of the MVSNet_pytorch).&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;File: &lt;code&gt;eval.py&lt;/code&gt;, (Line #352): set name format to align the matlab code (of the MVSNet_pytorch).&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -747,7 +817,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Execute &amp;ldquo;eval.py&amp;rdquo;. (1080Ti is okay.)&lt;/p&gt;
+&lt;p&gt;Execute &lt;code&gt;eval.py&lt;/code&gt;. (1080Ti is okay.)&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -759,7 +829,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/div&gt;&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;Visualization:&lt;/p&gt;
-&lt;p&gt;Import the result &amp;ldquo;results/dtu/points/scan9.ply&amp;rdquo; into &lt;a class=&#34;link&#34; href=&#34;https://www.meshlab.net/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;p&gt;Import the result point cloud &amp;ldquo;results/dtu/points/scan9.ply&amp;rdquo; into &lt;a class=&#34;link&#34; href=&#34;https://www.meshlab.net/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;MeshLab&lt;/a&gt;:&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
@@ -840,7 +910,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;UsedSets&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;9&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;details&gt;&lt;summary&gt;Output&lt;/summary&gt;
+&lt;/div&gt;&lt;details&gt;&lt;summary&gt; Output for scan9 &lt;/summary&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -896,7 +966,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;/details&gt;
-&lt;p&gt;Evaluate all testing scans&amp;rsquo; point clouds in matlab and save outputs into write.txt for calculating average performance:&lt;/p&gt;
+&lt;p&gt;Evaluate point clouds of all testing scans with matlab and save outputs into &lt;code&gt;write.txt&lt;/code&gt; for calculating the average performance:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -928,7 +998,7 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;Output: &lt;code&gt;0.36399536, 0.36997940&lt;/code&gt;&lt;/p&gt;
-&lt;details&gt;&lt;summary&gt;Results of each scan&lt;/summary&gt;
+&lt;details&gt;&lt;summary&gt; Results of every scan. &lt;/summary&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -1107,9 +1177,9 @@ and gcc, g++ both are 7.5.0 (&lt;code&gt;gcc -v&lt;/code&gt;)&lt;/p&gt;
   
 
 &lt;ul&gt;
-&lt;li&gt;The &lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Moir%C3%A9_pattern&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;li&gt;The aliasing: &lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Moir%C3%A9_pattern&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Moiré pattern&lt;/a&gt; (摩尔纹)
-resulted from insufficint sampling frequency is wave interference.&lt;/li&gt;
+resulted from insufficient &lt;strong&gt;sampling frequency&lt;/strong&gt; is wave interference (波的干涉).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -1122,7 +1192,7 @@ resulted from insufficint sampling frequency is wave interference.&lt;/li&gt;
 &lt;p&gt;Use Colmap to solve the LLFF images: &lt;a class=&#34;link&#34; href=&#34;https://colmap.github.io/tutorial.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Colmap Tutorial&lt;/a&gt;;
 &lt;a class=&#34;link&#34; href=&#34;https://youtu.be/mUDzWCuopBo?si=BtuaNWEJHy10noxa&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;ytb&lt;/a&gt;
+    &gt;Ytb&lt;/a&gt;
 (The camera poses in NeRF are also recovered by Colmap with &lt;a class=&#34;link&#34; href=&#34;https://github.com/fyusion/llff#1-recover-camera-poses&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;imgs2poses&lt;/a&gt;),
 and then use the script &lt;a class=&#34;link&#34; href=&#34;https://github.com/YoYo000/MVSNet#mvsnet-input-from-sfm-output&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -1130,6 +1200,64 @@ and then use the script &lt;a class=&#34;link&#34; href=&#34;https://github.com/
 provided by MVSNet to obtain matched format.&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;eavl-tt&#34;&gt;Eavl T&amp;amp;T&lt;/h3&gt;
+&lt;p&gt;(2024-05-25)&lt;/p&gt;
+&lt;p&gt;Dataset: &lt;a class=&#34;link&#34; href=&#34;https://www.tanksandtemples.org/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Tanks and Temples&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The F-score of the testing sets (without GT published) should be evaluated by submitting the point cloud (.ply) to their webpage.
+(&lt;a class=&#34;link&#34; href=&#34;https://github.com/isl-org/TanksAndTemples&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Github&lt;/a&gt;)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;From the leaderboard, the results of MVSNet and casmvsnet_pl can be found there.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;3DGS shows the PSNR, rather than F-score.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The training sets have GT provided.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/1804.02505&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;MVSNet Sec5.2&lt;/a&gt;
+evaluates its f-score on the &lt;strong&gt;intermediate set&lt;/strong&gt; (Family, Francis, Horse, Lighthouse, M60, Panther, Playground, Train) of T&amp;amp;T.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;intermediate.zip&lt;/code&gt; only contains .mp4 videos.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;N = 5, W = 1920, H = 1056 and D = 256&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.tanksandtemples.org/leaderboard/?table_0-page=2#:~:text=43.30-,MVSNet,-417.00&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;MVSNet&lt;/a&gt;
+418	43.48	N.A.	55.99	28.55	25.07	50.79	53.96	50.86	47.9	34.69&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/kwea123/CasMVSNet_pl/tree/master/evaluations/tanks&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;CasMVSNet_pl&lt;/a&gt;
+is tested on T&amp;amp;T with the default parameter in eval.py.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.tanksandtemples.org/leaderboard/?table_0-page=2#:~:text=47.54-,CasMVSNet_pl,-295.50&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;CasMVSNet_pl&lt;/a&gt;
+296.25	55.09	N.A.	76.4	52.83	49.08	49.72	56.24	51.99	53.87	50.63&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.tanksandtemples.org/leaderboard/?table_0-page=2#:~:text=44.75-,Point%2DMVSNet,-390.50&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Point-MVSNet&lt;/a&gt;
+390.50  48.27  N.A.  61.79  41.15  34.20  50.79  51.97  50.85  52.38  43.06
+didn&amp;rsquo;t exhibit the T&amp;amp;T results in their &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/1908.04422&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;paper&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;hr&gt;
 &lt;h2 id=&#34;depth-map-fusion&#34;&gt;Depth map fusion&lt;/h2&gt;
 &lt;p&gt;(2024-03-06)&lt;/p&gt;
@@ -1158,6 +1286,15 @@ provided by MVSNet to obtain matched format.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Procedure description refer to paper &lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/1804.02505&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;MVSNet sec 4.2&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(2024-05-16)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;As long the predicted depth is accurate, warping the source view based on the homography will result in the &lt;strong&gt;same scale&lt;/strong&gt; as the ref view.&lt;/p&gt;
+&lt;p&gt;Therefore, the same pixel coordinate on the warped src image and the ref image correspond to a same 3D point.
+In other words, the warped src view and the ref view can overlap.&lt;/p&gt;
+&lt;p&gt;Warping is done by sampling pixels from the source depth map according to the homography from the ref view to a src view.&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The fused depth map of a ref view is the average of refined depth maps
 after applying the photometric and geometric constraints on each pair of the ref and a src view&lt;/p&gt;
@@ -1206,15 +1343,37 @@ after applying the photometric and geometric constraints on each pair of the ref
   
 
 
+&lt;details&gt;&lt;summary&gt; Plotting code snippet &lt;/summary&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;numpy&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;np&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;matplotlib.pyplot&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;plt&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;fig&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;axes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;plt&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;subplots&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;figsize&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;9&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dpi&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;200&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;plt&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tight_layout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;image_ref&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;np&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;load&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;./image_ref.npy&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;axes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;imshow&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;image_ref&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;axes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;set_title&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;image_ref: scan_1 view0&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/details&gt;
 &lt;ul&gt;
 &lt;li&gt;
-&lt;p&gt;With substituing the predicted depth into homography, the warped source image aligns with the reference image pretty much.&lt;/p&gt;
+&lt;p&gt;With substituing the predicted depth into homography, the warped source image &lt;strong&gt;aligns&lt;/strong&gt; with the reference image pretty much.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;Seen from the valid-depth mask, some highlight spots are missed.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;CasMVSnet-pl averaged the color of 10 source views that have performed homography transformation.
+&lt;p&gt;CasMVSNet-pl averaged the color of 10 source views that have performed homography transformation.
 (&lt;a class=&#34;link&#34; href=&#34;https://github.com/kwea123/CasMVSNet_pl/tree/master/evaluations#depth-fusion-description&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;desc&lt;/a&gt;)&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;

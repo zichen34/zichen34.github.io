@@ -2,6 +2,7 @@
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Source video: 深度学习-啃花书0103伪逆矩阵最小二乘 (2021-07-22) - 科研小灰灰
+(2023-02-04)
 Solve linear regression For a n-dimensional linear regression problem,
 There are N input samples: x₁,x₂,&amp;hellip;,$x_N$, where each sample is a n-dimension vector xᵢ∈ ℝⁿ Their corresponding target outputs are: y₁,y₂,&amp;hellip;,$y_N$, where each output is a scalar yᵢ∈ ℝ Hence, these data can be represented as a linear system:
 $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙaₙ = y₁ \\ x₂₁a₁ &#43; x₂₂a₂ &#43; &amp;hellip; &#43; x₂ₙaₙ = y₁ \\ \vdots \\ x_{N1}a₁ &#43; x_{N2}a₂ &#43; &amp;hellip; &#43; x_{Nn}aₙ = y_N \\ \end{cases} $$'>
@@ -11,6 +12,7 @@ $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙa
 
 <link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='memo: Calc | Pseudo-Inverse'>
 <meta property='og:description' content='Source video: 深度学习-啃花书0103伪逆矩阵最小二乘 (2021-07-22) - 科研小灰灰
+(2023-02-04)
 Solve linear regression For a n-dimensional linear regression problem,
 There are N input samples: x₁,x₂,&amp;hellip;,$x_N$, where each sample is a n-dimension vector xᵢ∈ ℝⁿ Their corresponding target outputs are: y₁,y₂,&amp;hellip;,$y_N$, where each output is a scalar yᵢ∈ ℝ Hence, these data can be represented as a linear system:
 $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙaₙ = y₁ \\ x₂₁a₁ &#43; x₂₂a₂ &#43; &amp;hellip; &#43; x₂ₙaₙ = y₁ \\ \vdots \\ x_{N1}a₁ &#43; x_{N2}a₂ &#43; &amp;hellip; &#43; x_{Nn}aₙ = y_N \\ \end{cases} $$'>
@@ -19,6 +21,7 @@ $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙa
 <meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:published_time' content='2023-02-04T12:23:00-05:00'/><meta property='article:modified_time' content='2023-02-04T12:23:00-05:00'/>
 <meta name="twitter:title" content="memo: Calc | Pseudo-Inverse">
 <meta name="twitter:description" content="Source video: 深度学习-啃花书0103伪逆矩阵最小二乘 (2021-07-22) - 科研小灰灰
+(2023-02-04)
 Solve linear regression For a n-dimensional linear regression problem,
 There are N input samples: x₁,x₂,&amp;hellip;,$x_N$, where each sample is a n-dimension vector xᵢ∈ ℝⁿ Their corresponding target outputs are: y₁,y₂,&amp;hellip;,$y_N$, where each output is a scalar yᵢ∈ ℝ Hence, these data can be represented as a linear system:
 $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙaₙ = y₁ \\ x₂₁a₁ &#43; x₂₂a₂ &#43; &amp;hellip; &#43; x₂ₙaₙ = y₁ \\ \vdots \\ x_{N1}a₁ &#43; x_{N2}a₂ &#43; &amp;hellip; &#43; x_{Nn}aₙ = y_N \\ \end{cases} $$">
@@ -220,9 +223,11 @@ $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙa
     <li><a href="#is-𝐗ᵀ𝐗-invertible">Is 𝐗ᵀ𝐗 invertible?</a></li>
     <li><a href="#effect-of-the-regularization-term">Effect of the regularization term</a></li>
     <li><a href="#proof">Proof</a></li>
-    <li><a href="#use-gpu-to-solve-inverse-faster">Use GPU to solve inverse faster?</a></li>
+    <li><a href="#gpu-solve-inverse">GPU Solve Inverse</a></li>
     <li><a href="#how-to-solve-inverse-matrix">How to solve inverse matrix?</a></li>
-    <li><a href="#ref">Ref</a></li>
+    <li><a href="#estimate-polynomial-by-ls">Estimate Polynomial by LS</a></li>
+    <li><a href="#weighted-least-squares">Weighted least squares</a></li>
+    <li><a href="#mls-for-resampling">MLS for Resampling</a></li>
   </ol>
 </nav>
         </div>
@@ -238,6 +243,14 @@ $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙa
     <header class="article-header">
 
     <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" style="background-color: #6e57d2; color: #fff;">
+                memo
+            </a>
+        
+    </header>
     
 
     <div class="article-title-wrapper">
@@ -279,7 +292,7 @@ $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙa
 
 
                 <time class="article-time--reading">
-                    5 minute read
+                    10 minute read
                 </time>
             </div>
         
@@ -296,6 +309,7 @@ $$ \begin{cases} x₁₁a₁ &#43; x₁₂a₂ &#43; &amp;hellip; &#43; x₁ₙa
     
     <p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1364y1678r/"  target="_blank" rel="noopener"
     >深度学习-啃花书0103伪逆矩阵最小二乘 (2021-07-22) - 科研小灰灰</a></p>
+<p>(2023-02-04)</p>
 <h2 id="solve-linear-regression">Solve linear regression</h2>
 <p>For a n-dimensional linear regression problem,</p>
 <ul>
@@ -315,7 +329,7 @@ $$</p>
 <p>$$
 \begin{bmatrix}
 x₁₁ &amp; x₁₂ &amp; … &amp; x₁ₙ \\
-x₁₁ &amp; x₁₂ &amp; … &amp; x₁ₙ \\
+x₂₁ &amp; x₂₂ &amp; … &amp; x₂ₙ \\
 ⋮ &amp; ⋮ &amp; ⋱ &amp; ⋮ \\
 x_{N1} &amp; x_{N2} &amp; … &amp; x_{Nn}
 \end{bmatrix}
@@ -331,14 +345,16 @@ $[ ^{^{a₁}_{a₂}} _{^{\ ⁞}_{aₙ}} ]$
 from the linear equation: $𝐗_{N×n} 𝐚_{n×1} = 𝐘_{N×1}$.</p>
 <p>If N=n (the coefficient matrix is a square matrix), and the data matrix $𝐗_{N×n}$ is a <strong>invertible matrix</strong>,
 then there will be 𝐚=𝐗⁻¹𝐘, such that the weights vector is determined directly.</p>
-<p>But in general, the number of samples N is not equal to the number of features n (N ≠ n), that is 𝐗 is not invertible and 𝐚 cannot be represented as 𝐗⁻¹𝐘.</p>
+<p>But in general, the number of samples N is not equal to the number of features n (N ≠ n),
+that is 𝐗 is not invertible and 𝐚 cannot be represented as 𝐗⁻¹𝐘.</p>
 <h2 id="shift-from-𝐗-to-𝐗ᵀ𝐗">Shift from 𝐗 to 𝐗ᵀ𝐗</h2>
 <p>Therefore, when the 𝐚 cannot be reached directly, the solution should be as close to the optimal as possible.</p>
 <p>That means the objective is to minimize the distance of two vectors:</p>
 <p>J=‖𝐗𝐚-𝐘‖² (without constraints)</p>
 <p>And the optimal solution is obtained when</p>
 <p>∂J/∂𝐚 = 𝐗ᵀ(𝐗𝐚-𝐘) = 0 ⇒ 𝐗ᵀ𝐗𝐚 = 𝐗ᵀ𝐘.</p>
-<p>Now, the previous 𝐗 is shifted to here 𝐗ᵀ𝐗 ∈ ℝⁿᕁⁿ, which is a <strong>square matrix</strong>. And if 𝐗ᵀ𝐗 is invertible, then the optimal 𝐚 can be calculated in one-shot.</p>
+<p>Now, the previous 𝐗 is shifted to here 𝐗ᵀ𝐗 ∈ ℝⁿᕁⁿ, which is a <strong>square matrix</strong>.
+And if 𝐗ᵀ𝐗 is invertible, then the optimal 𝐚 can be calculated in one-shot.</p>
 <h2 id="is-𝐗ᵀ𝐗-invertible">Is 𝐗ᵀ𝐗 invertible?</h2>
 <p>An invertible matrix has to satisfy 2 conditions:
 it&rsquo;s a square matrix and its rank equals to the number of variables n (#columns).</p>
@@ -352,15 +368,15 @@ And 𝐚 = (𝐗ᵀ𝐗)⁻¹𝐗ᵀ𝐘 is called the least-square solution. (�
 <p>(Because 𝐗 has no inverse matrix, so we find its &ldquo;pseudo&rdquo; inverse matrix. Or if 𝐗 is invertible, 𝐗⁻¹=(𝐗ᵀ𝐗)⁻¹𝐗ᵀ, they&rsquo;re equivalent, but the latter suits more general scenarios.). <br></p>
 </li>
 <li>
-<p>If N &lt; n, for example N=3, n=5, then (𝐗ᵀ𝐗)₅ₓ₅ is not invertible, because: <br>
-rank(𝐗ᵀ𝐗) ≤ rank(𝐗₃ₓ₅) ≤ N=3 &lt; n=5.</p>
+<p>If $N &lt; n$, for example N=3, n=5, then (𝐗ᵀ𝐗)₅ₓ₅ is not invertible, because:</p>
+<p>rank(𝐗ᵀ𝐗) ≤ rank(𝐗₃ₓ₅) ≤ N=3 $&lt;$ n=5.</p>
 <p>In this case, 𝐚 cannot be calculated as (𝐗ᵀ𝐗)⁻¹𝐗ᵀ𝐘.</p>
 </li>
 </ol>
 <p>The problem can be understood that there are too many parameters (n is too high). When the parameters are much more than samples, there will be overfitting.
 And one of the solutions is regularization.</p>
 <h2 id="effect-of-the-regularization-term">Effect of the regularization term</h2>
-<p>Since the reason why the optimal solution of the loss function J cannot be solved in one-shot is that the there are too many parameters,
+<p>Since the reason why the optimal solution of the loss function J cannot be solved in one-shot is that there are too many parameters,
 a regularization is added to the loss funciton as follows:</p>
 <p>$$J = ‖𝐗𝐚-𝐘‖² + λ‖𝐚‖², λ&gt;0$$</p>
 <p>Then the derivative becomes:</p>
@@ -386,21 +402,40 @@ $$</p>
 <p>And λ₁, λ₂ …, λₙ are the eigen values for the 𝐗ᵀ𝐗</p>
 <p>Then the invertibility can be judged from this determinant:</p>
 <ul>
-<li>If |𝐗ᵀ𝐗| = 0, then 𝐗ᵀ𝐗 is not invertible,
-because there are some zero lines in the matrix (after elementary row operations), that means r(𝐗ᵀ𝐗) &lt; n.</li>
-<li>But if |𝐗ᵀ𝐗| &gt; 0, the matrix 𝐗ᵀ𝐗 is invertible, because it has full rank, which is equal to the number of lines of rows. <a class="link" href="#%e9%ab%98%e5%b1%b119" >²</a></li>
+<li>
+<p>If |𝐗ᵀ𝐗| = 0, then 𝐗ᵀ𝐗 is not invertible,
+because there are some zero lines in the matrix (after elementary row operations), that means rank(𝐗ᵀ𝐗) &lt; n.</p>
+</li>
+<li>
+<p>But if |𝐗ᵀ𝐗| &gt; 0, the matrix 𝐗ᵀ𝐗 is invertible, because it has full rank,
+which is equal to the number of lines of rows.
+<span style="font-size:10px"><a class="link" href="https://www.bilibili.com/video/BV1ci4y1975D"  target="_blank" rel="noopener"
+    >【俗说矩阵】行列式等于0意味着什么？你一定要了解哦~ - 晓之车高山老师-bilibili</a></span></p>
+</li>
 </ul>
 <p>Analyze the two cases without and with adding the regularization term:</p>
 <ol>
 <li>
 <p>Only the 𝐗ᵀ𝐗:</p>
 <ul>
-<li>Let this matrix be enclosed by a non-zero real row vector 𝛂ᵀ and its column vector 𝛂 to constuct a quadratic form: 𝛂ᵀ(𝐗ᵀ𝐗)𝛂, which is used to characterize the definiteness of 𝐗ᵀ𝐗. <a class="link" href="#wiki_Def" >³</a></li>
-<li>Based on the combination law of the matrix multiplication, it can be written as: (𝛂ᵀ𝐗ᵀ)(𝐗𝛂) = (𝐗𝛂)ᵀ(𝐗𝛂), which is the norm of the vector 𝐗𝛂. <br></li>
-<li>Because the norm is ≥ 0 definitely, the 𝛂ᵀ(𝐗ᵀ𝐗)𝛂 ≥ 0 (indicating 𝐗ᵀ𝐗 is positive semi-definite matrix).</li>
-<li>Based on the properties of quadratic form, eigen values λᵢ of 𝐗ᵀ𝐗 are all ≥ 0</li>
+<li>
+<p>Let this matrix be enclosed by a non-zero real row vector 𝛂ᵀ
+and its column vector 𝛂 to constuct a quadratic form: 𝛂ᵀ(𝐗ᵀ𝐗)𝛂,
+which is used to characterize the definiteness of 𝐗ᵀ𝐗.
+<span style="font-size:10px"><a class="link" href="https://en.wikipedia.org/wiki/Definite_matrix"  target="_blank" rel="noopener"
+    >Definite matrix -wiki</a></span></p>
+</li>
+<li>
+<p>Based on the combination law of the matrix multiplication, it can be written as: (𝛂ᵀ𝐗ᵀ)(𝐗𝛂) = (𝐗𝛂)ᵀ(𝐗𝛂), which is the norm of the vector 𝐗𝛂. <br></p>
+</li>
+<li>
+<p>Because the norm is ≥ 0 definitely, the 𝛂ᵀ(𝐗ᵀ𝐗)𝛂 ≥ 0 (indicating 𝐗ᵀ𝐗 is positive semi-definite matrix).</p>
+</li>
+<li>
+<p>Based on the properties of quadratic form, eigen values λᵢ of 𝐗ᵀ𝐗 are all ≥ 0</p>
+</li>
 </ul>
-<p>Then the above determinant is |𝐗ᵀ𝐗|= λ₁ ⋅ λ₂ … ⋅ λₙ ≥ 0, so when |𝐗ᵀ𝐗| = 0, the rank of the matrix 𝐗ᵀ𝐗 is not full (≠ n), so the matrix 𝐗ᵀ𝐗 is not invertible. <br></p>
+<p>Then the above determinant is |𝐗ᵀ𝐗|= λ₁ ⋅ λ₂ … ⋅ λₙ ≥ 0, so when |𝐗ᵀ𝐗| = 0, the rank of the matrix 𝐗ᵀ𝐗 is not full (≠ n), so the matrix 𝐗ᵀ𝐗 is not invertible.</p>
 </li>
 <li>
 <p>For 𝐗ᵀ𝐗+λ𝐈 (where λ is a hyper-parameter), it can be considered as a matrix:</p>
@@ -422,32 +457,317 @@ The eigen values λᵢ of (𝐗ᵀ𝐗+λ𝐈) are all &gt; 0.</li>
     >【熟肉】线性代数的本质 - 06 - 逆矩阵、列空间与零空间 - 3B1B -bili</a></p>
 <p>todo: <a class="link" href="https://www.bilibili.com/video/BV1gm4y1Q7hA/"  target="_blank" rel="noopener"
     >【26 深入理解逆矩阵】- cf98982002 -bili</a></p>
-<h2 id="use-gpu-to-solve-inverse-faster">Use GPU to solve inverse faster?</h2>
+<hr>
+<h2 id="gpu-solve-inverse">GPU Solve Inverse</h2>
+<p>Use GPU to solve inverse faster?</p>
 <p>(DDG search: &ldquo;矩阵求逆 gpu&rdquo;)</p>
-<p>The acceleration ratio of GPU to CPU is more than 16 times. <a class="link" href="#zhihu-%e5%86%af%e5%8d%9a%e5%a3%ab" >⁴</a>.</p>
+<ul>
+<li>The acceleration ratio of GPU to CPU is more than 16 times. <a class="link" href="#zhihu-%e5%86%af%e5%8d%9a%e5%a3%ab" >⁴</a>.
+<div id="zhihu-冯博士"><a href="https://zhuanlan.zhihu.com/p/320545275">GPU矩阵计算是否会更快？（基于Pytorch） - 半个冯博士的文章 - 知乎</a></div>
+</li>
+</ul>
+<hr>
 <h2 id="how-to-solve-inverse-matrix">How to solve inverse matrix?</h2>
-<p>4 ways <a class="link" href="#zhihu-%e7%96%af%e7%8b%82%e7%bb%85%e5%a3%ab" >⁵</a>:</p>
+<div id="zhihu-疯狂绅士"><a href="https://www.zhihu.com/question/356880062/answer/2135670915">求逆矩阵的4种方法? - 疯狂绅士的回答 - 知乎</a></div>
 <ol>
 <li>Gaussian Eliminate</li>
 <li>LU decomposition, commenly used by computer because it can be performed parallelly.</li>
 <li>SVD decomposition</li>
 <li>QR decomposition</li>
 </ol>
-<h2 id="ref">Ref</h2>
-<ol start="2">
+<hr>
+<h2 id="estimate-polynomial-by-ls">Estimate Polynomial by LS</h2>
+<p>(2024-06-10)</p>
+<ul>
 <li>
-<div id="高山19"><a href="https://www.bilibili.com/video/BV1ci4y1975D">【俗说矩阵】行列式等于0意味着什么？你一定要了解哦~ - 晓之车高山老师 - bilibili</a></div>
+<p>Least-square can be used to approximate the <strong>coefficients</strong> of a polynomial.</p>
+<p>The optimal polynomial corresponds to the minimum error between the <strong>observed and predicted</strong> values.</p>
+<p><a class="link" href="https://www.cnblogs.com/zzk0/p/10468502.html#%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95"  target="_blank" rel="noopener"
+    >Example</a></p>
+<p>Given a point set as below, use a <strong>linear polynomial</strong> to fit the data:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nv">x</span> <span class="o">=</span> <span class="o">[</span>0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="nv">y</span> <span class="o">=</span> <span class="o">[</span>0, 4, 5, 14, 15, 14.5, 14, 12, 10, 5, 4<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The general form of a linear polynomial is: ax + b*1 = y, a and b are the coefficients to be estimated:</p>
+<p>$$
+\begin{bmatrix}
+0 &amp; 1 \\ 0.1 &amp; 1 \\ 0.2 &amp; 1 \\ 0.3 &amp; 1 \\ ⋯
+\end{bmatrix}
+\begin{bmatrix} a \\  b \end{bmatrix} =
+\begin{bmatrix} 0 \\ 4 \\ 5 \\ 14 \\ ⋯
+\end{bmatrix}
+$$</p>
+<p>$$XA = Y$$</p>
+<ul>
+<li>
+<p>Obviously, the 2 axes (column space) of X cannot be &ldquo;recombined&rdquo; to produce Y space.
+In other words, the $[^a_b]$ that makes the equation hold doesn&rsquo;t exist.</p>
+<p>Therefore, the objective is shifted to minimize the error between Y_pred and target Y.</p>
 </li>
 <li>
-<div id="wiki_Def"><a href="https://en.wikipedia.org/wiki/Definite_matrix">Definite matrix -wiki</a></div>
+<p>Project the target Y to the column space of X resulting in Y&rsquo; (that will be approximated by A&rsquo;), and the error: Y&rsquo;-Y is
+<strong>orthogonal</strong> to the column space of X, as the error can&rsquo;t be explained by the X&rsquo;s space
+(Don&rsquo;t know a theoretical explanation yet).</p>
 </li>
 <li>
-<div id="zhihu-冯博士"><a href="https://zhuanlan.zhihu.com/p/320545275">GPU矩阵计算是否会更快？（基于Pytorch） - 半个冯博士的文章 - 知乎</a></div>
+<p>Since Y&rsquo;-Y is orthogonal to X, there is:</p>
+<p>$$\begin{aligned}
+X^T(Y&rsquo;-Y)=0 \\ X^T(XA&rsquo;-Y) = 0
+\end{aligned}$$</p>
+<p>The best coefficients A&rsquo; is:</p>
+<p>$$A&rsquo;=(X^T X)^{-1} X^TY$$</p>
+</li>
+</ul>
 </li>
 <li>
-<div id="zhihu-疯狂绅士"><a href="https://www.zhihu.com/question/356880062/answer/2135670915">求逆矩阵的4种方法? - 疯狂绅士的回答 - 知乎</a></div>
+<p>Use a quadratic polynomial ax²+bx+c=y to fit the data:</p>
+<p>$$
+\begin{bmatrix}
+0 &amp; 0 &amp; 1 \\ 0.01 &amp; 0.1 &amp; 1 \\ 0.04 &amp; 0.2 &amp; 1 \\ 0.09 &amp; 0.3 &amp; 1 \\ ⋯
+\end{bmatrix}
+\begin{bmatrix} a \\  b \\ c \end{bmatrix} =
+\begin{bmatrix} 0 \\ 4 \\ 5 \\ 14 \\ ⋯
+\end{bmatrix}
+$$</p>
+<ul>
+<li>x² (e.g., 0.01), x (e.g., 0.1), and 1 are the 3 basis functions that are combined with various ratios to form multiple <strong>basiss</strong>.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p>The optimal coefficients of a polynomial can also be found by solving the equation that
+the <strong>partial derivative</strong> of the error w.r.t. <strong>each coefficient</strong> equals 0.</p>
+<p>Derivation referring to: <small>
+<a class="link" href="http://www.nealen.com/projects/mls/asapmls.pdf"  target="_blank" rel="noopener"
+    >An As-Short-As-Possible Introduction to the Least Squares, Weighted Least Squares and Moving Least Squares Methods for Scattered Data Approximation and Interpolation (may 2004) - Andy Nealen</a></small></p>
+<p>Use a quadratic bivariate polynomial to fit a point set (𝐱ᵢ,yᵢ)</p>
+<p>$$
+\|Y&rsquo; - Y\|^2
+$$</p>
+<p>$$
+α = \big[ ∑_{i=1}^N \big( b(xᵢ)⋅ b(xᵢ)^T \big) \big]^{-1} ⋅ ∑_{i=1}^N \big( b(xᵢ) ⋅ yᵢ \big)
+$$</p>
+<ul>
+<li><code>b</code> means a <strong>basis</strong> (system), i.e., a series of basis functions.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="weighted-least-squares">Weighted least squares</h2>
+<p>(2024-06-11)</p>
+<ul>
+<li>The value at each <strong>new</strong> point is predicted based on an approximated <strong>polynomial</strong>,
+which is found by minimizing the difference between the training point and predicted values,
+and the differences are <strong>weighted</strong> according to the distance from the new point to each training point.</li>
+</ul>
+<p>(2024-05-31)</p>
+<ul>
+<li>
+<p>Consider some samples (errors) are more <strong>important</strong>, and the importance is determined by the sample&rsquo;s <strong>neighbors</strong>:</p>
+<p>$$J_{LS} = \sum_{i=1}^N wᵢ (\^yᵢ - yᵢ)^2$$</p>
+<ul>
+<li>
+<p>Assume the target function has a &ldquo;Compact Support&rdquo;. Thus, each sample is only affected by its neighbors within the local support.
+<small><a class="link" href="https://www.cnblogs.com/zzk0/p/10468502.html"  target="_blank" rel="noopener"
+    >移动最小二乘法在点云平滑和重采样中的应用-博客园-楷哥</a></small></p>
+</li>
+<li>
+<p>By only considering a narrow region, each sample has a variance $σᵢ²$. And the weights can be the <strong>reciprocal</strong> of the variance $\frac{1}{σᵢ²}$:</p>
+<p>In other words, WLS takes the <strong>correlation</strong> of adjacent errors into account.
+<a class="link" href="https://en.wikipedia.org/wiki/Weighted_least_squares"  target="_blank" rel="noopener"
+    >Wikipedia</a></p>
+</li>
+<li>
+<p>Other reasons analysis: <a class="link" href="https://www.stat.cmu.edu/~cshalizi/mreg/15/lectures/24/lecture-24--25.pdf"  target="_blank" rel="noopener"
+    >Lecture 24-25: Weighted and Generalized Least Squares - CMU</a>
+(Found in <a class="link" href="https://duckduckgo.com/?q=weighted&#43;least&#43;squares&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Examples of fitting circle, line, curves with IRLS: <small>
+<a class="link" href="https://blog.csdn.net/weixin_43763292/article/details/127839786"  target="_blank" rel="noopener"
+    >最小二乘法，加权最小二乘法，迭代重加权最小二乘法 (含代码)【最小二乘线性求解】</a></small></p>
+</li>
+</ul>
+<hr>
+<h2 id="mls-for-resampling">MLS for Resampling</h2>
+<p>(2024-06-10)</p>
+<ul>
+<li>
+<p>The value of a new point is computed based on the input point set:
+<a class="link" href="https://www.cnblogs.com/zzk0/p/10468502.html#%E4%BE%8B%E5%AD%904"  target="_blank" rel="noopener"
+    >Example</a></p>
+<ol>
+<li>
+<p>Given a point set: (x₁,y₁), (x₂,y₂), (x₃,y₃), &hellip;($x_N,y_N$);</p>
+</li>
+<li>
+<p>Predict the value y&rsquo; of a <strong>new</strong> point x&rsquo; based on the approximated <strong>polynomial</strong>,
+which is found by minimizing the error between the y_pred (evaluated by the approximated polynomial) and the true y values for N points.
+This minimization process can be performed with a one-shot expression, i.e., pseudo inverse in least squares.</p>
+</li>
+<li>
+<p>The error of each point is scaled by a weight:</p>
+<p>$$\sum_{i=1}^N w_i (y_i - y&rsquo;)^2$$</p>
+<p>where the weight is determined based on the distance from the <strong>new</strong> point to the training input point:</p>
+<p>$$
+w =
+\begin{cases}
+0, &amp; \text{dist&lt;0} \\
+\frac{2}{3} - 4 dist^2 + 4 dist^3, &amp; \text{0≤dist≤0.5} \\
+\frac{4}{3} - 4 dist + 4 dist^2 - \frac{4}{3} dist^3, &amp; \text{0.5&lt;dist≤1} \\
+\end{cases}
+$$</p>
+</li>
+<li>
+<p>The optimal <strong>coefficients</strong> vector 𝛂 of a certain polynoimal is solved based on a &ldquo;pseudo-inverse form&rdquo; expression:
+(<a class="link" href="http://www.nealen.com/projects/mls/asapmls.pdf"  target="_blank" rel="noopener"
+    >Derivation</a>)</p>
+<p>$$
+α = \big[ ∑_{i=1}^N θ(s) \big( b(xᵢ)⋅ b(xᵢ)^T \big) \big]^{-1} ⋅ ∑_{i=1}^N \big( θ(s) b(xᵢ) ⋅ yᵢ \big)
+$$</p>
+<ul>
+<li><code>s</code> is the distance from the new point to the point i.</li>
+</ul>
 </li>
 </ol>
+<p>Code for resampling with MLS fitting the input point set with a <strong>linear</strong> polynomial:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">w</span><span class="p">(</span><span class="n">dis</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dis</span> <span class="o">=</span> <span class="n">dis</span> <span class="o">/</span> <span class="mf">0.3</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">dis</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="k">elif</span> <span class="n">dis</span> <span class="o">&lt;=</span> <span class="mf">0.5</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">dis</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">dis</span><span class="o">**</span><span class="mi">3</span>
+</span></span><span class="line"><span class="cl">    <span class="k">elif</span> <span class="n">dis</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">4</span><span class="o">/</span><span class="mi">3</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">dis</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">dis</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">4</span><span class="o">/</span><span class="mi">3</span> <span class="o">*</span> <span class="n">dis</span><span class="o">**</span><span class="mi">3</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">mls</span><span class="p">(</span><span class="n">x_</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sumxx</span> <span class="o">=</span> <span class="n">sumx</span> <span class="o">=</span> <span class="n">sumxf</span> <span class="o">=</span> <span class="n">sumf</span> <span class="o">=</span> <span class="n">sumw</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Iterate every training point to calc coeffs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">weight</span> <span class="o">=</span> <span class="n">w</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x_</span> <span class="o">-</span> <span class="n">a</span><span class="p">))</span>   <span class="c1"># dist2weight</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sumw</span> <span class="o">+=</span> <span class="n">weight</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sumx</span> <span class="o">+=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">weight</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sumxx</span> <span class="o">+=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">weight</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sumf</span> <span class="o">+=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">weight</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sumxf</span> <span class="o">+=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">*</span> <span class="n">weight</span>
+</span></span><span class="line"><span class="cl">    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">sumw</span><span class="p">,</span> <span class="n">sumx</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">sumx</span><span class="p">,</span> <span class="n">sumxx</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sumf</span><span class="p">,</span> <span class="n">sumxf</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Calculate y-value at the new point</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">ans</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ans</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Input point set for training:</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mf">14.5</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Re-Sampling (for plotting the curve):</span>
+</span></span><span class="line"><span class="cl"><span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">yy</span> <span class="o">=</span> <span class="p">[</span><span class="n">mls</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">xx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span><span class="n">dpi</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">facecolor</span><span class="o">=</span><span class="s2">&#34;white&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /writenotes/calc/img/MLS_resampling.png width=50%>
+    
+    
+  
+
+</li>
+</ul>
+<ul>
+<li>
+<p>MLS smoothing (平滑) means &ldquo;recomputing&rdquo; the y-value at each <strong>input</strong> (training) point x using the found polynomial.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">y_smooth</span> <span class="o">=</span> <span class="p">[</span><span class="n">mls</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span> <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_smooth</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><figure><img src="https://i.ibb.co/8YMSF7F/MLS-smoothing.png" width="40%"/>
+  </figure>
+
+</li>
+</ul>
 
 </section>
 

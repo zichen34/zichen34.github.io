@@ -261,6 +261,7 @@
       </ol>
     </li>
     <li><a href="#import">import</a></li>
+    <li><a href="#module">Module</a></li>
   </ol>
 </nav>
         </div>
@@ -1810,6 +1811,63 @@ will lead to an error:</p>
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ValueError: attempted relative import beyond top-level package
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<hr>
+<h2 id="module">Module</h2>
+<p>(2024-05-16)</p>
+<ul>
+<li>
+<p>A .py file is a module, not a function.</p>
+<p>And a module cannot be called:</p>
+<p>&ldquo;combine_pcs.py&rdquo;:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">combine_plys</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>eval.py:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">combine_pcs</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">combine_pcs</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zi/Downloads/CasMVSNet_pl-comments/eval_refine.py&#34;</span>, line 418, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    combine_pcs<span class="o">(</span>dataset<span class="o">)</span>
+</span></span><span class="line"><span class="cl">TypeError: <span class="s1">&#39;module&#39;</span> object is not callable
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Rectify: from module import the function:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">utils.combine_plys</span> <span class="kn">import</span> <span class="n">combine_plys</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div></li>

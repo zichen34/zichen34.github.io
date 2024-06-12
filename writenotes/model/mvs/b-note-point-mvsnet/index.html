@@ -2,16 +2,16 @@
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Point-based Multi-view Stereo Network (ICCV 2019)'>
-<title>read: Point-MVSNet</title>
+<title>read: Depth - MVG | Point-MVSNet</title>
 
 <link rel='canonical' href='https://zichen34.github.io/writenotes/model/mvs/b-note-point-mvsnet/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: Point-MVSNet'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: Depth - MVG | Point-MVSNet'>
 <meta property='og:description' content='Point-based Multi-view Stereo Network (ICCV 2019)'>
 <meta property='og:url' content='https://zichen34.github.io/writenotes/model/mvs/b-note-point-mvsnet/'>
 <meta property='og:site_name' content='Zichen Wang'>
-<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='Points' /><meta property='article:tag' content='MVS' /><meta property='article:published_time' content='2023-12-16T21:30:00&#43;00:00'/><meta property='article:modified_time' content='2023-12-16T21:30:00&#43;00:00'/><meta property='og:image' content='http://hansf.me/projects/PMVSNet/images/network.png' />
-<meta name="twitter:title" content="read: Point-MVSNet">
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='Points' /><meta property='article:tag' content='MVG' /><meta property='article:published_time' content='2023-12-16T21:30:00&#43;00:00'/><meta property='article:modified_time' content='2023-12-16T21:30:00&#43;00:00'/><meta property='og:image' content='http://hansf.me/projects/PMVSNet/images/network.png' />
+<meta name="twitter:title" content="read: Depth - MVG | Point-MVSNet">
 <meta name="twitter:description" content="Point-based Multi-view Stereo Network (ICCV 2019)"><meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content='http://hansf.me/projects/PMVSNet/images/network.png' />
     <link rel="shortcut icon" href="/favicon-32x32.png" />
@@ -236,7 +236,7 @@
         <div class="article-image">
             <a href="/writenotes/model/mvs/b-note-point-mvsnet/">
                 
-                    <img src="http://hansf.me/projects/PMVSNet/images/network.png" loading="lazy" alt="Featured image of post read: Point-MVSNet" />
+                    <img src="http://hansf.me/projects/PMVSNet/images/network.png" loading="lazy" alt="Featured image of post read: Depth - MVG | Point-MVSNet" />
                 
             </a>
         </div>
@@ -244,10 +244,18 @@
 
     <div class="article-details">
     
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                read
+            </a>
+        
+    </header>
+    
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/writenotes/model/mvs/b-note-point-mvsnet/">read: Point-MVSNet</a>
+            <a href="/writenotes/model/mvs/b-note-point-mvsnet/">read: Depth - MVG | Point-MVSNet</a>
         </h2>
     
         
@@ -288,7 +296,7 @@
 
 
                 <time class="article-time--reading">
-                    7 minute read
+                    8 minute read
                 </time>
             </div>
         
@@ -317,9 +325,119 @@
 <p>(2023-12-24)</p>
 <h3 id="abs--intro">Abs &amp; Intro</h3>
 <p>Use point cloud to refine depth map rather than regularizing (&ldquo;squashing&rdquo;) cost volumes.</p>
+<ul>
+<li>The points move along the ray corresponding to each pixel.</li>
+<li>The step size is determined by neighbors.</li>
+</ul>
 <p>Refine the coarse point cloud by iteratively estimating the <strong>residual</strong> from the current depth to the target depth.</p>
-<p>feature volume ➔ feature-augmented point cloud ➔ depth residual ➔ point displacement</p>
-<p>Output: a <strong>dense</strong> point cloud, as opposed to sparse point cloud from SfM used by 3DGS.</p>
+<ul>
+<li>The target depth is obtained from the ground-truth piont cloud.</li>
+</ul>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 528 57"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 72,32 L 104,32' fill='none' stroke='currentColor'></path>
+<path d='M 272,32 L 296,32' fill='none' stroke='currentColor'></path>
+<path d='M 384,32 L 408,32' fill='none' stroke='currentColor'></path>
+<polygon points='112.000000,32.000000 100.000000,26.400000 100.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 104.000000, 32.000000)'></polygon>
+<polygon points='304.000000,32.000000 292.000000,26.400000 292.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 296.000000, 32.000000)'></polygon>
+<polygon points='416.000000,32.000000 404.000000,26.400000 404.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 408.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>V</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>j</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='312' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='328' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='336' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='344' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='360' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='424' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='432' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='432' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='440' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='448' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='456' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='464' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='472' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='480' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='488' y='36' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='496' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='504' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='512' y='36' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Output: a <strong>dense</strong> point cloud, as opposed to sparse point cloud from SfM (COLMAP) used by 3DGS.</p>
 <p>Depth map yielded from point cloud representation doesn&rsquo;t suffer from the problem of resolution limitation.</p>
 <p>Optimization objective: minimize the distance from point to the surface,
 with the supervision of depth map</p>
@@ -328,7 +446,7 @@ with the supervision of depth map</p>
 so can the RGB appearance be used as loss function?</li>
 </ul>
 <p>PointFlow: Move point towards the surface.
-3DGS split or clone a Gaussian along the position&rsquo;s gradient with some hyper-parameters setting.</p>
+In contrast, 3DGS split or clone a Gaussian along the position&rsquo;s gradient with some hyper-parameters setting.</p>
 <p>How is the generalizability of this method?</p>
 <h3 id="pipeline">Pipeline</h3>
 <ol>
@@ -473,7 +591,7 @@ so can the RGB appearance be used as loss function?</li>
 <p>Assign 2D and 3D context feature to each point</p>
 <ul>
 <li>
-<p>2D feature: project each point onto 3-level feature maps of each view with camera focals and cx,cy scaled.</p>
+<p>2D feature: projecting each point onto 3-level feature maps of each view with camera focals and cx,cy scaled.</p>
 
 
 
@@ -594,7 +712,7 @@ thereby improving efficiency.</li>
 <p>Define displacement steps with point hypotheses.</p>
 <p>The unprojected 3D point cloud from 2D depth map is determined.
 The displacement direction has a lot of freedom.
-Thus, each point is confined to move along the ray emitted from the reference camera.
+Thus, each point is confined to move along the <strong>ray</strong> emitted from the reference camera.
 Such that the per-pixel depth can be refined.</p>
 
 
@@ -646,7 +764,8 @@ Such that the per-pixel depth can be refined.</p>
 </div>
 <ul>
 <li>
-<p>In the above figure, • is a real point, and o is a point hypothesis $\tilde{𝐩ₖ}$ associated with a read point $𝐩ₖ$:</p>
+<p>In the above figure, • is a real point, and o is a point hypothesis, denoted as $\tilde{𝐩ₖ}$,
+which is associated with a read point $𝐩ₖ$:</p>
 <p>$$\tilde{𝐩ₖ} = 𝐩ₖ + k s 𝐭, \quad k = -m, …, m$$</p>
 <p>where k is the number of steps, s is the step size along the ray direction 𝐭.</p>
 </li>
@@ -654,12 +773,12 @@ Such that the per-pixel depth can be refined.</p>
 <p>m = 1, so</p>
 </li>
 <li>
-<p>Aggreate features of the n nearest neighbors</p>
-<p>Use Dynamic Graph CNN to aggreate neighboring points</p>
+<p>Aggregate features of the n nearest neighbors</p>
+<p>Use Dynamic Graph CNN to aggregate neighboring points</p>
 </li>
 <li>
-<p>Use a MLP to map the aggregated feature to probabilities of point hypotheses.</p>
-<p>The PointFlow module requires iterations to approach the surface.</p>
+<p>Use an MLP to map the aggregated feature to probabilities of point hypotheses.</p>
+<p>The PointFlow module requires iterations to approach the surface iteratively.</p>
 <p>The predicted depth residual against the target depth is a probabilistic weighted sum (expectation) of all predefined hypothetical steps.</p>
 <p>$$Δdₚ = 𝐄(ks) = ∑_{k=-m}^m ks × Prob( \tilde{𝐩ₖ} )$$</p>
 </li>
@@ -674,8 +793,8 @@ Such that the per-pixel depth can be refined.</p>
 <hr>
 <h3 id="method">Method</h3>
 <p>Feature concatenation is similar to PixelNeRF: point ocoordinates + feature vectors.
-But here the points position isn&rsquo;t consistent resulting in that different feature vectors are sampled on the feature pyrimid.</p>
-<p>As the 2D CNN also requires optimization, the feature pyrimid is changingas well.</p>
+But here the points position isn&rsquo;t consistent, resulting in that different feature vectors that are sampled on the feature pyrimid.</p>
+<p>Because the 2D CNN also needs to be trained, the feature pyrimid is changing as well.</p>
 <hr>
 <h2 id="play">Play</h2>
 <h3 id="environment">Environment</h3>
@@ -809,7 +928,7 @@ But here the points position isn&rsquo;t consistent resulting in that different 
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>Error: <code>identifier &quot;AT_CHECK&quot; is undefined</code>.</p>
-<details><summary>Full message</summary>
+<details><summary> Full message </summary>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -991,8 +1110,11 @@ The identifier TH_INDEX_BASE is also undefined because it&rsquo;s no longer used
 </div>
 </div><p>And modify <code>TH_INDEX_BASE</code> -&gt; <code>0</code> in &ldquo;gather_knn_kernel.cu&rdquo;.</p>
 <p>It can be compiled successfully.</p>
+<p>P.S.:</p>
 <ul>
-<li>3DGS also has knn code</li>
+<li>3DGS also has knn code: <a class="link" href="https://gitlab.inria.fr/bkerbl/simple-knn"  target="_blank" rel="noopener"
+    >simple-knn</a></li>
+<li>Open3D also can find the nearest neighbors.</li>
 </ul>
 </li>
 </ol>
@@ -1028,13 +1150,21 @@ The identifier TH_INDEX_BASE is also undefined because it&rsquo;s no longer used
 <li>
 <p>Evaluate</p>
 <p>The &ldquo;Recified&rdquo; dataset can&rsquo;t be download from the <a class="link" href="https://roboimagedata.compute.dtu.dk/?page_id=36"  target="_blank" rel="noopener"
-    >official site</a>
-by clicking the link.
+    >official website</a>
+by clicking the hyperlink.
 It may be due to broswer limitations as the zip file is 123 GB (analyzed by Perplexity).</p>
-<p>Wget works: <code>wget http://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip</code></p>
-<ul>
+<p>Wget works:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">wget http://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>
-<details><summary>Download message</summary>
+<details><summary> Download message </summary>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -1089,7 +1219,7 @@ It may be due to broswer limitations as the zip file is 123 GB (analyzed by Perp
         
             <a href="/tags/points/">Points</a>
         
-            <a href="/tags/mvs/">MVS</a>
+            <a href="/tags/mvg/">MVG</a>
         
     </section>
 
@@ -1162,7 +1292,7 @@ It may be due to broswer limitations as the zip file is 123 GB (analyzed by Perp
         
 
         <div class="article-details">
-            <h2 class="article-title">read: MVSNet</h2>
+            <h2 class="article-title">read: Depth - MVG | MVSNet</h2>
         </div>
     </a>
 </article>

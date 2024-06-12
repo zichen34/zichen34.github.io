@@ -12,7 +12,33 @@
         <pubDate>Thu, 29 Feb 2024 11:50:00 +0000</pubDate>
         
         <guid>https://zichen34.github.io/writenotes/algo/knn/</guid>
-        <description>&lt;h2 id=&#34;cuda-impl&#34;&gt;CUDA Impl&lt;/h2&gt;
+        <description>&lt;h2 id=&#34;open3d&#34;&gt;Open3D&lt;/h2&gt;
+&lt;p&gt;(2024-05-13)&lt;/p&gt;
+&lt;p&gt;Just found Open3D also can find nearest neighbors:
+&lt;a class=&#34;link&#34; href=&#34;https://towardsdatascience.com/5-step-guide-to-generate-3d-meshes-from-point-clouds-with-python-36bad397d8ba&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;5-Step Guide to generate 3D meshes from point clouds with Python - Medium&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;open3d&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;o3d&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;pcd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;o3d&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;io&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;read_point_cloud&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/yi/Downloads/CasMVSNet_pl-comments/results/dtu/image_ref/scan1/points3d.ply&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;ply&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;distances&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pcd&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;compute_nearest_neighbor_distance&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;avg_dist&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;np&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;mean&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;distances&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;radius&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;avg_dist&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;cuda-impl&#34;&gt;CUDA Impl&lt;/h2&gt;
 &lt;p&gt;(2024-03-05)&lt;/p&gt;
 &lt;p&gt;Example from &lt;a class=&#34;link&#34; href=&#34;https://gitlab.inria.fr/bkerbl/simple-knn&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;simple-knn&lt;/a&gt;:&lt;/p&gt;
@@ -20,6 +46,11 @@
 &lt;p&gt;Given 100K points, using only 1D grid and 1D block which length is 1024 (&lt;a class=&#34;link&#34; href=&#34;https://stackoverflow.com/a/68185752/18003182&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;SO&lt;/a&gt;),
 the number of blocks is $\frac{100K + 1024-1}{1024} = 97$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://stackoverflow.com/a/68185752&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;How many threads can a Nvidia GPU launch?&lt;/a&gt;, found by &lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=How&amp;#43;many&amp;#43;threads&amp;#43;at&amp;#43;most&amp;#43;a&amp;#43;GPU&amp;#43;could&amp;#43;have%3F&amp;amp;ia=web&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Therefore, the kernel launch configuration parameters are &lt;code&gt;&amp;lt;&amp;lt;&amp;lt;97, 1024&amp;gt;&amp;gt;&amp;gt;&lt;/code&gt;&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;
@@ -480,7 +511,7 @@ the block won&amp;rsquo;t be searched for possible nearest neighbors.&lt;/p&gt;
 &lt;/div&gt;&lt;/details&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Compile based on the steup.py: &lt;code&gt;pip install .&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Compile based on the setup.py: &lt;code&gt;pip install .&lt;/code&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;Call from python:&lt;/p&gt;

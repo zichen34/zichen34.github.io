@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='MVDiffusion: Enabling Holistic Multi-view Image Generation with Correspondence-Aware Diffusion'>
+<title>read: MVDiffusion generates multi-view images</title>
+
+<link rel='canonical' href='https://zichen34.github.io/writenotes/model/nvs/b-note-mvdiffusion-scene/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='read: MVDiffusion generates multi-view images'>
+<meta property='og:description' content='MVDiffusion: Enabling Holistic Multi-view Image Generation with Correspondence-Aware Diffusion'>
+<meta property='og:url' content='https://zichen34.github.io/writenotes/model/nvs/b-note-mvdiffusion-scene/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='WriteNotes' /><meta property='article:tag' content='Diffusion' /><meta property='article:published_time' content='2023-08-10T20:40:00&#43;00:00'/><meta property='article:modified_time' content='2023-08-10T20:40:00&#43;00:00'/>
+<meta name="twitter:title" content="read: MVDiffusion generates multi-view images">
+<meta name="twitter:description" content="MVDiffusion: Enabling Holistic Multi-view Image Generation with Correspondence-Aware Diffusion">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu238e2fe759432347fa5dd53661ac4381_131637_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abs--intro">Abs &amp; Intro</a></li>
+    <li><a href="#preliminary">Preliminary</a></li>
+    <li><a href="#pipeline">Pipeline</a>
+      <ol>
+        <li><a href="#panorama">Panorama</a></li>
+        <li><a href="#depth2img">depth2img</a></li>
+        <li><a href="#correspondence-aware-attention">Correspondence-aware attention</a></li>
+      </ol>
+    </li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/writenotes/model/nvs/b-note-mvdiffusion-scene/">read: MVDiffusion generates multi-view images</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            MVDiffusion: Enabling Holistic Multi-view Image Generation with Correspondence-Aware Diffusion
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 10, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="https://github.com/Tangshitao/MVDiffusion"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2307.01097"  target="_blank" rel="noopener"
+    >Arxiv (2307)</a>
+| <a class="link" href="https://mvdiffusion.github.io/"  target="_blank" rel="noopener"
+    >ProjPage</a></p>
+<h2 id="abs--intro">Abs &amp; Intro</h2>
+<ol>
+<li><strong>Fine-tune</strong> the pre-trained <strong>text</strong>-to-image diffusion model (SD)</li>
+<li>Insert <strong>cross-attention</strong> blocks between UNet blocks;</li>
+<li>Generate multiple views <strong>in parallel</strong> using a SD,
+and <strong>fuse</strong> multi views by attention;</li>
+<li><strong>Freeze</strong> pre-trained weights while training the attention blocks</li>
+</ol>
+<p>Solving problems:</p>
+<ol>
+<li>Generating panorama</li>
+<li>Extrapolate one perspective image to a full 360-degree view</li>
+</ol>
+<h2 id="preliminary">Preliminary</h2>
+<p>MVDiffusion derives from <strong>LDM</strong> (Latent Diffusion Model<a class="link" href="#1" >¹</a>), which contains 3 modules:</p>
+<ol>
+<li><strong>VAE</strong> for transfering the generation process to a latent space,</li>
+<li><strong>denoising model</strong> (UNet) for sampling from the distribution of the inputs&rsquo; latent codes,</li>
+<li><strong>condition encoder</strong> for providing descriptors.</li>
+</ol>
+<p>Loss function is similar to original diffusion model: the MSE between original noise and predicted noise, which conditioned on noisy latents, timestep, and featues.</p>
+<p>$$L_{LDM} = ∑$$</p>
+<p>Convolution layers are insert in each UNet block:</p>
+<ul>
+<li>Feature maps at each level will be added into UNet blocks.</li>
+</ul>
+<figure><img src="https://pbs.twimg.com/media/F0Q2fmwWwAEjOYo?format=jpg&amp;name=large"
+         alt="Figure 2"/><figcaption>
+            <p>Figure 2</p>
+        </figcaption>
+</figure>
+
+<h2 id="pipeline">Pipeline</h2>
+<p>pixel-to-pixel correspondences enable the <strong>multi-view consistent</strong> generation of panorama and depth2img,
+because they have homography matrix and projection matrix to determine the matched pixel pairs in two images.</p>
+<h3 id="panorama">Panorama</h3>
+<p><strong>Text-conditioned model</strong>: generate 8 <strong>target</strong> images from noise conditioned by <strong>per-view</strong> text prompts.</p>
+<ul>
+<li>
+<p>The final linear layer in CAA blocks are initialized to <strong>zero</strong> to avoid disrupt the SD&rsquo;s original capacity.</p>
+</li>
+<li>
+<p>Multiple latents will be predict by UNet from noise images and then restored to images by the pre-trained VAE&rsquo;s decoder.</p>
+</li>
+</ul>
+<p><strong>Image&amp;Text-conditioned model</strong>: generate 7 target images based on 1 <strong>condition</strong> image and respective text prompts.</p>
+<ul>
+<li>
+<p>Based on SD&rsquo;s <strong>impainting</strong> modle as it <strong>takes 1 condition image</strong>.</p>
+<ol>
+<li>
+<p>Don&rsquo;t impaint the condition image by concatenating the noise input with a all-one mask (4 channels in total)</p>
+</li>
+<li>
+<p>Compeletly regenerate the input image by concatenating the noise input with a all-zero mask (4 channels in total)</p>
+</li>
+<li>
+<p>Concatenating all-one and all-zero channel during training make the model learn to apply different processes to condition image and target image.</p>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="depth2img">depth2img</h3>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 376 281"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 96,16 L 112,16' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 112,64' fill='none' stroke='currentColor'></path>
+<path d='M 264,64 L 280,64' fill='none' stroke='currentColor'></path>
+<path d='M 272,128 L 304,128' fill='none' stroke='currentColor'></path>
+<path d='M 48,192 L 88,192' fill='none' stroke='currentColor'></path>
+<path d='M 32,80 L 32,176' fill='none' stroke='currentColor'></path>
+<path d='M 168,32 L 168,48' fill='none' stroke='currentColor'></path>
+<path d='M 168,160 L 168,176' fill='none' stroke='currentColor'></path>
+<path d='M 168,224 L 168,240' fill='none' stroke='currentColor'></path>
+<path d='M 320,96 L 320,112' fill='none' stroke='currentColor'></path>
+<polygon points='96.000000,192.000000 84.000000,186.399994 84.000000,197.600006' fill='currentColor' transform='rotate(0.000000, 88.000000, 192.000000)'></polygon>
+<polygon points='120.000000,16.000000 108.000000,10.400000 108.000000,21.600000' fill='currentColor' transform='rotate(0.000000, 112.000000, 16.000000)'></polygon>
+<polygon points='120.000000,64.000000 108.000000,58.400002 108.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 112.000000, 64.000000)'></polygon>
+<polygon points='176.000000,48.000000 164.000000,42.400002 164.000000,53.599998' fill='currentColor' transform='rotate(90.000000, 168.000000, 48.000000)'></polygon>
+<polygon points='176.000000,176.000000 164.000000,170.399994 164.000000,181.600006' fill='currentColor' transform='rotate(90.000000, 168.000000, 176.000000)'></polygon>
+<polygon points='176.000000,240.000000 164.000000,234.399994 164.000000,245.600006' fill='currentColor' transform='rotate(90.000000, 168.000000, 240.000000)'></polygon>
+<polygon points='280.000000,128.000000 268.000000,122.400002 268.000000,133.600006' fill='currentColor' transform='rotate(180.000000, 272.000000, 128.000000)'></polygon>
+<polygon points='288.000000,64.000000 276.000000,58.400002 276.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 280.000000, 64.000000)'></polygon>
+<path d='M 320,112 A 16,16 0 0,1 304,128' fill='none' stroke='currentColor'></path>
+<path d='M 32,176 A 16,16 0 0,0 48,192' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>&amp;</text>
+<text text-anchor='middle' x='0' y='68' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>q</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='24' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='40' y='68' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='48' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='64' y='68' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='72' y='68' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='104' y='196' fill='currentColor' style='font-size:1em'>I</text>
+<text text-anchor='middle' x='112' y='132' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='112' y='196' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='120' y='132' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='120' y='196' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='128' y='132' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='128' y='196' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='128' y='260' fill='currentColor' style='font-size:1em'>M</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='136' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='196' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='260' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='144' y='68' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='144' y='132' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='144' y='196' fill='currentColor' style='font-size:1em'>&amp;</text>
+<text text-anchor='middle' x='144' y='260' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='152' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='132' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='152' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='196' fill='currentColor' style='font-size:1em'>T</text>
+<text text-anchor='middle' x='152' y='212' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='152' y='260' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='160' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='160' y='132' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='160' y='148' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='160' y='196' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='160' y='212' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='160' y='260' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='168' y='68' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='168' y='84' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='168' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='168' y='196' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='168' y='212' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='168' y='260' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='176' y='68' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='176' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='132' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='176' y='196' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='176' y='212' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='184' y='68' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='184' y='132' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='184' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='184' y='196' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='184' y='212' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='184' y='260' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='192' y='68' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='192' y='132' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='192' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='192' y='196' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='192' y='260' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='200' y='132' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='200' y='196' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='260' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='208' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='208' y='196' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='208' y='260' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='216' y='132' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='216' y='196' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='216' y='260' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='224' y='132' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='224' y='196' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='232' y='132' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='232' y='196' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='240' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='240' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='240' y='196' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='248' y='68' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='248' y='196' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='256' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='256' y='196' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='264' y='196' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='272' y='196' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='296' y='68' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='304' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='304' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='312' y='68' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='312' y='84' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='320' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='320' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='328' y='68' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='328' y='84' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='336' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='336' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='344' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='344' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='352' y='68' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='360' y='68' fill='currentColor' style='font-size:1em'>e</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>This two-stage design is because SD&rsquo;s impainting modle <strong>doesn&rsquo;t</strong> support depth map condition.</p>
+<ul>
+<li>So the Text-conditioned model is reused to generate condition images.</li>
+<li>Then the Image&amp;Text-conditioned model interpolate the two condition images.</li>
+</ul>
+<h3 id="correspondence-aware-attention">Correspondence-aware attention</h3>
+<p>Aggregate the features of KxK neighbor pixels on every target feature maps to each pixel their own feature vector.</p>
+<ul>
+<li>
+<p>The source pixel $s$ perform positional encoding γ(0)</p>
+</li>
+<li>
+<p>The neighbor pixel $t_*^l$ around the corresponding pixel $t^l$ on the target image $l$ perform position encoding $γ(s_*^l-s)$,
+which means the neighbor pixel $t_*^l$ need to be warpped back to source feature map to find the distance from $s_*^l$ to the source pixel $s$.</p>
+<figure><img src="https://pbs.twimg.com/media/F0Q2-IMWcAA5TC0?format=png&amp;name=small"
+           alt="Figure 3"/><figcaption>
+              <p>Figure 3</p>
+          </figcaption>
+  </figure>
+
+</li>
+</ul>
+<hr>
+<h2 id="ref">Ref</h2>
+<ol>
+<li>
+<div id="1"><a href="https://arxiv.org/abs/2112.10752">High-Resolution Image Synthesis with Latent Diffusion Models - Robin Rombach</a></div>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/diffusion/">Diffusion</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/writenotes/model/nvs/b-note-diffustereo-human/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: DiffuStereo reconstruct 3D human</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/writenotes/model/imagen/diffusion/d-vid-outlier/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: Diffusion - Outlier | Explain 4 papers</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/writenotes/model/imagen/diffusion/d-vid-dlai/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: DM - DLAI | How Diffusion Models Work</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2024 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>
+   <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

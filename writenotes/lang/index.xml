@@ -6,7 +6,7 @@
         <description>Recent content in lang on Zichen Wang</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Fri, 01 Mar 2024 18:20:00 +0000</lastBuildDate><atom:link href="https://zichen34.github.io/writenotes/lang/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 01 Mar 2024 22:32:00 +0000</lastBuildDate><atom:link href="https://zichen34.github.io/writenotes/lang/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>memo: CMake | Include 3rd-Party Library</title>
         <link>https://zichen34.github.io/writenotes/lang/cmake_3rdparty/</link>
         <pubDate>Thu, 16 Nov 2023 11:00:00 +0000</pubDate>
@@ -3187,21 +3187,50 @@ The code is from &lt;a class=&#34;link&#34; href=&#34;https://github.com/graphde
 &lt;p&gt;The preprocess directive &lt;code&gt;#include&lt;/code&gt; will &lt;strong&gt;copy and paste&lt;/strong&gt; a header file to there.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Header files can &lt;strong&gt;form a chain&lt;/strong&gt;, whereas a potential probelm is repeated difinations. (e.g. structs need unique names.)&lt;/p&gt;
+&lt;p&gt;Header files can &lt;strong&gt;form a chain&lt;/strong&gt;, whereas a potential probelm is &lt;strong&gt;repeated&lt;/strong&gt; difinations. (e.g. structs need unique names.)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;The header guide &lt;code&gt;#pragma once&lt;/code&gt; marks a header file &lt;strong&gt;won&amp;rsquo;t be included multiple times&lt;/strong&gt; into &lt;strong&gt;a single&lt;/strong&gt; translation unit (cpp file).&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;Old fasion is wrapping the entire header file with &lt;code&gt;#ifndef symbol&lt;/code&gt; and &lt;code&gt;#endif&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;(2024-06-03)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://cplusplus.com/articles/Gw6AC542/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Include Guards&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//x.h
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#ifndef __X_H_INCLUDED__   &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// if x.h hasn&amp;#39;t been included yet...
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#define __X_H_INCLUDED__   &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// #define this so the compiler knows it has been included
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;X&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#endif 
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Suffix &lt;code&gt;.h&lt;/code&gt; is used to &lt;strong&gt;differentiate&lt;/strong&gt; &amp;ldquo;c standard library&amp;rdquo; (&lt;code&gt;&amp;lt;stdio.h&amp;gt;&lt;/code&gt;) and &amp;ldquo;c++ standard libray&amp;rdquo; (&lt;code&gt;&amp;lt;iostream&amp;gt;&lt;/code&gt;)&lt;/p&gt;
+&lt;p&gt;Suffix &lt;code&gt;.h&lt;/code&gt; is used to &lt;strong&gt;differentiate&lt;/strong&gt; &amp;ldquo;C standard library&amp;rdquo; (&lt;code&gt;&amp;lt;stdio.h&amp;gt;&lt;/code&gt;) and &amp;ldquo;C++ standard libray&amp;rdquo; (&lt;code&gt;&amp;lt;iostream&amp;gt;&lt;/code&gt;)&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;Angular brackets &lt;code&gt;&amp;lt;fname&amp;gt;&lt;/code&gt; wll search the &amp;ldquo;standard include directories&amp;rdquo; (of compiler) for the file named &lt;code&gt;fname&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Angular brackets &lt;code&gt;&amp;lt;fname&amp;gt;&lt;/code&gt; will search the &amp;ldquo;standard include directories&amp;rdquo; (of compiler) for the file named &lt;code&gt;fname&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;While double qutoes &lt;code&gt;&amp;quot;../myHeader.h&amp;quot;&lt;/code&gt; normaly enclose a &lt;strong&gt;relative path&lt;/strong&gt;,
 although it can enclose a file that resides in &amp;ldquo;standard include directories&amp;rdquo; as well (e.g., &lt;code&gt;&amp;quot;iostream&amp;quot;&lt;/code&gt;).&lt;/p&gt;
 &lt;/li&gt;
@@ -3216,6 +3245,131 @@ although it can enclose a file that resides in &amp;ldquo;standard include direc
     &gt;C++ Header Files - The Cherno&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.cppreference.com/w/cpp/preprocessor/include&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Source file inclusion - cppreference.com&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;(2024-05-13)&lt;/p&gt;
+&lt;p&gt;Ref: &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV18Z421j7e1/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;C/C++头文件里有什么, 什么是接口与实现分离, 为什么这么干? 代码知识 - 不停感叹的老林&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;头文件的意义：多处声明，一处定义&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;(2024-06-03)&lt;/p&gt;
+&lt;p&gt;Ref: &lt;a class=&#34;link&#34; href=&#34;https://cplusplus.com/articles/Gw6AC542/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Headers and Includes: Why and How - C++ Articles - Disch&lt;/a&gt;
+(&lt;small&gt;Found by &lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=How&amp;#43;to&amp;#43;find&amp;#43;the&amp;#43;source&amp;#43;code&amp;#43;implementation&amp;#43;given&amp;#43;a&amp;#43;header&amp;#43;file&amp;amp;ia=web&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;&lt;/small&gt;)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Since each source file is compiled &lt;strong&gt;individually&lt;/strong&gt; to object files (which are binary too) before linking them together,
+the header files are needed to make the function interface recognizable for the compiler,
+and keep the implementation individual.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Keeping each file self-contained facilitates making modifications.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;As each source file is compiled &lt;strong&gt;separately&lt;/strong&gt;, the implementation of a function is unknown in another source file.
+So the header file is a &amp;ldquo;messenger&amp;rdquo; between them by telling funcitons&amp;rsquo; &lt;strong&gt;interface&lt;/strong&gt; to each other.&lt;/p&gt;
+&lt;p&gt;Thus, functions&amp;rsquo; interface and their implementation are separated.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Spliting the program to multiple piece files instead of a single comprehensive file
+helps debugging and facilitate compilation (only compile the needed file).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The compiler compiles (translate) &lt;strong&gt;each&lt;/strong&gt; source file into a binary (object file),
+and the linker finds function implementations, and connects the object files and precompiled libraries together.
+&lt;small&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.learncpp.com/cpp-tutorial/introduction-to-the-compiler-linker-and-libraries/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;0.5 — Introduction to the compiler, linker, and libraries&lt;/a&gt;
+&lt;/small&gt;&lt;/p&gt;
+&lt;figure&gt;&lt;a href=&#34;https://cplusplus.com/articles/2v07M4Gy/&#34;&gt;&lt;img src=&#34;https://cplusplus.com/articles/2v07M4Gy/Selection_101.png&#34; width=&#34;72%&#34;/&gt;&lt;/a&gt;
+     &lt;/figure&gt;
+
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;#include&lt;/code&gt; is &lt;strong&gt;copy &amp;amp; paste&lt;/strong&gt; during preprocessing.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Header files are pasted (#included) and not compiled, whereas source files are compiled and &lt;strong&gt;not&lt;/strong&gt; included.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Do not&lt;/strong&gt; #include &lt;strong&gt;source files&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Only #include the &lt;strong&gt;necessary&lt;/strong&gt; things in header files.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Try to avoid #include the &lt;strong&gt;full&lt;/strong&gt; .h file:&lt;/p&gt;
+&lt;p&gt;Do nothing ❮ Forward declare A ❮ #include &amp;ldquo;a.h&amp;rdquo;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Forward declared dependencies: &lt;code&gt;class aClass;&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;a class=&#34;link&#34; href=&#34;https://cplusplus.com/articles/Gw6AC542/#:~:text=to%20do%20the-,least%20drastic,-option%20possible.%20Do&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;right way to include&lt;/a&gt;:
+&amp;ldquo;Forward declare &lt;strong&gt;when you can&lt;/strong&gt;, don&amp;rsquo;t #include unless it&amp;rsquo;s &lt;strong&gt;necessary&lt;/strong&gt;&amp;rdquo;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Use a &lt;strong&gt;pointer or reference&lt;/strong&gt; to an object &lt;code&gt;aClass* a&lt;/code&gt;, instead of instantiating a full object: &lt;code&gt;aClass a&lt;/code&gt;,
+&lt;strong&gt;and then&lt;/strong&gt; use forward declaration: &lt;code&gt;class aClass;&lt;/code&gt; to avoid the circular inclusion problem where using &lt;code&gt;#include &amp;quot;a.h&amp;quot;&lt;/code&gt; is necessary.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;inline functions require their function body to exist in the &lt;strong&gt;every cpp&lt;/strong&gt; file that calls them.&lt;/p&gt;
+&lt;p&gt;Their function bodies can be put in a &lt;strong&gt;header file&lt;/strong&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The forward declaration for a template class requires &lt;code&gt;typedef&lt;/code&gt;,
+which could cause inconvenience as all files that use the template class need to be modified manually when the template class changes.&lt;/p&gt;
+&lt;p&gt;The solution is putting the typedef of the template class in a &lt;strong&gt;header file&lt;/strong&gt; and then #include it in another header file.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;(2024-06-04)&lt;/p&gt;
+&lt;p&gt;Ref: &lt;a class=&#34;link&#34; href=&#34;https://stackoverflow.com/a/33786390/18003182&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;How a compiler knows from a header file, that a source file exists somewhere? - SO&lt;/a&gt;
+(&lt;small&gt;Found in &lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=where&amp;#43;to&amp;#43;find&amp;#43;the&amp;#43;source&amp;#43;file&amp;#43;given&amp;#43;the&amp;#43;declaration&amp;#43;in&amp;#43;cpp&amp;amp;ia=web&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;&lt;/small&gt;)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;#include &amp;quot;myfile.h&amp;quot;&lt;/code&gt; has a &lt;code&gt;broader&lt;/code&gt; searching scope than &lt;code&gt;#include &amp;lt;stdio.h&amp;gt;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;&amp;quot;&amp;quot;&lt;/code&gt; will search in the current working folder besides the predefined standard well-known directories.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Including a header &lt;code&gt;#include math.h&lt;/code&gt; but without linking the library &lt;code&gt;libm.a&lt;/code&gt; into the executable binary, by specifying it in the &lt;code&gt;gcc&lt;/code&gt; build command: &lt;code&gt;-lm&lt;/code&gt;,
+the functions in &lt;code&gt;libm.a&lt;/code&gt; can&amp;rsquo;t be called&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Gcc convention: For a precompiled library: &lt;code&gt;lib&amp;lt;name&amp;gt;.a&lt;/code&gt;, the argument to link it: &lt;code&gt;-l&amp;lt;name&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;-I&lt;/code&gt; and &lt;code&gt;-L&lt;/code&gt; specify the &lt;strong&gt;additional&lt;/strong&gt; searching paths to headers and libraries.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;Ref: &lt;a class=&#34;link&#34; href=&#34;https://www.codeproject.com/Articles/5341253/C-Cplusplus-Headers-and-Source-Files-How-Do-They-W&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;C/C++ Headers and Source Files: How Do They Work? - codeproject&lt;/a&gt;
+(&lt;small&gt;Not accurate enough&lt;/small&gt;)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Everything (&lt;strong&gt;function&lt;/strong&gt;, struct, variable) in cpp needs a &lt;strong&gt;declaration before using&lt;/strong&gt; it,
+so header files are &lt;strong&gt;pasted&lt;/strong&gt; in the source file with &lt;code&gt;#include&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Header files are declarations&lt;/strong&gt; informing the compiler.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Semicolon after the function signature indicates to the compiler that this is a function prototype declaration, rather than the definition.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Compilation only process source files, as header files already have been pasted into source files.&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ol&gt;
 &lt;hr&gt;
 &lt;h2 id=&#34;compiling--linking&#34;&gt;Compiling &amp;amp; Linking&lt;/h2&gt;
@@ -3400,6 +3554,128 @@ The linker won&amp;rsquo;t be confused.&lt;/p&gt;
 &lt;/ol&gt;
 &lt;p&gt;Ref: &lt;a class=&#34;link&#34; href=&#34;https://youtu.be/H4s55GgAg0I&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;How the C++ Linker Works - The Cherno&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;(2024-06-04)&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.toptal.com/c-plus-plus/c-plus-plus-understanding-compilation&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;How C++ Works: Understanding Compilation | Toptal&lt;/a&gt;
+&lt;small&gt;(Found in &lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=compile&amp;#43;and&amp;#43;link&amp;#43;in&amp;#43;cpp&amp;amp;ia=web&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;)&lt;/small&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Preprocess: Copy/paste header files to source files:&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;test-compile.cpp&amp;rdquo;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;argc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;argv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cout&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;Hello&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;endl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Add &lt;code&gt;-E&lt;/code&gt; option to stop the compiler after preprocessing:
+(Found by &lt;a class=&#34;link&#34; href=&#34;https://www.perplexity.ai/search/What-is-the-UBLTZPcuRsaygmzR12H0CQ&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;perplexity&lt;/a&gt;)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;gcc -E test-compile.cpp -o test-compile.ii
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wc test-compile.ii
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;The preprocessing and compiling in c++ is similar to c lang.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Compile &lt;strong&gt;each source&lt;/strong&gt; file separately to generate a object file:
+(&lt;a class=&#34;link&#34; href=&#34;https://www.toptal.com/c-plus-plus/c-plus-plus-understanding-compilation#how-source-files-import-and-export-symbols&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;sec2&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;Given a c file: &amp;ldquo;sum.c&amp;rdquo;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sumI&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;float&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sumF&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;float&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;float&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;b&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;-c&lt;/code&gt; stops the compiler after compiling before linking.
+&lt;a class=&#34;link&#34; href=&#34;https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html#index-c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;manual&lt;/a&gt;
+(&lt;a class=&#34;link&#34; href=&#34;https://stackoverflow.com/a/14724410/18003182&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;SO&lt;/a&gt;)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;yi@Alien:~/Downloads/Cpp_Study$ gcc -c test_compile.cpp -o sum.o
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;nm&lt;/code&gt; lists symbols from object files.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;yi@Alien:~/Downloads/Cpp_Study$ nm sum.o
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;m&#34;&gt;0000000000000018&lt;/span&gt; T _Z4sumFff
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;m&#34;&gt;0000000000000000&lt;/span&gt; T _Z4sumIii
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;No symbol is imported. Two symbols are exported as part of the .text segment &lt;code&gt;T&lt;/code&gt;. (Don&amp;rsquo;t understand)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;_Z4sumFff&lt;/code&gt; and &lt;code&gt;_Z4sumIii&lt;/code&gt; are the names used by other source files calling the 2 functions.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;#include header files is &lt;strong&gt;declaring&lt;/strong&gt; the 2 functions&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Mix calling C and C++ functions&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Function symbols in cpp enable the feature of overload when several functions have the same name but different input arguments.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Link all the object files to generte a binary file.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;(2024-06-06)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Compile 的中文翻译：编译 = 翻译 + 编纂。编纂的意思是把多个文件放到一起。&lt;/p&gt;
+&lt;p&gt;pile 是“一摞”, compile 是把一摞文件放到一起。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;hr&gt;
 &lt;h2 id=&#34;find-next-msb&#34;&gt;Find Next MSB&lt;/h2&gt;
 &lt;p&gt;(2023-11-17)&lt;/p&gt;
@@ -7004,7 +7280,7 @@ whereas &lt;code&gt;static_cast&amp;lt;uint32_t&amp;gt;&lt;/code&gt; cannot be a
     &gt;overleaf DIP assign 3&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Suitable for R markdown &lt;a class=&#34;link&#34; href=&#34;https://stackoverflow.com/questions/67076613/label-rows-and-columns-of-a-matrix-in-r-markdown-with-latex-and-html-rendering&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Label rows and columns of a matrix in R Markdown with Latex and HTML rendering&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;basic-usage&#34;&gt;basic usage&lt;/h3&gt;
+&lt;h3 id=&#34;basic-usage&#34;&gt;Basic usage&lt;/h3&gt;
 &lt;p&gt;(2021-01-15)&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -7199,7 +7475,7 @@ whereas &lt;code&gt;static_cast&amp;lt;uint32_t&amp;gt;&lt;/code&gt; cannot be a
     &gt;How I draw figures for my mathematical lecture notes using Inkscape - Gilles Castel&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
-&lt;h2 id=&#34;take-notes&#34;&gt;Take Notes&lt;/h2&gt;
+&lt;h2 id=&#34;take-lecture-notes&#34;&gt;Take Lecture Notes&lt;/h2&gt;
 &lt;p&gt;(2024-04-23)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -7213,10 +7489,21 @@ whereas &lt;code&gt;static_cast&amp;lt;uint32_t&amp;gt;&lt;/code&gt; cannot be a
     &gt;How I manage my LaTeX lecture notes&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;pseudocode&#34;&gt;PseudoCode&lt;/h2&gt;
+&lt;p&gt;(2024-06-01)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Curious how to add comments like this:&lt;/p&gt;
+&lt;figure&gt;&lt;a href=&#34;https://www.holk.tech/2024/01/31/3D-Gaussian-Splatting-%E8%A7%A3%E8%AF%BB/&#34;&gt;&lt;img src=&#34;https://i.ibb.co/rv6nxTT/df001b8801754864f6f2d4a3ac31c75df7b6f6e4.png&#34; width=&#34;80%&#34;/&gt;&lt;/a&gt;
+  &lt;/figure&gt;
+
+&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         <item>
-        <title>memo: Markdown</title>
+        <title>memo: Markdown Syntax</title>
         <link>https://zichen34.github.io/writenotes/lang/markdown_misc/</link>
         <pubDate>Sat, 12 Feb 2022 20:33:00 +0000</pubDate>
         
@@ -7449,6 +7736,20 @@ classDef node font-size:20px;
 &lt;p&gt;Clipboard of &lt;a class=&#34;link&#34; href=&#34;https://symbl.cc/en/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;symbl.cc&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;εφμf𝐱⋱⋮⋯⌊⌋σ√↓↑↓▼⬇λ˙⋅□↑⇔γβ∈α∑×‖⑊ ⊠∂Λθ∭∞°Σ➔©→✅⬯⬭τδ⊗∫𝚺𝛍𝐔𝐈𝐮∈𝐱𝐌𝐖𝚫ℤω℮∏‖⊙⊛ηρ𝐝𝐜𝐕𝒢𝐭𝐉𝐦𝛈≈❙❘⇤↳⋮⋆⭑✦★•𝑳𝐿𝐲𝐏𝐩𝐪𝐚𝐛𝐦𝐧𝐊𝐑𝐭𝐀𝐁𝐐𝐂𝐇𝐅𝐕|⏐▭✚▱𝐘𝐗𝐳𝐃𝐄⬯˚∘Δ😊≤▱■⌷⍨⍩⍤⟨〈⟩⬮↘∇𝛁 ▦&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Less than &lt;code&gt;&amp;lt;&lt;/code&gt; will be mis-parsed as a html syntax by vim-markdown, use ❮ (Heavy Left-Pointing Angle Quotation Mark Ornament, &lt;a class=&#34;link&#34; href=&#34;https://symbl.cc/en/collections/brackets/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;brackets&lt;/a&gt;),
+or $&amp;lt;$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;${}$&lt;/code&gt; won&amp;rsquo;t render the curly braces { }, use ｛ ｝ (Fullwidth Curly Brackets)&lt;/p&gt;
+&lt;p&gt;Or &lt;code&gt;$\\{ \\}$&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;画斜线角度不够，可以用 ellipsis ⋱⋰ (Up Right Diagonal Ellipsis)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;hr&gt;
 &lt;h2 id=&#34;表格列宽&#34;&gt;表格列宽&lt;/h2&gt;
 &lt;hr&gt;
@@ -7464,9 +7765,62 @@ a+b\underset{\substack{\color{red}\uparrow \\ % or: \rotatebox{90}{$\longrightar
 $$&lt;/p&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;符号加方框&#34;&gt;符号加方框&lt;/h3&gt;
-&lt;p&gt;$$
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;\boxed{x}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;$$
 \boxed{x}
 $$&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;small-text&#34;&gt;Small text&lt;/h2&gt;
+&lt;p&gt;(2024-05-24)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Use the attribute &lt;code&gt;font-size&lt;/code&gt; of tag &lt;code&gt;&amp;lt;p&amp;gt;&lt;/code&gt;,
+e.g., &lt;code&gt;&amp;lt;p style=&amp;quot;font-size:10px&amp;quot;&amp;gt;text&amp;lt;/p&amp;gt;&lt;/code&gt;: &lt;p style=&#34;font-size:10px&#34;&gt;text&lt;/p&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Keep the text &lt;strong&gt;inline&lt;/strong&gt; without going to a new line:
+&lt;code&gt;&amp;lt;span style=&amp;quot;font-size:10px; color:red;&amp;quot;&amp;gt;text&amp;lt;/span&amp;gt;&lt;/code&gt;:
+&lt;span style=&#34;font-size:10px; color:red;&#34;&gt;text&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;&amp;lt;small&amp;gt;text&amp;lt;/small&amp;gt;&lt;/code&gt;: &lt;small&gt;text&lt;/small&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Deprecated in HTML5: &lt;code&gt;&amp;lt;font size=&amp;quot;3&amp;quot; color=&amp;quot;red&amp;quot;&amp;gt;text&amp;lt;/font&amp;gt;&lt;/code&gt;:
+&lt;font size=&#34;1&#34; color=&#34;red&#34;&gt;text&lt;/font&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;iframe&#34;&gt;iframe&lt;/h2&gt;
+&lt;p&gt;(2024-01-21)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The size of the content can be set as below:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&amp;lt;iframe &lt;span class=&#34;nv&#34;&gt;width&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;560&amp;#34;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;height&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;315&amp;#34;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;src&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;https://www.youtube.com/embed/-P28LKWTzrI?si=szYmMkdL7Ixw-6_4&amp;#34;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;title&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;YouTube video player&amp;#34;&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;frameborder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;0&amp;#34;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;allow&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&amp;#34;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;allowfullscreen&amp;gt;&amp;lt;/iframe&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         <item>

@@ -281,7 +281,7 @@
 
 
                 <time class="article-time--reading">
-                    14 minute read
+                    17 minute read
                 </time>
             </div>
         
@@ -1185,21 +1185,50 @@ The code is from <a class="link" href="https://github.com/graphdeco-inria/diff-g
 <p>The preprocess directive <code>#include</code> will <strong>copy and paste</strong> a header file to there.</p>
 </li>
 <li>
-<p>Header files can <strong>form a chain</strong>, whereas a potential probelm is repeated difinations. (e.g. structs need unique names.)</p>
+<p>Header files can <strong>form a chain</strong>, whereas a potential probelm is <strong>repeated</strong> difinations. (e.g. structs need unique names.)</p>
 <ul>
 <li>
 <p>The header guide <code>#pragma once</code> marks a header file <strong>won&rsquo;t be included multiple times</strong> into <strong>a single</strong> translation unit (cpp file).</p>
 </li>
 <li>
 <p>Old fasion is wrapping the entire header file with <code>#ifndef symbol</code> and <code>#endif</code></p>
+<p>(2024-06-03)</p>
+<ul>
+<li>
+<p><a class="link" href="https://cplusplus.com/articles/Gw6AC542/"  target="_blank" rel="noopener"
+    >Include Guards</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">//x.h
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#ifndef __X_H_INCLUDED__   </span><span class="c1">// if x.h hasn&#39;t been included yet...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#define __X_H_INCLUDED__   </span><span class="c1">// #define this so the compiler knows it has been included
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">X</span> <span class="p">{</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#endif 
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
 </li>
 </ul>
 </li>
 <li>
-<p>Suffix <code>.h</code> is used to <strong>differentiate</strong> &ldquo;c standard library&rdquo; (<code>&lt;stdio.h&gt;</code>) and &ldquo;c++ standard libray&rdquo; (<code>&lt;iostream&gt;</code>)</p>
+<p>Suffix <code>.h</code> is used to <strong>differentiate</strong> &ldquo;C standard library&rdquo; (<code>&lt;stdio.h&gt;</code>) and &ldquo;C++ standard libray&rdquo; (<code>&lt;iostream&gt;</code>)</p>
 </li>
 <li>
-<p>Angular brackets <code>&lt;fname&gt;</code> wll search the &ldquo;standard include directories&rdquo; (of compiler) for the file named <code>fname</code>.</p>
+<p>Angular brackets <code>&lt;fname&gt;</code> will search the &ldquo;standard include directories&rdquo; (of compiler) for the file named <code>fname</code>.</p>
 <p>While double qutoes <code>&quot;../myHeader.h&quot;</code> normaly enclose a <strong>relative path</strong>,
 although it can enclose a file that resides in &ldquo;standard include directories&rdquo; as well (e.g., <code>&quot;iostream&quot;</code>).</p>
 </li>
@@ -1214,6 +1243,131 @@ although it can enclose a file that resides in &ldquo;standard include directori
     >C++ Header Files - The Cherno</a></li>
 <li><a class="link" href="https://en.cppreference.com/w/cpp/preprocessor/include"  target="_blank" rel="noopener"
     >Source file inclusion - cppreference.com</a></li>
+</ol>
+<hr>
+<p>(2024-05-13)</p>
+<p>Ref: <a class="link" href="https://www.bilibili.com/video/BV18Z421j7e1/"  target="_blank" rel="noopener"
+    >C/C++头文件里有什么, 什么是接口与实现分离, 为什么这么干? 代码知识 - 不停感叹的老林</a></p>
+<ul>
+<li>头文件的意义：多处声明，一处定义</li>
+</ul>
+<hr>
+<p>(2024-06-03)</p>
+<p>Ref: <a class="link" href="https://cplusplus.com/articles/Gw6AC542/"  target="_blank" rel="noopener"
+    >Headers and Includes: Why and How - C++ Articles - Disch</a>
+(<small>Found by <a class="link" href="https://duckduckgo.com/?q=How&#43;to&#43;find&#43;the&#43;source&#43;code&#43;implementation&#43;given&#43;a&#43;header&#43;file&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a></small>)</p>
+<ol>
+<li>
+<p>Since each source file is compiled <strong>individually</strong> to object files (which are binary too) before linking them together,
+the header files are needed to make the function interface recognizable for the compiler,
+and keep the implementation individual.</p>
+<ul>
+<li>
+<p>Keeping each file self-contained facilitates making modifications.</p>
+<ul>
+<li>
+<p>As each source file is compiled <strong>separately</strong>, the implementation of a function is unknown in another source file.
+So the header file is a &ldquo;messenger&rdquo; between them by telling funcitons&rsquo; <strong>interface</strong> to each other.</p>
+<p>Thus, functions&rsquo; interface and their implementation are separated.</p>
+</li>
+<li>
+<p>Spliting the program to multiple piece files instead of a single comprehensive file
+helps debugging and facilitate compilation (only compile the needed file).</p>
+</li>
+</ul>
+</li>
+<li>
+<p>The compiler compiles (translate) <strong>each</strong> source file into a binary (object file),
+and the linker finds function implementations, and connects the object files and precompiled libraries together.
+<small>
+<a class="link" href="https://www.learncpp.com/cpp-tutorial/introduction-to-the-compiler-linker-and-libraries/"  target="_blank" rel="noopener"
+    >0.5 — Introduction to the compiler, linker, and libraries</a>
+</small></p>
+<figure><a href="https://cplusplus.com/articles/2v07M4Gy/"><img src="https://cplusplus.com/articles/2v07M4Gy/Selection_101.png" width="72%"/></a>
+     </figure>
+
+</li>
+</ul>
+</li>
+<li>
+<p><code>#include</code> is <strong>copy &amp; paste</strong> during preprocessing.</p>
+<ul>
+<li>Header files are pasted (#included) and not compiled, whereas source files are compiled and <strong>not</strong> included.</li>
+</ul>
+</li>
+<li>
+<p><strong>Do not</strong> #include <strong>source files</strong>.</p>
+<p>Only #include the <strong>necessary</strong> things in header files.</p>
+</li>
+<li>
+<p>Try to avoid #include the <strong>full</strong> .h file:</p>
+<p>Do nothing ❮ Forward declare A ❮ #include &ldquo;a.h&rdquo;</p>
+<ul>
+<li>
+<p>Forward declared dependencies: <code>class aClass;</code></p>
+</li>
+<li>
+<p>The <a class="link" href="https://cplusplus.com/articles/Gw6AC542/#:~:text=to%20do%20the-,least%20drastic,-option%20possible.%20Do"  target="_blank" rel="noopener"
+    >right way to include</a>:
+&ldquo;Forward declare <strong>when you can</strong>, don&rsquo;t #include unless it&rsquo;s <strong>necessary</strong>&rdquo;</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Use a <strong>pointer or reference</strong> to an object <code>aClass* a</code>, instead of instantiating a full object: <code>aClass a</code>,
+<strong>and then</strong> use forward declaration: <code>class aClass;</code> to avoid the circular inclusion problem where using <code>#include &quot;a.h&quot;</code> is necessary.</p>
+</li>
+<li>
+<p>inline functions require their function body to exist in the <strong>every cpp</strong> file that calls them.</p>
+<p>Their function bodies can be put in a <strong>header file</strong>.</p>
+</li>
+<li>
+<p>The forward declaration for a template class requires <code>typedef</code>,
+which could cause inconvenience as all files that use the template class need to be modified manually when the template class changes.</p>
+<p>The solution is putting the typedef of the template class in a <strong>header file</strong> and then #include it in another header file.</p>
+</li>
+</ol>
+<hr>
+<p>(2024-06-04)</p>
+<p>Ref: <a class="link" href="https://stackoverflow.com/a/33786390/18003182"  target="_blank" rel="noopener"
+    >How a compiler knows from a header file, that a source file exists somewhere? - SO</a>
+(<small>Found in <a class="link" href="https://duckduckgo.com/?q=where&#43;to&#43;find&#43;the&#43;source&#43;file&#43;given&#43;the&#43;declaration&#43;in&#43;cpp&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a></small>)</p>
+<ol>
+<li>
+<p><code>#include &quot;myfile.h&quot;</code> has a <code>broader</code> searching scope than <code>#include &lt;stdio.h&gt;</code></p>
+<p>The <code>&quot;&quot;</code> will search in the current working folder besides the predefined standard well-known directories.</p>
+</li>
+<li>
+<p>Including a header <code>#include math.h</code> but without linking the library <code>libm.a</code> into the executable binary, by specifying it in the <code>gcc</code> build command: <code>-lm</code>,
+the functions in <code>libm.a</code> can&rsquo;t be called</p>
+<ul>
+<li>Gcc convention: For a precompiled library: <code>lib&lt;name&gt;.a</code>, the argument to link it: <code>-l&lt;name&gt;</code>.</li>
+</ul>
+</li>
+<li>
+<p><code>-I</code> and <code>-L</code> specify the <strong>additional</strong> searching paths to headers and libraries.</p>
+</li>
+</ol>
+<hr>
+<p>Ref: <a class="link" href="https://www.codeproject.com/Articles/5341253/C-Cplusplus-Headers-and-Source-Files-How-Do-They-W"  target="_blank" rel="noopener"
+    >C/C++ Headers and Source Files: How Do They Work? - codeproject</a>
+(<small>Not accurate enough</small>)</p>
+<ol>
+<li>
+<p>Everything (<strong>function</strong>, struct, variable) in cpp needs a <strong>declaration before using</strong> it,
+so header files are <strong>pasted</strong> in the source file with <code>#include</code>.</p>
+<ul>
+<li><strong>Header files are declarations</strong> informing the compiler.</li>
+</ul>
+</li>
+<li>
+<p>Semicolon after the function signature indicates to the compiler that this is a function prototype declaration, rather than the definition.</p>
+</li>
+<li>
+<p>Compilation only process source files, as header files already have been pasted into source files.</p>
+</li>
 </ol>
 <hr>
 <h2 id="compiling--linking">Compiling &amp; Linking</h2>
@@ -1398,6 +1552,128 @@ The linker won&rsquo;t be confused.</p>
 </ol>
 <p>Ref: <a class="link" href="https://youtu.be/H4s55GgAg0I"  target="_blank" rel="noopener"
     >How the C++ Linker Works - The Cherno</a></p>
+<hr>
+<p>(2024-06-04)</p>
+<p><a class="link" href="https://www.toptal.com/c-plus-plus/c-plus-plus-understanding-compilation"  target="_blank" rel="noopener"
+    >How C++ Works: Understanding Compilation | Toptal</a>
+<small>(Found in <a class="link" href="https://duckduckgo.com/?q=compile&#43;and&#43;link&#43;in&#43;cpp&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>)</small></p>
+<ol>
+<li>
+<p>Preprocess: Copy/paste header files to source files:</p>
+<p>&ldquo;test-compile.cpp&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[]</span> <span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Hello&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Add <code>-E</code> option to stop the compiler after preprocessing:
+(Found by <a class="link" href="https://www.perplexity.ai/search/What-is-the-UBLTZPcuRsaygmzR12H0CQ"  target="_blank" rel="noopener"
+    >perplexity</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gcc -E test-compile.cpp -o test-compile.ii
+</span></span><span class="line"><span class="cl">wc test-compile.ii
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>The preprocessing and compiling in c++ is similar to c lang.</li>
+</ul>
+</li>
+<li>
+<p>Compile <strong>each source</strong> file separately to generate a object file:
+(<a class="link" href="https://www.toptal.com/c-plus-plus/c-plus-plus-understanding-compilation#how-source-files-import-and-export-symbols"  target="_blank" rel="noopener"
+    >sec2</a>)</p>
+<p>Given a c file: &ldquo;sum.c&rdquo;:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">sumI</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">){</span> <span class="k">return</span> <span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">;}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">float</span> <span class="nf">sumF</span><span class="p">(</span><span class="kt">float</span> <span class="n">a</span><span class="p">,</span> <span class="kt">float</span> <span class="n">b</span><span class="p">){</span><span class="k">return</span> <span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">;}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><code>-c</code> stops the compiler after compiling before linking.
+<a class="link" href="https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html#index-c"  target="_blank" rel="noopener"
+    >manual</a>
+(<a class="link" href="https://stackoverflow.com/a/14724410/18003182"  target="_blank" rel="noopener"
+    >SO</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">yi@Alien:~/Downloads/Cpp_Study$ gcc -c test_compile.cpp -o sum.o
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>nm</code> lists symbols from object files.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">yi@Alien:~/Downloads/Cpp_Study$ nm sum.o
+</span></span><span class="line"><span class="cl"><span class="m">0000000000000018</span> T _Z4sumFff
+</span></span><span class="line"><span class="cl"><span class="m">0000000000000000</span> T _Z4sumIii
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>No symbol is imported. Two symbols are exported as part of the .text segment <code>T</code>. (Don&rsquo;t understand)</p>
+</li>
+<li>
+<p><code>_Z4sumFff</code> and <code>_Z4sumIii</code> are the names used by other source files calling the 2 functions.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>#include header files is <strong>declaring</strong> the 2 functions</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li>
+<p>Mix calling C and C++ functions</p>
+<ul>
+<li>Function symbols in cpp enable the feature of overload when several functions have the same name but different input arguments.</li>
+</ul>
+</li>
+<li>
+<p>Link all the object files to generte a binary file.</p>
+</li>
+</ol>
+<hr>
+<p>(2024-06-06)</p>
+<ul>
+<li>
+<p>Compile 的中文翻译：编译 = 翻译 + 编纂。编纂的意思是把多个文件放到一起。</p>
+<p>pile 是“一摞”, compile 是把一摞文件放到一起。</p>
+</li>
+</ul>
 <hr>
 <h2 id="find-next-msb">Find Next MSB</h2>
 <p>(2023-11-17)</p>
