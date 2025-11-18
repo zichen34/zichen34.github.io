@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" 换元法 The area of a cube in orthogonal coordinate system and the spherical coordinate system.\n直角坐标与极坐标的互化中，为什么 dxdy=rdrdθ？ - 予一人的回答 - 知乎\n立体角\n如何推导柱坐标，球坐标的体积元和极坐标的面积元？ - 半个冯博士的回答 - 知乎\nChange of variables | MIT 18.02SC Multivariable Calculus, Fall 2010 - Youtube\n(2024-06-17)\nI think the change of variables is used for integral, specifially, when a small area, e.g., $dxdy$, is replaced with another facet $dudv$ of another space.\n$$ \\iint_R (4x^2 - y^2) dxdy \\overset{\\substack{u=2x+y; \\\\\\ v=2x-y}}{→} \\int_0^2 \\int_{-v}^0 (uv)^2 \\frac{1}{4} du dv $$ y 2 2 x 2 + x y - = y 2 = x 0 - 2 ⋱ ⋱ ⋱ ⋱ V 2 u However, when changing the variable 𝑢 in a function $f(𝑢)$ to another form, e.g., $u = 2(t+1)$, the variable-changed function $f_u(t)$ is just replacing 𝑢 with $2(t+1)$:\n">
+<title>memo: Calc | Change of Variables Theorem</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/change_of_variables/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: Calc | Change of Variables Theorem">
+<meta property='og:description' content=" 换元法 The area of a cube in orthogonal coordinate system and the spherical coordinate system.\n直角坐标与极坐标的互化中，为什么 dxdy=rdrdθ？ - 予一人的回答 - 知乎\n立体角\n如何推导柱坐标，球坐标的体积元和极坐标的面积元？ - 半个冯博士的回答 - 知乎\nChange of variables | MIT 18.02SC Multivariable Calculus, Fall 2010 - Youtube\n(2024-06-17)\nI think the change of variables is used for integral, specifially, when a small area, e.g., $dxdy$, is replaced with another facet $dudv$ of another space.\n$$ \\iint_R (4x^2 - y^2) dxdy \\overset{\\substack{u=2x+y; \\\\\\ v=2x-y}}{→} \\int_0^2 \\int_{-v}^0 (uv)^2 \\frac{1}{4} du dv $$ y 2 2 x 2 + x y - = y 2 = x 0 - 2 ⋱ ⋱ ⋱ ⋱ V 2 u However, when changing the variable 𝑢 in a function $f(𝑢)$ to another form, e.g., $u = 2(t+1)$, the variable-changed function $f_u(t)$ is just replacing 𝑢 with $2(t+1)$:\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/change_of_variables/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2023-11-27T19:30:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-27T19:30:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: Calc | Change of Variables Theorem">
+<meta name="twitter:description" content=" 换元法 The area of a cube in orthogonal coordinate system and the spherical coordinate system.\n直角坐标与极坐标的互化中，为什么 dxdy=rdrdθ？ - 予一人的回答 - 知乎\n立体角\n如何推导柱坐标，球坐标的体积元和极坐标的面积元？ - 半个冯博士的回答 - 知乎\nChange of variables | MIT 18.02SC Multivariable Calculus, Fall 2010 - Youtube\n(2024-06-17)\nI think the change of variables is used for integral, specifially, when a small area, e.g., $dxdy$, is replaced with another facet $dudv$ of another space.\n$$ \\iint_R (4x^2 - y^2) dxdy \\overset{\\substack{u=2x+y; \\\\\\ v=2x-y}}{→} \\int_0^2 \\int_{-v}^0 (uv)^2 \\frac{1}{4} du dv $$ y 2 2 x 2 + x y - = y 2 = x 0 - 2 ⋱ ⋱ ⋱ ⋱ V 2 u However, when changing the variable 𝑢 in a function $f(𝑢)$ to another form, e.g., $u = 2(t+1)$, the variable-changed function $f_u(t)$ is just replacing 𝑢 with $2(t+1)$:\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" style="background-color: #6e57d2; color: #fff;">
+                Memo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/change_of_variables/">memo: Calc | Change of Variables Theorem</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 27, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+
+
+    
+    
+    <ul>
+<li>换元法</li>
+</ul>
+<p>The area of a cube in orthogonal coordinate system and the spherical coordinate system.</p>
+<ul>
+<li>
+<p><a class="link" href="https://www.zhihu.com/question/368888687/answer/992671463"  target="_blank" rel="noopener"
+    >直角坐标与极坐标的互化中，为什么 dxdy=rdrdθ？ - 予一人的回答 - 知乎</a></p>
+</li>
+<li>
+<p>立体角</p>
+</li>
+<li>
+<p><a class="link" href="https://www.zhihu.com/question/270842108/answer/1448277431"  target="_blank" rel="noopener"
+    >如何推导柱坐标，球坐标的体积元和极坐标的面积元？ - 半个冯博士的回答 - 知乎</a></p>
+</li>
+<li>
+<p><a class="link" href="https://youtu.be/lCKxeRiBdjQ?si=rnEfwIefJWD1VOfx"  target="_blank" rel="noopener"
+    >Change of variables | MIT 18.02SC Multivariable Calculus, Fall 2010 - Youtube</a></p>
+<p>(2024-06-17)</p>
+<ul>
+<li>
+<p>I think the change of variables is used for <strong>integral</strong>,
+specifially, when a small <strong>area</strong>, e.g., $dxdy$, is replaced with another facet $dudv$ of another space.</p>
+$$
+    \iint_R (4x^2 - y^2) dxdy \overset{\substack{u=2x+y; \\\ v=2x-y}}{→} \int_0^2 \int_{-v}^0 (uv)^2 \frac{1}{4} du dv
+    $$
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 312 153"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 160,32 L 240,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,112 L 80,112' fill='none' stroke='currentColor'></path>
+<path d='M 160,112 L 240,112' fill='none' stroke='currentColor'></path>
+<path d='M 240,112 L 296,112' fill='none' stroke='currentColor'></path>
+<path d='M 16,0 L 16,112' fill='none' stroke='currentColor'></path>
+<path d='M 240,0 L 240,32' fill='none' stroke='currentColor'></path>
+<path d='M 240,32 L 240,112' fill='none' stroke='currentColor'></path>
+<path d='M 16,112 L 40,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,16 L 40,64' fill='none' stroke='currentColor'></path>
+<polygon points='24.000000,0.000000 12.000000,-5.600000 12.000000,5.600000' fill='currentColor' transform='rotate(270.000000, 16.000000, 0.000000)'></polygon>
+<polygon points='88.000000,112.000000 76.000000,106.400002 76.000000,117.599998' fill='currentColor' transform='rotate(0.000000, 80.000000, 112.000000)'></polygon>
+<polygon points='248.000000,0.000000 236.000000,-5.600000 236.000000,5.600000' fill='currentColor' transform='rotate(270.000000, 240.000000, 0.000000)'></polygon>
+<polygon points='304.000000,112.000000 292.000000,106.400002 292.000000,117.599998' fill='currentColor' transform='rotate(0.000000, 296.000000, 112.000000)'></polygon>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>+</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='64' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='72' y='84' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='80' y='84' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='80' y='132' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='88' y='84' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='160' y='132' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='168' y='132' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='192' y='68' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='224' y='100' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>V</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='296' y='132' fill='currentColor' style='font-size:1em'>u</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>
+<p>However, when changing the variable 𝑢 in a <strong>function</strong> $f(𝑢)$ to another form, e.g., $u = 2(t+1)$,
+the variable-changed function $f_u(t)$ is just replacing 𝑢 with $2(t+1)$:</p>
+<p>Given $f(u) = u^2 + 1$,
+the form represented by 𝑡 is $f_u(t) = (2(t+1))^2+1 = 4t^2+8t+5$.
+There is <strong>no infinitesimal</strong>, such as 𝑑𝑢, that requires maintaining equal area when it gets replaced with the variable t.</p>
+<p><img src="/post/writenotes/calc/change_of_variables/Change_of_variable.jpg"
+	width="1052"
+	height="689"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="152"
+		data-flex-basis="366px"
+	
+></p>
+</li>
+</ul>
+</li>
+<li>
+<p>The region to be integrated over can be simplified by doing the change of variable.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><a class="link" href="https://youtu.be/4XiUig8mzNc?si=MdoWyOBOQ9TA1iTw"  target="_blank" rel="noopener"
+    >Change of variables (single integral and substitution) | Lecture 30 | Vector Calculus for Engineers</a></p>
+</li>
+<li>
+<p><a class="link" href="https://youtu.be/hhFzJvaY__U?si=6lJr8F4lPAdtw_KT"  target="_blank" rel="noopener"
+    >Change of Variables and the Jacobian - Serpentine Integral</a></p>
+<p>An infinitesimal area varies in different coordinate system because shapes of a unit area are distinct.
+In other words, different coordinate systems have varous scales.</p>
+<p>In polar coordinate system:</p>
+$$ x = r⋅cosθ \\\ y = r⋅sinθ $$<p>Jacobian matrix is a <strong>function</strong> that depicts how much each dimension of the source space should be <strong>scaled</strong> to
+align with another coordinate system at an arbitrary position.</p>
+<p>The scale factor is the <strong>ratio</strong> between a target dimension and a source dimension.
+Thus, by multiplying those factors, the source space will be scaled to the target space.</p>
+$$
+  𝐉 = \begin{bmatrix} \frac{dx}{dr} & \frac{dx}{dθ} \\\ \\\
+  \frac{dy}{dr} & \frac{dy}{dθ} \end{bmatrix}
+  $$<p>Because an infinitesimal area $dx⋅dy$ <strong>only has magnitude</strong> (without direction),
+the area scaling factor should be just a <strong>positive real number</strong>.</p>
+<p>To make the area in the source space to be the same in the target space, the scaling factor should be the <strong>ratio of two unit areas</strong>.</p>
+$$
+  \frac{d(x,y)}{d(r,θ)}
+  $$<p>That is $f(x,y) = g(r,θ) dx dy$, so the integrated areas equals:</p>
+$$
+  ∬_D f(x,y) dx dy = ∬_E g(r,θ) dx dy = ∬_E g(r,θ) ∂(x,y)/∂(r,θ) drdθ
+  $$<p>And the calculation of an area is just the cumulative product of every dimensions.</p>
+<p>Therefore, the <strong>abosolute value of the determinant</strong> of the Jacobian matrix is taken.</p>
+$$
+  |det(𝐉)| = |dx/dr * dy/dθ - dx/dθ * dy/dr | = |cosθ*rcosθ - rsinθ*(-sinθ)| = |r|
+  $$</li>
+<li>
+<p><a class="link" href="https://math.libretexts.org/Bookshelves/Calculus/Book%3A_Active_Calculus_%28Boelkins_et_al.%29/11%3A_Multiple_Integrals/11.09%3A_Change_of_Variables"  target="_blank" rel="noopener"
+    >11.9: Change of Variables - Mathematics LibreTexts</a></p>
+</li>
+</ul>
+<hr>
+<p>(2023-11-28)</p>
+<p>The determinant of Jacobian matrix is responsible for the infinitesimal area, not the integrand.</p>
+<p>The new integrand is just substituting the old variable with the tranformation with new variable.</p>
+<ul>
+<li>
+<p>f(x,y) -&gt; g(rcosθ, rsinθ)</p>
+</li>
+<li>
+<p>dxdy -&gt; r drdθ</p>
+</li>
+<li>
+<p>f(x,y) = g(rcosθ, rsinθ) * r</p>
+</li>
+</ul>
+<hr>
+<p>The change of variables theorem has two aspects:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 336 89"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 64,0 L 88,0' fill='none' stroke='currentColor'></path>
+<path d='M 248,0 L 264,0' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 248,64 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 56,16 L 64,0' fill='none' stroke='currentColor'></path>
+<path d='M 272,64 L 280,48' fill='none' stroke='currentColor'></path>
+<path d='M 56,48 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 272,0 L 280,16' fill='none' stroke='currentColor'></path>
+<polygon points='80.000000,64.000000 68.000000,58.400002 68.000000,69.599998' fill='currentColor' transform='rotate(180.000000, 72.000000, 64.000000)'></polygon>
+<polygon points='96.000000,0.000000 84.000000,-5.600000 84.000000,5.600000' fill='currentColor' transform='rotate(0.000000, 88.000000, 0.000000)'></polygon>
+<polygon points='256.000000,64.000000 244.000000,58.400002 244.000000,69.599998' fill='currentColor' transform='rotate(180.000000, 248.000000, 64.000000)'></polygon>
+<polygon points='272.000000,0.000000 260.000000,-5.600000 260.000000,5.600000' fill='currentColor' transform='rotate(0.000000, 264.000000, 0.000000)'></polygon>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='104' y='68' fill='currentColor' style='font-size:1em'>M</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='112' y='68' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='68' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='136' y='68' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='144' y='68' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='152' y='68' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='160' y='68' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='176' y='68' fill='currentColor' style='font-size:1em'>|</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='184' y='68' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='192' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>J</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>|</text>
+<text text-anchor='middle' x='280' y='36' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='288' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='296' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='304' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='312' y='36' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>)</text>
+</g>
+
+    </svg>
+  
+</div>
+<hr>
+<p>(2024-07-07)</p>
+<ul>
+<li><a class="link" href="https://www.bilibili.com/video/BV1eJ4m1M7jw/"  target="_blank" rel="noopener"
+    >形象理解雅可比行列式与多重积分-工程形象</a></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" torch.view() 只能处理 contiguous tensor，但 torch.reshape() 不限。\n我在改变形状时：latent = latent.view(SB, NS, self.latent_size, B).permute(0,3,1,2).view(-1, NS, self.latent_size)，\n报错： RuntimeError: view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead.\ncontiguous means &ldquo;Two adjacent cells in a row of tensor are neighbors on the memory as well&rdquo;. What is the difference between contiguous and non-contiguous arrays?\n(2023-12-23) &ldquo;数组存储顺序与按行展开的顺序一致&rdquo;。 【代码精读】开山之作MVSNet PyTorch版本超详细分析 - doubleZ的文章 - 知乎\n">
+<title>memo: PyTorch | Contiguous &amp; Stride</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lib/pytorch-contiguity/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: PyTorch | Contiguous & Stride">
+<meta property='og:description' content=" torch.view() 只能处理 contiguous tensor，但 torch.reshape() 不限。\n我在改变形状时：latent = latent.view(SB, NS, self.latent_size, B).permute(0,3,1,2).view(-1, NS, self.latent_size)，\n报错： RuntimeError: view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead.\ncontiguous means &ldquo;Two adjacent cells in a row of tensor are neighbors on the memory as well&rdquo;. What is the difference between contiguous and non-contiguous arrays?\n(2023-12-23) &ldquo;数组存储顺序与按行展开的顺序一致&rdquo;。 【代码精读】开山之作MVSNet PyTorch版本超详细分析 - doubleZ的文章 - 知乎\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lib/pytorch-contiguity/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-08-21T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-08-21T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: PyTorch | Contiguous & Stride">
+<meta name="twitter:description" content=" torch.view() 只能处理 contiguous tensor，但 torch.reshape() 不限。\n我在改变形状时：latent = latent.view(SB, NS, self.latent_size, B).permute(0,3,1,2).view(-1, NS, self.latent_size)，\n报错： RuntimeError: view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead.\ncontiguous means &ldquo;Two adjacent cells in a row of tensor are neighbors on the memory as well&rdquo;. What is the difference between contiguous and non-contiguous arrays?\n(2023-12-23) &ldquo;数组存储顺序与按行展开的顺序一致&rdquo;。 【代码精读】开山之作MVSNet PyTorch版本超详细分析 - doubleZ的文章 - 知乎\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#stride">Stride</a></li>
+    <li><a href="#read-write-head">Read-Write Head</a></li>
+    <li><a href="#rectangles-shape">Rectangle&rsquo;s Shape</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lib/pytorch-contiguity/">memo: PyTorch | Contiguous &amp; Stride</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 21, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#stride">Stride</a></li>
+    <li><a href="#read-write-head">Read-Write Head</a></li>
+    <li><a href="#rectangles-shape">Rectangle&rsquo;s Shape</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <ul>
+<li>
+<p>torch.view() 只能处理 contiguous tensor，但 torch.reshape() 不限。</p>
+<p>我在改变形状时：<code>latent = latent.view(SB, NS, self.latent_size, B).permute(0,3,1,2).view(-1, NS, self.latent_size)</code>，</p>
+<p>报错：
+<code>RuntimeError: view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead.</code></p>
+<ul>
+<li>
+<p>contiguous means &ldquo;Two adjacent cells in <strong>a row of tensor</strong> are neighbors on the memory as well&rdquo;.
+<a class="link" href="https://stackoverflow.com/a/26999092/18003182"  target="_blank" rel="noopener"
+    >What is the difference between contiguous and non-contiguous arrays?</a></p>
+<p>(2023-12-23) &ldquo;数组存储顺序与按行展开的顺序一致&rdquo;。
+<a class="link" href="https://zhuanlan.zhihu.com/p/460190156"  target="_blank" rel="noopener"
+    >【代码精读】开山之作MVSNet PyTorch版本超详细分析 - doubleZ的文章 - 知乎</a></p>
+</li>
+<li>
+<p>view vs reshape: <a class="link" href="https://stackoverflow.com/q/49643225/18003182"  target="_blank" rel="noopener"
+    >What&rsquo;s the difference between reshape and view in pytorch?</a></p>
+</li>
+<li>
+<p>Find whether a tensor is copied or not after <code>reshape</code>:
+Check if the reshaped tensor will be affected by the original tensor.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="stride">Stride
+</h2><ul>
+<li>
+<p>(2023-09-28) <code>contiguous</code> means the <strong>relative</strong> sequence (underlying 1D memory arrangement when they were first created) of elements in a tensor hasn&rsquo;t been changed, although the <code>shape</code> can be mutated.
+(The data on memory blocks <strong>never reshape</strong>.)</p>
+<p>E.g., the layout of <code>a = torch.arange(4)</code> means 0,1,2,3 are next to each other in this order. <code>a.stride()</code> is (1,).</p>
+<ol>
+<li>
+<p><code>b = a.reshape(2,2)</code> $\[^{[0,1]}_{[2,3]}]$ is still contiguous.
+Because only the data&rsquo;s dimensional interpretation changed,
+and the read order of 0,1,2,3 didn&rsquo;t change. <code>b.stride()</code> is (2,1).</p>
+</li>
+<li>
+<p><code>torch.flip(b, [0])</code> $\[^{[2,3]}_{[0,1]}]$
+is contiguous, because they&rsquo;re next to each other in terms of the tensor&rsquo;s <code>.stride()</code> which remains (2,1).</p>
+</li>
+<li>
+<p>The <strong>stride</strong> is responsible to the initial underlying layout, if the stride gets changed, the tensor won&rsquo;t be contiguous anymore.</p>
+<p>The operation <code>transpose</code> and <code>permute</code> will change stride, which isn&rsquo;t row-contiguous any longer.</p>
+<p>so <code>b.transpose(0,1)</code> or <code>b.permute(1,0)</code>: $\[^{[0,2]}_{[1,3]}]$
+is not contiguous any more.</p>
+</li>
+<li>
+<p><code>.contiguous()</code> will change the stride to match the current shape.
+<a class="link" href="https://stackoverflow.com/a/69599806/18003182"  target="_blank" rel="noopener"
+    >What does .contiguous() do in PyTorch?</a></p>
+<p>(2023-12-22) <code>.contiguous()</code> will copy the data to a new memory strip, which can be checked via <code>.storage()</code>.
+The new and the original tensors won&rsquo;t affect each other.
+<a class="link" href="https://medium.com/analytics-vidhya/pytorch-contiguous-vs-non-contiguous-tensor-view-understanding-view-reshape-73e10cdfa0dd"  target="_blank" rel="noopener"
+    >Pytorch - Contiguous vs Non-Contiguous Tensor / View — Understanding view(), reshape(), transpose() - Kathryn</a></p>
+</li>
+<li>
+<p><code>.permute()</code> made <code>.stride()</code> <strong>decoupled</strong> with the tensor&rsquo;s varying shapes mutating from the original shape.</p>
+<p>That means when the tensor reverts to the original size, the <code>.stride()</code> won&rsquo;t return to the structure matched with the tensor&rsquo;s original shape.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="c1"># contiguous</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># (4,2) not contiguous</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>    <span class="c1"># Can&#39;t work </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># because the stride don&#39;t match the target shape</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">b</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Or use </span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="c1"># will copy data if .view() don&#39;t work.</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Therefore, <code>.contiguous()</code> is necessary before <code>view()</code> after <code>transpose()</code> or <code>permute()</code>.</p>
+</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="read-write-head">Read-Write Head
+</h2><ul>
+<li>
+<p>(2023-10-13) stride 是为了从一条内存上索引（&ldquo;拼凑&rdquo;） <strong>取出</strong> 张量的某一个维度，读写头的步幅。
+<a class="link" href="https://stackoverflow.com/a/32034565/18003182"  target="_blank" rel="noopener"
+    >How does NumPy&rsquo;s transpose() method permute the axes of an array?</a></p>
+<ul>
+<li>
+<p>计算一个 tensor 的 stride：给定一个 contiguous 的tensor： x.shape = (2,2,4), 则 x.stride() = (8,4,1), 所以
+一个维度上的 stride 等于它后面的维数累乘：8=2×4, 4=4×1, 1=1.</p>
+<p><a class="link" href="https://www.bilibili.com/video/BV1Zw411y7Ks/"  target="_blank" rel="noopener"
+    >【pytorch Tensor shape 变化 view 与 reshape（contiguous 的理解）】</a></p>
+</li>
+<li>
+<p>transpose 转置某2个维度，即交换那两个维度上的 stride，不同的维度在内存上走不同的距离。</p>
+</li>
+<li>
+<p><code>.T</code> 会倒序全部维度上的 stride, e.g., (2,2,4) -&gt; (4,2,2)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>(2023-10-23) Examples:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># stride: (3,1,1)</span>
+</span></span><span class="line"><span class="cl"><span class="n">tensor</span><span class="p">([[[</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">2</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="p">[[</span><span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">5</span><span class="p">]]])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">&gt;&gt;&gt;</span> <span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># stride: (1,3,1), not contiguous</span>
+</span></span><span class="line"><span class="cl"><span class="n">tensor</span><span class="p">([[[</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="p">[[</span><span class="mi">1</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">4</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="p">[[</span><span class="mi">2</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">5</span><span class="p">]]])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">&gt;&gt;&gt;</span> <span class="n">c</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># stride: (3,1,1), contiguous</span>
+</span></span><span class="line"><span class="cl"><span class="n">tensor</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="p">[[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]]])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># stride: (1,1,3), not contiguous</span>
+</span></span><span class="line"><span class="cl"><span class="n">tensor</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">]]])</span>
+</span></span><span class="line"><span class="cl"><span class="o">&gt;&gt;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">T</span>    <span class="c1"># stride: (1,1,3)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><code>.transpose</code> <strong>swaps</strong> strides, <code>.T</code> <strong>reverses</strong> strides, and <code>permute</code> <strong>reorders</strong> strides,
+while <code>.view</code> <strong>changes</strong> stride to match the shape while keeping elements &ldquo;互相接壤的&rdquo;。</p>
+</li>
+<li>
+<p>contiguous &ldquo;互相接壤的&rdquo;： 矩阵的一行中相邻的 2 个元素，在内存上也相邻。
+其中，矩阵一行的末尾与下一行的开头相邻。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>(2023-10-24) contiguous means that no matter how the shape changes, the movement of the read/write head acts like indexing a <strong>flattened tensor</strong>.</p>
+</li>
+</ul>
+<hr>
+<h2 id="rectangles-shape">Rectangle&rsquo;s Shape
+</h2><ul>
+<li>
+<p>(2023-12-10) Changing the shape of a tensor is like stretching an area-fixed rectangle, although h and w are changed,
+the relative order of internal elements is not changed.</p>
+<img src="pytorch_view_A_fixed_length_rope_rectangles_.jpeg">
+<ul>
+<li>Imagine dragging the <strong>bottom right corner</strong> to change the height and width of the rectangle.</li>
+</ul>
+<p>Alternatively, one can imagine the data as sand grains being enclosed by a size-changble frame.
+And once the shape changed, the rows are filled up first:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 384 217"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 64,16 L 80,16' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 96,16' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 112,16' fill='none' stroke='currentColor'></path>
+<path d='M 112,16 L 128,16' fill='none' stroke='currentColor'></path>
+<path d='M 128,16 L 144,16' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 L 160,16' fill='none' stroke='currentColor'></path>
+<path d='M 160,16 L 176,16' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 192,16' fill='none' stroke='currentColor'></path>
+<path d='M 192,16 L 208,16' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 224,16' fill='none' stroke='currentColor'></path>
+<path d='M 224,16 L 240,16' fill='none' stroke='currentColor'></path>
+<path d='M 240,16 L 256,16' fill='none' stroke='currentColor'></path>
+<path d='M 256,16 L 272,16' fill='none' stroke='currentColor'></path>
+<path d='M 272,16 L 288,16' fill='none' stroke='currentColor'></path>
+<path d='M 288,16 L 304,16' fill='none' stroke='currentColor'></path>
+<path d='M 304,16 L 320,16' fill='none' stroke='currentColor'></path>
+<path d='M 320,16 L 336,16' fill='none' stroke='currentColor'></path>
+<path d='M 336,16 L 352,16' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 80,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,32 L 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 112,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,32 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 128,32 L 144,32' fill='none' stroke='currentColor'></path>
+<path d='M 144,32 L 160,32' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 176,32' fill='none' stroke='currentColor'></path>
+<path d='M 176,32 L 192,32' fill='none' stroke='currentColor'></path>
+<path d='M 192,32 L 208,32' fill='none' stroke='currentColor'></path>
+<path d='M 208,32 L 224,32' fill='none' stroke='currentColor'></path>
+<path d='M 224,32 L 240,32' fill='none' stroke='currentColor'></path>
+<path d='M 240,32 L 256,32' fill='none' stroke='currentColor'></path>
+<path d='M 256,32 L 272,32' fill='none' stroke='currentColor'></path>
+<path d='M 272,32 L 288,32' fill='none' stroke='currentColor'></path>
+<path d='M 288,32 L 304,32' fill='none' stroke='currentColor'></path>
+<path d='M 304,32 L 320,32' fill='none' stroke='currentColor'></path>
+<path d='M 320,32 L 336,32' fill='none' stroke='currentColor'></path>
+<path d='M 336,32 L 352,32' fill='none' stroke='currentColor'></path>
+<path d='M 40,80 L 144,80' fill='none' stroke='currentColor'></path>
+<path d='M 216,80 L 368,80' fill='none' stroke='currentColor'></path>
+<path d='M 160,112 L 192,112' fill='none' stroke='currentColor'></path>
+<path d='M 216,128 L 368,128' fill='none' stroke='currentColor'></path>
+<path d='M 40,144 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 40,80 L 40,144' fill='none' stroke='currentColor'></path>
+<path d='M 64,16 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 80,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,16 L 112,32' fill='none' stroke='currentColor'></path>
+<path d='M 128,16 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 L 144,32' fill='none' stroke='currentColor'></path>
+<path d='M 144,80 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 160,16 L 160,32' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 176,32' fill='none' stroke='currentColor'></path>
+<path d='M 192,16 L 192,32' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 208,32' fill='none' stroke='currentColor'></path>
+<path d='M 216,80 L 216,128' fill='none' stroke='currentColor'></path>
+<path d='M 224,16 L 224,32' fill='none' stroke='currentColor'></path>
+<path d='M 240,16 L 240,32' fill='none' stroke='currentColor'></path>
+<path d='M 256,16 L 256,32' fill='none' stroke='currentColor'></path>
+<path d='M 272,16 L 272,32' fill='none' stroke='currentColor'></path>
+<path d='M 288,16 L 288,32' fill='none' stroke='currentColor'></path>
+<path d='M 304,16 L 304,32' fill='none' stroke='currentColor'></path>
+<path d='M 320,16 L 320,32' fill='none' stroke='currentColor'></path>
+<path d='M 336,16 L 336,32' fill='none' stroke='currentColor'></path>
+<path d='M 352,16 L 352,32' fill='none' stroke='currentColor'></path>
+<path d='M 368,80 L 368,128' fill='none' stroke='currentColor'></path>
+<path d='M 120,64 L 128,48' fill='none' stroke='currentColor'></path>
+<path d='M 152,160 L 160,176' fill='none' stroke='currentColor'></path>
+<path d='M 240,48 L 248,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,80 L 120,64' fill='none' stroke='currentColor'></path>
+<polygon points='138.000000,64.000000 126.000000,58.400002 126.000000,69.599998' fill='currentColor' transform='rotate(120.000000, 120.000000, 64.000000)'></polygon>
+<path d='M 144,144 L 152,160' fill='none' stroke='currentColor'></path>
+<polygon points='170.000000,160.000000 158.000000,154.399994 158.000000,165.600006' fill='currentColor' transform='rotate(240.000000, 152.000000, 160.000000)'></polygon>
+<polygon points='200.000000,112.000000 188.000000,106.400002 188.000000,117.599998' fill='currentColor' transform='rotate(0.000000, 192.000000, 112.000000)'></polygon>
+<path d='M 248,64 L 256,80' fill='none' stroke='currentColor'></path>
+<polygon points='266.000000,64.000000 254.000000,58.400002 254.000000,69.599998' fill='currentColor' transform='rotate(60.000000, 248.000000, 64.000000)'></polygon>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='48' y='68' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='48' y='132' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>W</text>
+<text text-anchor='middle' x='56' y='164' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='64' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='64' y='132' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>↑</text>
+<text text-anchor='middle' x='72' y='68' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='72' y='164' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='80' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='80' y='132' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='88' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='88' y='164' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='96' y='132' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='112' y='132' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='128' y='132' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='144' y='196' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='152' y='196' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='160' y='52' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>H</text>
+<text text-anchor='middle' x='160' y='100' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='160' y='196' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='168' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='168' y='84' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='168' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='168' y='196' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='176' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='184' y='84' fill='currentColor' style='font-size:1em'>W</text>
+<text text-anchor='middle' x='184' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='196' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='192' y='52' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='192' y='100' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='192' y='196' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='200' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='196' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='208' y='196' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='224' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='240' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='248' y='164' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='256' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='264' y='164' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='272' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='280' y='164' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='288' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='288' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='304' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='304' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='320' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='320' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='336' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='336' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='352' y='100' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='352' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>The reading order is unchanged, keeping the sequence from 1 to 18:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 400 89"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,0 L 144,0' fill='none' stroke='currentColor'></path>
+<path d='M 168,0 L 384,0' fill='none' stroke='currentColor'></path>
+<path d='M 168,48 L 384,48' fill='none' stroke='currentColor'></path>
+<path d='M 0,64 L 144,64' fill='none' stroke='currentColor'></path>
+<path d='M 0,0 L 0,64' fill='none' stroke='currentColor'></path>
+<path d='M 144,0 L 144,64' fill='none' stroke='currentColor'></path>
+<path d='M 168,0 L 168,48' fill='none' stroke='currentColor'></path>
+<path d='M 384,0 L 384,48' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='56' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='64' y='52' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='88' y='52' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='136' y='52' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='280' y='36' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='296' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='304' y='36' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='344' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='368' y='20' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='376' y='36' fill='currentColor' style='font-size:1em'>8</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>(我忘了是不是有这么一种玩具：有一个长方形，框住了一些“棋子”。
+当你拖动长方形的一个角的时候，因为它面积是固定的，所以里面的棋子会重新排列。对应到 <code>.view()</code> 就是每行先填满。)</p>
+<p>Since the view doesn&rsquo;t changes the stride of the read/write header,
+the target shape requires to match the current stride.
+<a class="link" href="https://pytorch.org/docs/stable/generated/torch.Tensor.view.html"  target="_blank" rel="noopener"
+    >torch view - Docs</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">xy</span><span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cartesian_prod</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> 
+</span></span><span class="line"><span class="cl">                         <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tensor([0, 0],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [0, 1],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [1, 0],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [1, 1],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [2, 0],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [2, 1]])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># memory: 0 0 0 1 1 0 1 1 2 0 2 1</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># shape: (2,6), stride: (2,1)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">xy</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>   <span class="c1"># contiguous, stride: (4,1)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tensor([[0, 0, 0, 1, 1, 0],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [1, 1, 2, 0, 2, 1]])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 一条龙串下来</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">xy</span><span class="o">.</span><span class="n">t</span><span class="p">()</span><span class="o">.</span><span class="n">is_contiguous</span><span class="p">()</span>  <span class="c1"># False, stride: (1,2)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tensor([[0, 0, 1, 1, 2, 2],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [0, 1, 0, 1, 0, 1]])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>view</code> is filling an empty box from the innermost dimension to outermost by consuming the 1D memory data.</p>
+<figure><a href="https://medium.com/analytics-vidhya/pytorch-contiguous-vs-non-contiguous-tensor-view-understanding-view-reshape-73e10cdfa0dd"><img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*DCP5OwQGZJ991pEUpHNJww.png"></a>
+  </figure>
+
+</li>
+<li>
+<p>(2023-12-22) The tensors created by <code>torch.meshgrid()</code> are not contiguous.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># y: vertical coordinate</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tensor([[0, 0],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [1, 1],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [2, 2]])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Memory is: 0 1 2</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Not contiguous. stride on each dim: (1,0)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">y</span><span class="o">.</span><span class="n">storage</span><span class="p">()</span>   
+</span></span><span class="line"><span class="cl"><span class="c1">#  0</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#  1</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#  2</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># [torch.LongStorage of size 3]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># x: horizontal coordinate</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tensor([[0, 1],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [0, 1],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [0, 1]])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Memory is 0 1</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Not contiguous. stride on each dim: (0,1)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">x</span><span class="o">.</span><span class="n">storage</span><span class="p">()</span>   
+</span></span><span class="line"><span class="cl"><span class="c1">#  0</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#  1</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># [torch.LongStorage of size 2]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">y</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">stride</span><span class="p">()</span>   <span class="c1"># stride: (2,1)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>When reading y and x, the read-write head has to go back or repeat some bytes, instead iterates the 1D memory sequence once,
+so they&rsquo;re not contiguous.</p>
+</li>
+<li>
+<p><code>repeat</code> will copy the data, while <code>expand</code> won&rsquo;t, with a stride of 0 on the singleton dimension.
+(singleton means the size of that dimension is 1)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">y</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># shape: (3,2,2), contiguous</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tensor([[[0, 0],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [0, 0]],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [[1, 1],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [1, 1]],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#        [[2, 2],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [2, 2]]])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># stride: (4,2,1)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">y</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># shape: (3,2,2), Not contiguous</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tensor([[[0, 0],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#          [0, 0]],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [[1, 1],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#          [1, 1]],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#         [[2, 2],</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#          [2, 2]]])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># stride: (1,0,0)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

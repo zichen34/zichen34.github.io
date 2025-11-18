@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="贝叶斯解释“L1和L2正则化”，本质上是最大后验估计。如何深入理解贝叶斯公式？\n(贝叶斯公式中的概率可以是随机事件的概率，也可以是概率分布wiki)\n似然函数 L(θ|X)：X发生之后，关于θ的函数。 似然值：参数 θ 发生后，X 发生的概率，即 L(θ|X) = P(X|θ)。\n频率派认为训练数据是来自真实分布的采样，似然值（X发生概率）最大的 θ 就是最接近真实的，但并不能说这组参数就是最有可能的分布。 贝叶斯派想直接求参数 θ 的概率，认为真实θ分布发生的概率应该最大。\nMLE 在两个地方做了近似：寻找使 X 发生概率最大的 θ 并不等于 θ 发生的概率最大；θ 是一个分布，找到的是它的众数。 MAP 只有一个近似：寻找概率最大的 θ 分布是严谨的，只剩&quot;θ 是一个分布，找到的是它的众数&quot;。\n(221216): 概率模型的参数θ出现的概率是概率密度函数，但在概率密度函数上，任一个点（一个θ）的概率是0，因为它对应的面积为0，所以只有谈论&quot;一段区间&quot;出现的概率才有意义，比如θ落在0.2~0.3之间的概率为60%。\nMAP 等于 MLE 加上正则化 θ 在训练集 X 上发生的概率 P(θ|X) 可用贝叶斯公式展开：\nP(θ|X) = (P(X|θ)/P(X)) ⋅ P(θ)\n模型参数 θ 的概率 = X 在参数为 θ 时发生的概率 与 X 在所有可能的 θ 下发生的概率之和 的比值 × θ 的起始概率。 其中 P(X) =∫ P(X|θ)P(θ) dθ 。\n">
+<title>watch: DL - 王木头 13 | L1L2 Reg (3), Bayesian Probability</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/13_l1l2%E6%AD%A3%E5%88%99%E5%8C%963-%E8%B4%9D%E5%8F%B6%E6%96%AF/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: DL - 王木头 13 | L1L2 Reg (3), Bayesian Probability">
+<meta property='og:description' content="贝叶斯解释“L1和L2正则化”，本质上是最大后验估计。如何深入理解贝叶斯公式？\n(贝叶斯公式中的概率可以是随机事件的概率，也可以是概率分布wiki)\n似然函数 L(θ|X)：X发生之后，关于θ的函数。 似然值：参数 θ 发生后，X 发生的概率，即 L(θ|X) = P(X|θ)。\n频率派认为训练数据是来自真实分布的采样，似然值（X发生概率）最大的 θ 就是最接近真实的，但并不能说这组参数就是最有可能的分布。 贝叶斯派想直接求参数 θ 的概率，认为真实θ分布发生的概率应该最大。\nMLE 在两个地方做了近似：寻找使 X 发生概率最大的 θ 并不等于 θ 发生的概率最大；θ 是一个分布，找到的是它的众数。 MAP 只有一个近似：寻找概率最大的 θ 分布是严谨的，只剩&quot;θ 是一个分布，找到的是它的众数&quot;。\n(221216): 概率模型的参数θ出现的概率是概率密度函数，但在概率密度函数上，任一个点（一个θ）的概率是0，因为它对应的面积为0，所以只有谈论&quot;一段区间&quot;出现的概率才有意义，比如θ落在0.2~0.3之间的概率为60%。\nMAP 等于 MLE 加上正则化 θ 在训练集 X 上发生的概率 P(θ|X) 可用贝叶斯公式展开：\nP(θ|X) = (P(X|θ)/P(X)) ⋅ P(θ)\n模型参数 θ 的概率 = X 在参数为 θ 时发生的概率 与 X 在所有可能的 θ 下发生的概率之和 的比值 × θ 的起始概率。 其中 P(X) =∫ P(X|θ)P(θ) dθ 。\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/13_l1l2%E6%AD%A3%E5%88%99%E5%8C%963-%E8%B4%9D%E5%8F%B6%E6%96%AF/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-12-16T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-16T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: DL - 王木头 13 | L1L2 Reg (3), Bayesian Probability">
+<meta name="twitter:description" content="贝叶斯解释“L1和L2正则化”，本质上是最大后验估计。如何深入理解贝叶斯公式？\n(贝叶斯公式中的概率可以是随机事件的概率，也可以是概率分布wiki)\n似然函数 L(θ|X)：X发生之后，关于θ的函数。 似然值：参数 θ 发生后，X 发生的概率，即 L(θ|X) = P(X|θ)。\n频率派认为训练数据是来自真实分布的采样，似然值（X发生概率）最大的 θ 就是最接近真实的，但并不能说这组参数就是最有可能的分布。 贝叶斯派想直接求参数 θ 的概率，认为真实θ分布发生的概率应该最大。\nMLE 在两个地方做了近似：寻找使 X 发生概率最大的 θ 并不等于 θ 发生的概率最大；θ 是一个分布，找到的是它的众数。 MAP 只有一个近似：寻找概率最大的 θ 分布是严谨的，只剩&quot;θ 是一个分布，找到的是它的众数&quot;。\n(221216): 概率模型的参数θ出现的概率是概率密度函数，但在概率密度函数上，任一个点（一个θ）的概率是0，因为它对应的面积为0，所以只有谈论&quot;一段区间&quot;出现的概率才有意义，比如θ落在0.2~0.3之间的概率为60%。\nMAP 等于 MLE 加上正则化 θ 在训练集 X 上发生的概率 P(θ|X) 可用贝叶斯公式展开：\nP(θ|X) = (P(X|θ)/P(X)) ⋅ P(θ)\n模型参数 θ 的概率 = X 在参数为 θ 时发生的概率 与 X 在所有可能的 θ 下发生的概率之和 的比值 × θ 的起始概率。 其中 P(X) =∫ P(X|θ)P(θ) dθ 。\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#map-等于-mle-加上正则化">MAP 等于 MLE 加上正则化</a></li>
+    <li><a href="#map-比-mle-更正确">MAP 比 MLE 更正确</a></li>
+    <li><a href="#用贝叶斯理解概率">用贝叶斯理解概率</a></li>
+    <li><a href="#用贝叶斯理解梯度下降">用贝叶斯理解梯度下降</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/ml-%E7%8E%8B%E6%9C%A8%E5%A4%B4/13_l1l2%E6%AD%A3%E5%88%99%E5%8C%963-%E8%B4%9D%E5%8F%B6%E6%96%AF/">watch: DL - 王木头 13 | L1L2 Reg (3), Bayesian Probability</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 16, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#map-等于-mle-加上正则化">MAP 等于 MLE 加上正则化</a></li>
+    <li><a href="#map-比-mle-更正确">MAP 比 MLE 更正确</a></li>
+    <li><a href="#用贝叶斯理解概率">用贝叶斯理解概率</a></li>
+    <li><a href="#用贝叶斯理解梯度下降">用贝叶斯理解梯度下降</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://www.bilibili.com/video/BV1fR4y177jP"  target="_blank" rel="noopener"
+    >贝叶斯解释“L1和L2正则化”，本质上是最大后验估计。如何深入理解贝叶斯公式？</a></p>
+<p>(贝叶斯公式中的概率可以是随机事件的概率，也可以是概率分布<a class="link" href="https://en.wikipedia.org/wiki/Bayes%27_theorem#:~:text=and%20Y%20are-,continuous,-%2C"  target="_blank" rel="noopener"
+    >wiki</a>)</p>
+<p>似然函数 L(θ|X)：X发生之后，关于θ的函数。
+似然值：参数 θ 发生后，X 发生的概率，即 L(θ|X) = P(X|θ)。</p>
+<p>频率派认为训练数据是来自真实分布的采样，似然值（X发生概率）最大的 θ 就是最接近真实的，但并不能说这组参数就是最有可能的分布。
+贝叶斯派想直接求参数 θ 的概率，认为真实θ分布发生的概率应该最大。</p>
+<p>MLE 在两个地方做了近似：寻找使 X 发生概率最大的 θ 并不等于 θ 发生的概率最大；θ 是一个分布，找到的是它的众数。
+MAP 只有一个近似：寻找概率最大的 θ 分布是严谨的，只剩&quot;θ 是一个分布，找到的是它的众数&quot;。<br>
+(221216): 概率模型的参数θ出现的概率是概率密度函数，但在概率密度函数上，任一个点（一个θ）的概率是0，因为它对应的面积为0，所以只有谈论&quot;一段区间&quot;出现的概率才有意义，比如θ落在0.2~0.3之间的概率为60%。</p>
+<h2 id="map-等于-mle-加上正则化">MAP 等于 MLE 加上正则化
+</h2><p>θ 在训练集 X 上发生的概率 P(θ|X) 可用贝叶斯公式展开：</p>
+<p>P(θ|X) = (P(X|θ)/P(X)) ⋅ P(θ)</p>
+<p>模型参数 θ 的概率 = X 在参数为 θ 时发生的概率 与 X 在所有可能的 θ 下发生的概率之和 的比值 × θ 的起始概率。
+其中 P(X) =∫ P(X|θ)P(θ) dθ 。</p>
+<p>P(θ|X) 和 P(θ) 都是 θ 的概率，不过前者是有条件的（是X发生之后的，是更新后的），所以叫做“后验分布”（X是试验，即“试验之后”）；后者是在X发生之前，（不看X）心中已有的知识，是先验分布。</p>
+<p>P(X|θ) 和 P(X) 都是 X 的概率，不过前者是在参数为 θ 时，X 发生的概率，后者是各种参数得到 X 的概率之和，它们的比值是先验分布 P(θ) 的置信度。</p>
+<p>从先验分布P(θ)出发，算出实验结果 X 在参数为 θ 时发生的概率，然后除以 X 在各种θ时发生的概率之和，做为系数，对先验分布做修正。</p>
+<p>P(X) 是对所有可能的 θ 做积分（也称边缘概率），比如对于抛硬币实验，就要对正-反概率：从 (正:0, 反:1) 到 (正:1, 反:0) 之间的所有情况，求出X发生的概率再积分（是个常数）。无法直接求，可以用蒙特卡洛方法近似。
+不过，想求概率最大时的 θ，并不必求出概率最大是多少。因为 P(X) 与 θ 无关，所以 P(θ|X) ∝ P(X|θ) P(θ)，只需求似然度乘以先验分布乘积最大时，对应的 θ 就行。</p>
+<p>MLE 认定：θ = arg max_θ P(X|θ)；<br>
+MAP 认定：θ = arg max_θ (P(X|θ)⋅P(θ))</p>
+<p>(MLE和MAP的求解推导 <a class="link" href="https://www.bilibili.com/video/BV1GZ4y1m7gv/"  target="_blank" rel="noopener"
+    >极大似然估计/最大后验估计—通过抛硬币例子理解</a>)</p>
+<p>代入神经网络中的符号：</p>
+<p>MLE: <code>W = arg max_W P(X,Y|W) ∝ arg max_W log P(X,Y|W)</code>，这就是最大似然估计损失函数（“是猫”的概率）</p>
+<p>MAP: <code>W = arg max_W P(W|X,Y) ∝ arg max_W (log P(X,Y|W) + log P(W))</code>，损失函数相比 MLE 多了先验分布 P(W)</p>
+<p>理论上先验分布可以任意选择，只要使用大量数据迭代无限次后，后验分布的最大概率对应的就是真实θ，但如果数据量有限，不同的先验分布会收敛到不同的θ。</p>
+<ul>
+<li>
+<p>如果采用正态分布 wᵢ~N(0,σ²) 作为先验分布 P(W)，则其对应 L2 正则化项：λ||𝐖||₂+C：</p>
+$$
+  log P(W) = log ∏_i \frac{1}{σ\sqrt{2π}} e^{-\frac{(w_i-0)²}{2σ²}} = -\frac{1}{2σ²}∑_i w_i² + C
+  $$</li>
+<li>
+<p>如果采用拉普拉斯分布 wᵢ~Laplace(0,b) 作为先验分布 P(W)，则其对应 L1 正则化项：λ||𝐖||₁+C：</p>
+$$
+  log P(W) = log ∏_i \frac{1}{2b} e^{-\frac{|w_i-0|}{b}} = -\frac{1}{b}∑_i |w_i| + C
+  $$</li>
+<li>
+<p>正态分布和拉普拉斯分布都是限定了高维空间中的向量 𝐖 的位置，L2正则化约束了向量模长（坐标平方和再开方）服从正态分布，L1正则化约束了两向量距离（坐标之差）服从拉普拉斯分布</p>
+</li>
+<li>
+<p>如果先验分布 P(W) 是平均分布，概率是常数，与W无关，MAP 就退化成了 MLE</p>
+</li>
+</ul>
+<p>MAP 比 MLE 多了一个先验分布，先验分布就是正则化项。</p>
+<p>贝叶斯公式描述的是：用新的实验结果对先验分布做修正，先验分布就是优化的起点，不同的先验分布，对应的优化起点不同.</p>
+<p>最大后验估计像是一个损失函数的集合，选择不同的先验分布，相当于选择了不同的损失函数，包括MLE, L1正则化，L2正则化。</p>
+<h2 id="map-比-mle-更正确">MAP 比 MLE 更正确
+</h2><p>有一个人，女性，27岁，985硕士毕业，单身，在上海生活，平时喜欢表达，幽默，有些理想主义，关心少数人群，经常在网上发表犀利言论，问这个人更有可能是一个脱口秀演员呢？ 还是更有可能是一个女性主义的脱口秀演员？</p>
+<p>直觉选择后者，但其实前者概率更大，因为“脱口秀演员”包含的范围更大。</p>
+<p>人的直觉运用了最大似然估计，选择“女性主义的脱口秀演员” 更可能出现描述的那些特质。
+如果运用最大后验估计，按照概率乘法即可计算出哪个情况概率较大。</p>
+<p>给定特征集合 D={女性，27岁，985硕士毕业，&hellip;, 发表犀利言论}，
+结论集合 T = {t₁=p₁, t₂=p₁^p₂}，其中 p₁ 是脱口秀演员，p₂ 是女性主义脱口秀演员</p>
+<p>最大似然估计：
+T = arg max_T P(D|T)</p>
+<p>当 T = t₂ 时：P(D|T=t₂) = P(D|p₁^p₂) = P(p₁^p₂|D) P(D) / P(p₁^p₂) = P(p₁,p₂,D)/P(p₁,p₂)
+= P(p₂|p₁,D) P(D|p₁) P(p₁) / (P(p₁|p₂)P(p₁)) = P(p₂|p₁,D) P(D|p₁) / P(p₁|p₂)
+= (P(p₂|p₁,D)/P(p₁|p₂)) P(D|T=t₁)</p>
+<p>P(D|T=t₂) 与 P(D|T=t₁) 之间相差一个大于1的系数，所以当 T=t₂ 时似然值更大</p>
+<p>最大后验估计：
+T = arg max_T P(T|D)</p>
+<p>当 T = t₂ 时：P(T=t₂|D) = P(p₁^p₂|D) = P(D|p₁^p₂) P(p₁^p₂) / P(D) = P(p₁,p₂,D) / P(D)
+= P(p₂|p₁,D) P(p₁|D) P(D)/ P(D) = P(p₂|p₁,D) P(p₁|D)
+= P(p₂|p₁,D) P(T=t₁|D)</p>
+<p>P(T=t₂|D) 与 P(T=t₁|D) 之间相差一个小于1的系数，所以当 T=t₁ 时后验概率更大</p>
+<p>所以用贝叶斯方式思考更理性</p>
+<h2 id="用贝叶斯理解概率">用贝叶斯理解概率
+</h2><p>概率的两种理解：频率派和贝叶斯派</p>
+<p>频率派认为概率是某件事多次发生的频率，抛硬币可以多次重复，但不适合解释神经网络，(多分类)神经网络蕴含的模型与人脑中的模型的差异是损失函数，被看做为一个概率（“是猫的概率”）。这个概率是是softmax 对各类别上的 activation z 做归一化后得到的，是样本之间的差异，不好用频率解释。</p>
+<p>贝叶斯公式中用的都是概率密度函数，先验概率 P(θ) 理解成在没有数据可供参考时，对神经网络参数的相信程度，相信程度可以是正态分布；后验概率是已知数据X之后，经过修正的对网络参数的相信程度。θ分布修正后，似然度就发生变化，在配分函数中的占比就变化，从而继续修正分布，当某个分布的似然度在配分函数中占比最大时，它就是最优的 θ 分布，其后验概率最大，它发生的可能性最大，对它的相信程度最高。</p>
+<p>分母 P(X) 是边缘概率，也叫配分函数，将其按条件概率展开：</p>
+<p>$$
+P(θ_i | X) = \frac{P(X|θ_i) P(θ_i)}{∑ P(X|θ) P(θ)} = \frac{P(X|θ_i) P(θ_i)}{\int_θ P(X|θ) P(θ) dθ}</p>
+<p>= \frac{P(X|θ_i) P(θ_i)}{P(X|θ_i) P(θ_i) + ∑_{k≠i} P(X|θ_k) P(θₖ) dθ}
+$$</p>
+<p>分子是具体的一个 θ，分母是把所有可能的 θ 全部取一遍并相加，如果 θ 是连续的，就是积分的过程。</p>
+<p>置信度是 [0,1] 之间的数，但不好求，似然值用梯度下降求，配分函数用蒙特卡洛方法求</p>
+<h2 id="用贝叶斯理解梯度下降">用贝叶斯理解梯度下降
+</h2><p>找最优参数的过程拆解成一个序列：
+P(θ|X) = P(s₁ s₂ s₃ &hellip; sₙ|X)；
+给定数据集 X， 先得到 s₁，下降一次得到 s₂，再得到 s₃，下降n次到达 sₙ</p>
+<p>用贝叶斯公式展开：</p>
+<p>P(θ|X) = P(s₁ s₂ s₃ &hellip; sₙ|X) = P(X|s₁ s₂ s₃ &hellip; sₙ) P(s₁ s₂ s₃ &hellip; sₙ) / P(X) = P(s₁ s₂ s₃ &hellip; sₙ, X)/P(X)
+= P(sₙ | s₁ s₂ s₃ &hellip; sₙ₋₁, X) P(s₁ s₂ s₃ &hellip; sₙ₋₁, X)/P(X)</p>
+<p>= P(sₙ | s₁ s₂ s₃ &hellip; sₙ₋₁, X) P(sₙ₋₁| s₁ s₂ s₃ &hellip; sₙ₋₂, X) &hellip;. P(s₃|s₁,s₂,X) P(s₂|s₁,X) P(s₁|X) P(X)/P(X)</p>
+<p>= P(sₙ | s₁ s₂ s₃ &hellip; sₙ₋₁, X) P(sₙ₋₁| s₁ s₂ s₃ &hellip; sₙ₋₂, X) &hellip;. P(s₃|s₁,s₂,X) P(s₂|s₁,X) P(s₁|X)</p>
+<p>从右向左求。</p>
+<p>假设中间的每一步并不依赖前面的所有结果，只依赖于它前面一步的结果:</p>
+<p>P(θ|X) = P(sₙ | sₙ₋₁, X) P(sₙ₋₁| sₙ₋₂, X) &hellip;. P(s₃|s₂,X) P(s₂|s₁,X) P(s₁|X)</p>
+<p>要求 P(θ|X) 的最大值，计算量还是太大，不是考虑整体乘积达到最大，只考虑局部每一小节，下一步等于上一步的最大值:</p>
+$$s_{i+1} = arg max_{s_{i+1}} P(s_{i+1} | s_i, X)$$<p>从第一项到最后一项依次都取最大，最后的结果不一定是整体最大值，但也能得到一个近似的结果。上式就是最大后验估计，
+损失函数是：P(sᵢ₊₁ | sᵢ, X)，
+则梯度下降为： sᵢ₊₁ = sᵢ + η ⋅ ∇ P(sᵢ₊₁ | sᵢ, X)</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

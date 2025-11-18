@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Solver References:\nFluent GPU求解器:前所未有的速度和规模的CFD研究 | Simulation World - Ansys中国 Directed by the video: Ansys把大模型GPT和自家的产品结合了，已发布AnsysGPT - 曾导SJTU Notes:\n(2024/10/27)\nA promotional introduction of the &lsquo;Fluent&rsquo; GPU-based solver by Ansys. (r1-Ansys)\nI found the slogon of &lsquo;Ansys中国&rsquo; is: &ldquo;奔向确定性的未来。&quot;。 Interesting, I feel is a cue for AI. Searching (2024-07-14)\nSearch: &ldquo;计算物理&rdquo; in DDG\nSearch &ldquo;course code for computational physics&rdquo; in DDG\n(2024-08-03)\nSearch &ldquo;电磁仿真求解器&rdquo; in bilibili Courses Computational Physics - GitHub\n">
+<title>Coll: Phys | Computational Physics</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/simu/c-coll-compphys/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Coll: Phys | Computational Physics">
+<meta property='og:description' content="Solver References:\nFluent GPU求解器:前所未有的速度和规模的CFD研究 | Simulation World - Ansys中国 Directed by the video: Ansys把大模型GPT和自家的产品结合了，已发布AnsysGPT - 曾导SJTU Notes:\n(2024/10/27)\nA promotional introduction of the &lsquo;Fluent&rsquo; GPU-based solver by Ansys. (r1-Ansys)\nI found the slogon of &lsquo;Ansys中国&rsquo; is: &ldquo;奔向确定性的未来。&quot;。 Interesting, I feel is a cue for AI. Searching (2024-07-14)\nSearch: &ldquo;计算物理&rdquo; in DDG\nSearch &ldquo;course code for computational physics&rdquo; in DDG\n(2024-08-03)\nSearch &ldquo;电磁仿真求解器&rdquo; in bilibili Courses Computational Physics - GitHub\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/simu/c-coll-compphys/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2024-07-14T09:56:00&#43;00:00'/><meta property='article:modified_time' content='2024-07-14T09:56:00&#43;00:00'/>
+<meta name="twitter:title" content="Coll: Phys | Computational Physics">
+<meta name="twitter:description" content="Solver References:\nFluent GPU求解器:前所未有的速度和规模的CFD研究 | Simulation World - Ansys中国 Directed by the video: Ansys把大模型GPT和自家的产品结合了，已发布AnsysGPT - 曾导SJTU Notes:\n(2024/10/27)\nA promotional introduction of the &lsquo;Fluent&rsquo; GPU-based solver by Ansys. (r1-Ansys)\nI found the slogon of &lsquo;Ansys中国&rsquo; is: &ldquo;奔向确定性的未来。&quot;。 Interesting, I feel is a cue for AI. Searching (2024-07-14)\nSearch: &ldquo;计算物理&rdquo; in DDG\nSearch &ldquo;course code for computational physics&rdquo; in DDG\n(2024-08-03)\nSearch &ldquo;电磁仿真求解器&rdquo; in bilibili Courses Computational Physics - GitHub\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#solver">Solver</a></li>
+    <li><a href="#searching">Searching</a></li>
+    <li><a href="#courses">Courses</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#talk">Talk</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/simu/c-coll-compphys/">Coll: Phys | Computational Physics</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 14, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#solver">Solver</a></li>
+    <li><a href="#searching">Searching</a></li>
+    <li><a href="#courses">Courses</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#talk">Talk</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="solver">Solver
+</h2><p><strong>References</strong>:</p>
+<ol>
+<li><a id="Sol-r1"></a>
+<a class="link" href="https://www.bilibili.com/video/BV1UmmHYTE65/"  target="_blank" rel="noopener"
+    >Fluent GPU求解器:前所未有的速度和规模的CFD研究 | Simulation World - Ansys中国</a>
+<small>
+<ul>
+<li>Directed by the video:
+<a class="link" href="https://www.bilibili.com/video/BV1RhydYNE6F/"  target="_blank" rel="noopener"
+    >Ansys把大模型GPT和自家的产品结合了，已发布AnsysGPT - 曾导SJTU</a>
+</small></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p>(2024/10/27)</p>
+<ol>
+<li>
+<p>A promotional introduction of the &lsquo;Fluent&rsquo; GPU-based solver by Ansys. (<a class="link" href="#Sol-r1" >r1-Ansys</a>)</p>
+<ul>
+<li>I found the slogon of &lsquo;Ansys中国&rsquo; is: &ldquo;奔向确定性的未来。&quot;。
+Interesting, I feel is a cue for AI.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="searching">Searching
+</h2><p>(2024-07-14)</p>
+<ol>
+<li>
+<p><a id="s1"></a>
+Search: &ldquo;计算物理&rdquo; in <a class="link" href="https://duckduckgo.com/?q=%E8%AE%A1%E7%AE%97%E7%89%A9%E7%90%86&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a></p>
+</li>
+<li>
+<p><a id="s2"></a>
+Search &ldquo;course code for computational physics&rdquo; in <a class="link" href="https://duckduckgo.com/?q=course&#43;code&#43;for&#43;computational&#43;physics&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a></p>
+</li>
+</ol>
+<p>(2024-08-03)</p>
+<ol start="3">
+<li><a id="s3"></a>
+Search &ldquo;电磁仿真求解器&rdquo; in <a class="link" href="https://search.bilibili.com/all?vt=92129644&amp;keyword=%E7%94%B5%E7%A3%81%E4%BB%BF%E7%9C%9F%E6%B1%82%E8%A7%A3%E5%99%A8&amp;from_source=webtop_search&amp;spm_id_from=333.1007&amp;search_source=5&amp;page=2&amp;o=30"  target="_blank" rel="noopener"
+    >bilibili</a></li>
+</ol>
+<hr>
+<h2 id="courses">Courses
+</h2><ul>
+<li>
+<p>Computational Physics - GitHub</p>
+<p>(<small>Found in <a class="link" href="#s2" >s2</a></small>)</p>
+<p><a class="link" href="https://github.com/CompPhysics/ComputationalPhysics"  target="_blank" rel="noopener"
+    >CompPhysics/ComputationalPhysics</a></p>
+</li>
+<li>
+<p>Computational Physics course (PHYS 6350) - GitHub - at the University of Houston</p>
+<p>(<small>Found in <a class="link" href="#s2" >s2</a></small>)</p>
+<p><a class="link" href="https://github.com/Alexander2116/ComputationalPhysics"  target="_blank" rel="noopener"
+    >Alexander2116/ComputationalPhysics</a></p>
+</li>
+<li>
+<p><a class="link" href="http://home.ustc.edu.cn/~lxsphys/index_2022.html"  target="_blank" rel="noopener"
+    >计算物理(2022/秋季) - 中国科学技术大学</a></p>
+<p>(<small>Found in <a class="link" href="#s1" >s1</a></small>)</p>
+</li>
+</ul>
+<hr>
+<h2 id="videos">Videos
+</h2><ul>
+<li>
+<p><a class="link" href="https://www.bilibili.com/video/BV1oW4119762/?vd_source=acd352f0d5a21709a17c9ddf4509d512"  target="_blank" rel="noopener"
+    >【北京大学】计算物理学（全46讲）</a></p>
+<p>(<small>Found in <a class="link" href="#s1" >s1</a></small>)</p>
+</li>
+</ul>
+<hr>
+<h2 id="talk">Talk
+</h2><p>(2024-08-03)</p>
+<ul>
+<li>
+<p><a class="link" href="https://www.bilibili.com/video/BV1pV4y1Y75X/"  target="_blank" rel="noopener"
+    >华为AI科学计算！华为诺亚方舟实验室：可微物理仿真器助力逆问题求解 -邵云峰 - 创新指南针</a>
+(<small>Found in <a class="link" href="#s3" >s3</a></small>)</p>
+
+  
+  
+  
+  
+    
+    
+    
+    
+     
+    
+    
+     
+    
+    <img src= /post/writenotes/model/simu/img/%E5%88%9B%E6%96%B0%E6%8C%87%E5%8D%97%E9%92%88-%E5%8F%AF%E5%BE%AE%E7%89%A9%E7%90%86%E4%BB%BF%E7%9C%9F%E5%99%A8%E5%8A%A9%E5%8A%9B%E9%80%86%E9%97%AE%E9%A2%98%E6%B1%82%E8%A7%A3-230812_09_13.jpg width=ZgotmplZ>
+    
+    
+  
+
+<ul>
+<li>
+<p>原来 Ray Tracing 也可以做电磁仿真。
+神经网络输出的结果倾向于低频？那我就用 Ray Tracing 算高频的部分？</p>
+</li>
+<li>
+<p>他们用可微物理做天线设计：</p>
+<ol>
+<li>前向用麦克斯韦方程计算；</li>
+<li>反向用 RNN 和 CNN 替代有限元方法。 “通过发射和接收信号反演物体” <a class="link" href="https://www.bilibili.com/video/BV1pV4y1Y75X?t=873.4"  target="_blank" rel="noopener"
+    >14:33</a></li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

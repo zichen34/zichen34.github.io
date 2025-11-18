@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Extreme Learning Machine With Subnetwork Hidden Nodes for Regression and Classification (Cybernet 2015)">
+<title>Read: Optim - SLFN | ELM with SNN</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/subnetwork/b-note-elm-subnet/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Read: Optim - SLFN | ELM with SNN">
+<meta property='og:description' content="Extreme Learning Machine With Subnetwork Hidden Nodes for Regression and Classification (Cybernet 2015)">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/subnetwork/b-note-elm-subnet/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SLFN' /><meta property='article:published_time' content='2023-01-20T11:46:00-05:00'/><meta property='article:modified_time' content='2023-01-20T11:46:00-05:00'/>
+<meta name="twitter:title" content="Read: Optim - SLFN | ELM with SNN">
+<meta name="twitter:description" content="Extreme Learning Machine With Subnetwork Hidden Nodes for Regression and Classification (Cybernet 2015)">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#-introduction">Ⅰ. Introduction</a></li>
+    <li><a href="#-definitions-and-basic-elm">Ⅱ. Definitions and Basic-ELM</a>
+      <ol>
+        <li><a href="#a-notations-and-definitions">A. Notations and Definitions</a></li>
+        <li><a href="#b-basic-elm">B. Basic-ELM</a></li>
+      </ol>
+    </li>
+    <li><a href="#-proposed-elm-method-with-subnetwork-hidden-nodes">Ⅲ. Proposed ELM Method With Subnetwork Hidden Nodes</a>
+      <ol>
+        <li><a href="#a-structure-of-the-proposed-method">A. Structure of the Proposed Method</a></li>
+        <li><a href="#b-proposed-method">B. Proposed Method</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                Read
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/subnetwork/b-note-elm-subnet/">Read: Optim - SLFN | ELM with SNN</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Extreme Learning Machine With Subnetwork Hidden Nodes for Regression and Classification (Cybernet 2015)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 20, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#-introduction">Ⅰ. Introduction</a></li>
+    <li><a href="#-definitions-and-basic-elm">Ⅱ. Definitions and Basic-ELM</a>
+      <ol>
+        <li><a href="#a-notations-and-definitions">A. Notations and Definitions</a></li>
+        <li><a href="#b-basic-elm">B. Basic-ELM</a></li>
+      </ol>
+    </li>
+    <li><a href="#-proposed-elm-method-with-subnetwork-hidden-nodes">Ⅲ. Proposed ELM Method With Subnetwork Hidden Nodes</a>
+      <ol>
+        <li><a href="#a-structure-of-the-proposed-method">A. Structure of the Proposed Method</a></li>
+        <li><a href="#b-proposed-method">B. Proposed Method</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://ieeexplore.ieee.org/abstract/document/7314912"  target="_blank" rel="noopener"
+    >IEEE Cybernetics(2015-11-02)</a>
+| <a class="link" href="https://drive.google.com/file/d/13FD2IifYUndeTXeV6NrlS_ka7-2JFUTY/view"  target="_blank" rel="noopener"
+    >Google Drive</a>
+| <a class="link" href="https://scholar.google.com/citations?view_op=view_citation&amp;hl=en&amp;user=fFP4b9kAAAAJ&amp;citation_for_view=fFP4b9kAAAAJ:rHJHxKgnXwkC"  target="_blank" rel="noopener"
+    >G.Scholar</a></p>
+<ul>
+<li>This is the first paper of ELM with subnetwork nodes by <a class="link" href="http://www.yiminyang.com/"  target="_blank" rel="noopener"
+    >Yimin Yang</a>.
+<ul>
+<li>The second paper in the series is <a class="link" href="http://blog.zichen.uk/post/writenotes/model/subnetwork/b-note-elm-mltlyr/" >MltLyr ELM with subnetwork nodes</a></li>
+</ul>
+</li>
+<li>The outline of Yang&rsquo;s research works: <a class="link" href="http://blog.zichen.uk/post/writenotes/model/subnetwork/d-vid-%E6%9D%A8%E6%98%93%E6%97%BB221020/" >Yang-WeChatLive-20221020</a>;</li>
+</ul>
+<h2 id="abstract">Abstract
+</h2><ul>
+<li>Learning effectiveness and speed of SLFN are bottleneck.</li>
+<li>ELM is fast.</li>
+<li>Grow subnetwork nodes by pulling back residual network error to the hidden layer.</li>
+<li>Better generalization performance with fewr hidden nodes.</li>
+</ul>
+<h2 id="-introduction">Ⅰ. Introduction
+</h2><ul>
+<li>
+<p>Bring out the subject: <br>
+FNN (universial approximator) ➔ SLFN</p>
+</li>
+<li>
+<p>What is an SLFN? <br>
+Input layer + hidden  layer + output layer</p>
+</li>
+<li>
+<p>Math description: <br>
+For N arbitary distinct samples {(𝐱ᵢ,𝐭ᵢ)}ᵢ₌₁ᴺ, where 𝐱ᵢ∈ 𝐑ⁿ and 𝐭ᵢ∈ 𝐑ᵐ, the network output is:</p>
+<p>$𝐟\_L(𝐱)$ = ∑ᵢ₌₁ᴸ 𝛃ᵢh(𝐚ᵢ⋅𝐱ⱼ + bᵢ) = ∑ᵢ₌₁ᴸ 𝐇ᵢ⋅𝛃ᵢ, j=1,&hellip;,N        (1)</p>
+<ul>
+<li>SLFN output is the weighted sum of 𝐿 hidden nodes (perceptrons) with the factor 𝛃.</li>
+<li>The ith perceptron receives the weighted sum of 𝑁 inputs through its parameters (𝐚ᵢ, bᵢ), 𝐚ᵢ∈ 𝐑ⁿ, b∈ 𝐑, and performs activation function h.
+Its contribution ratio to the all output nodes is 𝛃ᵢ.</li>
+</ul>
+</li>
+<li>
+<p>ELM traits: <br>
+NN (all params are adjustable) ➔ partial random networks ➔ ELM is a full-random learning method,
+where the input weights and bias (𝐚, b) are generated randomly and independent of training data.
+(Will the Glorot normalization has no effect?)</p>
+</li>
+<li>
+<p>ELM advantages: <br>
+An unification of FNNs and SVM/LS-SVM</p>
+</li>
+<li>
+<p>ELM application: <br>
+CV, da,&hellip;, online learning</p>
+</li>
+<li>
+<p>Problems:</p>
+<ol>
+<li>
+<p>The choice of the regularization parameter C which affects the generalization performance of ELM mainly relies on trial-and-error method.</p>
+</li>
+<li>
+<p>How many neurons should be used in ELM. Although Huang suggested to use more than 1000 hidden nodes, whether the number of hidden nodes can be further reduced without affecting learning effectiveness for large-size/high dimension data set. <br>
+Several improved ELM methods, like <a class="link" href="https://ieeexplore.ieee.org/abstract/document/6222007"  target="_blank" rel="noopener"
+    >B-ELM</a> pulls the network residual error back to the hidden layer but it only works for regression task,
+and other methods bring a higher computation complexity when compared to standard ELM.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Solution: Growing subnetwork hidden nodes to the exisiting network by pulling back the network residual error to hidden layers. A hidden node itself can be formed by several hidden nodes.</p>
+</li>
+<li>
+<p>Contributions:</p>
+<ol>
+<li>Faster than BP, SVM and other ELMs and compatible to regreesion and classification problems.</li>
+<li>The regularized parameter C do not affect the generalization performance of this method.</li>
+<li>This method with m hidden nodes (the desired output dimensionality) can achieve better training accuracy than the original ELM with a large number of hidden nodes.</li>
+</ol>
+</li>
+</ul>
+<h2 id="-definitions-and-basic-elm">Ⅱ. Definitions and Basic-ELM
+</h2><h3 id="a-notations-and-definitions">A. Notations and Definitions
+</h3><ul>
+<li>
+<p>𝐑 : set of real numbers</p>
+</li>
+<li>
+<p>{(𝐱ᵢ,𝐭ᵢ)}ᵢ₌₁ᴺ : N arbitrary distinct samples,</p>
+</li>
+<li>
+<p>𝐱ᵢ = [xᵢ₁,xᵢ₂,&hellip;,xᵢₙ]ᵀ : n-dim input data, 𝐱ᵢ∈ 𝐑ⁿ is a column vector;</p>
+</li>
+<li>
+<p>𝐭ᵢ : m-dim desired output data, 𝐭ᵢ∈ 𝐑ᵐ</p>
+</li>
+<li>
+<p>𝐱 : input data matrix, 𝐱=[𝐱₁,&hellip;𝐱_N], 𝐱ᵢ∈ 𝐑ⁿᕁᴺ</p>
+</li>
+<li>
+<p>𝐭 : desired output data matrix, 𝐭=[𝐭₁,&hellip;𝐭_N], 𝐭∈ 𝐑ᵐᕁᴺ</p>
+</li>
+<li>
+<p>(^𝐚ₙ,^bₙ) : parameters of the 𝑛th subnetwork hidden node, ^𝐚ₙ∈ 𝐑ⁿᕁᵐ, ^bₙ∈ 𝐑 (suppose the number of hidden nodes equals to the output dimension m, thus the mapping is from n to m.)</p>
+</li>
+<li>
+<p>^𝐚ₙ = [𝐚ₙ₁,&hellip;,𝐚ₙₘ], n×m weights matrix (for a n-dimension sample 𝐱ᵢ), 𝐚ₙₘ∈ 𝐑ⁿ</p>
+</li>
+<li>
+<p>𝐞ₙ : residual error of current network output 𝑓ₙ with  𝑛 hidden nodes (for N samples),
+i.e., 𝐞ₙ=𝐭-𝑓ₙ, 𝐞ₙ∈ 𝐑ᵐᕁᴺ.</p>
+</li>
+<li>
+<p>𝐇 : output matrix of the hidden layer (of SLFN) for tarining set {(𝐱ᵢ,𝐭ᵢ)}ᵢ₌₁ᴺ,
+𝐇 = [h(𝐱₁),&hellip;,h(𝐱_N)]ᵀ, 𝐇∈ 𝐑ᴺᕁᵐ, 𝐇 = g(𝐱ᵀ𝐚+𝐛)???</p>
+</li>
+<li>
+<p>h(𝐱) : activation function. <del>ELM feature mapping (or Huang&rsquo;s transform)</del></p>
+</li>
+<li>
+<p>𝐇ᵢ : the 𝑖th hidden node output w.r.t. inputs, i.e., the 𝑖th column of 𝐇</p>
+</li>
+<li>
+<p>𝐈 : unit matrix</p>
+</li>
+<li>
+<p>sum(𝐞) : the sum of all elements of the matrix 𝐞</p>
+</li>
+</ul>
+<h3 id="b-basic-elm">B. Basic-ELM
+</h3><p>ELM is proposed for single-hidden-layer feedforward networks (SLFNs).</p>
+<ul>
+<li>
+<p>The output function of ELM with L hidden nodes for SLFNs is:</p>
+<p>$𝑓\_L(𝐱)$ = ∑ᵢ₌₁ᴸ βᵢ⋅h(𝐚ᵢ⋅𝐱ⱼ + bᵢ) = ∑ᵢ₌₁ᴸ 𝐇ᵢ⋅𝛃ᵢ, j=1,&hellip;,N.</p>
+<p>where h(⋅) denotes an activation function, (𝐚ᵢ, bᵢ), 𝐚ᵢ∈ 𝐑ⁿ, bᵢ∈ 𝐑, denotes the ith hidden node parameters, and 𝛃ᵢ is the ith output weight between the ith hidden node and the output nodes.</p>
+</li>
+<li>
+<p>Based on Bartlett&rsquo;s theory, ELM theory aims to reach not only the smallest training error, but also the smallest norm of output weights
+(Least square-least norm solution, where the regularization <a class="link" href="http://blog.zichen.uk/post/writenotes/calc/pseudo_inverse/" >makes an invertible matrix</a>, such that a special solution can be determined.):</p>
+<p>Minimize: ‖𝛃‖² + C⋅‖𝐇𝛃 - 𝐭‖²</p>
+<p>&ldquo;then the generalization performance depends on the size of weights rather than the number of nodes.&rdquo;</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Lemma 1</strong> (proved by Huang):<br>
+Given an SLFN with nonconstant piecewise continuous hidden nodes 𝐇(𝐱, 𝐚, b),
+then for any continuous target function 𝑓 and any function sequence 𝐇ₙʳ(𝐱) = 𝐇(𝐱, 𝐚ₙ, bₙ) randomly generated based on any continuous sampling distribution,</p>
+<p>lim$\_{n➝∞}$ ‖𝑓 - (𝑓ₙ₋₁ + 𝐇ₙʳ⋅𝛃ₙ)‖ = 0</p>
+<p>holds with probabitliy 1 if: <br>
+𝛃ₙ = ⟨𝐞ₙ₋₁, 𝐇ₙʳ⟩ / ‖𝐇ₙʳ‖² (the weight of the 𝑛th node)</p></blockquote>
+<p>where</p>
+<ul>
+<li>&ldquo;⟨ , ⟩&rdquo; stands for &ldquo;dot product&rdquo; (<a class="link" href="https://en.wikipedia.org/wiki/Frobenius_inner_product"  target="_blank" rel="noopener"
+    >Frobenius inner product</a>) of two matrices and is a scalar.</li>
+<li>n is the number of hidden nodes in the hidden layer.</li>
+<li>𝐞ₙ₋₁ is the residual error of the last iteration, i.e., when there were n-1 hidden nodes.</li>
+<li>𝐇ₙʳ is the output matrix of the current hidden layer (activated but havn&rsquo;t scaled by 𝛃).</li>
+</ul>
+<p>Intuitively, as the residual error reduces, the weight of the newer node gets smaller.</p>
+<h2 id="-proposed-elm-method-with-subnetwork-hidden-nodes">Ⅲ. Proposed ELM Method With Subnetwork Hidden Nodes
+</h2><h3 id="a-structure-of-the-proposed-method">A. Structure of the Proposed Method
+</h3><p><strong>Motivations</strong>:</p>
+<ol>
+<li>Selecting an appropriate number of neurons can resort to optimization algorithms.</li>
+<li>The generalization performance depends on the size of the weights rather than the number of weights.</li>
+</ol>
+<p><strong>Inspiration</strong>:</p>
+<p>&ldquo;A hidden node itself can be a subnetwork formed by several nodes.
+And these <strong>subnetwork hidden nodes</strong> and output weights itself should be the smallest norm, and also aim to reach the smallest training error.&rdquo;</p>
+<p><strong>Objectives</strong>:</p>
+<p>Given N training samples {(𝐱ᵢ,𝐭ᵢ)}ᵢ₌₁ᴺ, 𝐱ᵢ∈ 𝐑ⁿ, 𝐭ᵢ∈ 𝐑ᵐ, generated from the same continuous system,
+if activation function h is invertible, the objectives are:</p>
+<ol>
+<li>‖𝐞ₙ₋₁‖ ≥ ‖𝐞ₙ₋₁ - h(^𝐚ₙ,𝐱)‖ ≥ ‖𝐞ₙ₋₁ - 𝐇ₙ‖ ≥ ‖𝐞ₙ₋₁ - 𝐇ₙ⋅𝛃ₙ‖ (residual error is decreasing.)</li>
+<li>‖h(^𝐚ₙ,𝐱) - 𝐞ₙ₋₁‖ = min_{𝐚ₙ₁,&hellip;,𝐚ₙₘ} ‖h(𝐚ₙ₁,&hellip;,𝐚ₙₘ) - 𝐞ₙ₋₁‖  (minimize weights inside nodes)</li>
+<li>‖𝐇ₙ⋅^𝛃ₙ - 𝐞ₙ₋₁‖ = min_{𝛃} ‖𝐇ₙ⋅𝛃 - 𝐞ₙ₋₁‖   (minimize the weights outside nodes)</li>
+</ol>
+<p>where</p>
+<ul>
+<li>^𝐚ₙ and ^𝛃ₙ are the optimal (the ultimate status) parameters with the smallest norm among all the least squares solutions.</li>
+<li>𝐇ₙ = h(^𝐚ₙ, ^bₙ, 𝐱) is the output of the nth hidden node with the optimal parameters.</li>
+</ul>
+<p>If activation function h is invertible, subnetwork hidden nodes in SLFN can be calculated by pulling back network residual error to hidden layers.</p>
+<ul>
+<li>
+<p>For example, with sine function as the activation function, training a subnetwork hidden node (^𝐚) is equivalent to finding a least-square solution ^𝐚ₙ (letting the derivative of MSE=0) with the least norm for the linear system:</p>
+<p>[𝐚ₙ₁,&hellip;,𝐚ₙₘ]⋅𝐱 = arcsin(𝐞ₙ₋₁), 𝐞ₙ₋₁∈ (0,1],</p>
+<p>such that the optimal ^𝐚ₙ satifies:</p>
+<p>‖sin(^𝐚ₙ, 𝐱) - 𝐞ₙ₋₁‖ = min_{𝐚ₙ₁,&hellip;,𝐚ₙₘ} ‖sin(𝐚ₙ₁,&hellip;,𝐚ₙₘ, 𝐱) - 𝐞ₙ₋₁‖,</p>
+<p>That means the output of the nth &ldquo;subnetwork hidden node&rdquo; ^𝐚ₙ is approaching the residual error 𝐞ₙ₋₁ of the last status.</p>
+<p>The input weights ^𝐚ₙ of a node for this model is a matrix (instead of a vector), beacuse each &ldquo;subnetwork (general) hidden node&rdquo; <strong>contains a standard SLFN</strong> (several hidden nodes) internally.</p>
+</li>
+</ul>
+<p><strong>Differences with standard ELM</strong></p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>ELM with subnetwork</th>
+          <th>standard ELM</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>hidden node</td>
+          <td>m neurons: $𝐚_f∈ 𝐑ⁿᕁᵐ, 𝐛_f∈ 𝐑ᵐ$</td>
+          <td>single neuron:<br> 𝐚∈ 𝐑ⁿ, b∈ 𝐑</td>
+      </tr>
+      <tr>
+          <td>construct</td>
+          <td>calculated</td>
+          <td>generated randomly</td>
+      </tr>
+      <tr>
+          <td># hidden nodes</td>
+          <td>L x m (m ⟂ L, m = #output dim)</td>
+          <td>L</td>
+      </tr>
+  </tbody>
+</table></div>
+<h3 id="b-proposed-method">B. Proposed Method
+</h3><blockquote>
+<p><strong>Lemma 2</strong>: <br>
+Given a bounded nonconstant piecewise continuous activation function h, there is: <br>
+lim$\_{(𝐚,b)→(𝐚₀,b₀)}$ ‖h(𝐚⋅𝐱+b) - h(𝐚₀⋅𝐱+b₀)‖ = 0 (连续性)</p></blockquote>
+<blockquote>
+<p><strong>Theorem 1</strong>: <br>
+Given N arbitrary distinct samples {(𝐱ᵢ,𝐭ᵢ)}ᵢ₌₁ᴺ, 𝐱ᵢ∈ 𝐑ⁿ, 𝐭ᵢ∈ 𝐑ᵐ, a sigmoid or sine activation function h, and then for any continuous desired outputs 𝐭, the limit of error converges to 0:</p>
+<p>lim$\_{n➝∞}$ ‖ 𝐭-{ u⁻¹(h(^𝐚⋅𝐱+b))} ‖ = 0</p></blockquote>
+<p><strong>Proof</strong>:</p>
+<ul>
+<li>
+<p>Prove the sequence ‖𝐞ₙ‖ is decreasing with 0 as the lower bound and it converges.</p>
+<ol>
+<li>
+<p>For the 𝑛th subnetwork hidden node containing m hidden nodes, the linear mapping is:</p>
+<p>𝛌ₙ = [𝐚ₙ₁,&hellip;,𝐚ₙₘ]⋅𝐱, 𝛌ₙ∈ 𝐑ᵐ</p>
+</li>
+<li>
+<p>Then 𝛌ₙ passes through the activation function. Because the target is error, which should become 0 at the end, the error at present is the output of activation function:</p>
+<p>𝐞ₙ₋₁ = h(𝛌ₙ) ∈ 𝐑ᵐ</p>
+</li>
+<li>
+<p>The inverse function of h is h⁻¹, and its input value should range from (0,1].
+Therefore, if trying to solve 𝛌ₙ from 𝐞ₙ₋₁, every element in 𝐞ₙ₋₁ should be scaled to the range of (0,1] by the normalized function u(⋅). Then, 𝛌ₙ can be calculated through:</p>
+<p>𝛌ₙ = h⁻¹(u(𝐞ₙ₋₁))</p>
+</li>
+<li>
+<p>Further, the input weights of this subnetwork hidden node can be solved:</p>
+$$\\^𝐚ₙ = [𝐚ₙ₁,...,𝐚ₙₘ] = h⁻¹(u(𝐞ₙ₋₁))⋅𝐱⁻¹$$</li>
+<li>
+<p>For different activation functions, there will be:</p>
+$$\rm \\{^{\\^𝐚ₙ = arcsin(u(𝐞ₙ₋₁))⋅𝐱⁻¹,\quad sine}
+        \_{\\^𝐚ₙ = -log( (1/u(𝐞ₙ₋₁)) - 1)⋅𝐱⁻¹,\quad sigmoid}$$</li>
+</ol>
+<p>(This work is a continuation on ELM, that is once the 𝛃 calculated based on target 𝐭 and 𝐇⁻¹, the residual error is also fixed, so it serves as the target for 𝐚,b.
+Still, applying least-square, the optimial a can be calculated based on &ldquo;target&rdquo; e and 𝐱⁻¹.)</p>
+<ol start="6">
+<li>
+<p>^b is the mean of hidden nodes.</p>
+</li>
+<li>
+<p>The error can be reduced by adding the bias</p>
+</li>
+<li>
+<p>Do feedforward using the calculated ^𝐚ₙ and ^bₙ, so this time the output of the hidden layer is:</p>
+$$\\^𝐇ₙᵉ = u⁻¹(h(\\^𝐚ₙ⋅𝐱+\\^bₙ))$$<p>Because 𝐞ₙ₋₁ is the last output of the activation fuction, 𝐞ₙ₋₁ and $\\^𝐇ₙᵉ$ are the same things.
+So they can subtract from each other. Then the residual error for this time is:</p>
+<p>Δ = ‖𝐞ₙ₋₁‖² - ‖𝐞ₙ₋₁ - ^𝐇ₙᵉ‖² <br>
+= ‖𝐞ₙ₋₁‖² - (‖𝐞ₙ₋₁‖² - 2‖𝐞ₙ₋₁‖‖^𝐇ₙᵉ‖ + ‖^𝐇ₙᵉ‖²) <br>
+= 2‖𝐞ₙ₋₁‖‖^𝐇ₙᵉ‖ - ‖^𝐇ₙᵉ‖² <br>
+= 2⟨𝐞ₙ₋₁, ^𝐇ₙᵉ⟩ - ‖^𝐇ₙᵉ‖² <br>
+= ‖^𝐇ₙᵉ‖² ( 2⟨𝐞ₙ₋₁, ^𝐇ₙᵉ⟩/‖^𝐇ₙᵉ‖² - 1 )</p>
+</li>
+<li>
+<p>Δ is ≥ 0</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Prove the limit converges to 0 when n tends to infinity.</p>
+</li>
+</ul>
+<p>The target value is approximated while the error is decreased.</p>
+<p>The final estimation is the summation of the ouput of d subnetwork hidden nodes</p>
+<p>The VC dimension is lower than standard ELM, i.e., the dimension of feature space m≪ L, so the generalization ability of this method is better.</p>
+<p><a class="link" href="#abstract" >(Back to top)</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/slfn/">SLFN</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/subnetwork/b-note-elm-mltlyr/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Optim - SLFN | Multilayer SNN</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

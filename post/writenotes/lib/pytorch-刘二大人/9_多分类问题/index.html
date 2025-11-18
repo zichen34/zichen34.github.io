@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="手写数字数据集有10个类别，\n如果对每一类别按照二分类问题（是/不是）计算概率的话，每种类别的概率互相独立，与真实情况中，各结果之间互相抑制的事实矛盾。\n样本的分类结果满足一个概率分布，这就要求属于各类的概率都要大于0，而且概率之和为1。\n二分类问题只需要计算一个概率（另一个是互补），所以十分类问题只需要计算9个概率，但是第10个分类的计算方式与前9个不统一，就导致需要构造一些额外的计算图处理特殊情况，无法最大化地实现并行计算，所以希望所有类别的概率运算处理都是一样的。\n所以除了最后一层，前面的层还是用sigmoid，最后一层用softmax激活函数，满足：\n$$ \\begin{cases} P(y=i) ≥ 0 \\\\ \\sumᵢ₌₀^9 P(y=i) =1 \\end{cases} $$假设 $Z^l \\in \\mathbb R^K$ 是最后一个线性层 $l$ 的输出，共有K个类别，则经过 Softmax函数，线性层的输出变成概率分布：\n$$ P(y=i) = \\frac{e^{Z_i}}{\\sum_{j=0}^{K-1} e^{Z_j}},\\ i\\in\\{0,\\cdots, K-1 \\} $$分子使用指数运算从而恒大于零，分母是各输出之和，实现归一化。\n对于二分类问题（样本标签Y=1,0）交叉熵：$-(1\\cdot log \\hat{Y} + 0\\cdot log(1-\\hat{Y}))$。\n对于三分类问题（样本标签Y=1,0,0），交叉熵：$-(1 \\cdot log \\hat{Y}₁+ 0 + 0)$\n不管有多少类，只有1项是非零的。零项对训练没有意义，所以损失函数直接写为：$Loss(\\hat{Y}, Y) = -Y log \\hat{Y}$\n例如最后一个线性层的输出为：\n$$ [^{\\_{0.2}} \\_{^{0.1} \\_{-0.1}}] \\overset{\\rm Exponent}{\\longrightarrow} [^{_{1.22}} _{^{1.11} _{0.90}}] \\overset{\\rm Divide\\ sum}{\\longrightarrow} [^{\\_{0.38}} \\_{^{0.34} \\_{0.28}}] \\overset{-Y log \\hat{Y}}{\\longrightarrow} Loss $$对预测值先求对数，再数乘以样本 label (-Y)，被称为Negative Log Likelihood Loss (NLLLoss)，用numpy实现此计算过程：\n">
+<title>watch: PyTorch - 刘二 09 | Multi-classification Task</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lib/pytorch-%E5%88%98%E4%BA%8C%E5%A4%A7%E4%BA%BA/9_%E5%A4%9A%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: PyTorch - 刘二 09 | Multi-classification Task">
+<meta property='og:description' content="手写数字数据集有10个类别，\n如果对每一类别按照二分类问题（是/不是）计算概率的话，每种类别的概率互相独立，与真实情况中，各结果之间互相抑制的事实矛盾。\n样本的分类结果满足一个概率分布，这就要求属于各类的概率都要大于0，而且概率之和为1。\n二分类问题只需要计算一个概率（另一个是互补），所以十分类问题只需要计算9个概率，但是第10个分类的计算方式与前9个不统一，就导致需要构造一些额外的计算图处理特殊情况，无法最大化地实现并行计算，所以希望所有类别的概率运算处理都是一样的。\n所以除了最后一层，前面的层还是用sigmoid，最后一层用softmax激活函数，满足：\n$$ \\begin{cases} P(y=i) ≥ 0 \\\\ \\sumᵢ₌₀^9 P(y=i) =1 \\end{cases} $$假设 $Z^l \\in \\mathbb R^K$ 是最后一个线性层 $l$ 的输出，共有K个类别，则经过 Softmax函数，线性层的输出变成概率分布：\n$$ P(y=i) = \\frac{e^{Z_i}}{\\sum_{j=0}^{K-1} e^{Z_j}},\\ i\\in\\{0,\\cdots, K-1 \\} $$分子使用指数运算从而恒大于零，分母是各输出之和，实现归一化。\n对于二分类问题（样本标签Y=1,0）交叉熵：$-(1\\cdot log \\hat{Y} + 0\\cdot log(1-\\hat{Y}))$。\n对于三分类问题（样本标签Y=1,0,0），交叉熵：$-(1 \\cdot log \\hat{Y}₁+ 0 + 0)$\n不管有多少类，只有1项是非零的。零项对训练没有意义，所以损失函数直接写为：$Loss(\\hat{Y}, Y) = -Y log \\hat{Y}$\n例如最后一个线性层的输出为：\n$$ [^{\\_{0.2}} \\_{^{0.1} \\_{-0.1}}] \\overset{\\rm Exponent}{\\longrightarrow} [^{_{1.22}} _{^{1.11} _{0.90}}] \\overset{\\rm Divide\\ sum}{\\longrightarrow} [^{\\_{0.38}} \\_{^{0.34} \\_{0.28}}] \\overset{-Y log \\hat{Y}}{\\longrightarrow} Loss $$对预测值先求对数，再数乘以样本 label (-Y)，被称为Negative Log Likelihood Loss (NLLLoss)，用numpy实现此计算过程：\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lib/pytorch-%E5%88%98%E4%BA%8C%E5%A4%A7%E4%BA%BA/9_%E5%A4%9A%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-10-18T22:11:00&#43;00:00'/><meta property='article:modified_time' content='2022-10-18T22:11:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: PyTorch - 刘二 09 | Multi-classification Task">
+<meta name="twitter:description" content="手写数字数据集有10个类别，\n如果对每一类别按照二分类问题（是/不是）计算概率的话，每种类别的概率互相独立，与真实情况中，各结果之间互相抑制的事实矛盾。\n样本的分类结果满足一个概率分布，这就要求属于各类的概率都要大于0，而且概率之和为1。\n二分类问题只需要计算一个概率（另一个是互补），所以十分类问题只需要计算9个概率，但是第10个分类的计算方式与前9个不统一，就导致需要构造一些额外的计算图处理特殊情况，无法最大化地实现并行计算，所以希望所有类别的概率运算处理都是一样的。\n所以除了最后一层，前面的层还是用sigmoid，最后一层用softmax激活函数，满足：\n$$ \\begin{cases} P(y=i) ≥ 0 \\\\ \\sumᵢ₌₀^9 P(y=i) =1 \\end{cases} $$假设 $Z^l \\in \\mathbb R^K$ 是最后一个线性层 $l$ 的输出，共有K个类别，则经过 Softmax函数，线性层的输出变成概率分布：\n$$ P(y=i) = \\frac{e^{Z_i}}{\\sum_{j=0}^{K-1} e^{Z_j}},\\ i\\in\\{0,\\cdots, K-1 \\} $$分子使用指数运算从而恒大于零，分母是各输出之和，实现归一化。\n对于二分类问题（样本标签Y=1,0）交叉熵：$-(1\\cdot log \\hat{Y} + 0\\cdot log(1-\\hat{Y}))$。\n对于三分类问题（样本标签Y=1,0,0），交叉熵：$-(1 \\cdot log \\hat{Y}₁+ 0 + 0)$\n不管有多少类，只有1项是非零的。零项对训练没有意义，所以损失函数直接写为：$Loss(\\hat{Y}, Y) = -Y log \\hat{Y}$\n例如最后一个线性层的输出为：\n$$ [^{\\_{0.2}} \\_{^{0.1} \\_{-0.1}}] \\overset{\\rm Exponent}{\\longrightarrow} [^{_{1.22}} _{^{1.11} _{0.90}}] \\overset{\\rm Divide\\ sum}{\\longrightarrow} [^{\\_{0.38}} \\_{^{0.34} \\_{0.28}}] \\overset{-Y log \\hat{Y}}{\\longrightarrow} Loss $$对预测值先求对数，再数乘以样本 label (-Y)，被称为Negative Log Likelihood Loss (NLLLoss)，用numpy实现此计算过程：\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#mnist-dataset">MNIST Dataset</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lib/pytorch-%E5%88%98%E4%BA%8C%E5%A4%A7%E4%BA%BA/9_%E5%A4%9A%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">watch: PyTorch - 刘二 09 | Multi-classification Task</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 18, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#mnist-dataset">MNIST Dataset</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>手写数字数据集有10个类别，</p>
+<p>如果对每一类别按照二分类问题（是/不是）计算概率的话，每种类别的概率互相独立，与真实情况中，各结果之间互相抑制的事实矛盾。</p>
+<p>样本的分类结果满足一个概率分布，这就要求属于各类的概率都要大于0，而且概率之和为1。</p>
+<p>二分类问题只需要计算一个概率（另一个是互补），所以十分类问题只需要计算9个概率，但是第10个分类的计算方式与前9个不统一，就导致需要构造一些额外的计算图处理特殊情况，无法最大化地实现并行计算，所以希望所有类别的概率运算处理都是一样的。</p>
+<p>所以除了最后一层，前面的层还是用sigmoid，最后一层用softmax激活函数，满足：</p>
+$$
+\begin{cases}
+P(y=i) ≥ 0 \\ \sumᵢ₌₀^9 P(y=i) =1
+\end{cases}
+$$<p>假设 $Z^l \in \mathbb R^K$ 是最后一个线性层 $l$ 的输出，共有K个类别，则经过 Softmax函数，线性层的输出变成概率分布：</p>
+$$
+P(y=i) = \frac{e^{Z_i}}{\sum_{j=0}^{K-1} e^{Z_j}},\ i\in\{0,\cdots, K-1 \}
+$$<p>分子使用指数运算从而恒大于零，分母是各输出之和，实现归一化。</p>
+<p>对于二分类问题（样本标签Y=1,0）交叉熵：$-(1\cdot log \hat{Y} + 0\cdot log(1-\hat{Y}))$。</p>
+<p>对于三分类问题（样本标签Y=1,0,0），交叉熵：$-(1 \cdot log \hat{Y}₁+ 0 + 0)$</p>
+<p>不管有多少类，只有1项是非零的。零项对训练没有意义，所以损失函数直接写为：$Loss(\hat{Y}, Y) = -Y log \hat{Y}$</p>
+<p>例如最后一个线性层的输出为：</p>
+$$
+[^{\_{0.2}} \_{^{0.1} \_{-0.1}}]
+\overset{\rm Exponent}{\longrightarrow}
+[^{_{1.22}} _{^{1.11} _{0.90}}]
+\overset{\rm Divide\ sum}{\longrightarrow}
+[^{\_{0.38}} \_{^{0.34} \_{0.28}}]
+\overset{-Y log \hat{Y}}{\longrightarrow}
+Loss
+$$<p>对预测值先求对数，再数乘以样本 label (-Y)，被称为Negative Log Likelihood Loss (NLLLoss)，用numpy实现此计算过程：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>   <span class="c1">#样本标签</span>
+</span></span><span class="line"><span class="cl"><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">])</span>  <span class="c1">#线性层的输出</span>
+</span></span><span class="line"><span class="cl"><span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="c1">#预测值归一化</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span> <span class="n">y</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_pred</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>   <span class="c1">#取对数乘以-Y，就是NLLLoss</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果把softmax函数也算到损失函数中，在pytorch中叫做<strong>交叉熵损失</strong>：<code>Torch.nn.CrossEntropyLoss()</code>。这样的话，神经网络的最后一个线性层不要做激活，直接传给交叉熵损失：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>   <span class="c1">#长整型 (第0个类别)</span>
+</span></span><span class="line"><span class="cl"><span class="n">z</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">]])</span>    <span class="c1">#线性层输出</span>
+</span></span><span class="line"><span class="cl"><span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span> <span class="c1">#定义损失函数</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">z</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>   <span class="c1">#计算损失</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Mini-Batch: batch_size=3。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">Y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>   <span class="c1">#三条样本，分别属于第2类，第0类，第1类,用于索引真实类别对应的预测值</span>
+</span></span><span class="line"><span class="cl"><span class="n">Y_pred1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="c1">#(2)classified</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="c1">#(0)classified</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span> <span class="c1">#(1)classified</span>
+</span></span><span class="line"><span class="cl"><span class="n">Y_pred2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="c1">#(0)misclassified</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="c1">#(2)misclassified</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span> <span class="c1">#(2)misclassified</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss1</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">Y_pred1</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>   <span class="c1">#损失较小 0.4966</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss2</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">Y_pred1</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>   <span class="c1"># 1.2389</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;Batch Loss1=&#34;</span><span class="p">,</span> <span class="n">loss1</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">Batch Loss2=&#34;</span><span class="p">,</span><span class="n">loss2</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="mnist-dataset">MNIST Dataset
+</h3><p>图像是28×28的矩阵。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">## 引入包</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>  <span class="c1">#处理图像</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">datasets</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>     <span class="c1">#激活</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">## 准备数据</span>
+</span></span><span class="line"><span class="cl"><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+</span></span><span class="line"><span class="cl"><span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>    <span class="c1">#把一系列对象组成一个pipeline</span>
+</span></span><span class="line"><span class="cl">    <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>  <span class="c1">#把整数像素值0-255转变为图像张量：值0-1，维度：CxWxH (1x28x28)，方便卷积</span>
+</span></span><span class="line"><span class="cl">    <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.1307</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.3081</span><span class="p">,))</span> <span class="p">])</span>   <span class="c1">#归一化，减去均值,除以标准差, 使所有的像素值满足0-1分布</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;../dataset/mnist/&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>    <span class="c1">#读取数据时就做转变</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">test_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;../dataset/mnist/&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">test_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>    <span class="c1">#不打乱，每次测试顺序一样，方便对比结果</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">## 设计模型</span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Net</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="mi">512</span><span class="p">)</span> <span class="c1">#线性层把784维变成512维</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">l2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span> <span class="c1">#将到256</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">l3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span> <span class="c1">#将到128</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">l4</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>  <span class="c1">#将到64</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">l5</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1">#将到10，输出(N,10)的矩阵</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>   <span class="c1">#向前计算输出</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">784</span><span class="p">)</span> <span class="c1">#改变张量的形状，把一张图像变成一个二阶的张量（矩阵）784列，-1表示自动计算行数N</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>  <span class="c1">#输入l1，对输出做激活</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>  
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l3</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>  
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l4</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>  
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">l5</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>       <span class="c1">#最后一个线性层不激活</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">Net</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">## 构造损失和优化器</span>
+</span></span><span class="line"><span class="cl"><span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span> <span class="c1">#经过softmax，求对数，乘以-Y</span>
+</span></span><span class="line"><span class="cl"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="c1">#模型较大，用冲量</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">## 训练和测试</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">epoch</span><span class="p">):</span>       <span class="c1">#一轮训练的运算</span>
+</span></span><span class="line"><span class="cl">    <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_loader</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1">#取出训练样本</span>
+</span></span><span class="line"><span class="cl">        <span class="n">inputs</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">data</span>   <span class="c1">#取出样本和标签</span>
+</span></span><span class="line"><span class="cl">        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>   <span class="c1">#梯度清零</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">        <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="c1">#前馈:计算输出和损失</span>
+</span></span><span class="line"><span class="cl">        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>     <span class="c1">#反馈</span>
+</span></span><span class="line"><span class="cl">        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>    <span class="c1">#更新一步权重</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="c1">#累计损失</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">batch_idx</span> <span class="o">%</span><span class="mi">300</span> <span class="o">==</span> <span class="mi">299</span>    <span class="c1">#每300批（因为从0开始数）输出一次loss</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">%d</span><span class="s1">, </span><span class="si">%5d</span><span class="s1">] loss: </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">running_loss</span><span class="o">/</span><span class="mi">300</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">            <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">correct</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>   <span class="c1">#不需要反向传播，就不需要计算梯度</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">test_loader</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span>   <span class="c1">#取出测试样本及其标签</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>  <span class="c1">#计算预测值 Nx10 的矩阵</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">_</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#找出每一行中最大值的下标, 即所属类别，和它的值。dim=1表示沿着行方向寻找（0是列方向）</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="n">total</span> <span class="o">+=</span> <span class="n">labels</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1">#测试样本总数N</span>
+</span></span><span class="line"><span class="cl">            <span class="n">correct</span> <span class="o">+=</span> <span class="p">(</span><span class="n">predicted</span> <span class="o">==</span> <span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="c1">#正确分类的个数</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;Accuracy on test set: </span><span class="si">%d</span><span class="s2"> </span><span class="si">%%</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">correct</span> <span class="o">/</span><span class="n">total</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span> <span class="c1">#训练10轮</span>
+</span></span><span class="line"><span class="cl">        <span class="n">train</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span><span class="mi">10</span> <span class="o">==</span><span class="mi">9</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">test</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

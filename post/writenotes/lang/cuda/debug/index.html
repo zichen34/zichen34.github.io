@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Docs of Nsight: Getting Started with the CUDA Debugger\nDebug Demo (2023-11-03)\nEnvironment: Ubuntu 20.04, cuda-11.6 (in /usr/local/cuda-11.6), GPU 1050Ti.\nnvcc\n1 2 3 4 5 6 (base) yi@yi-Alienware:~/Downloads/CUDA_Study/Debug_CUDA$ nvcc -V nvcc: NVIDIA (R) Cuda compiler driver Copyright (c) 2005-2022 NVIDIA Corporation Built on Tue_Mar__8_18:18:20_PST_2022 Cuda compilation tools, release 11.6, V11.6.124 Build cuda_11.6.r11.6/compiler.31057947_0 Prerequisite:\nInstall 2 extensions: Nsight and C/C++\nCreate 2 debugging configuration files: launch.json and tasks.json under &ldquo;.vscode/&rdquo;\n">
+<title>memo: CUDA | Debugging</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lang/cuda/debug/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: CUDA | Debugging">
+<meta property='og:description' content="Docs of Nsight: Getting Started with the CUDA Debugger\nDebug Demo (2023-11-03)\nEnvironment: Ubuntu 20.04, cuda-11.6 (in /usr/local/cuda-11.6), GPU 1050Ti.\nnvcc\n1 2 3 4 5 6 (base) yi@yi-Alienware:~/Downloads/CUDA_Study/Debug_CUDA$ nvcc -V nvcc: NVIDIA (R) Cuda compiler driver Copyright (c) 2005-2022 NVIDIA Corporation Built on Tue_Mar__8_18:18:20_PST_2022 Cuda compilation tools, release 11.6, V11.6.124 Build cuda_11.6.r11.6/compiler.31057947_0 Prerequisite:\nInstall 2 extensions: Nsight and C/C++\nCreate 2 debugging configuration files: launch.json and tasks.json under &ldquo;.vscode/&rdquo;\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lang/cuda/debug/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2023-11-02T17:44:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-02T17:44:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: CUDA | Debugging">
+<meta name="twitter:description" content="Docs of Nsight: Getting Started with the CUDA Debugger\nDebug Demo (2023-11-03)\nEnvironment: Ubuntu 20.04, cuda-11.6 (in /usr/local/cuda-11.6), GPU 1050Ti.\nnvcc\n1 2 3 4 5 6 (base) yi@yi-Alienware:~/Downloads/CUDA_Study/Debug_CUDA$ nvcc -V nvcc: NVIDIA (R) Cuda compiler driver Copyright (c) 2005-2022 NVIDIA Corporation Built on Tue_Mar__8_18:18:20_PST_2022 Cuda compilation tools, release 11.6, V11.6.124 Build cuda_11.6.r11.6/compiler.31057947_0 Prerequisite:\nInstall 2 extensions: Nsight and C/C++\nCreate 2 debugging configuration files: launch.json and tasks.json under &ldquo;.vscode/&rdquo;\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#debug-demo">Debug Demo</a>
+      <ol>
+        <li><a href="#example-with-nvcc">Example with nvcc</a></li>
+        <li><a href="#example-with-makefile">Example with Makefile</a></li>
+        <li><a href="#example-with-cmake">Example with CMake</a></li>
+      </ol>
+    </li>
+    <li><a href="#debug-cuda-samples">Debug Cuda Samples</a>
+      <ol>
+        <li><a href="#cuda-sample-116">cuda-sample-11.6</a></li>
+      </ol>
+    </li>
+    <li><a href="#build-with-cmake">Build with CMake</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lang/cuda/debug/">memo: CUDA | Debugging</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 02, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#debug-demo">Debug Demo</a>
+      <ol>
+        <li><a href="#example-with-nvcc">Example with nvcc</a></li>
+        <li><a href="#example-with-makefile">Example with Makefile</a></li>
+        <li><a href="#example-with-cmake">Example with CMake</a></li>
+      </ol>
+    </li>
+    <li><a href="#debug-cuda-samples">Debug Cuda Samples</a>
+      <ol>
+        <li><a href="#cuda-sample-116">cuda-sample-11.6</a></li>
+      </ol>
+    </li>
+    <li><a href="#build-with-cmake">Build with CMake</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>Docs of Nsight: <a class="link" href="https://docs.nvidia.com/nsight-visual-studio-code-edition/cuda-debugger/index.html"  target="_blank" rel="noopener"
+    >Getting Started with the CUDA Debugger</a></p>
+<hr>
+<h2 id="debug-demo">Debug Demo
+</h2><p>(2023-11-03)</p>
+<p><strong>Environment</strong>: Ubuntu 20.04, cuda-11.6 (in <code>/usr/local/cuda-11.6</code>), GPU 1050Ti.</p>
+<ul>
+<li>
+<p>nvcc</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi-Alienware:~/Downloads/CUDA_Study/Debug_CUDA$ nvcc -V
+</span></span><span class="line"><span class="cl">nvcc: NVIDIA <span class="o">(</span>R<span class="o">)</span> Cuda compiler driver
+</span></span><span class="line"><span class="cl">Copyright <span class="o">(</span>c<span class="o">)</span> 2005-2022 NVIDIA Corporation
+</span></span><span class="line"><span class="cl">Built on Tue_Mar__8_18:18:20_PST_2022
+</span></span><span class="line"><span class="cl">Cuda compilation tools, release 11.6, V11.6.124
+</span></span><span class="line"><span class="cl">Build cuda_11.6.r11.6/compiler.31057947_0
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<p><strong>Prerequisite</strong>:</p>
+<ol>
+<li>
+<p>Install 2 extensions: Nsight and C/C++</p>
+</li>
+<li>
+<p>Create 2 debugging configuration files: <code>launch.json</code> and <code>tasks.json</code> under &ldquo;.vscode/&rdquo;</p>
+<ul>
+<li>Select debugger: CUDA C++ (CUDA-GDB)</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="example-with-nvcc">Example with nvcc
+</h3><p><a class="link" href="https://github.com/zichen34/CUDA_Study/tree/main/Debug_CUDA"  target="_blank" rel="noopener"
+    >Testing repo</a></p>
+<ol>
+<li>
+<p>&ldquo;test.cu&rdquo;:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Number of input arguments: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">argc</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">argc</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>&ldquo;launch.json&rdquo; for <strong>debug</strong> configurations:</p>
+<p>Set <code>program</code> as the output <strong>binary</strong> program to be debugged:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;version&#34;</span>: <span class="s2">&#34;0.2.0&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;configurations&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;CUDA C++: Launch&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;cuda-gdb&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;request&#34;</span>: <span class="s2">&#34;launch&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;program&#34;</span>: <span class="s2">&#34;</span><span class="si">${</span><span class="nv">fileDirname</span><span class="si">}</span><span class="s2">/test.bin&#34;</span>, // binary file
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;preLaunchTask&#34;</span>: <span class="s2">&#34;mynvcc&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        // no need to change this:
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;CUDA C++: Attach&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;cuda-gdb&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;request&#34;</span>: <span class="s2">&#34;attach&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>&ldquo;tasks.json&rdquo; for <strong>building</strong> configurations:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;version&#34;</span>: <span class="s2">&#34;2.0.0&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;tasks&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;label&#34;</span>: <span class="s2">&#34;mynvcc&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;shell&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;command&#34;</span>: <span class="s2">&#34;nvcc&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;args&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                 <span class="s2">&#34;</span><span class="si">${</span><span class="nv">file</span><span class="si">}</span><span class="s2">&#34;</span>,
+</span></span><span class="line"><span class="cl">                 <span class="s2">&#34;-g&#34;</span>,<span class="s2">&#34;-G&#34;</span>,
+</span></span><span class="line"><span class="cl">                 <span class="s2">&#34;-o&#34;</span>,<span class="s2">&#34;</span><span class="si">${</span><span class="nv">fileDirname</span><span class="si">}</span><span class="s2">/test.bin&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Error: <code>/usr/bin/bash: nvcc: command not found</code></p>
+<blockquote>
+<p>Add command on PATH before running startup scripts.
+<a class="link" href="https://code.visualstudio.com/docs/editor/tasks#_why-do-i-get-command-not-found-when-running-a-task"  target="_blank" rel="noopener"
+    >tasks - VSCode - Docs</a></p></blockquote>
+<p>Tried add <code>export PATH=&quot;$PATH:/usr/local/cuda-12.3/bin&quot;</code> into
+&ldquo;/etc/environment&rdquo;, &ldquo;/etc/profile&rdquo;, &ldquo;/etc/xprofile&rdquo;, &ldquo;/etc/bash.bashrc&rdquo; all <strong>doesn&rsquo;t work</strong>.
+<a class="link" href="https://stackoverflow.com/a/26962251"  target="_blank" rel="noopener"
+    >How to permanently set $PATH on Linux/Unix -SO</a></p>
+</li>
+<li>
+<p>Solution: Set <strong>integrated terminal</strong> in user settings.json
+(My vscode version: 1.83.1, 2023-11-03)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="s2">&#34;terminal.integrated.profiles.linux&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;bash&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;path&#34;</span>: <span class="s2">&#34;bash&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;args&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;-i&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">]</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;terminal.integrated.defaultProfile.linux&#34;</span>: <span class="s2">&#34;bash&#34;</span>,
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Ref: <a class="link" href="https://stackoverflow.com/a/70243581/18003182"  target="_blank" rel="noopener"
+    >VSCode tasks error: /bin/bash: npm: command not found</a>
+(Found by DDG with searching &ldquo;vscode debug tasks.json /usr/bin/bash: nvcc: command not found&rdquo;)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Then, with the &ldquo;test.cu&rdquo; file <strong>opening</strong> in the editor, click the start button to initiate debugging.</p>
+</li>
+</ol>
+<hr>
+<ul>
+<li>
+<p>(2024-01-26) I still don&rsquo;t know how to include headers for libtorch in the CLI of nvcc.
+So, I didn&rsquo;t manage to compile the 3DGS project with nvcc as above.</p>
+<p>Potentially useful:</p>
+<ul>
+<li>An example: <a class="link" href="https://stackoverflow.com/a/10320699"  target="_blank" rel="noopener"
+    >Include path problems for GPU library - SO</a></li>
+<li>Docs of nvcc: <a class="link" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html"  target="_blank" rel="noopener"
+    >NVIDIA CUDA Compiler Driver NVCC</a></li>
+</ul>
+</li>
+<li>
+<p>(2024-01-27)</p>
+<p>Based on <a class="link" href="https://stackoverflow.com/a/72044387/18003182"  target="_blank" rel="noopener"
+    >Troubles while compiling C++ program with PyTorch, HElib and OpenCV - SO</a>,
+and reminded by perplexity, <code>-Wl</code> and <code>-rpath</code> are used in GCC for linking and specifying runtime library search path.
+In contrast, nvcc has <code>-Xlinker</code> for linking during compilation.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Compile CUDA source files into object files with nvcc</span>
+</span></span><span class="line"><span class="cl">nvcc --compile -g -G -std<span class="o">=</span>c++17 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-I/usr/local/libtorch/include <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-I/usr/local/libtorch/include/torch/csrc/api/include <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-I/usr/local/libtorch/include/torch <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>main_copy.cu <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-o main.o
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Link object files into an executable with g++</span>
+</span></span><span class="line"><span class="cl">g++ main.o <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-L/usr/local/libtorch/lib <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-L/usr/local/cuda/lib64 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-Wl,-rpath,/usr/local/libtorch/lib <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-ltorch -ltorch_cpu -lc10 -lcudart <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-o my_executable
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Compiling is OK. But linking reports error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/usr/bin/ld: main.o: in <span class="k">function</span> <span class="sb">`</span>main<span class="s1">&#39;:
+</span></span></span><span class="line"><span class="cl"><span class="s1">/home/yi/Downloads/debug_diff_rast/main_copy.cu:31: undefined reference to `RasterizeGaussiansCUDA(at::Tensor const&amp;, at::Tensor const&amp;, at::Tensor const&amp;, at::Tensor const&amp;, at::Tensor const&amp;, at::Tensor const&amp;, float, at::Tensor const&amp;, at::Tensor const&amp;, at::Tensor const&amp;, float, float, int, int, at::Tensor const&amp;, int, at::Tensor const&amp;, bool, bool)&#39;</span>
+</span></span><span class="line"><span class="cl">collect2: error: ld returned <span class="m">1</span> <span class="nb">exit</span> status
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Not successful yet. Need to compile the library with nvcc.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="example-with-makefile">Example with Makefile
+</h3><ul>
+<li>
+<p>Nvidia Tutorial Clip: <a class="link" href="https://developer.nvidia.com/nsight-visual-studio-code-edition"  target="_blank" rel="noopener"
+    >Debugging CUDA kernels with VS Code</a></p>
+</li>
+<li>
+<p>Microsoft VS <a class="link" href="https://youtu.be/l6PgYhiQr-I?si=ZUCWSc32Da35daMR"  target="_blank" rel="noopener"
+    >CUDA Support in Visual Studio Code with Julia Reid</a></p>
+</li>
+</ul>
+<p>(2024-01-26)</p>
+<ol>
+<li>
+<p>Use cmake to produce <strong>Makefile</strong>, otherwise, error occurs:
+<a class="link" href="https://stackoverflow.com/a/14412963/18003182"  target="_blank" rel="noopener"
+    ><code>make *** no targets specified and no makefile found. stop</code></a></p>
+</li>
+<li>
+<p>And then edit the launch.json and tasks.json following this article:
+<a class="link" href="https://docs.nvidia.com/nsight-visual-studio-code-edition/cuda-debugger/index.html"  target="_blank" rel="noopener"
+    >Getting Started with the CUDA Debugger :: NVIDIA Nsight VSCE Documentation</a></p>
+<p>Refer to my repo for <a class="link" href="https://github.com/zichen34/debug_diff_rast/commit/95218b1e88580d69bf0eba245be1068530fea552"  target="_blank" rel="noopener"
+    >debugging 3DGS</a>.</p>
+</li>
+</ol>
+<hr>
+<h3 id="example-with-cmake">Example with CMake
+</h3><p><a class="link" href="https://stackoverflow.com/q/67888279/18003182"  target="_blank" rel="noopener"
+    >Debugging CUDA kernels with VS Code</a></p>
+<p>Ref</p>
+<ol>
+<li>Source articles: <a class="link" href="https://zhuanlan.zhihu.com/p/508810115"  target="_blank" rel="noopener"
+    >CUDA 番外篇 | Visual Studio Code的CUDA环境 - Master KangKang的文章 - 知乎</a></li>
+<li>Adapted demo: <a class="link" href="https://blog.csdn.net/oushaojun2/article/details/126836825"  target="_blank" rel="noopener"
+    >vscode远程调试Linux CUDA程序- oushaojun2 - CSDN</a></li>
+</ol>
+<hr>
+<h2 id="debug-cuda-samples">Debug Cuda Samples
+</h2><p>(2023-11-02)</p>
+<ol>
+<li>
+<p>Download sample project:
+<a class="link" href="https://github.com/NVIDIA/cuda-samples/tree/b5c84e699635946cfd4cf53fae2933f98ca2a077"  target="_blank" rel="noopener"
+    >NVIDIA/cuda-samples for 12.3</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git clone https://github.com/NVIDIA/cuda-samples.git
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Make 12.3 failed with 11.6</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> ./cuda-samples
+</span></span><span class="line"><span class="cl">make <span class="nv">dbg</span><span class="o">=</span><span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Error: <code>/usr/bin/ld: cannot find -lglut</code></p>
+<p>Need: <code>sudo apt-get install freeglut3 freeglut3-dev</code></p>
+</li>
+<li>
+<p>Error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/usr/bin/ld: simpleCUFFT_callback.o: in <span class="k">function</span> <span class="sb">`</span>main<span class="s1">&#39;:
+</span></span></span><span class="line"><span class="cl"><span class="s1">/home/yi/Downloads/cuda-samples/Samples/4_CUDA_Libraries/simpleCUFFT_callback/simpleCUFFT_callback.cu:103: undefined reference to `cudaGetDeviceProperties_v2&#39;</span>
+</span></span><span class="line"><span class="cl">collect2: error: ld returned <span class="m">1</span> <span class="nb">exit</span> status
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: *** <span class="o">[</span>Makefile:373: simpleCUFFT_callback<span class="o">]</span> Error <span class="m">1</span>
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: Leaving directory <span class="s1">&#39;/home/yi/Downloads/cuda-samples/Samples/4_CUDA_Libraries/simpleCUFFT_callback&#39;</span>
+</span></span><span class="line"><span class="cl">make: *** <span class="o">[</span>Makefile:45: Samples/4_CUDA_Libraries/simpleCUFFT_callback/Makefile.ph_build<span class="o">]</span> Error <span class="m">2</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>cudaGetDeviceProperties_v2</code> is not existed in cuda 11.x, but appear in cuda 12.2.
+<a class="link" href="https://stackoverflow.com/a/76687325/18003182"  target="_blank" rel="noopener"
+    >SO</a></p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="cuda-sample-116">cuda-sample-11.6
+</h3><ol>
+<li>
+<p>Download zip: <a class="link" href="https://github.com/NVIDIA/cuda-samples/releases/tag/v11.6"  target="_blank" rel="noopener"
+    >Release pkg 11.6</a>;
+<a class="link" href="https://github.com/NVIDIA/cuda-samples/tree/7db525e24d29227a8fe0657360f5d1018cc34e46"  target="_blank" rel="noopener"
+    >Git tag-11.6</a></p>
+</li>
+<li>
+<p><code>make</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi-Alienware-Aurora-R8:~/Downloads/cuda-samples-11.6$ make <span class="nv">dbg</span><span class="o">=</span><span class="m">1</span>
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: Entering directory <span class="s1">&#39;/home/yi/Downloads/cuda-samples-11.6/Samples/3_CUDA_Features/ptxjit&#39;</span>
+</span></span><span class="line"><span class="cl">/usr/local/cuda/bin/nvcc -ccbin g++ -I../../../Common  -m64 -g -G    --threads <span class="m">0</span> --std<span class="o">=</span>c++11 -gencode <span class="nv">arch</span><span class="o">=</span>compute_35,code<span class="o">=</span>compute_35 -o ptxjit.o -c ptxjit.cpp
+</span></span><span class="line"><span class="cl">nvcc fatal   : Unsupported gpu architecture <span class="s1">&#39;compute_35&#39;</span>
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: *** <span class="o">[</span>Makefile:396: ptxjit.o<span class="o">]</span> Error <span class="m">1</span>
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: Leaving directory <span class="s1">&#39;/home/yi/Downloads/cuda-samples-11.6/Samples/3_CUDA_Features/ptxjit&#39;</span>
+</span></span><span class="line"><span class="cl">make: *** <span class="o">[</span>Makefile:45: Samples/3_CUDA_Features/ptxjit/Makefile.ph_build<span class="o">]</span> Error <span class="m">2</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Devices with compute capacity (cc) 3.x have been dropped by cuda 12.x.
+Solution is removing the requests of <code>compute_35</code> in the make file. <a class="link" href="https://forums.developer.nvidia.com/t/nvcc-fatal-unsupported-gpu-architecture-compute-35/247815/2"  target="_blank" rel="noopener"
+    >Forum Nv</a></p>
+</li>
+<li>
+<p>Cuda Toolkit is compatible the devices with lower cc than it supports. CUDA 11.x supports a maximum cc of 8.x. <a class="link" href="https://blog.csdn.net/qq_31347869/article/details/12334890"  target="_blank" rel="noopener"
+    >CSDN</a></p>
+</li>
+<li>
+<p>(2023-11-02) Remove cc of 35 and 37 <a class="link" href="https://stackoverflow.com/a/75550410/18003182"  target="_blank" rel="noopener"
+    >SO</a>:</p>
+<ol>
+<li>Replace all the pattern <code>SMS ?= 35 37</code> with <code>SMS ?= </code> through VSCode.</li>
+<li>Replace all the pattern <code>compute_35</code> with <code>compute_61</code></li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<p>Make failed:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/usr/local/cuda/bin/nvcc -ccbin g++ -I../../../Common  -m64 -g -G    --std<span class="o">=</span>c++11 --threads <span class="m">0</span> 
+</span></span><span class="line"><span class="cl">-gencode <span class="nv">arch</span><span class="o">=</span>compute_50,code<span class="o">=</span>sm_50 -gencode <span class="nv">arch</span><span class="o">=</span>compute_52,code<span class="o">=</span>sm_52 -gencode <span class="nv">arch</span><span class="o">=</span>compute_60,code<span class="o">=</span>sm_60 
+</span></span><span class="line"><span class="cl">-gencode <span class="nv">arch</span><span class="o">=</span>compute_61,code<span class="o">=</span>sm_61 -gencode <span class="nv">arch</span><span class="o">=</span>compute_70,code<span class="o">=</span>sm_70 -gencode <span class="nv">arch</span><span class="o">=</span>compute_75,code<span class="o">=</span>sm_75 
+</span></span><span class="line"><span class="cl">-gencode <span class="nv">arch</span><span class="o">=</span>compute_80,code<span class="o">=</span>sm_80 -gencode <span class="nv">arch</span><span class="o">=</span>compute_86,code<span class="o">=</span>sm_86 -gencode <span class="nv">arch</span><span class="o">=</span>compute_86,code<span class="o">=</span>compute_86 
+</span></span><span class="line"><span class="cl">-o reduction_kernel.o -c reduction_kernel.cu
+</span></span><span class="line"><span class="cl">reduction_kernel.cu<span class="o">(</span>558<span class="o">)</span>: error: name followed by <span class="s2">&#34;::&#34;</span> must be a class or namespace name
+</span></span><span class="line"><span class="cl">    __attribute__<span class="o">((</span>shared<span class="o">))</span> cg::experimental::block_tile_memory&lt;sizeof<span class="o">(</span>T<span class="o">)</span>, BlockSize&gt; scratch<span class="p">;</span>
+</span></span><span class="line"><span class="cl">                                ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">reduction_kernel.cu<span class="o">(</span>558<span class="o">)</span>: error: expected an identifier
+</span></span><span class="line"><span class="cl">    __attribute__<span class="o">((</span>shared<span class="o">))</span> cg::experimental::block_tile_memory&lt;sizeof<span class="o">(</span>T<span class="o">)</span>, BlockSize&gt; scratch<span class="p">;</span>
+</span></span><span class="line"><span class="cl">                                                                ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">reduction_kernel.cu<span class="o">(</span>558<span class="o">)</span>: warning <span class="c1">#1835-D: attribute &#34;__shared__&#34; does not apply here</span>
+</span></span><span class="line"><span class="cl">    __attribute__<span class="o">((</span>shared<span class="o">))</span> cg::experimental::block_tile_memory&lt;sizeof<span class="o">(</span>T<span class="o">)</span>, BlockSize&gt; scratch<span class="p">;</span>
+</span></span><span class="line"><span class="cl">                   ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Remark: The warnings can be suppressed with <span class="s2">&#34;-diag-suppress &lt;warning-number&gt;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">reduction_kernel.cu<span class="o">(</span>558<span class="o">)</span>: error: expected a <span class="s2">&#34;;&#34;</span>
+</span></span><span class="line"><span class="cl">    __attribute__<span class="o">((</span>shared<span class="o">))</span> cg::experimental::block_tile_memory&lt;sizeof<span class="o">(</span>T<span class="o">)</span>, BlockSize&gt; scratch<span class="p">;</span>
+</span></span><span class="line"><span class="cl">                                                                ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">reduction_kernel.cu<span class="o">(</span>561<span class="o">)</span>: error: name followed by <span class="s2">&#34;::&#34;</span> must be a class or namespace name
+</span></span><span class="line"><span class="cl">    auto <span class="nv">cta</span> <span class="o">=</span> cg::experimental::this_thread_block<span class="o">(</span>scratch<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                   ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">reduction_kernel.cu<span class="o">(</span>561<span class="o">)</span>: error: identifier <span class="s2">&#34;scratch&#34;</span> is undefined
+</span></span><span class="line"><span class="cl">    auto <span class="nv">cta</span> <span class="o">=</span> cg::experimental::this_thread_block<span class="o">(</span>scratch<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                                                   ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">reduction_kernel.cu<span class="o">(</span>563<span class="o">)</span>: error: name followed by <span class="s2">&#34;::&#34;</span> must be a class or namespace name
+</span></span><span class="line"><span class="cl">    auto <span class="nv">multiWarpTile</span> <span class="o">=</span> cg::experimental::tiled_partition&lt;MultiWarpGroupSize&gt;<span class="o">(</span>cta<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                             ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">6</span> errors detected in the compilation of <span class="s2">&#34;reduction_kernel.cu&#34;</span>.
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: *** <span class="o">[</span>Makefile:358: reduction_kernel.o<span class="o">]</span> Error <span class="m">255</span>
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: Leaving directory <span class="s1">&#39;/home/yi/Downloads/cuda-samples-11.6/Samples/2_Concepts_and_Techniques/reduction&#39;</span>
+</span></span><span class="line"><span class="cl">make: *** <span class="o">[</span>Makefile:45: Samples/2_Concepts_and_Techniques/reduction/Makefile.ph_build<span class="o">]</span> Error <span class="m">2</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>VSCode <strong>didn&rsquo;t find</strong> header with red underlines:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">#include errors detected. Please update your includePath. Squiggles are disabled for this translation unit </span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>/home/yi/Downloads/cuda-samples-11.6/Samples/2_Concepts_and_Techniques/reduction/reduction_kernel.cu<span class="o">)</span>.C/C++<span class="o">(</span>1696<span class="o">)</span>
+</span></span><span class="line"><span class="cl">cannot open <span class="nb">source</span> file <span class="s2">&#34;cooperative_groups/reduce.h&#34;</span>C/C++<span class="o">(</span>1696<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Edit</strong> &ldquo;c_cpp_properties.json&rdquo; as:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="s2">&#34;includePath&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;</span><span class="si">${</span><span class="nv">workspaceFolder</span><span class="si">}</span><span class="s2">/**&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/usr/local/cuda-11.6/include&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">]</span>,
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Didn&rsquo;t solve. And the header is there and can be found.</p>
+<ul>
+<li>
+<p>(2023-11-03) <strong>Intellisense erros</strong> for CUDA syntax.</p>
+<blockquote>
+<p>Ensure selecting lang as &ldquo;CUDA C++&rdquo; rather than &ldquo;C++&rdquo;.
+<a class="link" href="https://forums.developer.nvidia.com/t/vscode-nsight-intellisense-not-detecting-functions-and-datatypes-for-cu-cpp-works/221397/2"  target="_blank" rel="noopener"
+    >VSCode Nsight Intellisense not detecting functions and datatypes for *cu; *cpp works - NV forum</a></p></blockquote>
+<p>Red underlines disappeared after the C/C++ extension got disabled and only &ldquo;Nsigh&rdquo; extension left.
+But these 2 extensions both are installed in every tutorial.</p>
+</li>
+<li>
+<p>(2023-11-03)<del>No error in a folder contains <strong>only .cu</strong> files.
+Thus, Python code <strong>can&rsquo;t co-exist</strong> with CUDA code?</del></p>
+</li>
+<li>
+<p>(2023-11-08) ✅ Refering the &ldquo;.vscode/c_cpp_properties.json&rdquo; in the CUDA sample: &ldquo;Samples/0_Introduction/matrixMul&rdquo;, the compiler should be <strong>nvcc</strong>, not &ldquo;/usr/bin/gcc&rdquo;.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">&#34;compilerPath&#34;</span><span class="err">:</span> <span class="s2">&#34;/usr/local/cuda/bin/nvcc&#34;</span><span class="err">,</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="https://docs.nvidia.com/nsight-visual-studio-code-edition/cuda-debugger/index.html"  target="_blank" rel="noopener"
+    >Getting Started with the CUDA Debugger :: NVIDIA Nsight VSCE Documentation</a></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Same error about reduction here <a class="link" href="https://github.com/NVIDIA/cuda-samples/issues/201"  target="_blank" rel="noopener"
+    >issue#201</a>. But he was 11.8.</p>
+</li>
+<li>
+<p>Re-install cuda toolkit 11.8 and test samples of 11.8.</p>
+<ul>
+<li>
+<p><strong>Note</strong>: the final line of the installing scripts provided on official site should be:
+<code>sudo apt-get -y install cuda-11-8</code> instead of <code>sudo apt-get -y install cuda</code></p>
+</li>
+<li>
+<p>Error persists at reduction_kernel.cu.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="build-with-cmake">Build with CMake
+</h2><p>(2023-11-17)</p>
+<p>The library &ldquo;diff-gaussian-rasterization-comments/cuda_rasterizer&rdquo; is built according to CXX standard.</p>
+<p>However, I cannot step into the CUDA kernels when debugging.</p>
+<p>Maybe using nvcc to build can enable debugging.</p>
+<p>Create a CMakeLists.txt using nvcc?</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

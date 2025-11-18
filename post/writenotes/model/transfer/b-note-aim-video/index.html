@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="AIM: Adapting Image Models for Efficient Video Action Recognition (ICLR 2023)">
+<title>read: Transfer - Adapter | AIM for Video</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/transfer/b-note-aim-video/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="read: Transfer - Adapter | AIM for Video">
+<meta property='og:description' content="AIM: Adapting Image Models for Efficient Video Action Recognition (ICLR 2023)">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/transfer/b-note-aim-video/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2023-08-23T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-08-23T00:00:00&#43;00:00'/><meta property='og:image' content='https://adapt-image-models.github.io/method.JPG' />
+<meta name="twitter:title" content="read: Transfer - Adapter | AIM for Video">
+<meta name="twitter:description" content="AIM: Adapting Image Models for Efficient Video Action Recognition (ICLR 2023)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://adapt-image-models.github.io/method.JPG' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#note">Note</a>
+      <ol>
+        <li><a href="#abs">Abs</a></li>
+        <li><a href="#intro">Intro</a></li>
+        <li><a href="#related-work">Related work</a></li>
+        <li><a href="#method">Method</a></li>
+        <li><a href="#experiments">Experiments</a></li>
+        <li><a href="#discussion">Discussion</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+      </ol>
+    </li>
+    <li><a href="#play">Play</a>
+      <ol>
+        <li><a href="#environment">Environment</a></li>
+        <li><a href="#dataset-diving48">Dataset diving48</a></li>
+        <li><a href="#config-for-1080ti">Config for 1080Ti</a></li>
+        <li><a href="#optimization">Optimization</a></li>
+        <li><a href="#pseudocode">Pseudocode</a></li>
+        <li><a href="#debug-videoswin">Debug VideoSwin</a></li>
+        <li><a href="#dataset-ssv2">Dataset SSv2</a></li>
+        <li><a href="#forward-swin">Forward swin</a></li>
+        <li><a href="#adapted-swin">Adapted Swin</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/model/transfer/b-note-aim-video/">
+                
+                    <img src="https://adapt-image-models.github.io/method.JPG" loading="lazy" alt="Featured image of post read: Transfer - Adapter | AIM for Video" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                Read
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/transfer/b-note-aim-video/">read: Transfer - Adapter | AIM for Video</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            AIM: Adapting Image Models for Efficient Video Action Recognition (ICLR 2023)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 23, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    9 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#note">Note</a>
+      <ol>
+        <li><a href="#abs">Abs</a></li>
+        <li><a href="#intro">Intro</a></li>
+        <li><a href="#related-work">Related work</a></li>
+        <li><a href="#method">Method</a></li>
+        <li><a href="#experiments">Experiments</a></li>
+        <li><a href="#discussion">Discussion</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+      </ol>
+    </li>
+    <li><a href="#play">Play</a>
+      <ol>
+        <li><a href="#environment">Environment</a></li>
+        <li><a href="#dataset-diving48">Dataset diving48</a></li>
+        <li><a href="#config-for-1080ti">Config for 1080Ti</a></li>
+        <li><a href="#optimization">Optimization</a></li>
+        <li><a href="#pseudocode">Pseudocode</a></li>
+        <li><a href="#debug-videoswin">Debug VideoSwin</a></li>
+        <li><a href="#dataset-ssv2">Dataset SSv2</a></li>
+        <li><a href="#forward-swin">Forward swin</a></li>
+        <li><a href="#adapted-swin">Adapted Swin</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://github.com/taoyang1122/adapt-image-models"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2302.03024"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://adapt-image-models.github.io/"  target="_blank" rel="noopener"
+    >ProjPage</a>
+| <a class="link" href="https://openreview.net/forum?id=CIoSZ_HKHS7"  target="_blank" rel="noopener"
+    >OpenReview</a>
+| <a class="link" href="https://youtu.be/YmZHV0I1bSE?si=-LnSoTqmxTl5lqV3"  target="_blank" rel="noopener"
+    >Ytb</a></p>
+<h2 id="note">Note
+</h2><h3 id="abs">Abs
+</h3><ul>
+<li>
+<p>Transfer between different modalities: image classification and video understanding</p>
+</li>
+<li>
+<p>Add 3 new layers inside <strong>each</strong> transformer block, not at the very end of the model.</p>
+</li>
+<li>
+<p>3 new layers:</p>
+<ol>
+<li><strong>Spatial</strong> adapter is after self-attention;</li>
+<li><strong>Temporal</strong> adapter is after two self-attention,</li>
+<li><strong>Joint</strong> adapter is a bypass branch of the MLP layers.</li>
+</ol>
+</li>
+<li>
+<p>Frozen pre-trained parameters and optimize only the new layers to transfer the pre-trained model onto another task.</p>
+</li>
+</ul>
+<h3 id="intro">Intro
+</h3><ol>
+<li>Two directions: adding temporal module onto or inflating an image transformer model both have drawbacks:
+heavy-computation full fine-tunning is required.</li>
+</ol>
+<h3 id="related-work">Related work
+</h3><ol>
+<li>Pre-trained image models have good transferability.</li>
+<li>Fully fine-tuning a transformer-based image model is uneconomical.</li>
+<li>Parameter-efficient finetuning was applied on LLM for downstream tasks.</li>
+</ol>
+<h3 id="method">Method
+</h3><ol>
+<li>
+<p><strong>ViT</strong> consists of 12 encoder blocks (MSA and MLP).</p>
+<ul>
+<li>
+<p>An image is split into N pathes, which will be projected to D channels;</p>
+</li>
+<li>
+<p>The input to MSA is each patch attached class token channel and added positional encoding.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Space-only model (baseline, no temporal modelong): Apply pre-trained frozen ViT onto video by processing <strong>each frame</strong> independently.</p>
+<ul>
+<li>
+<p>Each frame will be represented by the final class token.</p>
+</li>
+<li>
+<p>The token of each frames are <strong>averaged</strong> to form a vector for predicting</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Spatial adaptation</strong> is adding an adapter after the self-attention (pre-trained MSA) fuses N+1 patches.</p>
+<ul>
+<li>
+<p>An adapter is a bottleneck, i.e, Reduce-Act-Expand with skip connection.</p>
+</li>
+<li>
+<p>This can achieve comparable performance compared with space-only baseline, because image model learns spatial feature well.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Temporal modeling</strong> reused the self-attention parameters again, whereas the T frames got fused by reshapeing the tensor.</p>
+<ul>
+<li>
+<p>Another adapter is appended for adapting the generated temporal features.</p>
+</li>
+<li>
+<p>Temporal modeling is performed ahead of spatial modeling, so the adapter is <strong>removed skip connection</strong> and initialized as <strong>zero</strong> to avoid disrupting the perfomance of the original model.</p>
+</li>
+<li>
+<p>By reusing the MSA, the number of parameters is <strong>maintained</strong>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Joint adapation</strong> jointly fits the temporal features and spatial features.</p>
+<ul>
+<li>
+<p>This adapter also doesn&rsquo;t has skip connection.</p>
+</li>
+<li>
+<p>Average the final class token of each frame and pass it to classification head.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="experiments">Experiments
+</h3><p>Task: classification video?</p>
+<ul>
+<li>8 frames</li>
+<li>Memory: AIM based on Swin-B pre-trained with IN-21K occupies 9GB.</li>
+<li>Underperform on temporal-heavy video because the temporal modeling is simply reusing the spatial modeling parameters.</li>
+</ul>
+<h3 id="discussion">Discussion
+</h3><ul>
+<li>Deeper layer needs adaptation for task-specific features, while shallow layer may not.</li>
+</ul>
+<h3 id="conclusion">Conclusion
+</h3><ul>
+<li>Transfer models trained with other sequence data, like text and audio for video action recognition.</li>
+</ul>
+<hr>
+<div class="mermaid">flowchart TD
+input("Image <br> (224,224,3)") --> cls("Class token <br> (1,768)") & pe("Position Embedding <br> (197,768)")
+input --> feat("Conv2d (16x16,s16) <br> (14,14)")
+cls & feat --> Cat
+pe & Cat --> add1("Add")
+add1 --> msa1("MSA") --> Tadap --> msa2("MSA") --> Sadap
+Sadap --> ineck("Inverse <br> bootleneck")
+Sadap --> Jadap
+add1 & ineck & Jadap --> add2("Add") --> x
+</div>
+
+<hr>
+<h2 id="play">Play
+</h2><p>Debug code with experiment settings in &ldquo;run_exp.sh&rdquo;</p>
+<h3 id="environment">Environment
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda env create -f ./environment.yml
+</span></span><span class="line"><span class="cl">conda activate AIM
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># install CLIP</span>
+</span></span><span class="line"><span class="cl">pip install git+https://github.com/openai/CLIP.git
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># install mmaction2</span>
+</span></span><span class="line"><span class="cl">python setup.py develop
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># install apex</span>
+</span></span><span class="line"><span class="cl">git clone https://github.com/NVIDIA/apex
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> apex
+</span></span><span class="line"><span class="cl">pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --global-option<span class="o">=</span><span class="s2">&#34;--cpp_ext&#34;</span> --global-option<span class="o">=</span><span class="s2">&#34;--cuda_ext&#34;</span> ./
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="dataset-diving48">Dataset diving48
+</h3><ol>
+<li>
+<p>To prepare the dataset <a class="link" href="https://mmaction2.readthedocs.io/en/latest/dataset_zoo/diving48.html"  target="_blank" rel="noopener"
+    >diving48</a>
+, I downloaded the repo <a class="link" href="https://mmaction2.readthedocs.io/en/latest/get_started/installation.html"  target="_blank" rel="noopener"
+    >MMAction2 Documentaions</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda create --name openmmlab <span class="nv">python</span><span class="o">=</span>3.8 -y
+</span></span><span class="line"><span class="cl">conda activate openmmlab
+</span></span><span class="line"><span class="cl">conda install pytorch torchvision -c pytorch
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 1:</span>
+</span></span><span class="line"><span class="cl">pip install -U openmim
+</span></span><span class="line"><span class="cl">mim install mmengine
+</span></span><span class="line"><span class="cl">mim install mmcv
+</span></span><span class="line"><span class="cl">mim install mmdet
+</span></span><span class="line"><span class="cl">mim install mmpose
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 2:</span>
+</span></span><span class="line"><span class="cl">git clone https://github.com/open-mmlab/mmaction2.git
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> mmaction2
+</span></span><span class="line"><span class="cl">pip install -v -e .
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Following &ldquo;Download from Official Source&rdquo; section.</p>
+<ol>
+<li>Download annotations using their shell script. <code>bash download_annotations.sh</code></li>
+<li>Download videos &ldquo;Diving48_rgb.tar.gz&rdquo; (9.6G)</li>
+<li>Only extract the rgb frames: <code>bash extract_rgb_frames_opencv.sh</code></li>
+<li>Generate file list using program: <code>bash generate_videos_filelist.sh</code></li>
+</ol>
+</li>
+<li>
+<p>Make a symbolic link to &ldquo;mmaction2/data&rdquo; in &ldquo;adapt-image-models&rdquo;:
+<code>ln -s /home/zichen/Downloads/mmaction2/data/ ./</code></p>
+</li>
+</ol>
+<p>Format</p>
+<ul>
+<li>annotation file &ldquo;data/diving48/diving48_train_list_videos.txt&rdquo; includes: filename and class label of each video</li>
+</ul>
+<hr>
+<h3 id="config-for-1080ti">Config for 1080Ti
+</h3><ol>
+<li>
+<p>Train with 1 video cannot make the acc increase</p>
+<ul>
+<li>
+<p>Default configs (8 videos, 32 frames) will cause 1 1080Ti <strong>OOM</strong>.
+(&ldquo;configs/recognition/vit/vitclip_large_diving48.py&rdquo;)</p>
+</li>
+<li>
+<p>Override the number of videos in config file with args:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">&#34;args&#34;</span><span class="err">:</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--cfg-options&#34;</span><span class="p">,</span> <span class="s2">&#34;data.videos_per_gpu=1&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>But the <code>top1_acc</code> didn&rsquo;t grow:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">2023-08-31 12:22:11,768 - mmaction - INFO - 
+</span></span><span class="line"><span class="cl">Epoch <span class="o">[</span>1<span class="o">][</span>4180/15027<span class="o">]</span>  lr: 6.003e-05, 
+</span></span><span class="line"><span class="cl">eta: <span class="m">6</span> days, 8:30:03, time: 0.709, data_time: 0.001, 
+</span></span><span class="line"><span class="cl">memory: 5659, top1_acc: 0.0500, top5_acc: 0.3500, 
+</span></span><span class="line"><span class="cl">loss_cls: 3.4383, loss: 3.4383
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>&quot;data.videos_per_gpu=2&quot;</code> will OOM.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Reduce <code>num_frames</code></p>
+<p>.vscode/launch.json is made based on &ldquo;run_exp.sh&rdquo;:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="s2">&#34;args&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--cfg-options&#34;</span>, <span class="s2">&#34;model.backbone.pretrained=openaiclip&#34;</span>, 
+</span></span><span class="line"><span class="cl">                     <span class="s2">&#34;work_dir=work_dirs_vit/diving48/debug&#34;</span>,
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                     <span class="s2">&#34;data.videos_per_gpu=8&#34;</span>,
+</span></span><span class="line"><span class="cl">                     <span class="s2">&#34;model.backbone.num_frames=3&#34;</span>,
+</span></span><span class="line"><span class="cl">                  // The follwings cannot change
+</span></span><span class="line"><span class="cl">                  // <span class="s2">&#34;train_pipeline[1].clip_len=3&#34;</span>, 
+</span></span><span class="line"><span class="cl">                  // <span class="s2">&#34;val_pipeline[1].clip_len=3&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--train_clip_len&#34;</span>, <span class="s2">&#34;{\&#34;1\&#34;: {\&#34;clip_len\&#34;: 3}}&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>(2023-09-06) The <code>cfg.data.train['pipeline']['clip_len']</code> didn&rsquo;t changed, which still equals 32.
+Consequently, the images <code>x</code> passed to <code>forward(self, x)</code> of model <code>ViT_CLIP</code> has the shape (256, 197, 768)</p>
+<p>However, the instance variable <code>self.num_frames</code> of the backbone model <code>ViT_CLIP</code> was changed to 3.</p>
+<p>Then, the <code>einops.rearrange</code> cannot parse the dimensionality in:
+<code>x = rearrange(x, '(b t) n d -&gt; (b n) t d', t=self.num_frames)</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">einops.EinopsError: 
+</span></span><span class="line"><span class="cl">Shape mismatch, can<span class="err">&#39;</span>t divide axis of length <span class="m">256</span> in chunks of <span class="m">3</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Dataset is built based the key <code>cfg.data.train</code>, thus, its values are also required to update:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cfg.merge_from_dict<span class="o">(</span>dict<span class="o">(</span><span class="nv">train_pipeline</span><span class="o">=</span>args.train_clip_len, <span class="nv">val_pipeline</span><span class="o">=</span>args.train_clip_len<span class="o">))</span>
+</span></span><span class="line"><span class="cl"><span class="nv">update_option</span> <span class="o">=</span> <span class="o">{</span><span class="s1">&#39;data&#39;</span>: <span class="o">{</span><span class="s1">&#39;train&#39;</span>: <span class="o">{</span><span class="s1">&#39;pipeline&#39;</span>: args.train_clip_len<span class="o">}</span>, <span class="s1">&#39;val&#39;</span>: <span class="o">{</span><span class="s1">&#39;pipeline&#39;</span>: args.train_clip_len<span class="o">}}}</span>
+</span></span><span class="line"><span class="cl">cfg.merge_from_dict<span class="o">(</span>update_option<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Start training:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">4</span>
+</span></span><span class="line"><span class="cl">python -m torch.distributed.launch <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--nproc_per_node<span class="o">=</span><span class="m">1</span> --master_port<span class="o">=</span><span class="m">29500</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>tools/train.py <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="s2">&#34;configs/recognition/vit/vitclip_base_diving48.py&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--launcher<span class="o">=</span><span class="s2">&#34;pytorch&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--test-last <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--validate <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--cfg-options model.backbone.pretrained<span class="o">=</span><span class="s2">&#34;openaiclip&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>              <span class="nv">work_dir</span><span class="o">=</span><span class="s2">&#34;work_dirs_vit/diving48/debug&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>              data.videos_per_gpu<span class="o">=</span><span class="m">8</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>              model.backbone.num_frames<span class="o">=</span><span class="m">3</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--train_clip_len <span class="s2">&#34;{\&#34;1\&#34;: {\&#34;clip_len\&#34;: 3}}&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h3 id="optimization">Optimization
+</h3><p><a class="link" href="https://github.com/taoyang1122/adapt-image-models/blob/b3580d2d3a78ff5cffa6c7a82ce993165166f00f/configs/recognition/swin/swin2d_adapter_patch244_window7_sthv2_1k.py#L101"  target="_blank" rel="noopener"
+    >Souce code</a></p>
+<ol>
+<li>AdamW: lr=3e-4, weight_decay=0.05,</li>
+<li>LR scheduler: CosineAnnealing</li>
+</ol>
+<hr>
+<h3 id="pseudocode">Pseudocode
+</h3><p>With backbone: ViT_CLIP</p>
+<pre class="pseudocode" data-line-number=true>\begin{algorithm}
+\caption{main()}
+\begin{algorithmic}
+\PROCEDURE{Config}{cfg, args}
+  \STATE args = parse\_args()
+  \PROCEDURE{Config.fromfile}{args.config}
+    \STATE model settings
+    \STATE dataset settings: ann\_file, train\_pipeline,...
+    \STATE optimizer settings
+    \STATE learning policy
+    \STATE runtime settings
+  \ENDPROCEDURE
+
+\ENDPROCEDURE
+\STATE $\newline$
+
+\PROCEDURE{build-model}{cfg.model}
+\COMMENT{Construct ViT with Adapters added}
+  \PROCEDURE{build-localizer}{cfg}
+    \PROCEDURE{LOCALIZERS.build}{cfg}
+      \PROCEDURE{BaseRecognizer}{}
+        \STATE $\newline$
+
+        \PROCEDURE {builder.build-backbone}{backbone}
+          \STATE BACKBONES.build(cfg)
+        \ENDPROCEDURE
+        \STATE $\newline$
+
+
+        \PROCEDURE {init-weights}{}
+          \STATE self.backbone.init\_weights()
+          \COMMENT{Load pretrained state\_dict}
+        \ENDPROCEDURE
+        \STATE $\newline$
+
+      \ENDPROCEDURE
+    \ENDPROCEDURE
+  \ENDPROCEDURE
+
+\ENDPROCEDURE
+\STATE $\newline$
+
+\STATE datasets = [build\_dataset(cfg.data.train)]
+\STATE $\qquad$ build\_from\_cfg(cfg, DATASETS)
+\STATE $\qquad$ 11 transforms operations
+
+\STATE Freeze params.requires\_grad=False
+\STATE $\newline$
+
+\PROCEDURE{train-model}{model,datasets,cfg,...}
+\STATE dataloader\_settings
+\STATE data\_loaders = build\_dataloader(dataset, dataloader\_setting)
+\STATE optimizer = build\_optimizer(model, cfg.optimizer)
+\STATE amp settings
+\STATE fp16 settings
+\STATE register DistOptimizerHook
+\STATE build validation dataset and dataloader
+\STATE $\newline$
+
+\PROCEDURE{runner.run}{data\_loaders, cfg.workflow, cfg.total\_epochs,**runner\_kwargs}
+  \STATE DistOptimizerHook.before\_run(self, runner): 
+  \STATE $\qquad$ runner.optimizer.zero\_grad()
+
+  \STATE BaseRecognizer.train\_step(self, data\_batch,)
+
+  \STATE losses = self(imgs, label)
+  \PROCEDURE {Recognizer3D.forward-train}{img, label}
+    \STATE x = BaseRecognizer.extract\_feat(imgs)
+    \STATE $\qquad$ self.backbone(imgs)
+    \COMMENT{ViT\_CLIP.forward()}
+  
+  \ENDPROCEDURE
+  \STATE $\qquad$ self.forward\_test(img, label)
+\ENDPROCEDURE
+
+\ENDPROCEDURE
+
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+<hr>
+<h3 id="debug-videoswin">Debug VideoSwin
+</h3><ol>
+<li>
+<p>The pretrained weights of ViT_CLIP are obtained from an initialized clip model:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">clip_model</span><span class="p">,</span> <span class="n">preprocess</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&#34;ViT-B/16&#34;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&#34;cpu&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pretrain_dict</span> <span class="o">=</span> <span class="n">clip_model</span><span class="o">.</span><span class="n">visual</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>  <span class="c1"># param</span>
+</span></span><span class="line"><span class="cl"><span class="k">del</span> <span class="n">clip_model</span>
+</span></span><span class="line"><span class="cl"><span class="k">del</span> <span class="n">pretrain_dict</span><span class="p">[</span><span class="s1">&#39;proj&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">pretrain_dict</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="https://github.com/taoyang1122/adapt-image-models/blob/28807779bbc5761765f47d5011c3b43a5c9721d8/mmaction/models/backbones/vit_clip.py#L147"  target="_blank" rel="noopener"
+    >Source code</a></p>
+</li>
+<li>
+<p>However, the weights of Swin Transformer needs to be loaded from file.
+<a class="link" href="https://github.com/taoyang1122/adapt-image-models/blob/28807779bbc5761765f47d5011c3b43a5c9721d8/mmaction/models/backbones/swin_transformer.py#L575C20-L575C20"  target="_blank" rel="noopener"
+    >Source code</a></p>
+<ul>
+<li>
+<p>Reminded by this issue <a class="link" href="https://github.com/open-mmlab/mmpretrain/issues/524"  target="_blank" rel="noopener"
+    >MMCV load pretrained swin transformer</a></p>
+</li>
+<li>
+<p>Pretrained Swin Transformer (Swin-B 224x224, &ldquo;swin-base_3rdparty_in21k.pth&rdquo;) of open-mmlab (<a class="link" href="https://mmpretrain.readthedocs.io/en/mmcls-0.x/papers/swin_transformer.html#imagenet-21k"  target="_blank" rel="noopener"
+    >mmpretrain</a>)
+doesn&rsquo;t have the key: &lsquo;model&rsquo;, so it mismatches the code.</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">inflate_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">state_dict</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>While the pretrained swin from <a class="link" href="https://github.com/microsoft/Swin-Transformer#main-results-on-imagenet-with-pretrained-models"  target="_blank" rel="noopener"
+    >microsoft</a>
+can be successfully loaded.</li>
+</ul>
+</li>
+<li>
+<p>The Swin Transformer has not been trained with <strong>CLIP</strong>, only on ImageNet21K.</p>
+<ul>
+<li>
+<p>The author adds adapters to &ldquo;Swin-B_IN-21K&rdquo; <code>SwinTransformer2D</code> (&ldquo;swin2d.py&rdquo;)
+in &ldquo;mmaction/models/backbones/ <strong>swin2d_adapter.py</strong>&rdquo;
+as clarified in <a class="link" href="https://github.com/taoyang1122/adapt-image-models/issues/18#issuecomment-1637223440"  target="_blank" rel="noopener"
+    >issue18</a>.</p>
+</li>
+<li>
+<p>The &ldquo;swin2d_adapter&rdquo; is compared with <code>SwinTransformer3D</code> (VideoSwin, &ldquo;swin_transformer.py&rdquo;) in Table 6.
+And most of their experiments are based on <code>ViT_CLIP</code> and compared with TimeSformer.</p>
+</li>
+<li>
+<p><code>SwinTransformer2D</code> is adapted by settings: &ldquo;configs/recognition/swin/ <strong>swin2d_adapter_patch244_window7_kinetics400_1k.py</strong>&rdquo;.</p>
+<p>Whereas, the config file: &ldquo;configs/recognition/swin/ <strong>swin_base_patch244_window877_kinetics400_1k.py</strong>&rdquo;
+is for the original <strong>VideoSwin</strong> <code>SwinTransformer3D</code>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Arguments <code>pretrained: str</code> and <code>pretrained2d: bool</code> of class <code>SwinTransformer3D</code> originate in <a class="link" href="https://github.com/SwinTransformer/Video-Swin-Transformer"  target="_blank" rel="noopener"
+    >VideoSwin</a>,
+which adapted pretrained 2D swin transfromer to 3D.</p>
+<blockquote>
+<p>AIM codes are based on VideoSwin.</p></blockquote>
+<p>Following VideoSwin, <code>pretrained</code> is supposed to be a path to the pretrained model, which should be downloaded in advance.
+An example is <a class="link" href="https://github.com/SwinTransformer/Video-Swin-Transformer/issues/22"  target="_blank" rel="noopener"
+    >KeyError: &lsquo;patch_embed.proj.weight&rsquo; #22</a></p>
+</li>
+</ol>
+<p>Based on the above, the args in launch.json should be set as:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">// Swin-B settings
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;args&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--nproc_per_node&#34;</span>, <span class="s2">&#34;1&#34;</span>, // GPUs
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--master_port&#34;</span>, <span class="s2">&#34;29600&#34;</span>,
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;tools/train.py&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;configs/recognition/swin/swin2d_adapter_patch244_window7_kinetics400_1k.py&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--launcher&#34;</span>, <span class="s2">&#34;pytorch&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--test-last&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--validate&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--cfg-options&#34;</span>, <span class="s2">&#34;model.backbone.pretrained=work_dirs_swin/swin_base_patch4_window7_224_22k.pth&#34;</span>, 
+</span></span><span class="line"><span class="cl">                     <span class="s2">&#34;work_dir=work_dirs_swin/K400/debug&#34;</span>,
+</span></span><span class="line"><span class="cl">                     <span class="s2">&#34;data.videos_per_gpu=8&#34;</span>,
+</span></span><span class="line"><span class="cl">                     <span class="s2">&#34;model.backbone.num_frames=3&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--train_clip_len&#34;</span>, <span class="s2">&#34;{\&#34;1\&#34;: {\&#34;clip_len\&#34;: 3}}&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="dataset-ssv2">Dataset SSv2
+</h3><p>AIM-Swin only has configuration file for K400 and ssv2 datasets.
+K400 has 240K training videos, which are massive.
+So I choose the smaller one, SSv2, which has 169K training videos.</p>
+<p>Refer to the guide of <a class="link" href="https://mmaction2.readthedocs.io/en/latest/dataset_zoo/sthv2.html"  target="_blank" rel="noopener"
+    >SSv2 - mmaction2</a></p>
+<ol>
+<li>
+<p><strong>Annotations</strong>: Once signed in your Qualcomm account, download &ldquo;Labels&rdquo; into &ldquo;data/sthv2/annotations/&rdquo;
+from <a class="link" href="https://developer.qualcomm.com/software/ai-datasets/something-something"  target="_blank" rel="noopener"
+    >homepage</a>
+(Need to acknowledge the agreement before jumping to the download page)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">unzip 20bn-something-something-download-package-labels.zip
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Rename to match the python code &#34;parse_file_list.py&#34;</span>
+</span></span><span class="line"><span class="cl">mv data/sthv2/annotations/labels/train.json data/sthv2/annotations/something-something-v2-train.json
+</span></span><span class="line"><span class="cl">mv data/sthv2/annotations/labels/validation.json data/sthv2/annotations/something-something-v2-validation.json
+</span></span><span class="line"><span class="cl">mv data/sthv2/annotations/labels/test.json data/sthv2/annotations/something-something-v2-test.json
+</span></span><span class="line"><span class="cl">mv data/sthv2/annotations/labels/labels.json data/sthv2/annotations/something-something-v2-labels.json
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>Videos</strong>: Download 20 files into &ldquo;mmaction2/data/sthv2/&rdquo;.</p>
+<p>By executing the following 2 commands, 220847 webm videos (19G) are extracted into the folder: &ldquo;sthv2/20bn-something-something-v2&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">unzip 20bn-something-something-v2-<span class="se">\?</span>?.zip
+</span></span><span class="line"><span class="cl">cat 20bn-something-something-v2-?? <span class="p">|</span> tar zx
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Rename to match the script below and configs in AIM</span>
+</span></span><span class="line"><span class="cl">mv 20bn-something-something-v2/ videos/
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>Split</strong>: Generate list</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> mmaction2/tools/data/sthv2/
+</span></span><span class="line"><span class="cl">bash generate_videos_filelist.sh
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Two .txt files &ldquo;sthv2_train_list_videos.txt&rdquo; and &ldquo;sthv2_val_list_videos.txt&rdquo; are created under &ldquo;data/sthv2/&rdquo;.</p>
+</li>
+</ol>
+<p>To debug AIM-swin with SSv2, specify the config file as
+&ldquo;configs/recognition/swin/swin2d_adapter_patch244_window7_sthv2_1k.py&rdquo; in &ldquo;launch.json&rdquo;.</p>
+<p><code>2023-09-12 15:41:48,166 - mmaction - INFO - Epoch [1][28160/84457]	lr: 6.601e-05, eta: 21 days, 10:31:39, time: 0.365, data_time: 0.001, memory: 1420, loss_cls: 4.3897, loss: 4.3897</code></p>
+<hr>
+<h3 id="forward-swin">Forward swin
+</h3><pre class="pseudocode" data-line-number=true>\begin{algorithm}
+\caption{SwinTransformer2d\_Adapter}
+\begin{algorithmic}
+
+\PROCEDURE{forward}{x: (B,T,D,H,W)}
+  \STATE Conv3d extracts feat maps: (B, C, num\_Ttokens, H', W')
+  \STATE $\newline$
+
+  \PROCEDURE{SwinTransformer2d-Adapter}{B*num\_Ttokens, H*W, C}
+    \STATE 2 SwinTransformerBlock
+      \STATE $\quad$ rearrange
+      \STATE $\quad$ LN1
+      \STATE $\quad$ Temporal MSA mix "num\_Ttokens" of feat maps
+      \COMMENT{even blks}
+      \STATE $\quad$ Temporal Adapter
+      \STATE $\quad$ rearrange back
+      \STATE $\newline$
+
+      \STATE $\quad$ LN1
+      \STATE $\quad$ Shift window rows and cols
+      \STATE $\quad$ window\_partition
+      \COMMENT{reshape}
+      \STATE $\quad$ WindowAttention mix "pixels" in each window
+      \STATE $\quad$ Spatial Adapter
+      \STATE $\quad$ window\_reverse
+      \STATE $\quad$ Shift window rows and cols
+      \STATE $\newline$
+
+      \STATE $\quad$ Squash feat maps to 1D
+      \STATE $\quad$ Skip connect with the features before S\_adap
+      \STATE $\quad$ LN2
+      \STATE $\quad$ MLP + Joint Adapter
+    \STATE PatchMerging: (B*num\_Ttokens, H'/2*W'/2, 2*C)
+    \STATE $\newline$
+
+    \STATE 2 SwinTransformerBlock
+    \STATE PatchMerging: (B*num\_Ttokens, H'/4*W'/4, 4*C)
+    \STATE $\newline$
+
+    \STATE 18 SwinTransformerBlock
+    \STATE PatchMerging: (B*num\_Ttokens, H'/8*W'/8, 8*C)
+    \STATE $\newline$
+
+    \STATE 2 SwinTransformerBlock
+  \ENDPROCEDURE
+  \STATE $\newline$
+
+  \STATE LN
+  \STATE rearrange to (B,C,T,H,W)
+  \STATE cls\_head, i.e. I3DHead (A linear layer)
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+<ul>
+<li>
+<p>The reason of setting <code>window_size</code> to 7 may be that the resolution of feature maps is (56,56), which can shrink gradually to (7,7).</p>
+</li>
+<li>
+<p>Adapter: Pass the attended features to a bottleenck (2-layer MLP) for adapting them.</p>
+</li>
+</ul>
+<hr>
+<h3 id="adapted-swin">Adapted Swin
+</h3><p>Differences of the adapted Swin (&ldquo;swin2d_adapter.py&rdquo;) from the baseline model <code>SwinTransformer2D</code> (&ldquo;swin_transformer.py&rdquo;):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">diff mmaction/models/backbones/swin2d_adapter.py <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>     mmaction/models/backbones/swin2d.py
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p>swin2d has a temporal adapter more than swin_transformer</p>
+</li>
+<li>
+<p>swin2d_adapter has</p>
+<p>No joint adapter</p>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script>
+        mermaid.initialize({ startOnLoad: true });
+      </script>
+    
+
+
+    
+
+    
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"
+              integrity="sha512-EKW5YvKU3hpyyOcN6jQnAxO/L8gts+YdYV6Yymtl8pk9YlYFtqJgihORuRoBXK8/cOIlappdU6Ms8KdK6yBCgA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer">
+      </script>
+    
+      
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/pseudocode@2.4.1/build/pseudocode.min.js">
+      </script>
+    
+      
+      <script>
+        pseudocode.renderClass("pseudocode");
+      </script>
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

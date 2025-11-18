@@ -1,0 +1,2128 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Points on Zichen Wang</title>
+        <link>http://blog.zichen.uk/post/writenotes/model/points/</link>
+        <description>Recent content in Points on Zichen Wang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Tue, 15 Apr 2025 00:26:00 +0000</lastBuildDate><atom:link href="http://blog.zichen.uk/post/writenotes/model/points/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Sympo: Points | Point Cloud Refinement</title>
+        <link>http://blog.zichen.uk/post/writenotes/model/points/c-symp-ptcld_refinement/</link>
+        <pubDate>Tue, 15 Apr 2025 00:26:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/model/points/c-symp-ptcld_refinement/</guid>
+        <description>&lt;h2 id=&#34;upsampling&#34;&gt;Upsampling
+&lt;/h2&gt;&lt;h3 id=&#34;dl-based&#34;&gt;DL-based
+&lt;/h3&gt;&lt;h4 id=&#34;pu-net&#34;&gt;PU Net
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Upsampling task: Increase density and Increase details of a point cloud.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;3DGS needs to increase density in some cases.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In the application of stream transmission, 3DGS needs to be compressed.
+That means reducing the number of Gaussians before transmission,
+and restoring density after receiving the low-resolution 3DGS model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;Ups-Dl-Pun-r1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://arxiv.org/abs/1801.06761&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;PU-Net: Point Cloud Upsampling Network&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ups-Dl-Pun-r2&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV15ioiY5EJp/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;【官方】2025小迈步之使用 AI 求解偏微分方程：探索 PINN 和 NO 的应用 -bilibili - MATLAB中国&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ups-Dl-Pun-r3&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1qX4y137Sp/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;【GAMES Webinar-175期:Bijective Projection in a Shell-Zhongshi Jiang-几何处理专题 - GAMES-Webinar&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;This video was played automatically after the newest &lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1WsZGYtERF/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;episode&lt;/a&gt;
+in the list loop mode.
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Addressing&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-04-15T01:01:07)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Patch-wise feature extraction&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Context information&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Loss function encourages points on underlying surface&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;This paper &lt;strong&gt;doesn&amp;rsquo;t explicitly reconstruct&lt;/strong&gt; surface.
+In contrast, MLS does compute a surface with polynomials.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Splats rendering doesn&amp;rsquo;t require a mesh, but the underlying surface is useful for further process.
+For example, the surface can serve as a reference when the resolution of a set of 3D Gaussians is required to be adaptive
+to present different LOD.&lt;/p&gt;
+&lt;p&gt;Therefore, determining the surface is an important task.&lt;/p&gt;
+&lt;p&gt;(2025-04-17T06:34)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Splats 在应用中可能确实不需要 mesh 参与，但是 mesh 可以作为处理过程中的中间态（类比于“潜空间”），
+比如构建出 mesh 之后，可以通过做 &lt;strong&gt;remesh&lt;/strong&gt;
+来实现先从稀疏到稠密，再从稠密到稀疏的映射&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ups-Dl-Pun-r3&#34; &gt;r3-Jiang&lt;/a&gt;&lt;/sup&gt;（这让我想起了神经网络的维度变化：先升维再降维），
+从而实现上采样。&lt;/p&gt;
+&lt;p&gt;不过，这种上采样方式还是依赖 mesh 的质量。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;(2025-04-15T23:51:43)&lt;/p&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;PINN embeds physics information into network through &lt;strong&gt;loss functions&lt;/strong&gt;&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ups-Dl-Pun-r2&#34; &gt;r2-小迈步&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Another way is using neural operator&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Actions&lt;/strong&gt;:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;representation&#34;&gt;Representation
+&lt;/h3&gt;&lt;h4 id=&#34;gaussianpu&#34;&gt;GaussianPU
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;I suspected the gaps between Gaussians will be revealed when zooming in.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;&#34; &gt;GaussianPU: A Hybrid 2D-3D Upsampling Framework for Enhancing Color Point Clouds via 3D Gaussian Splatting&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Refered by &lt;a class=&#34;link&#34; href=&#34;https://chat.deepseek.com/a/chat/s/c90330db-a915-4ba9-874d-d57a1e45e9ce&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DeepSeek&lt;/a&gt; on Apr 05,25
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;flow-matching&#34;&gt;Flow Matching
+&lt;/h3&gt;&lt;h4 id=&#34;ef&#34;&gt;EF
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;Ups-Fl-Ef-r1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;&#34; &gt;Efficient Point Clouds Upsampling via Flow Matching&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Refered by &lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/22693624481&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;超绝发小论文新思路：点云！ - 小小的文章 - 知乎&lt;/a&gt; (Apr 15, 25)
+&lt;a id=&#34;Ups-Fl-Ef-r1-1&#34;&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Searched by &lt;code&gt;GaussianPU: A Hybrid 2D-3D Upsampling Framework for Enhancing Color Point Clouds via 3D Gaussian Splatting&lt;/code&gt; in &lt;a id=&#34;Ups-Fl-Ef-s1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=GaussianPU%3A&amp;#43;A&amp;#43;Hybrid&amp;#43;2D-3D&amp;#43;Upsampling&amp;#43;Framework&amp;#43;for&amp;#43;Enhancing&amp;#43;Color&amp;#43;Point&amp;#43;Clouds&amp;#43;via&amp;#43;3D&amp;#43;Gaussian&amp;#43;Splatting&amp;amp;ia=web&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;registration&#34;&gt;Registration
+&lt;/h2&gt;&lt;h3 id=&#34;sdfreg&#34;&gt;SDFReg
+&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;&#34; &gt;SDFReg: Learning Signed Distance Functions for Point Cloud Registration&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Refered by &lt;a class=&#34;link&#34; href=&#34;#Ups-Fl-Ef-r1-1&#34; &gt;r1-1&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;completion&#34;&gt;Completion
+&lt;/h2&gt;&lt;h3 id=&#34;dl&#34;&gt;DL
+&lt;/h3&gt;&lt;p&gt;(2025-04-14T14:32:48)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;These four papers are for point cloud &lt;strong&gt;completion&lt;/strong&gt; tasks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;pointattn&#34;&gt;PointAttN
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;“摆脱对 KNN 的依赖”&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;Cmpl-Dl-Pnat-r1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://metaso.cn/bookshelf?displayUrl=%2Fapi%2Ffile%2F8605758382498209792%2Fpreview&amp;amp;url=%2Fapi%2Ffile%2F8605758382498209792%2Fpreview&amp;amp;page=8&amp;amp;totalPage=0&amp;amp;file_path=&amp;amp;_id=8605758382498209792&amp;amp;title=pointattn-28356-Article_Text-32410-1-2-20240324.pdf&amp;amp;snippet=undefined&amp;amp;sessionId=null&amp;amp;tag=%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6&amp;amp;author=&amp;amp;publishDate=undefined&amp;amp;showFront=false&amp;amp;downloadUrl=%2Fapi%2Ffile%2F8605758382498209792%2Fstream-download&amp;amp;internalFile=true&amp;amp;topicId=undefined&amp;amp;type=pdf&amp;amp;readMode=false&amp;amp;chapterId=8605758707594776576&amp;amp;level=2&amp;amp;scene=%E9%BB%98%E8%AE%A4&amp;amp;voiceLanguage=cn&amp;amp;pptLanguage=cn&amp;amp;ttsTimbre=presenter_male&amp;amp;voiceSpeed=100&amp;amp;showCaptions=true&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;秘塔 | 今天学点啥&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Cmpl-Dl-Pnat-r2&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://yuanbao.tencent.com/chat/naQivTmsDa/4dacdb14-bc3a-46dc-8b59-8e45350e6dea&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;元宝 | 笔记整理&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Notes&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;What are their innovations?&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Reasons&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Figuring out their novelty to compare it with mine method.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Actions&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;blockquote&gt;
+&lt;p&gt;existing methods use explicit local region partitions like kNNs, which makes them sensitive to density distribution and limits receptive fields.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;I do used kNN.&lt;/li&gt;
+&lt;li&gt;Reviewer 2 also said &amp;ldquo;sensitivity&amp;rdquo;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;a id=&#34;Cmpl-Dl-Pnat-Iss1&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;(2025-04-30T01:03)&lt;/p&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;How do they generate new points?&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;A point cloud learn itself through a downsampled version
+&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Cmpl-Dl-Pnat-r1&#34; &gt;r1-秘塔&lt;/a&gt;, &lt;a class=&#34;link&#34; href=&#34;#Cmpl-Dl-Pnat-r2&#34; &gt;r2-元宝&lt;/a&gt;&lt;/sup&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;(2025-04-30T23:38)&lt;/p&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;New points are Seeds, which are feature vectors
+&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/ohhhyeahhh/PointAttN/blob/a855bdb810a3bfea95bc7d4555f5162c259c485c/models/PointAttN.py#L204-L207&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Line #206&lt;/a&gt;&lt;/sup&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;dmf-net&#34;&gt;DMF-Net
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;Comp-Dl-Dmf-r1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;&#34; &gt;DMF-Net&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Refered by &lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/9920529917&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Transformer+点云！新思路结合！ - 梅花三弄的文章 - 知乎&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Found in &lt;a class=&#34;link&#34; href=&#34;#Ups-Fl-Ef-s1&#34; &gt;s1&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;pinn&#34;&gt;PINN
+&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-04-15T19:17:00)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;I believe a point cloud is a &lt;strong&gt;physical field&lt;/strong&gt;, which is supposed to be approximated/regressed by a PINN.&lt;/p&gt;
+&lt;p&gt;Specifically, the observation (image or sampled points) are training data, from which the physics field is
+integrated into a neural network.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Addressing&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-04-16T18:33:00)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;PINN: 把物理先验知识加入神经网络的训练中&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ups-Dl-Pun-r2&#34; &gt;r2-小迈步&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;NERF 也是pinn 吧，其中的物理先验是渲染方程。渲染方程是光传输的近似，所以也可以直接应用光传输或者计算成像的物理方程作为损失函数&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;projection&#34;&gt;Projection
+&lt;/h3&gt;&lt;h4 id=&#34;ear&#34;&gt;EAR
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Enhance edges in a point cloud&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;Comp-Prj-Ear-r1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://vcc.tech/research/2013/EAR&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Edge-Aware Point Set Resampling - VCC&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Comp-Prj-Ear-r2&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://metaso.cn/bookshelf?chapterId=8607216582347210752&amp;amp;level=2&amp;amp;scene=%E9%BB%98%E8%AE%A4&amp;amp;voiceLanguage=cn&amp;amp;pptLanguage=cn&amp;amp;ttsTimbre=presenter_male&amp;amp;voiceSpeed=100&amp;amp;showCaptions=true&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;秘塔-今天学点啥 | Edge-Aware Point Set Resampling&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Notes&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-05-03T23:21)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;利用平滑区域的法向量指导填充边缘的法向量&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Comp-Prj-Ear-r2&#34; &gt;r2-秘塔&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;EAR 依据平滑区域的法向量渐进式 Progressively 推测尖锐区域的法向量&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Steps:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Ensure the confidence of normal vectors of the flat areas: Denoising + 重投影&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Completing edges: Progressively upsampling by expanding flat arear&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;mermaid&#34;&gt;flowchart LR
+A[&#34;EAR&#34;] --&gt; Goal[&#34;尖锐区域的法向量&#34;]
+A --&gt; Base[&#34;利用平滑区域&#34;] -- &#34;逐步填充&lt;br&gt;双侧投影(新点)&#34; --&gt; Goal
+Denoise[&#34;双边滤波&lt;br&gt;去除噪声&lt;br&gt;测试不同 level 噪声&#34;]
+Refine[&#34;各向异性重投影&lt;br&gt;异构投影&#34;]
+
+subgraph Prep
+direction BT
+Denoise --&gt; Refine
+end
+Refine --&gt; Base
+&lt;/div&gt;
+
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Usages of normal vectors&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;EAR：法向量 -&amp;gt; &amp;ldquo;检测&amp;rdquo;/突出边缘 -&amp;gt; 投影填充，增强边缘&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;可微渲染 (3DGS)：像素在多视图中的一致性 -&amp;gt; 点的空间位置 -&amp;gt; 几何 -&amp;gt; 采样 -&amp;gt; 渲染&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;辐射度缩放？&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;这也许也说明了：辐射度与几何之间存在关联，可以利用辐射度推断几何&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;meso-skeleton&#34;&gt;Meso-Skeleton
+&lt;/h3&gt;&lt;h4 id=&#34;d-points&#34;&gt;D-Points
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;Comp-Mske-Dpo-r1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://vcc.tech/research/2015/Dpoints&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Deep Points Consolidation - VCC&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Comp-Mske-Dpo-r2&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://yuanbao.tencent.com/chat/naQivTmsDa/fdf73289-cd00-422b-9ee9-4c04d6544f0e&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;元宝 | 计算机图形学笔记整理&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Notes&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-05-04T02:07)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;以“中尺度骨架”作为全局信息&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;&#34; &gt;r2-元宝&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;D-point 是把 Meso-skeleton 的点与外层点用 &lt;strong&gt;直线段&lt;/strong&gt;相连，那我是否可以用 &lt;strong&gt;多项式曲线&lt;/strong&gt; 连接一个内点和一个外点呢？&lt;/p&gt;
+
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 136 73&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 96,16 L 120,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 80,32 L 80,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 120,0 L 120,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 0,48 L 24,0&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,16 A 16,16 0 0,0 80,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;circle cx=&#39;0&#39; cy=&#39;48&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;24&#39; cy=&#39;0&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;#fff&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;80&#39; cy=&#39;48&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;120&#39; cy=&#39;0&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;#fff&#39;&gt;&lt;/circle&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;D-Point 的叙事也是：结合基础层次的 &lt;strong&gt;全局信息&lt;/strong&gt;和外延的局部信息&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;D-Point 可以保留 &lt;strong&gt;动物的翅膀&lt;/strong&gt;，这个任务 &lt;strong&gt;不常见&lt;/strong&gt;。
+以及对细微物体的重建也是一个值得探索的课题。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Repulsion 的目的是鼓励形成曲面？&lt;/p&gt;
+
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 224 121&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 0,48 L 32,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 72,48 L 104,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 160,64 L 192,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 176,0 L 176,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 144,96 L 160,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 160,64 L 176,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 176,32 L 192,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 192,64 L 208,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;8.000000,48.000000 -4.000000,42.400002 -4.000000,53.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(180.000000, 0.000000, 48.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;112.000000,48.000000 100.000000,42.400002 100.000000,53.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 104.000000, 48.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;156.000000,96.000000 144.000000,90.400002 144.000000,101.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(120.000000, 144.000000, 96.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;184.000000,0.000000 172.000000,-5.600000 172.000000,5.600000&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 176.000000, 0.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;220.000000,96.000000 208.000000,90.400002 208.000000,101.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(60.000000, 208.000000, 96.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;circle cx=&#39;32&#39; cy=&#39;48&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;72&#39; cy=&#39;48&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;160&#39; cy=&#39;64&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;176&#39; cy=&#39;32&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;192&#39; cy=&#39;64&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋯&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋯&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对点云做搜索（retrieveal）也很重要啊！&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;比如一个场景被扫描成点云之后（点云不包含语义信息），我想搜索：“房间里有几把椅子？”。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;所以这个问题是：如何对点云做物体识别？（PointNet 是做什么的？）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;直接对点云做操作处理，计算量太大，而这种“深点”可以找到点云的拓扑吗？Meso-skeleton 是点云的拓扑吗？&lt;/p&gt;
+&lt;p&gt;应该不是，因为输入点云的形状不一定完整，提取出来的拓扑结构不是物体本身的拓扑。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;不过把点云的拓扑结构作为神经网络的训练数据，应该比较高效&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;denoising&#34;&gt;Denoising
+&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;&#34; &gt;NoiseTrans: Point Cloud Denoising with Transformers&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Refered by &lt;a class=&#34;link&#34; href=&#34;&#34; &gt;梅花三弄&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>Sympo: Point Cloud Creation</title>
+        <link>http://blog.zichen.uk/post/writenotes/model/points/c-symp-ptcld_creation/</link>
+        <pubDate>Fri, 11 Apr 2025 07:03:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/model/points/c-symp-ptcld_creation/</guid>
+        <description>&lt;h2 id=&#34;pointmap-regress&#34;&gt;Pointmap Regress
+&lt;/h2&gt;&lt;h3 id=&#34;dust3r&#34;&gt;DUSt3R
+&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Dense Unconstrained Stereo&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Addressing&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-04-15T13:33:17)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Cast pair-wise to pointmap regression&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;Multi&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;depth-map&#34;&gt;Depth Map
+&lt;/h2&gt;&lt;hr&gt;
+&lt;h2 id=&#34;comparison&#34;&gt;Comparison
+&lt;/h2&gt;&lt;h3 id=&#34;dust3r-vs-mvsnet&#34;&gt;Dust3R VS MVSNet
+&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Compare the point clouds created by depth-map fusion (of MVSNet) and Dust3R&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;(2025-04-17T00:58:47)&lt;/p&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;纯粹基于数据的流体力学仿真被判无法比基于数值的方法更进一步提高精度
+&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#D3r-Mvn-r2&#34; &gt;r2&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;我想点云重建也一样，神经网络生成的点云精度不会很高，所以需要后面跟一个精调。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;D3r-Mvn-r1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1WsZGYtERF/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;GAMES Webinar 前沿探索-3R重塑三维，共话重建未来 - bilibili - GAMES-Webinar&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;D3r-Mvn-r2&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1ZqoKYcEZZ/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;纯基于数据的学习对物理仿真被判无效-bilibili - Scott_CFD&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Notes&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-04-11)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;What is a Point map&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Image mapping to point map&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#D3r-Mvn-r1&#34; &gt;r1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;基于由 Dust3R 生成的 Point map 的 SLAM，位姿无法被恢复的好&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;人工设计的 &lt;strong&gt;预设&lt;/strong&gt;的三维结构（代价体）限制了模型的能力上限&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;姚遥：Completeness will be good for sure, but he suspects the percision is inferious than 倾斜摄影/测绘&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;Flare: Feed-forward geometry&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1WsZGYtERF?t=2042.2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;r1-34:03&lt;/a&gt;&lt;/sup&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;VGGT&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.bilibili.com/video/BV1WsZGYtERF?t=2510.8&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;r1-41:51&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/facebookresearch/vggt&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;VGGT: Visual Geometry Grounded Transformer - GitHub&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>Test: PtCld | Various Approaches for Point Cloud Completion</title>
+        <link>http://blog.zichen.uk/post/writenotes/model/points/d-test-ptcld_completion_methods/</link>
+        <pubDate>Mon, 31 Mar 2025 22:12:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/model/points/d-test-ptcld_completion_methods/</guid>
+        <description>&lt;h2 id=&#34;pointattn&#34;&gt;PointAttN
+&lt;/h2&gt;&lt;h3 id=&#34;debugging&#34;&gt;Debugging
+&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Issues&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-Iss1&#34; &gt; &lt;strong&gt;Create Environment&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-Iss2&#34; &gt; &lt;strong&gt;Test on PCN Dataset&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-Iss3&#34; &gt; &lt;strong&gt;Test on C3D Dataset&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;details&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;Ptat-Env-r1&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://pytorch.org/get-started/previous-versions/#linux-and-windows-44&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Previous PyTorch Versions&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ptat-Env-r2&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://developer.nvidia.com/cuda-11.3.0-download-archive?target_os=Linux&amp;amp;target_arch=x86_64&amp;amp;Distribution=Ubuntu&amp;amp;target_version=20.04&amp;amp;target_type=deb_local&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;CUDA Toolkit 11.3 Downloads - NVIDIA Developer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ptat-Env-r3&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/weixin_43501408/article/details/131393241&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;ModuleNotFoundError: No module named &amp;lsquo;mmcv&amp;rsquo; - CSDN博客&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Searched by &lt;code&gt;ModuleNotFoundError: No module named &#39;mmcv&#39;&lt;/code&gt; in
+&lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=ModuleNotFoundError%3A&amp;#43;No&amp;#43;module&amp;#43;named&amp;#43;%27mmcv%27&amp;amp;ia=web&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ptat-Env-r4&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/holly_Z_P_F/article/details/134251912&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;【mmcv报错】ModuleNotFoundError: No module named &amp;lsquo;mmcv.runner - CSDN博客&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Searched by &lt;code&gt;No module named &#39;mmcv.runner&#39;&lt;/code&gt; in
+&lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=No&amp;#43;module&amp;#43;named&amp;#43;%27mmcv.runner%27&amp;amp;ia=web&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ptat-Env-r5&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://github.com/open-mmlab/mmengine/issues/550&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;No force_fp32? · Issue #550 · open-mmlab/mmengine - GitHub&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Searched by &lt;code&gt;No module named &#39;mmcv.runner&#39; force_fp32&lt;/code&gt; in
+&lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=No&amp;#43;module&amp;#43;named&amp;#43;%27mmcv.runner%27&amp;#43;force_fp32&amp;amp;ia=web&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ptat-Env-r6&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://github.com/open-mmlab/mmcv/blob/f19d3e771c211ca20e3f8ab838e3851cae263035/docs/zh_cn/get_started/api_reference.md?plain=1#L3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;docs/zh_cn/get_started/api_reference.md&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Searched by &lt;code&gt;repo:open-mmlab/mmcv runner&lt;/code&gt; in &lt;a class=&#34;link&#34; href=&#34;https://github.com/search?q=repo%3Aopen-mmlab%2Fmmcv%20runner&amp;amp;type=code&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Branch 2.x&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ptat-Env-r7&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://github.com/ohhhyeahhh/PointAttN/issues/31&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;你好，我想问一下为什么运行 python test_c3d.py -c PointAttN.yaml后，test.log里没有日志生成？ #31&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Searched by &lt;code&gt;logging.info(&lt;/code&gt; in
+&lt;a class=&#34;link&#34; href=&#34;https://github.com/search?q=repo%3Aohhhyeahhh%2FPointAttN&amp;#43;logging.info%28&amp;amp;type=issues&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Issues&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a id=&#34;Ptat-Env-r8&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://github.com/ohhhyeahhh/PointAttN/issues/7&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Size Mismatch for test_c3d.py #7&lt;/a&gt;
+&lt;small&gt;
+&lt;ul&gt;
+&lt;li&gt;Searched by &lt;code&gt;c3d&lt;/code&gt; in
+&lt;a class=&#34;link&#34; href=&#34;https://github.com/search?q=repo%3Aohhhyeahhh%2FPointAttN&amp;#43;c3d&amp;amp;type=issues&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Issues&lt;/a&gt;
+&lt;/small&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/details&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Addressing&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;a id=&#34;Ptat-Env-Iss1&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;(2025-03-31)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Create a conda environment&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;System Overview:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;zichen@zichen-X570-AORUS-PRO-WIFI:~$ lsb_release -a
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;No LSB modules are available.
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Distributor ID: Ubuntu
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Description:    Ubuntu 22.04.5 LTS
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Release:        22.04
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Codename:       jammy
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GPU and NVIDIA Driver:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;zichen@zichen-X570-AORUS-PRO-WIFI:~$ nvidia-smi
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Tue Apr  &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; 01:11:13 &lt;span class=&#34;m&#34;&gt;2025&lt;/span&gt;       
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;+-----------------------------------------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; NVIDIA-SMI 550.120                Driver Version: 550.120        CUDA Version: 12.4     &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;-----------------------------------------+------------------------+----------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; GPU  Name                 Persistence-M &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; Bus-Id          Disp.A &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; Volatile Uncorr. ECC &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; Fan  Temp   Perf          Pwr:Usage/Cap &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;           Memory-Usage &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; GPU-Util  Compute M. &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;                                         &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;                        &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;               MIG M. &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=========================================&lt;/span&gt;+&lt;span class=&#34;o&#34;&gt;========================&lt;/span&gt;+&lt;span class=&#34;o&#34;&gt;======================&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;   &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  NVIDIA GeForce RTX &lt;span class=&#34;m&#34;&gt;3090&lt;/span&gt; Ti     Off &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;   00000000:09:00.0 Off &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;                  Off &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;  0%   25C    P8             34W /  450W &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;     729MiB /  24564MiB &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;      1%      Default &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;                                         &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;                        &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;                  N/A &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;+-----------------------------------------+------------------------+----------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;CUDA Toolkit&lt;/strong&gt; is needed as GPU-version PyTorch was compiled by a certain CUDA Toolkit.&lt;/p&gt;
+&lt;p&gt;Install the run file&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-r2&#34; &gt;r2-Nv&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;base&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; zichen@zichen-X570-AORUS-PRO-WIFI:~$ nvcc -V
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nvcc: NVIDIA &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;R&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; Cuda compiler driver
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Copyright &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;c&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; 2005-2021 NVIDIA Corporation
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Built on Sun_Mar_21_19:15:46_PDT_2021
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Cuda compilation tools, release 11.3, V11.3.58
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Build cuda_11.3.r11.3/compiler.29745058_0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Conda&amp;#39;s pytorch pkg needs CTK runtime&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# conda install pytorch==1.9.0 torchvision==0.10.0 torchaudio==0.9.0 cudatoolkit=11.3 -c pytorch -c conda-forge&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# The torch 1.9 compiled with ctk 11.1 requires ctk 11.1 pre-installed on system.&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pip install &lt;span class=&#34;nv&#34;&gt;torch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;1.9.0+cu111 &lt;span class=&#34;nv&#34;&gt;torchvision&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Without CUDA Toolkit, solely installing PyTorch 1.9.0 is not enough
+&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-r1&#34; &gt;r1-Docs&lt;/a&gt;&lt;/sup&gt; along with a runtime &lt;code&gt;cudatoolkit&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;There will be an error:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Exception has occurred: ImportError
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;/mnt/Seagate4T/anaconda3/envs/pointattn/lib/python3.8/site-packages/torch/lib/libtorch_cpu.so: undefined symbol: iJIT_NotifyEvent
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/utils/train_utils.py&amp;#34;&lt;/span&gt;, line 1, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    import torch
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/test_c3d.py&amp;#34;&lt;/span&gt;, line 8, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from utils.train_utils import *
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ImportError: /mnt/Seagate4T/anaconda3/envs/pointattn/lib/python3.8/site-packages/torch/lib/libtorch_cpu.so: undefined symbol: iJIT_NotifyEvent
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# NO CUDA Toolkit installed&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;pointattn&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; zichen@zichen-X570-AORUS-PRO-WIFI:~/Projects/PointAttN$ nvcc -V
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Command &lt;span class=&#34;s1&#34;&gt;&amp;#39;nvcc&amp;#39;&lt;/span&gt; not found, but can be installed with:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt install nvidia-cuda-toolkit
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(2025-04-07)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;After the CUDA Toolkit 11.3 was installed, that error persists.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The PyTorch installed by &lt;code&gt;conda&lt;/code&gt; is a cpu version:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;pointattn&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; zichen@zichen-X570-AORUS-PRO-WIFI:~/Projects/PointAttN$ conda list
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pytorch            1.9.0        py3.8_cpu_0    pytorch
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;torchvision        0.10.0          py38_cpu    pytorch
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;pytorch=1.9.0&lt;/code&gt; is a cpu version?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;pip’s package name is &lt;code&gt;torch&lt;/code&gt;, not &lt;code&gt;pytorch&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Pip subprocess error:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ERROR: Could not find a version that satisfies the requirement &lt;span class=&#34;nv&#34;&gt;pytorch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;1.9.0 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;from versions: 0.1.2, 1.0.2&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ERROR: No matching distribution found &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;pytorch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;1.9.0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Conda’s &lt;code&gt;pytorch&lt;/code&gt; and PyPI’s &lt;code&gt;torch&lt;/code&gt; are different packages, even if the version numbers match.
+Conda and pip packages are built differently and may link to incompatible CUDA/cuDNN versions.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;(2025-04-08)&lt;/p&gt;
+&lt;ol start=&#34;5&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;mmcv&lt;/code&gt; is needed by &lt;code&gt;mm3d_pn2&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Otherwise, there will an error:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Exception has occurred: ModuleNotFoundError
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;No module named &lt;span class=&#34;s1&#34;&gt;&amp;#39;mmcv&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/ops/__init__.py&amp;#34;&lt;/span&gt;, line 1, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from mmcv.ops import &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;RoIAlign, SigmoidFocalLoss, get_compiler_version,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/__init__.py&amp;#34;&lt;/span&gt;, line 1, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from .ops import &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;nms, RoIAlign, roi_align, get_compiler_version, get_compiling_cuda_version,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/models/PointAttN.py&amp;#34;&lt;/span&gt;, line 10, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from utils.mm3d_pn2 import furthest_point_sample, gather_points
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/test_c3d.py&amp;#34;&lt;/span&gt;, line 34, in &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nv&#34;&gt;model_module&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; importlib.import_module&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.%s&amp;#39;&lt;/span&gt; % args.model_name, &lt;span class=&#34;s1&#34;&gt;&amp;#39;models&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/test_c3d.py&amp;#34;&lt;/span&gt;, line 80, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    test&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ModuleNotFoundError: No module named &lt;span class=&#34;s1&#34;&gt;&amp;#39;mmcv&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;pip install mmcv&lt;/code&gt; will build &lt;code&gt;mmcv&lt;/code&gt;, and install:
+mmcv-2.2.0 mmengine-0.10.7 opencv-python-4.11.0.86 yapf-0.43.0&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;pip uninstall mmcv&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;(2025-04-09)&lt;/p&gt;
+&lt;ol start=&#34;6&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;Install mmcv-1.x.&lt;/p&gt;
+&lt;p&gt;Since &lt;code&gt;mmcv-2.x&lt;/code&gt;, the &lt;code&gt;mmcv.runner&lt;/code&gt; has been removed
+&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-r4&#34; &gt;r4-CSDN&lt;/a&gt;,&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-r6&#34; &gt;r6-GitHub&lt;/a&gt;&lt;/sup&gt;,
+reminded by Cursor initially.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;@force_fp32()&lt;/code&gt; is used to constrain data type, but it can be replaced by &lt;code&gt;autocast&lt;/code&gt; of PyTorch
+&lt;/sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-r5&#34; &gt;r5-GitHub&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Exception has occurred: ModuleNotFoundError
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;No module named &lt;span class=&#34;s1&#34;&gt;&amp;#39;mmcv.runner&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/ops/furthest_point_sample/points_sampler.py&amp;#34;&lt;/span&gt;, line 3, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from mmcv.runner import force_fp32
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/ops/furthest_point_sample/__init__.py&amp;#34;&lt;/span&gt;, line 3, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from .points_sampler import Points_Sampler
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/ops/__init__.py&amp;#34;&lt;/span&gt;, line 6, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from .furthest_point_sample import &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Points_Sampler, furthest_point_sample,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/__init__.py&amp;#34;&lt;/span&gt;, line 1, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from .ops import &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;nms, RoIAlign, roi_align, get_compiler_version, get_compiling_cuda_version,
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/models/PointAttN.py&amp;#34;&lt;/span&gt;, line 10, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    from utils.mm3d_pn2 import furthest_point_sample, gather_points
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/test_c3d.py&amp;#34;&lt;/span&gt;, line 34, in &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nv&#34;&gt;model_module&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; importlib.import_module&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;.%s&amp;#39;&lt;/span&gt; % args.model_name, &lt;span class=&#34;s1&#34;&gt;&amp;#39;models&amp;#39;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  File &lt;span class=&#34;s2&#34;&gt;&amp;#34;/home/zichen/Projects/PointAttN/test_c3d.py&amp;#34;&lt;/span&gt;, line 80, in &amp;lt;module&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    test&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ModuleNotFoundError: No module named &lt;span class=&#34;s1&#34;&gt;&amp;#39;mmcv.runner&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Actions&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Remove &lt;code&gt;pytorch&lt;/code&gt; from &lt;code&gt;requiremnts.txt&lt;/code&gt; as it&amp;rsquo;s a cpu version.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Ask Windsurf to generate an &lt;code&gt;environment.yaml&lt;/code&gt; for conda&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;name: pointattn
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;channels:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - pytorch
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - conda-forge
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - defaults
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;dependencies:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - &lt;span class=&#34;nv&#34;&gt;python&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3.8
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# - pytorch=1.9.0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# - torchvision==0.10.0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# - torchaudio==0.9.0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# - cudatoolkit=11.3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - pip
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - &lt;span class=&#34;nv&#34;&gt;h5py&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3.6.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - &lt;span class=&#34;nv&#34;&gt;matplotlib&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;3.4.3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - &lt;span class=&#34;nv&#34;&gt;munch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2.5.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - &lt;span class=&#34;nv&#34;&gt;pyyaml&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;5.4.1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - pip:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - &lt;span class=&#34;nv&#34;&gt;torch&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;1.9.0+cu111
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - &lt;span class=&#34;nv&#34;&gt;torchvision&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;0.10.0+cu111
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - -f https://download.pytorch.org/whl/torch_stable.html
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - transforms3d
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - tensorpack
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - &lt;span class=&#34;nv&#34;&gt;open3d&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;0.13.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - openmim
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - mmcv-full&lt;span class=&#34;o&#34;&gt;==&lt;/span&gt;1.7.2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;c1&#34;&gt;# Additional dependencies for building the 3rd-party modules&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - setuptools
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - wheel
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - numpy
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Create env:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;conda env create -f environment.yml
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Specify &lt;code&gt;gcc&lt;/code&gt; for &lt;code&gt;nvcc&lt;/code&gt; (CUDA Toolkit 11.3), which supports &lt;code&gt;gcc-10&lt;/code&gt; tops,
+during compiling modules:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;MAX_GCC_VERSION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;10&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt install gcc-&lt;span class=&#34;nv&#34;&gt;$MAX_GCC_VERSION&lt;/span&gt; g++-&lt;span class=&#34;nv&#34;&gt;$MAX_GCC_VERSION&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo ln -s /usr/bin/gcc-&lt;span class=&#34;nv&#34;&gt;$MAX_GCC_VERSION&lt;/span&gt; /usr/local/cuda/bin/gcc 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo ln -s /usr/bin/g++-&lt;span class=&#34;nv&#34;&gt;$MAX_GCC_VERSION&lt;/span&gt; /usr/local/cuda/bin/g++
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The default &lt;code&gt;gcc-11.4&lt;/code&gt; results in an error when &lt;code&gt;nvcc&lt;/code&gt; compiles &lt;code&gt;chamfer3D&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;/usr/local/cuda-11.3/include/crt/host_config.h:139:2: error: &lt;span class=&#34;c1&#34;&gt;#error -- unsupported GNU version! gcc versions later than 10 are not supported!&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Build 3rd-party modules:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; utils/ChamferDistancePytorch/chamfer3D
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;python setup.py install
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; utils/mm3d_pn2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;python setup.py build_ext --inplace
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;a id=&#34;Ptat-Env-Iss2&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;(2025-04-02)&lt;/p&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Test on the PCN Dataset&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;PCN(processed data) -&amp;gt;
+&lt;a class=&#34;link&#34; href=&#34;https://gateway.infinitescript.com/s/ShapeNetCompletion&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;ShapeNetCompletion (10.6 GB) - Infinite Gateway&lt;/a&gt;
+(&lt;a class=&#34;link&#34; href=&#34;https://www.infinitescript.com/project/grnet/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;GRNet&lt;/a&gt;) -&amp;gt;
+&lt;a class=&#34;link&#34; href=&#34;https://hiteducn0-my.sharepoint.com/personal/hzxie_hit_edu_cn/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fhzxie%5Fhit%5Fedu%5Fcn%2FDocuments%2FGRNet%2FDatasets%2FShapeNetCompletion%2Ezip&amp;amp;parent=%2Fpersonal%2Fhzxie%5Fhit%5Fedu%5Fcn%2FDocuments%2FGRNet%2FDatasets&amp;amp;ga=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;OneDrive&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Actions&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Create a &lt;code&gt;launch.json&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;Debug&amp;rdquo; -&amp;gt; &amp;ldquo;Python Debugger&amp;rdquo; -&amp;gt;
+&amp;ldquo;Python File with Arguments Debug the currently active Python file with arguments&amp;rdquo;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Edit the path to dataset in &lt;code&gt;PointAttN.yaml&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Select Interpreter with the correct environment: &lt;code&gt;pointattn&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Actions&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-04-28T09:14)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;test.log&lt;/code&gt; is empty&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-r7&#34; &gt;r7-Issue&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;a id=&#34;Ptat-Env-Iss3&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Test on the Completion3D Dataset&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Browser has &lt;strong&gt;no response&lt;/strong&gt; after clicking the URL to 2048K points of &lt;a class=&#34;link&#34; href=&#34;https://completion3d.stanford.edu/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Completion3D: Stanford 3D Point Cloud Completion Benchmark&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;I guess its size &lt;strong&gt;exceed the limit&lt;/strong&gt; of browser.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Use &lt;code&gt;wget&lt;/code&gt; to download &lt;code&gt;dataset2019.zip&lt;/code&gt; (1.5GB):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;zichen@zichen-X570-AORUS-PRO-WIFI:/mnt/Seagate4T/05-DataBank/PointAttN$ wget http://download.cs.stanford.edu/downloads/completion3d/dataset2019.zip
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;--2025-04-02 23:52:45--  http://download.cs.stanford.edu/downloads/completion3d/dataset2019.zip
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Resolving download.cs.stanford.edu &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;download.cs.stanford.edu&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;... 171.64.64.22
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Connecting to download.cs.stanford.edu &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;download.cs.stanford.edu&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;171.64.64.22&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;:80... connected.
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;HTTP request sent, awaiting response... &lt;span class=&#34;m&#34;&gt;200&lt;/span&gt; OK
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Length: &lt;span class=&#34;m&#34;&gt;1585860897&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1.5G&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;application/zip&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Saving to: ‘dataset2019.zip’
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;dataset2019.zip                     100%&lt;span class=&#34;o&#34;&gt;[======================================&lt;/span&gt;&amp;gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;   1.48G  5.14MB/s    in 4m 59s  
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;2025-04-02 23:57:45 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;5.05 MB/s&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; - ‘dataset2019.zip’ saved &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;1585860897/1585860897&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Actions&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Run &lt;code&gt;python3 test_c3d.py -c PointAttN_test_c3d.yaml&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Error&lt;sup&gt;&lt;a class=&#34;link&#34; href=&#34;#Ptat-Env-r8&#34; &gt;r8-Issue&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;code-read&#34;&gt;Code Read
+&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;How does the &lt;code&gt;forward&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Notes&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-04-11)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Model Breakdown&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;A neural network model contains 4 parts:
+Dataset, Network definition, Loss, Optimizer&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>Read: Points - Surface | Voronoi &#43; MLS</title>
+        <link>http://blog.zichen.uk/post/writenotes/model/points/b-note-voronoimls/</link>
+        <pubDate>Sun, 02 Jun 2024 10:47:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/model/points/b-note-voronoimls/</guid>
+        <description>&lt;img src="https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/3-Figure3-1.png" alt="Featured image of post Read: Points - Surface | Voronoi &#43; MLS" /&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://sci.utah.edu/~csilva/papers/tvcg2003acr.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;PDF&lt;/a&gt;
+| &lt;a class=&#34;link&#34; href=&#34;https://www.semanticscholar.org/paper/Computing-and-Rendering-Point-Set-Surfaces-Alexa-Behr/b7e0ebc678153eb2c341702247d2fafb872f0465#paper-topics&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;SemScho&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;notes&#34;&gt;Notes
+&lt;/h2&gt;&lt;p&gt;(2024-06-02)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Abstract&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Task&lt;/strong&gt;: Display point set surface.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Solution&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Define a smooth manifold surface based on local maps and MLS.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;local map from differential geometry:&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;local&amp;rdquo;: neighbors&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Upsampling and downsampling to fit the points spacing with the screen space resolution.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The approximation error is bounded.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Advantage&lt;/strong&gt;: Applicable for any point set&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;introduction&#34;&gt;Introduction
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Task&lt;/strong&gt;: Use point set as the shape representation&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Why matter?&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Point sets data are getting popular.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Representing a highly detailed surface with primitives requires &lt;strong&gt;substantial&lt;/strong&gt; small unit that&amp;rsquo;s smaller than a single pixel.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Although point set is an economical representation, point sets contain &lt;strong&gt;noisy and redundant&lt;/strong&gt; points.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Point cloud is discrete without explicit surface.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Solution&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Adjust the density of points to reconstruct a smooth surface.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Use polynomials to approximate surface with MLS&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Polynomials: What are &lt;strong&gt;basis functions&lt;/strong&gt; are used to fit the surface function?
+&lt;ul&gt;
+&lt;li&gt;What does the surface function look like?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Projection (affine transformation): weighted sum / linear combination of x,y coordinate&lt;/p&gt;
+$$
+       \begin{bmatrix} a_1 \\\ a_2 \\\ a_3 \end{bmatrix}
+       [1 \quad x \quad x^2] [^x_y]
+       $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;MLS: The partial &lt;strong&gt;derivative&lt;/strong&gt; of error w.r.t. coefficient matrix 𝐀 equals 0.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Explain idea&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Generating new points is a &lt;strong&gt;sampling&lt;/strong&gt; process on the hidden surface.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Doubt&lt;/strong&gt;: Can generative models be applied? as this is a sampling process.&lt;/li&gt;
+&lt;li&gt;The error has a limited &lt;strong&gt;bound&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Rendering&lt;/strong&gt; a point set is achieved by up-sampling and down-sampling the point set.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The sampling error is bounded. How to prove?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Reduce&lt;/strong&gt; the input point set $P=\\{𝐩ᵢ\\}$ to &amp;ldquo;representation points&amp;rdquo; $R=\\{𝐫ᵢ\\}$ defining an MLS surface $S_R$,
+which approximates the original surface $S_P$.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Sounds like Variational Inference:
+Let an assumed posterior distribution of z $q(z|x)$ with &lt;strong&gt;learnable&lt;/strong&gt; params (μ,σ) to
+approximate the true intractable posterior distribution of z $P(z|x)$,
+through minimizing the KL-divergence.&lt;/p&gt;
+&lt;p&gt;On the other hand, if analyzing ELBO, the goal of maximizing the log-likelihood of x is transformed into maximizing the variational lower bound: ELBO.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Figuratively, use a &lt;strong&gt;proxy&lt;/strong&gt; object to approximate the true object.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure&gt;&lt;img src=&#34;https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/2-Figure2-1.png&#34; width=&#34;72%&#34;&gt;
+    &lt;/figure&gt;
+
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Related Work&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;(2024-06-07)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Consolidation&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;A practical point cloud includes multiple scans to capture the complete geometry for a nontrivial object.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Triangulation techniques.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Shortcomings&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Weighted averaging of multiple scans based on implicit function&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Weighted averaging points directly&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Trianglulation&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Doubt&lt;/strong&gt;: Perhaps I should compare my Exp: PC01 with this kind of methods.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Surface fitting using polynomial&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Resampling&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Using physically-based particle systems to sample an implicit surface&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Repulsive forces&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;MLS + Projection + Iterations&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Extending k neighbors to a &amp;ldquo;fan&amp;rdquo;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Point Sample Rendering&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Converting geometric models into point-sampled data sets.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Using a hierarchy of spheres of different radii to model a high-resolution model&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;time-critical rendering&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Principal curvatures&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Global illumination effects -&amp;gt; ray tracing technique&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Resampling the surface in object space during rendering to adapt the display resolution.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Hybrid triangle-point approaches&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;QSplat&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;method&#34;&gt;Method
+&lt;/h3&gt;&lt;p&gt;A surface is defined by a projection procedure: through which the surface is obtained by projecting the input points.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Basic assumption&lt;/strong&gt;: The input point set represent a surface implicitly.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Main idea&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;$r$ is a raw point deviating from the actural surface due to noise&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$p_i$ is a sampled point on the ground-truth surface.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$S_p$ is the approximated surface estimated from $p_i$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Find a local plane for $r$, which serves as a x-y plane for a 3D coordinate system.
+The local plane is a linear regression for r&amp;rsquo;s neighboring points.&lt;/p&gt;
+&lt;p&gt;Then, find surface with referencing the local plane.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;projection&#34;&gt;Projection
+&lt;/h4&gt;&lt;p&gt;Two steps of the Projection Procedure:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Step Ⅰ: For an raw input point 𝐫, compute a local &lt;strong&gt;plane&lt;/strong&gt; H:&lt;/p&gt;
+$$
+   H =\\{𝐱 | ⟨𝐧,𝐱⟩-D = 0, 𝐱∈ ℝ³\\}, 𝐧∈ ℝ³,‖𝐧‖=1
+   $$&lt;p&gt;The plane H is determined by &lt;strong&gt;minimizing&lt;/strong&gt; a Weighted Sum of Squared Distances from each neighboring point 𝐩ᵢ of the point 𝐫 to the approximate &lt;strong&gt;plane&lt;/strong&gt; H,
+and solved by weighted least squares.&lt;/p&gt;
+&lt;p&gt;The weight is a function θ of the distance between the &lt;strong&gt;projection&lt;/strong&gt; 𝐪 of 𝐫 on the plane to each of its neighboring point 𝐩ᵢ.&lt;/p&gt;
+$$
+   ∑ᵢ₌₁ᴺ \underset{Error}{(⟨𝐧,𝐩ᵢ⟩-D)²} ⋅ \underset{Weights}{θ(‖𝐩ᵢ-𝐪‖)}
+   $$
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 224 169&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 16,80 L 48,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,80 L 152,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,16 L 48,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 48,48 L 48,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;56.000000,16.000000 44.000000,10.400000 44.000000,21.600000&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 48.000000, 16.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;path d=&#39;M 96,88 L 96,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;112.000000,96.000000 100.000000,90.400002 100.000000,101.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 96.000000, 96.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;104.000000,128.000000 92.000000,122.400002 92.000000,133.600006&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(90.000000, 96.000000, 128.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;circle cx=&#39;48&#39; cy=&#39;48&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;48&#39; cy=&#39;80&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;#fff&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;128&#39; cy=&#39;0&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;H&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐫&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐧&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐪&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;88&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;θ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;D&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;∙&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;104&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐩&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;O&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;P&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⟨&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;m&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐧&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐩&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⟩&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;D&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Using distances between $pᵢ$ and $q$ aims to optimize the position of the &lt;strong&gt;plane H&lt;/strong&gt; based on the grount-truth point set $pᵢ$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;θ is a smooth, monotone decreasing function, positive on the whole space&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$N$ is the number of neighbors of 𝐫.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;A plane in 3D is defined with its normal vector 𝐧 and a point 𝐱 &lt;strong&gt;within&lt;/strong&gt; the plane,
+that deviates from the origin by a distance D along the direction of normal:
+$⟨𝐧,𝐱⟩=D$&lt;/p&gt;
+
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 408 121&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 24,64 L 64,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 72,80 L 104,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,16 L 64,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,32 L 64,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,64 L 64,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;32.000000,64.000000 20.000000,58.400002 20.000000,69.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(180.000000, 24.000000, 64.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;80.000000,80.000000 68.000000,74.400002 68.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(180.000000, 72.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;polygon points=&#39;112.000000,80.000000 100.000000,74.400002 100.000000,85.599998&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(0.000000, 104.000000, 80.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;circle cx=&#39;64&#39; cy=&#39;32&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐧&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐱&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;88&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;D&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;∙&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;O&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;152&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The distance from 𝐩ᵢ to the plane is the inner product of 𝐧 and 𝐩ᵢ: $⟨𝐧, 𝐩ᵢ⟩$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Further, represent the &lt;strong&gt;projection&lt;/strong&gt; 𝐪 with a parameter t:&lt;/p&gt;
+$$𝐪 = 𝐫 + t𝐧$$&lt;p&gt;The loss function: encouraging neighboring points 𝐩ᵢ close to the H, becomes:&lt;/p&gt;
+$$
+   \begin{aligned}
+   &amp;  ∑ᵢ₌₁ᴺ (⟨𝐧, 𝐩ᵢ⟩-D)² ⋅ θ(‖𝐩ᵢ- 𝐫 - t𝐧‖) \\\
+   &amp;= ∑ᵢ₌₁ᴺ (⟨𝐧, 𝐩ᵢ⟩-⟨𝐧,𝐪⟩)² ⋅ θ(‖𝐩ᵢ- 𝐫 - t𝐧‖) \\\
+   &amp;= ∑ᵢ₌₁ᴺ (⟨𝐧, 𝐩ᵢ-𝐪⟩)² ⋅ θ(‖𝐩ᵢ- 𝐫 - t𝐧‖) \\\
+   &amp;= ∑ᵢ₌₁ᴺ ⟨𝐧, 𝐩ᵢ - 𝐫 - t𝐧⟩^2 ⋅ θ(\\| 𝐩ᵢ - 𝐫 - t𝐧 \\|)
+   \end{aligned}
+   $$
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 280 153&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 40,80 L 80,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 80,80 L 208,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 80,16 L 80,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 80,48 L 80,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;polygon points=&#39;88.000000,16.000000 76.000000,10.400000 76.000000,21.600000&#39; fill=&#39;currentColor&#39; transform=&#39;rotate(270.000000, 80.000000, 16.000000)&#39;&gt;&lt;/polygon&gt;
+&lt;circle cx=&#39;80&#39; cy=&#39;48&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;80&#39; cy=&#39;80&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;#fff&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;160&#39; cy=&#39;0&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;H&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐧&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐧&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐫&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐪&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;∙&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;D&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;θ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐩&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⟨&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐧&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐩&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐫&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;t&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;256&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐧&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;264&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⟩&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;p&gt;Denote the target plane H with the set of projections based on raw input points r:&lt;/p&gt;
+$$Q(t) = 𝐪 = 𝐫 + t𝐧$$&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;t&lt;/code&gt; reminds me the sampling in NeRF: $𝐨 + t𝐝$.
+After rescaling the range of [near,far] to [-1,1], the &lt;code&gt;t&lt;/code&gt; ranges from [0,1] to sample points starting from the near plane.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;t&lt;/code&gt; is not the depth z, but the &lt;strong&gt;steps&lt;/strong&gt; that are compatible for both LLFF scene (infinite boundary) and Blender scene (bounded).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Similarly, Point-MVSNet used &lt;strong&gt;steps&lt;/strong&gt; to refine the depth of the point along a ray.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The plane H will serve as a &amp;ldquo;ground&amp;rdquo; for measuring the &lt;strong&gt;height&lt;/strong&gt; of each 𝐩ᵢ,
+using the coordinates (x,y) on the plane H for indexing.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;Step Ⅱ: Approximate &lt;strong&gt;surface&lt;/strong&gt; based on the local plane H:&lt;/p&gt;
+&lt;figure&gt;&lt;img src=&#34;https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/3-Figure3-1.png&#34; width=&#34;60%&#34;&gt;
+   &lt;/figure&gt;
+
+&lt;p&gt;The projection 𝓟 of 𝐫 onto the target surface $S_P$ is a &lt;strong&gt;sum&lt;/strong&gt; of the projection of 𝐫 on the &lt;strong&gt;plane&lt;/strong&gt; H
+and the &amp;ldquo;residual&amp;rdquo; approximed with a &lt;strong&gt;bivariate&lt;/strong&gt; polynomial: g(x,y),&lt;/p&gt;
+$$
+   \begin{aligned}
+   \cal{P}(𝐫) &amp;= 𝐪 + g(0,0)𝐧 \\\ &amp;= 𝐫 + (t+g(0,0))𝐧
+   \end{aligned}
+   $$&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Similarly, PointFlow in Point-MVSNet also predicts the &lt;strong&gt;depth residual&lt;/strong&gt; to tweak a point.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;A surface equation is bivariate because it only has two dimensions: x and y.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The $g(x,y)$ gets optimized by minimizing the weighted sum of neigboring pionts 𝐩ᵢ height error:&lt;/p&gt;
+$$∑ᵢ₌₁ᴺ (g(xᵢ,yᵢ) - fᵢ)² ⋅ θ(\\| 𝐩ᵢ - 𝐪 \\|)$$
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 272 201&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 152,16 L 176,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 176,16 L 192,16&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 88,64 L 96,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,64 L 120,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,144 L 96,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,144 L 176,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 176,144 L 200,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,112 L 96,144&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 136,32 L 136,48&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 152,16 A 16,16 0 0,0 136,32&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 88,64 A 16,16 0 0,0 72,80&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 136,48 A 16,16 0 0,1 120,64&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 72,80 A 16,16 0 0,1 56,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;circle cx=&#39;96&#39; cy=&#39;64&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;96&#39; cy=&#39;112&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;96&#39; cy=&#39;144&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;#fff&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;176&#39; cy=&#39;16&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;176&#39; cy=&#39;144&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;#fff&#39;&gt;&lt;/circle&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;S&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐫&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;40&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;H&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐫&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;88&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;88&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐪&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;104&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;104&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;104&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;120&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;θ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐩&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;*&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋮&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐪&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;↑&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;↓&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐧&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;164&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;E&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋅&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;y&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;y&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐩&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;180&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;-&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐪&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;256&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;$fᵢ$ is the height of the point 𝐩ᵢ w.r.t. the plane H:&lt;/p&gt;
+$$fᵢ= 𝐧⋅(𝐩ᵢ - 𝐪)$$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The projection 𝐪 of 𝐫 is the origin of the plane-H coordinate system.&lt;/p&gt;
+&lt;p&gt;The projection of 𝐫 on the original surface can be represented as: $𝐪+g(0,0)⋅𝐧$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;properties&#34;&gt;Properties
+&lt;/h4&gt;&lt;p&gt;Properties of the Projection Procedure&lt;/p&gt;
+&lt;p&gt;(2024-06-09)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;The equation holds, when the plane H is the original surface $S_P$:&lt;/p&gt;
+$$\cal{P}(\cal{P}(𝐫)) = \cal{P}(𝐫)$$
+
+
+&lt;div class=&#34;goat svg-container &#34;&gt;
+  
+    &lt;svg
+      xmlns=&#34;http://www.w3.org/2000/svg&#34;
+      font-family=&#34;Menlo,Lucida Console,monospace&#34;
+      
+        viewBox=&#34;0 0 304 169&#34;
+      &gt;
+      &lt;g transform=&#39;translate(8,16)&#39;&gt;
+&lt;path d=&#39;M 64,96 L 96,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,96 L 176,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 176,96 L 200,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 64,112 L 200,112&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 96,64 L 96,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;path d=&#39;M 176,16 L 176,96&#39; fill=&#39;none&#39; stroke=&#39;currentColor&#39;&gt;&lt;/path&gt;
+&lt;circle cx=&#39;96&#39; cy=&#39;64&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;96&#39; cy=&#39;96&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;#fff&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;176&#39; cy=&#39;16&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;currentColor&#39;&gt;&lt;/circle&gt;
+&lt;circle cx=&#39;176&#39; cy=&#39;96&#39; r=&#39;6&#39; stroke=&#39;currentColor&#39; fill=&#39;#fff&#39;&gt;&lt;/circle&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;0&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;8&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;o&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;16&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;24&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;32&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐫&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;48&#39; y=&#39;100&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;H&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;56&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;64&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;72&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐫&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;80&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;88&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;88&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;=&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐪&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;96&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;104&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;104&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;84&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;112&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;128&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;136&#39; y=&#39;68&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;w&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;144&#39; y=&#39;52&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐩&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;36&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;⋰&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;160&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;(&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;168&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;x&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;𝐪&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;176&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;184&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;,&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;192&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;y&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;y&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;20&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;200&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;ᵢ&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;208&#39; y=&#39;148&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;)&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;O&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;216&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;s&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;=&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;224&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;u&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;4&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;0&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;232&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;r&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;g&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;240&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;f&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;i&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;248&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;256&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;n&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;256&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;c&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;264&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;a&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;264&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;e&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;272&#39; y=&#39;116&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;l&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;280&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;S&lt;/text&gt;
+&lt;text text-anchor=&#39;middle&#39; x=&#39;288&#39; y=&#39;132&#39; fill=&#39;currentColor&#39; style=&#39;font-size:1em&#39;&gt;p&lt;/text&gt;
+&lt;/g&gt;
+
+    &lt;/svg&gt;
+  
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;compute-projection&#34;&gt;Compute Projection
+&lt;/h4&gt;&lt;p&gt;Computing the Projection&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;tradeoff&#34;&gt;Tradeoff
+&lt;/h4&gt;&lt;p&gt;Data Structures and Tradeoffs&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;results&#34;&gt;Results
+&lt;/h4&gt;&lt;hr&gt;
+&lt;h3 id=&#34;resampling&#34;&gt;Resampling
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Upsampling based on Voronoi diagram&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://i.ibb.co/2jd5S0V/Paper-computing-and-rendering-point-set-surface-7-Figure8-1.png&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://i.ibb.co/2jd5S0V/Paper-computing-and-rendering-point-set-surface-7-Figure8-1.png&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;active-recall&#34;&gt;Active Recall
+&lt;/h3&gt;&lt;h4 id=&#34;llm-chat&#34;&gt;LLM Chat
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;I want to find a teacher to correct my understanding&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a id=&#34;Note-&#34;&gt;&lt;/a&gt;
+&lt;a class=&#34;link&#34; href=&#34;https://chatgpt.com/c/67f2cdff-c2f8-8006-a49f-1bee4923dd60&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;ChatGPT&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Notes&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;(2025-04-06)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Chat with free ChatGPT&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://claude.ai/chat/a246aa7d-b061-4624-96a2-cd1935dd0e3e&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Claude.ai&lt;/a&gt;
+has length limit - Cannot upload paper (neither pdf/html/md).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://yuanbao.tencent.com/chat/naQivTmsDa/b51baf9c-d8ef-4d95-be15-f23dc6fedcaa&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Yuanbao.tencent.com&lt;/a&gt;
+has a &lt;strong&gt;bad image understanding&lt;/strong&gt; of my &amp;ldquo;hand-draw&amp;rdquo; (whiteboard) image&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;DeepSeek.com does not support image&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;optimization-in-common&#34;&gt;Optimization in Common
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Problems&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;The common features among optimization-based methods&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Issues&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;#&#34; &gt;Points displacement&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;References&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Notes&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;a id=&#34;Iss1&#34;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;(2025-04-06)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Points displacement is the model output&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Supports&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Point-MVSNet: Network ➔ ray march&lt;/li&gt;
+&lt;li&gt;3DGS: BP+GD ➔ dx,dy,dz&lt;/li&gt;
+&lt;li&gt;MLS: Least Square ➔ Height residual&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;play&#34;&gt;Play
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;MLS in PCL&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;ref&#34;&gt;Ref
+&lt;/h2&gt;&lt;p&gt;(2024-07-20)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/keineahnung2345/article/details/109633481&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;PCL MLS論文Computing and Rendering Point Set Surfaces研讀筆記 - keineahnung2345 - CSDN&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;(&lt;small&gt;Found: Search image for &amp;ldquo;voxel grid dilation&amp;rdquo; in &lt;a class=&#34;link&#34; href=&#34;https://duckduckgo.com/?q=voxel&amp;#43;grid&amp;#43;dilation&amp;amp;pn=1&amp;amp;iax=images&amp;amp;ia=images&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;DDG&lt;/a&gt;
+➡ Images from blog: &lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/keineahnung2345/article/details/120299122&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;PCL - MLS代碼研讀（十五）- VOXEL_GRID_DILATION上採樣方法&lt;/a&gt;
+➡ He has 50 posts for PCL: &lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/keineahnung2345/category_10851348_2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;keineahnung2345的博客&lt;/a&gt;
+➡ Since he has a careful study on MLS, he must read the paper.&lt;/small&gt;)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

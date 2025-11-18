@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Video 12 Bias-Variance Tradeoff 11-01-2021\nOutline:\nBias and Variance Learning Curves Review of Lec 7\n$d_{VC}(\\mathcal H)$: the most number of points $\\mathcal H$ can shatter $d_{VC}$是有限值，让 g 近似 $f$ 成为可能。VC维仅由假设集决定。 为了降低到某一概率，$d_{VC}$越大，所需样本点数N越多。$N\\geq 10 d_{VC}$ $E_{out} \\leq E_{in}+\\Omega$ Generalization bound $\\Omega(N,\\mathcal H, \\delta))$: Bias and Variance Approximation-generalization tradeoff 近似与泛化的权衡\n小的Eout 意味着g在 out-of-sample 上也是f的一个好的近似（样本外误差也很小）。 越复杂的假设集 $\\mathcal H$（M越大），有更好的机会近似 $f$（更可能包含最佳假设g） 越简单的假设集 $\\mathcal H$，有更好的机会在out-of-sample上泛化。 最理想情况：假设集中只包含一个正在寻找的“未知的目标函数” $\\mathcal H=\\{f\\}$，g 也就是f。 Quantifying the tradeoff 之前的 VC analysis 是一种评估方法：$E_{out} \\leq E_{in}+\\Omega$ 与之相似，Bias-variance analysis 是另一种评估方法：把 Eout 分解成两项： 假设集$\\mathcal H$ 能有多近似 $f$ （Bias） 能在多大程度上确定$\\mathcal H$中的好的假设 （Variance） 这里分析的目标函数是实值的 real-valued, 并且使用平方误差 squared error Start with $E_{out}$ Eout 是假设集中的最佳假设 $g$ 与 未知目标函数 $f$ 在输入空间 $\\mathcal X$ 的各个点上的差距的期望；g 是样本集 $\\mathcal D$ 的函数，样本集不同，选出来的最佳假设 g 也不同：\n">
+<title>watch: AML 08 | Bias-Variance Tradeoff</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/aml/lec8_bias_variance/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: AML 08 | Bias-Variance Tradeoff">
+<meta property='og:description' content="Video 12 Bias-Variance Tradeoff 11-01-2021\nOutline:\nBias and Variance Learning Curves Review of Lec 7\n$d_{VC}(\\mathcal H)$: the most number of points $\\mathcal H$ can shatter $d_{VC}$是有限值，让 g 近似 $f$ 成为可能。VC维仅由假设集决定。 为了降低到某一概率，$d_{VC}$越大，所需样本点数N越多。$N\\geq 10 d_{VC}$ $E_{out} \\leq E_{in}+\\Omega$ Generalization bound $\\Omega(N,\\mathcal H, \\delta))$: Bias and Variance Approximation-generalization tradeoff 近似与泛化的权衡\n小的Eout 意味着g在 out-of-sample 上也是f的一个好的近似（样本外误差也很小）。 越复杂的假设集 $\\mathcal H$（M越大），有更好的机会近似 $f$（更可能包含最佳假设g） 越简单的假设集 $\\mathcal H$，有更好的机会在out-of-sample上泛化。 最理想情况：假设集中只包含一个正在寻找的“未知的目标函数” $\\mathcal H=\\{f\\}$，g 也就是f。 Quantifying the tradeoff 之前的 VC analysis 是一种评估方法：$E_{out} \\leq E_{in}+\\Omega$ 与之相似，Bias-variance analysis 是另一种评估方法：把 Eout 分解成两项： 假设集$\\mathcal H$ 能有多近似 $f$ （Bias） 能在多大程度上确定$\\mathcal H$中的好的假设 （Variance） 这里分析的目标函数是实值的 real-valued, 并且使用平方误差 squared error Start with $E_{out}$ Eout 是假设集中的最佳假设 $g$ 与 未知目标函数 $f$ 在输入空间 $\\mathcal X$ 的各个点上的差距的期望；g 是样本集 $\\mathcal D$ 的函数，样本集不同，选出来的最佳假设 g 也不同：\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/aml/lec8_bias_variance/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-12-13T15:53:00&#43;00:00'/><meta property='article:modified_time' content='2021-12-13T15:53:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: AML 08 | Bias-Variance Tradeoff">
+<meta name="twitter:description" content="Video 12 Bias-Variance Tradeoff 11-01-2021\nOutline:\nBias and Variance Learning Curves Review of Lec 7\n$d_{VC}(\\mathcal H)$: the most number of points $\\mathcal H$ can shatter $d_{VC}$是有限值，让 g 近似 $f$ 成为可能。VC维仅由假设集决定。 为了降低到某一概率，$d_{VC}$越大，所需样本点数N越多。$N\\geq 10 d_{VC}$ $E_{out} \\leq E_{in}+\\Omega$ Generalization bound $\\Omega(N,\\mathcal H, \\delta))$: Bias and Variance Approximation-generalization tradeoff 近似与泛化的权衡\n小的Eout 意味着g在 out-of-sample 上也是f的一个好的近似（样本外误差也很小）。 越复杂的假设集 $\\mathcal H$（M越大），有更好的机会近似 $f$（更可能包含最佳假设g） 越简单的假设集 $\\mathcal H$，有更好的机会在out-of-sample上泛化。 最理想情况：假设集中只包含一个正在寻找的“未知的目标函数” $\\mathcal H=\\{f\\}$，g 也就是f。 Quantifying the tradeoff 之前的 VC analysis 是一种评估方法：$E_{out} \\leq E_{in}+\\Omega$ 与之相似，Bias-variance analysis 是另一种评估方法：把 Eout 分解成两项： 假设集$\\mathcal H$ 能有多近似 $f$ （Bias） 能在多大程度上确定$\\mathcal H$中的好的假设 （Variance） 这里分析的目标函数是实值的 real-valued, 并且使用平方误差 squared error Start with $E_{out}$ Eout 是假设集中的最佳假设 $g$ 与 未知目标函数 $f$ 在输入空间 $\\mathcal X$ 的各个点上的差距的期望；g 是样本集 $\\mathcal D$ 的函数，样本集不同，选出来的最佳假设 g 也不同：\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#bias-and-variance">Bias and Variance</a>
+      <ol>
+        <li><a href="#approximation-generalization-tradeoff">Approximation-generalization tradeoff</a></li>
+        <li><a href="#quantifying-the-tradeoff">Quantifying the tradeoff</a></li>
+        <li><a href="#start-with">Start with </a></li>
+        <li><a href="#the-trade-off-between-bias-and-var">The trade off between bias and var</a></li>
+        <li><a href="#example-sine-target">Example: sine target</a></li>
+      </ol>
+    </li>
+    <li><a href="#learning-curves">Learning Curves</a>
+      <ol>
+        <li><a href="#vc-vs-bias-variance">VC vs Bias-variance</a></li>
+        <li><a href="#linear-regression-case">Linear Regression case</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/aml/lec8_bias_variance/">watch: AML 08 | Bias-Variance Tradeoff</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 13, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#bias-and-variance">Bias and Variance</a>
+      <ol>
+        <li><a href="#approximation-generalization-tradeoff">Approximation-generalization tradeoff</a></li>
+        <li><a href="#quantifying-the-tradeoff">Quantifying the tradeoff</a></li>
+        <li><a href="#start-with">Start with </a></li>
+        <li><a href="#the-trade-off-between-bias-and-var">The trade off between bias and var</a></li>
+        <li><a href="#example-sine-target">Example: sine target</a></li>
+      </ol>
+    </li>
+    <li><a href="#learning-curves">Learning Curves</a>
+      <ol>
+        <li><a href="#vc-vs-bias-variance">VC vs Bias-variance</a></li>
+        <li><a href="#linear-regression-case">Linear Regression case</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>Video 12 Bias-Variance Tradeoff 11-01-2021</p>
+<p>Outline:</p>
+<ol>
+<li>Bias and Variance</li>
+<li>Learning Curves</li>
+</ol>
+<p><strong>Review of Lec 7</strong></p>
+<ul>
+<li>$d_{VC}(\mathcal H)$: the most number of points $\mathcal H$ can shatter</li>
+<li>$d_{VC}$是有限值，让 g 近似 $f$ 成为可能。VC维仅由假设集决定。</li>
+<li>为了降低到某一概率，$d_{VC}$越大，所需样本点数N越多。$N\geq 10 d_{VC}$</li>
+<li>$E_{out} \leq E_{in}+\Omega$</li>
+<li>Generalization bound $\Omega(N,\mathcal H, \delta))$:</li>
+</ul>
+<h2 id="bias-and-variance">Bias and Variance
+</h2><h3 id="approximation-generalization-tradeoff">Approximation-generalization tradeoff
+</h3><p>近似与泛化的权衡</p>
+<ol>
+<li>小的Eout 意味着g在 out-of-sample 上也是f的一个好的近似（样本外误差也很小）。</li>
+<li>越复杂的假设集 $\mathcal H$（M越大），有更好的机会近似 $f$（更可能包含最佳假设g）</li>
+<li>越简单的假设集 $\mathcal H$，有更好的机会在out-of-sample上泛化。</li>
+<li>最理想情况：假设集中只包含一个正在寻找的“未知的目标函数” $\mathcal H=\{f\}$，g 也就是f。</li>
+</ol>
+<h3 id="quantifying-the-tradeoff">Quantifying the tradeoff
+</h3><ol>
+<li>之前的 VC analysis 是一种评估方法：$E_{out} \leq E_{in}+\Omega$</li>
+<li>与之相似，Bias-variance analysis 是另一种评估方法：把 Eout 分解成两项：
+<ol>
+<li>假设集$\mathcal H$ 能有多近似 $f$ （Bias）</li>
+<li>能在多大程度上确定$\mathcal H$中的好的假设 （Variance）</li>
+</ol>
+</li>
+<li>这里分析的目标函数是实值的 real-valued, 并且使用平方误差 squared error</li>
+</ol>
+<h3 id="start-with">Start with $E_{out}$
+</h3><p>Eout 是假设集中的最佳假设 $g$ 与 未知目标函数 $f$ 在输入空间 $\mathcal X$ 的各个点上的差距的期望；g 是样本集 $\mathcal D$ 的函数，样本集不同，选出来的最佳假设 g 也不同：</p>
+$$
+E_{out}(g^{(D)}) = \mathbb E_{\mathbf x}
+\left[ \left(
+g^{(\mathcal D)}(\mathbf x) - f(\mathbf x)
+\right)^2 \right]
+$$<p>因为每次从输入空间抽出的样本集 $\mathcal D$ 不一样，g就不一样，Eout 也就不一样，所以把各个Eout求个期望，作为最终的Eout：</p>
+<p>$$
+\begin{aligned}
+\mathbb E_{\mathcal D} \left[ E_{out} \left( g^{(\mathcal D)} \right) \right]
+= \mathbb E_{\mathcal D} \left[ \mathbb E_{\mathbf x} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right] \right] \</p>
+<p>= \mathbb E_{\mathbf x} \left[ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right] \right] &amp; \text{(交换位置)} \
+\end{aligned}
+$$</p>
+<p>只关注其中 &ldquo;1个点上的平均误差期望&rdquo;：$\mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right]$</p>
+<p>定义平均假设 (average hypothesis)：$\bar{g}(\mathbf x) = \mathbb E_{\mathcal D} \left[ g^{(\mathcal D)}(\mathbf x) \right]$ (the best thing you can do)，从各不同训练集上得出的最佳假设的平均值。</p>
+<p>比如有 K 个训练集：$\mathcal D_1, \mathcal D_2, \cdots, \mathcal D_K$，那么平均假设就是：$\bar{g}(\mathbf x) \approx \frac{1}{K} \sum_{k=1}^K g^{\mathcal D_k}(\mathbf x)$</p>
+<p>把平均假设代入&quot;1个点上的平均误差期望&quot;：</p>
+<p>$$
+\begin{aligned}
+&amp; \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right] \
+&amp; = \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) -\bar{g}(\mathbf x) + \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 \right] \quad \text{(减一个加一个)} \</p>
+<p>&amp; = \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2
++ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2
++ 2 \left( g^{(D)}(\mathbf x)-\bar{g}(\mathbf x) \right) \left( \bar{g}(\mathbf x) -f(\mathbf x) \right) \right] \quad \text{(代入括号)} \</p>
+<p>&amp; = \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right]
++ \underbrace{\mathbb E_{\mathcal D} \left[ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 \right]}<em>{与D无关,期望还是自己}
++ 2 \left( \underbrace{ \mathbb E</em>{\mathcal D} \left[ g^{(D)}(\mathbf x) \right] -\bar{g}(\mathbf x) }_{相等, =0} \right)  \left( \bar{g}(\mathbf x) - f(\mathbf x) \right) \</p>
+<p>&amp; = \underbrace{ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right] }<em>{\rm var(\mathbf x)}
++ \underbrace{ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 }</em>{\rm bias(\mathbf x)}
+\end{aligned}
+$$</p>
+<p>$\bar{g}(\mathbf x)$ 是&quot;最佳假设&quot;，它与目标未知函数的差是常数 bias (与D无关)，而 $g^{\mathcal D}(\mathbf x)$ 随训练集不同，会上下波动，与&quot;平均值&quot;的差的平方，再取平均就是方差。
+各个最佳假设与目标未知函数的平方误差的期望，被拆成了两部分：各最佳假设与平均假设的方差，加上平均假设与目标未知函数的平方误差。</p>
+<p>所以 Eout 等于：</p>
+$$
+\begin{aligned}
+& \mathbb E_{\mathcal D} \left[ E_{out} (g^{(\mathcal D)}) \right] \\
+& = \mathbb E_{\mathbf x} \left[ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right] \right] \\
+& = \mathbb E_{\mathbf x} \left[ \rm bias(\mathbf x) + var(\mathbf x) \right] \\
+& = \rm bias + var
+\end{aligned}
+$$<h3 id="the-trade-off-between-bias-and-var">The trade off between bias and var
+</h3><p>bias = $\mathbb E_{\mathbf x} \left[ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 \right]$</p>
+<p>variance = $\mathbb E_{\mathbf x} \left[ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right] \right]$</p>
+<div align="center"><img src="./img/Lec8_s09.png" style="zoom:70%"></div>
+<p>如果假设集中只有一个假设 h，它与 $f$ 的距离就是 bias（方差为0）。如果是一个复杂的假设集，其中包含很多假设，更有可能囊括了 f，在它附近的都是“最佳假设”（红色），因为平均假设$\bar g(\mathbf x)$就在 f 附近所以bias较小，而方差比较大（很多小值加起来也会大）。</p>
+<h3 id="example-sine-target">Example: sine target
+</h3><p>近似正弦曲线，未知目标函数 $f(x) = sin(\pi x)$，把 f 从输入空间从 [-1,1] 扩展到实数域 $f:[-1,1] \rightarrow \mathbb R$。只有两个样本点 N=2。</p>
+<p>有两个假设集，自由度不同：</p>
+$$
+\begin{aligned}
+& \mathcal H_0 : h(x) = b &{\text{各假设只有一个参数b (常数)}} \\
+& \mathcal H_1 : h(x) = ax+b &{\text{各假设有两个参数a,b (直线)}}
+\end{aligned}
+$$<p><strong>Approximation:</strong> 上帝视角可以看出两个假设集中的最佳假设(bias最小)分别应该为：</p>
+<div align="center"><img src="./img/Lec8_s11.png" style="zoom:50%"></div>
+<p>黄色区域是 bias (或者说就是 Eout, 因为单个假设的方差为0)。所以在近似[-1,1]区间上的正弦函数时，$\mathcal H_1$ 比 $\mathcal H_0$ 的 bias 更小。</p>
+<p><strong>Learning:</strong> 两个样本点的位置是随机的</p>
+<p>如果一开始两个样本点位置如图：</p>
+<div align="center"><img src="./img/Lec8_s12.png" style="zoom:50%"></div>
+<p>为了使 bias 最小，$\mathcal H_0$中的“最佳假设”应该在两样本点中间，$\mathcal H_1$ 中的“最佳假设”应该穿过两个样本点。</p>
+<p>两个样本点（训练集）每次从输入空间中取的都不一样，对应的“最佳假设”也有很多种可能：</p>
+<p>对于假设集 $\mathcal H_0$，最佳假设的分布如图：</p>
+<div align="center"><img src="./img/Lec8_s13.png" style="zoom:50%"></div>
+<p>对各个“最佳假设”取平均，平均假设位于”平衡位置“，灰色区域是 variation.</p>
+<p>对于假设集 $\mathcal H_1$，最佳假设（过两样本点的直线）的分布如图：</p>
+<div align="center"><img src="./img/Lec8_s14.png" style="zoom:50%"></div>
+<p>平均假设是红色直线，灰色区域是variation。</p>
+<p>对比两个假设集：</p>
+<div align="center"><img src="./img/Lec8_s15.png" style="zoom:50%"></div>
+<p>只有一个参数的，最简单的（常数）假设集 $\mathcal H_0$ 的(平均假设) bias大，方差小。而比较复杂的（直线）假设集 $\mathcal H_1$ 的 bias 小，方差大。</p>
+<p>最终，$\mathcal H_0$ 的 Eout= 0.50+0.25 = 0.75，$\mathcal H_1$ 的 Eout=0.21+1.69 = 1.9。根据 Eout，简单的假设集 $\mathcal H_0$ 好于复杂的假设集 $\mathcal H_1$。因为我们是从 Ein &ldquo;泛化&rdquo; 到 out，如果Eout 太大，Generalization bound 太大，Ein 与 Eout 相差太大，二者不follow，就不能通过Ein 学习到 Eout.</p>
+<p>复杂的（自由度多的）假设集有很好近似能力，但是学习能力很差，因为方差太大，不一定能学到最佳假设。</p>
+<p><strong>Lesson learned:</strong> 模型的复杂度应该匹配 数据（样本决定了最终找出的假设），而不应该匹配目标函数的复杂度。比如只有15个样本，假设已知目标函数是10阶的。你可以选1阶，2阶的模型，它们对应的参数有2个，3个，按照经验法则 $N>10 d_{VC}$，它们至少需要20个，30个样本。但现在只有15个，如果你觉得1阶（直线）不太可能的话，可以用2阶（二次函数）。如果用10阶模型，就出现过拟合了。</p>
+<h2 id="learning-curves">Learning Curves
+</h2><p>Ein 与 Eout 的曲线。</p>
+<p>对于任意有N个(训练)样本数据集 $\mathcal D$。</p>
+<p>Expected Eout = $\mathbb E_{\mathcal D} \left[ E_{out} \left( g^{(\mathcal D)} \right) \right]$ (不同测试集上的最佳假设 g 的平均)</p>
+<p>Expected Ein = $\mathbb E_{\mathcal D} \left[ E_{in} \left( g^{(\mathcal D)} \right) \right]$ (不同(训练)数据集上的最佳假设 g 的平均)</p>
+<p>它们随 N 如何变化？(How do they vary with N?)</p>
+<div align="center"><img src="./img/Lec8_s19.png" style="zoom:50%"></div>
+<p>对于Simple Model（的假设集），随着样本数不断增加，Eout越来越小，越来越近似 f，而 Ein越来越大，因为每个样本都有误差，样本越多加起来越大。N越大，Ein与Eout越接近，Generalized bound越小，收敛于 “平均假设” (黑色水平线)。</p>
+<p>对于Complex Model，“平均假设”更靠近 f，bias较小，所以黑色水平线它更低，同样随着N增大，Eout与Ein 不断趋近于 “平均假设”。但是当N很小的时候，Eout很大（方差很大）。Eout 与Ein 差距很大，复杂模型相较于简单模型的 Generalization bound 更大。复杂模型的 Ein 在样本很少的时候是零，因为在样本数小于VC维或者假设集的effective参数自由度时，模型可以把所有点全部分开 (shatter all the points)。在超过VC维之后，Ein开始增加。</p>
+<h3 id="vc-vs-bias-variance">VC vs Bias-variance
+</h3><div align="center"><img src="./img/Lec8_s20.png" style="zoom:50%"></div>
+<p>在 VC 分析中，$E_{out} = E_{in} + \text{Generalization error}$</p>
+<p>在 Bias-variance 中，不再关注$E_{in}$，因为
+$E_{out}=\text{var + bias} = \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right] +\mathbb E_{\mathcal D} \left[ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 \right]$，Eout 等于“粗黑线”(average hypothesis, bias)加上variance。bias取决与假设集而与N无关，所以bias是直线。</p>
+<p>随着N增大，它们都趋近于平均假设。所以都需要tradeoff：简单的模型近似能力差，但它 Generalization error小；复杂的模型近似能力强，但它需要更多的样本，才能减小 Generalization bound。对于复杂的模型，样本数越少，Eout越大。样本少的时候，简单模型的Eout 可能比复杂模型的 Eout 还要小。所以样本少选简单模型，样本多选复杂模型。</p>
+<h3 id="linear-regression-case">Linear Regression case
+</h3><p>Noisy target $y = \mathbf w^{*T} \mathbf x$ + noise （用线性模型, 从有噪声的样本中，学习一个线性目标函数）</p>
+<p>Data set $\mathcal D = \{ (\mathbf x_1, y_1), \cdots, (\mathbf x_N, y_N) \}$</p>
+<p>Linear regression solution: $\mathbf w = (\mathbf X^T \mathbf X)^{-1} \mathbf X^T \mathbf y$</p>
+<p>In-sample error vector = $\bf X w - y$</p>
+<p>&ldquo;Out-of-sample&rdquo; error vector = $\bf X w - y'$ （使用相同的x, noise不同，得到测试集）</p>
+<p>有了上面非常特殊的情况，才能得到下面的公式：</p>
+<div align="center"><img src="./img/Lec8_s22.png" style="zoom:70%"></div>
+<p>$\sigma^2$ 是 energy of the noise。一个 zero-mean noise的energy 与variance 成正比，</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

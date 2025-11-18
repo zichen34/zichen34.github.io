@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Computing and Rendering Point Set Surfaces (TVCG'03)">
+<title>Read: Points - Surface | Voronoi &#43; MLS</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/points/b-note-voronoimls/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Read: Points - Surface | Voronoi + MLS">
+<meta property='og:description' content="Computing and Rendering Point Set Surfaces (TVCG'03)">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/points/b-note-voronoimls/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Points' /><meta property='article:published_time' content='2024-06-02T10:47:00&#43;00:00'/><meta property='article:modified_time' content='2024-06-02T10:47:00&#43;00:00'/><meta property='og:image' content='https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/3-Figure3-1.png' />
+<meta name="twitter:title" content="Read: Points - Surface | Voronoi + MLS">
+<meta name="twitter:description" content="Computing and Rendering Point Set Surfaces (TVCG'03)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/3-Figure3-1.png' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#notes">Notes</a>
+      <ol>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#method">Method</a>
+          <ol>
+            <li><a href="#projection">Projection</a></li>
+            <li><a href="#properties">Properties</a></li>
+            <li><a href="#compute-projection">Compute Projection</a></li>
+            <li><a href="#tradeoff">Tradeoff</a></li>
+            <li><a href="#results">Results</a></li>
+          </ol>
+        </li>
+        <li><a href="#resampling">Resampling</a></li>
+        <li><a href="#active-recall">Active Recall</a>
+          <ol>
+            <li><a href="#llm-chat">LLM Chat</a></li>
+            <li><a href="#optimization-in-common">Optimization in Common</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#play">Play</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/model/points/b-note-voronoimls/">
+                
+                    <img src="https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/3-Figure3-1.png" loading="lazy" alt="Featured image of post Read: Points - Surface | Voronoi &#43; MLS" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                Read
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/points/b-note-voronoimls/">Read: Points - Surface | Voronoi &#43; MLS</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Computing and Rendering Point Set Surfaces (TVCG&#39;03)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 02, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#notes">Notes</a>
+      <ol>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#method">Method</a>
+          <ol>
+            <li><a href="#projection">Projection</a></li>
+            <li><a href="#properties">Properties</a></li>
+            <li><a href="#compute-projection">Compute Projection</a></li>
+            <li><a href="#tradeoff">Tradeoff</a></li>
+            <li><a href="#results">Results</a></li>
+          </ol>
+        </li>
+        <li><a href="#resampling">Resampling</a></li>
+        <li><a href="#active-recall">Active Recall</a>
+          <ol>
+            <li><a href="#llm-chat">LLM Chat</a></li>
+            <li><a href="#optimization-in-common">Optimization in Common</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#play">Play</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://sci.utah.edu/~csilva/papers/tvcg2003acr.pdf"  target="_blank" rel="noopener"
+    >PDF</a>
+| <a class="link" href="https://www.semanticscholar.org/paper/Computing-and-Rendering-Point-Set-Surfaces-Alexa-Behr/b7e0ebc678153eb2c341702247d2fafb872f0465#paper-topics"  target="_blank" rel="noopener"
+    >SemScho</a></p>
+<h2 id="notes">Notes
+</h2><p>(2024-06-02)</p>
+<p><strong>Abstract</strong></p>
+<ul>
+<li>
+<p><strong>Task</strong>: Display point set surface.</p>
+</li>
+<li>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>
+<p>Define a smooth manifold surface based on local maps and MLS.</p>
+<ul>
+<li></li>
+<li>local map from differential geometry:</li>
+<li>&ldquo;local&rdquo;: neighbors</li>
+</ul>
+</li>
+<li>
+<p>Upsampling and downsampling to fit the points spacing with the screen space resolution.</p>
+</li>
+<li>
+<p>The approximation error is bounded.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Advantage</strong>: Applicable for any point set</p>
+</li>
+</ul>
+<hr>
+<h3 id="introduction">Introduction
+</h3><ul>
+<li>
+<p><strong>Task</strong>: Use point set as the shape representation</p>
+</li>
+<li>
+<p><strong>Why matter?</strong></p>
+<ol>
+<li>
+<p>Point sets data are getting popular.</p>
+</li>
+<li>
+<p>Representing a highly detailed surface with primitives requires <strong>substantial</strong> small unit that&rsquo;s smaller than a single pixel.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Problems</strong>:</p>
+<ol>
+<li>
+<p>Although point set is an economical representation, point sets contain <strong>noisy and redundant</strong> points.</p>
+</li>
+<li>
+<p>Point cloud is discrete without explicit surface.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>
+<p>Adjust the density of points to reconstruct a smooth surface.</p>
+</li>
+<li>
+<p>Use polynomials to approximate surface with MLS</p>
+<ul>
+<li>Polynomials: What are <strong>basis functions</strong> are used to fit the surface function?
+<ul>
+<li>What does the surface function look like?</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<p>Projection (affine transformation): weighted sum / linear combination of x,y coordinate</p>
+$$
+       \begin{bmatrix} a_1 \\\ a_2 \\\ a_3 \end{bmatrix}
+       [1 \quad x \quad x^2] [^x_y]
+       $$</li>
+<li>
+<p>MLS: The partial <strong>derivative</strong> of error w.r.t. coefficient matrix 𝐀 equals 0.</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Explain idea</strong>:</p>
+<ul>
+<li>
+<p>Generating new points is a <strong>sampling</strong> process on the hidden surface.</p>
+<ul>
+<li><strong>Doubt</strong>: Can generative models be applied? as this is a sampling process.</li>
+<li>The error has a limited <strong>bound</strong>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Rendering</strong> a point set is achieved by up-sampling and down-sampling the point set.</p>
+<ul>
+<li>The sampling error is bounded. How to prove?</li>
+</ul>
+</li>
+<li>
+<p><strong>Reduce</strong> the input point set $P=\\{𝐩ᵢ\\}$ to &ldquo;representation points&rdquo; $R=\\{𝐫ᵢ\\}$ defining an MLS surface $S_R$,
+which approximates the original surface $S_P$.</p>
+<ul>
+<li>
+<p>Sounds like Variational Inference:
+Let an assumed posterior distribution of z $q(z|x)$ with <strong>learnable</strong> params (μ,σ) to
+approximate the true intractable posterior distribution of z $P(z|x)$,
+through minimizing the KL-divergence.</p>
+<p>On the other hand, if analyzing ELBO, the goal of maximizing the log-likelihood of x is transformed into maximizing the variational lower bound: ELBO.</p>
+</li>
+<li>
+<p>Figuratively, use a <strong>proxy</strong> object to approximate the true object.</p>
+</li>
+</ul>
+<figure><img src="https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/2-Figure2-1.png" width="72%">
+    </figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong>Related Work</strong></p>
+<p>(2024-06-07)</p>
+<ol>
+<li>
+<p>Consolidation</p>
+<ul>
+<li>
+<p>A practical point cloud includes multiple scans to capture the complete geometry for a nontrivial object.</p>
+</li>
+<li>
+<p>Triangulation techniques.</p>
+<ul>
+<li>Shortcomings</li>
+</ul>
+</li>
+<li>
+<p>Weighted averaging of multiple scans based on implicit function</p>
+</li>
+<li>
+<p>Weighted averaging points directly</p>
+<ul>
+<li>
+<p>Trianglulation</p>
+<ul>
+<li><strong>Doubt</strong>: Perhaps I should compare my Exp: PC01 with this kind of methods.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Surface fitting using polynomial</p>
+</li>
+<li>
+<p>Resampling</p>
+<ul>
+<li>
+<p>Using physically-based particle systems to sample an implicit surface</p>
+</li>
+<li>
+<p>Repulsive forces</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<p>MLS + Projection + Iterations</p>
+</li>
+<li>
+<p>Extending k neighbors to a &ldquo;fan&rdquo;</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Point Sample Rendering</p>
+<ul>
+<li>
+<p>Converting geometric models into point-sampled data sets.</p>
+</li>
+<li>
+<p>Using a hierarchy of spheres of different radii to model a high-resolution model</p>
+<ul>
+<li>time-critical rendering</li>
+</ul>
+</li>
+<li>
+<p>Principal curvatures</p>
+</li>
+<li>
+<p>Global illumination effects -&gt; ray tracing technique</p>
+</li>
+<li>
+<p>Resampling the surface in object space during rendering to adapt the display resolution.</p>
+</li>
+<li>
+<p>Hybrid triangle-point approaches</p>
+<ul>
+<li>QSplat</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="method">Method
+</h3><p>A surface is defined by a projection procedure: through which the surface is obtained by projecting the input points.</p>
+<ul>
+<li>
+<p><strong>Basic assumption</strong>: The input point set represent a surface implicitly.</p>
+</li>
+<li>
+<p><strong>Main idea</strong>:</p>
+<ul>
+<li>
+<p>$r$ is a raw point deviating from the actural surface due to noise</p>
+</li>
+<li>
+<p>$p_i$ is a sampled point on the ground-truth surface.</p>
+</li>
+<li>
+<p>$S_p$ is the approximated surface estimated from $p_i$</p>
+</li>
+<li>
+<p>Find a local plane for $r$, which serves as a x-y plane for a 3D coordinate system.
+The local plane is a linear regression for r&rsquo;s neighboring points.</p>
+<p>Then, find surface with referencing the local plane.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="projection">Projection
+</h4><p>Two steps of the Projection Procedure:</p>
+<ol>
+<li>
+<p>Step Ⅰ: For an raw input point 𝐫, compute a local <strong>plane</strong> H:</p>
+$$
+   H =\\{𝐱 | ⟨𝐧,𝐱⟩-D = 0, 𝐱∈ ℝ³\\}, 𝐧∈ ℝ³,‖𝐧‖=1
+   $$<p>The plane H is determined by <strong>minimizing</strong> a Weighted Sum of Squared Distances from each neighboring point 𝐩ᵢ of the point 𝐫 to the approximate <strong>plane</strong> H,
+and solved by weighted least squares.</p>
+<p>The weight is a function θ of the distance between the <strong>projection</strong> 𝐪 of 𝐫 on the plane to each of its neighboring point 𝐩ᵢ.</p>
+$$
+   ∑ᵢ₌₁ᴺ \underset{Error}{(⟨𝐧,𝐩ᵢ⟩-D)²} ⋅ \underset{Weights}{θ(‖𝐩ᵢ-𝐪‖)}
+   $$
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 224 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 16,80 L 48,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,80 L 152,80' fill='none' stroke='currentColor'></path>
+<path d='M 48,16 L 48,48' fill='none' stroke='currentColor'></path>
+<path d='M 48,48 L 48,80' fill='none' stroke='currentColor'></path>
+<polygon points='56.000000,16.000000 44.000000,10.400000 44.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 48.000000, 16.000000)'></polygon>
+<path d='M 96,88 L 96,96' fill='none' stroke='currentColor'></path>
+<polygon points='112.000000,96.000000 100.000000,90.400002 100.000000,101.599998' fill='currentColor' transform='rotate(270.000000, 96.000000, 96.000000)'></polygon>
+<polygon points='104.000000,128.000000 92.000000,122.400002 92.000000,133.600006' fill='currentColor' transform='rotate(90.000000, 96.000000, 128.000000)'></polygon>
+<circle cx='48' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='48' cy='80' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='128' cy='0' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>H</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>𝐫</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='64' y='68' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='88' y='52' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='96' y='36' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='96' y='148' fill='currentColor' style='font-size:1em'>∙</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='120' y='116' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='120' y='132' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='120' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='128' y='132' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='136' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='136' y='116' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='136' y='132' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='136' y='148' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='144' y='52' fill='currentColor' style='font-size:1em'>⟨</text>
+<text text-anchor='middle' x='144' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='144' y='132' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='144' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='152' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='152' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='160' y='52' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='160' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='168' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='184' y='52' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='192' y='52' fill='currentColor' style='font-size:1em'>⟩</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>D</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>
+<p>Using distances between $pᵢ$ and $q$ aims to optimize the position of the <strong>plane H</strong> based on the grount-truth point set $pᵢ$.</p>
+</li>
+<li>
+<p>θ is a smooth, monotone decreasing function, positive on the whole space</p>
+</li>
+<li>
+<p>$N$ is the number of neighbors of 𝐫.</p>
+</li>
+<li>
+<p>A plane in 3D is defined with its normal vector 𝐧 and a point 𝐱 <strong>within</strong> the plane,
+that deviates from the origin by a distance D along the direction of normal:
+$⟨𝐧,𝐱⟩=D$</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 408 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 24,64 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 104,80' fill='none' stroke='currentColor'></path>
+<path d='M 64,16 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 64,96' fill='none' stroke='currentColor'></path>
+<polygon points='32.000000,64.000000 20.000000,58.400002 20.000000,69.599998' fill='currentColor' transform='rotate(180.000000, 24.000000, 64.000000)'></polygon>
+<polygon points='80.000000,80.000000 68.000000,74.400002 68.000000,85.599998' fill='currentColor' transform='rotate(180.000000, 72.000000, 80.000000)'></polygon>
+<polygon points='112.000000,80.000000 100.000000,74.400002 100.000000,85.599998' fill='currentColor' transform='rotate(0.000000, 104.000000, 80.000000)'></polygon>
+<circle cx='64' cy='32' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>𝐱</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='120' y='84' fill='currentColor' style='font-size:1em'>∙</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='144' y='84' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='168' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='176' y='84' fill='currentColor' style='font-size:1em'>n</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>The distance from 𝐩ᵢ to the plane is the inner product of 𝐧 and 𝐩ᵢ: $⟨𝐧, 𝐩ᵢ⟩$.</p>
+</li>
+</ul>
+<hr>
+<p>Further, represent the <strong>projection</strong> 𝐪 with a parameter t:</p>
+$$𝐪 = 𝐫 + t𝐧$$<p>The loss function: encouraging neighboring points 𝐩ᵢ close to the H, becomes:</p>
+$$
+   \begin{aligned}
+   &  ∑ᵢ₌₁ᴺ (⟨𝐧, 𝐩ᵢ⟩-D)² ⋅ θ(‖𝐩ᵢ- 𝐫 - t𝐧‖) \\\
+   &= ∑ᵢ₌₁ᴺ (⟨𝐧, 𝐩ᵢ⟩-⟨𝐧,𝐪⟩)² ⋅ θ(‖𝐩ᵢ- 𝐫 - t𝐧‖) \\\
+   &= ∑ᵢ₌₁ᴺ (⟨𝐧, 𝐩ᵢ-𝐪⟩)² ⋅ θ(‖𝐩ᵢ- 𝐫 - t𝐧‖) \\\
+   &= ∑ᵢ₌₁ᴺ ⟨𝐧, 𝐩ᵢ - 𝐫 - t𝐧⟩^2 ⋅ θ(\\| 𝐩ᵢ - 𝐫 - t𝐧 \\|)
+   \end{aligned}
+   $$
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 280 153"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 40,80 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,80 L 208,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 L 80,80' fill='none' stroke='currentColor'></path>
+<polygon points='88.000000,16.000000 76.000000,10.400000 76.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 80.000000, 16.000000)'></polygon>
+<circle cx='80' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='80' cy='80' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='160' cy='0' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>H</text>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='64' y='68' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>𝐫</text>
+<text text-anchor='middle' x='80' y='100' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='96' y='132' fill='currentColor' style='font-size:1em'>∙</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='160' y='52' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='160' y='68' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>⟨</text>
+<text text-anchor='middle' x='184' y='52' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='192' y='52' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='232' y='52' fill='currentColor' style='font-size:1em'>𝐫</text>
+<text text-anchor='middle' x='240' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='248' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='256' y='52' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='264' y='52' fill='currentColor' style='font-size:1em'>⟩</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Denote the target plane H with the set of projections based on raw input points r:</p>
+$$Q(t) = 𝐪 = 𝐫 + t𝐧$$<ul>
+<li>
+<p>The <code>t</code> reminds me the sampling in NeRF: $𝐨 + t𝐝$.
+After rescaling the range of [near,far] to [-1,1], the <code>t</code> ranges from [0,1] to sample points starting from the near plane.</p>
+<p>The <code>t</code> is not the depth z, but the <strong>steps</strong> that are compatible for both LLFF scene (infinite boundary) and Blender scene (bounded).</p>
+</li>
+<li>
+<p>Similarly, Point-MVSNet used <strong>steps</strong> to refine the depth of the point along a ray.</p>
+</li>
+</ul>
+<p>The plane H will serve as a &ldquo;ground&rdquo; for measuring the <strong>height</strong> of each 𝐩ᵢ,
+using the coordinates (x,y) on the plane H for indexing.</p>
+</li>
+</ol>
+<hr>
+<ol start="2">
+<li>
+<p>Step Ⅱ: Approximate <strong>surface</strong> based on the local plane H:</p>
+<figure><img src="https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/3-Figure3-1.png" width="60%">
+   </figure>
+
+<p>The projection 𝓟 of 𝐫 onto the target surface $S_P$ is a <strong>sum</strong> of the projection of 𝐫 on the <strong>plane</strong> H
+and the &ldquo;residual&rdquo; approximed with a <strong>bivariate</strong> polynomial: g(x,y),</p>
+$$
+   \begin{aligned}
+   \cal{P}(𝐫) &= 𝐪 + g(0,0)𝐧 \\\ &= 𝐫 + (t+g(0,0))𝐧
+   \end{aligned}
+   $$<ul>
+<li>
+<p>Similarly, PointFlow in Point-MVSNet also predicts the <strong>depth residual</strong> to tweak a point.</p>
+</li>
+<li>
+<p>A surface equation is bivariate because it only has two dimensions: x and y.</p>
+</li>
+</ul>
+<p>The $g(x,y)$ gets optimized by minimizing the weighted sum of neigboring pionts 𝐩ᵢ height error:</p>
+$$∑ᵢ₌₁ᴺ (g(xᵢ,yᵢ) - fᵢ)² ⋅ θ(\\| 𝐩ᵢ - 𝐪 \\|)$$
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 272 201"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 152,16 L 176,16' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 192,16' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 120,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,144 L 96,144' fill='none' stroke='currentColor'></path>
+<path d='M 96,144 L 176,144' fill='none' stroke='currentColor'></path>
+<path d='M 176,144 L 200,144' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 96,144' fill='none' stroke='currentColor'></path>
+<path d='M 136,32 L 136,48' fill='none' stroke='currentColor'></path>
+<path d='M 152,16 A 16,16 0 0,0 136,32' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 A 16,16 0 0,0 72,80' fill='none' stroke='currentColor'></path>
+<path d='M 136,48 A 16,16 0 0,1 120,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 A 16,16 0 0,1 56,96' fill='none' stroke='currentColor'></path>
+<circle cx='96' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='96' cy='112' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='96' cy='144' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='176' cy='16' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='176' cy='144' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='0' y='132' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='0' y='148' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='0' y='164' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='8' y='132' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='8' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='8' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='132' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='16' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='164' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='132' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='24' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='32' y='132' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='164' fill='currentColor' style='font-size:1em'>𝐫</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='48' y='148' fill='currentColor' style='font-size:1em'>H</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>𝐫</text>
+<text text-anchor='middle' x='80' y='180' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='88' y='52' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='88' y='180' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='84' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='96' y='164' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='96' y='180' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='104' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='180' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='112' y='132' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='112' y='180' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='128' y='116' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='136' y='116' fill='currentColor' style='font-size:1em'>θ</text>
+<text text-anchor='middle' x='144' y='100' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='160' y='68' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='160' y='180' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='168' y='68' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='168' y='180' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='176' y='68' fill='currentColor' style='font-size:1em'>*</text>
+<text text-anchor='middle' x='176' y='84' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='176' y='100' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='176' y='116' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='176' y='132' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='176' y='164' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='176' y='180' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>↑</text>
+<text text-anchor='middle' x='184' y='52' fill='currentColor' style='font-size:1em'>↓</text>
+<text text-anchor='middle' x='184' y='116' fill='currentColor' style='font-size:1em'>𝐧</text>
+<text text-anchor='middle' x='184' y='164' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='184' y='180' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>E</text>
+<text text-anchor='middle' x='192' y='68' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='192' y='116' fill='currentColor' style='font-size:1em'>⋅</text>
+<text text-anchor='middle' x='192' y='180' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='200' y='180' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='208' y='116' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='208' y='180' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>)</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>
+<p>$fᵢ$ is the height of the point 𝐩ᵢ w.r.t. the plane H:</p>
+$$fᵢ= 𝐧⋅(𝐩ᵢ - 𝐪)$$</li>
+<li>
+<p>The projection 𝐪 of 𝐫 is the origin of the plane-H coordinate system.</p>
+<p>The projection of 𝐫 on the original surface can be represented as: $𝐪+g(0,0)⋅𝐧$</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="properties">Properties
+</h4><p>Properties of the Projection Procedure</p>
+<p>(2024-06-09)</p>
+<ol>
+<li>
+<p>The equation holds, when the plane H is the original surface $S_P$:</p>
+$$\cal{P}(\cal{P}(𝐫)) = \cal{P}(𝐫)$$
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 304 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 64,96 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 96,96 L 176,96' fill='none' stroke='currentColor'></path>
+<path d='M 176,96 L 200,96' fill='none' stroke='currentColor'></path>
+<path d='M 64,112 L 200,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,64 L 96,96' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 176,96' fill='none' stroke='currentColor'></path>
+<circle cx='96' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='96' cy='96' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='176' cy='16' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='176' cy='96' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='8' y='116' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='116' fill='currentColor' style='font-size:1em'>𝐫</text>
+<text text-anchor='middle' x='48' y='52' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>H</text>
+<text text-anchor='middle' x='56' y='52' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='64' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>𝐫</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='88' y='52' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='88' y='148' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='52' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='96' y='132' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='96' y='148' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='112' y='84' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='136' y='68' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='144' y='52' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>𝐩</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='160' y='148' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='168' y='148' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='176' y='132' fill='currentColor' style='font-size:1em'>𝐪</text>
+<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='184' y='132' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='184' y='148' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='192' y='148' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='200' y='148' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='208' y='148' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='216' y='132' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='224' y='132' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='232' y='132' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='240' y='132' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='256' y='132' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='264' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='280' y='132' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='288' y='132' fill='currentColor' style='font-size:1em'>p</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ol>
+<hr>
+<h4 id="compute-projection">Compute Projection
+</h4><p>Computing the Projection</p>
+<hr>
+<h4 id="tradeoff">Tradeoff
+</h4><p>Data Structures and Tradeoffs</p>
+<hr>
+<h4 id="results">Results
+</h4><hr>
+<h3 id="resampling">Resampling
+</h3><ul>
+<li>
+<p>Upsampling based on Voronoi diagram</p>
+<p><a class="link" href="https://i.ibb.co/2jd5S0V/Paper-computing-and-rendering-point-set-surface-7-Figure8-1.png"  target="_blank" rel="noopener"
+    >https://i.ibb.co/2jd5S0V/Paper-computing-and-rendering-point-set-surface-7-Figure8-1.png</a></p>
+</li>
+</ul>
+<hr>
+<h3 id="active-recall">Active Recall
+</h3><h4 id="llm-chat">LLM Chat
+</h4><p><strong>Problems</strong>:</p>
+<ol>
+<li>I want to find a teacher to correct my understanding</li>
+</ol>
+<hr>
+<p><strong>References</strong>:</p>
+<ol>
+<li><a id="Note-"></a>
+<a class="link" href="https://chatgpt.com/c/67f2cdff-c2f8-8006-a49f-1bee4923dd60"  target="_blank" rel="noopener"
+    >ChatGPT</a></li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p>(2025-04-06)</p>
+<ol>
+<li>
+<p>Chat with free ChatGPT</p>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>
+<p><a class="link" href="https://claude.ai/chat/a246aa7d-b061-4624-96a2-cd1935dd0e3e"  target="_blank" rel="noopener"
+    >Claude.ai</a>
+has length limit - Cannot upload paper (neither pdf/html/md).</p>
+</li>
+<li>
+<p><a class="link" href="https://yuanbao.tencent.com/chat/naQivTmsDa/b51baf9c-d8ef-4d95-be15-f23dc6fedcaa"  target="_blank" rel="noopener"
+    >Yuanbao.tencent.com</a>
+has a <strong>bad image understanding</strong> of my &ldquo;hand-draw&rdquo; (whiteboard) image</p>
+</li>
+<li>
+<p>DeepSeek.com does not support image</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="optimization-in-common">Optimization in Common
+</h4><p><strong>Problems</strong>:</p>
+<ol>
+<li>The common features among optimization-based methods</li>
+</ol>
+<hr>
+<p><strong>Issues</strong>:</p>
+<ol>
+<li><a class="link" href="#" >Points displacement</a></li>
+</ol>
+<hr>
+<p><strong>References</strong>:</p>
+<ol>
+<li></li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p><a id="Iss1"></a></p>
+<p>(2025-04-06)</p>
+<ol>
+<li>
+<p><strong>Points displacement is the model output</strong></p>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>Point-MVSNet: Network ➔ ray march</li>
+<li>3DGS: BP+GD ➔ dx,dy,dz</li>
+<li>MLS: Least Square ➔ Height residual</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="play">Play
+</h2><ul>
+<li>MLS in PCL</li>
+</ul>
+<hr>
+<h2 id="ref">Ref
+</h2><p>(2024-07-20)</p>
+<ul>
+<li>
+<p><a class="link" href="https://blog.csdn.net/keineahnung2345/article/details/109633481"  target="_blank" rel="noopener"
+    >PCL MLS論文Computing and Rendering Point Set Surfaces研讀筆記 - keineahnung2345 - CSDN</a></p>
+<p>(<small>Found: Search image for &ldquo;voxel grid dilation&rdquo; in <a class="link" href="https://duckduckgo.com/?q=voxel&#43;grid&#43;dilation&amp;pn=1&amp;iax=images&amp;ia=images"  target="_blank" rel="noopener"
+    >DDG</a>
+➡ Images from blog: <a class="link" href="https://blog.csdn.net/keineahnung2345/article/details/120299122"  target="_blank" rel="noopener"
+    >PCL - MLS代碼研讀（十五）- VOXEL_GRID_DILATION上採樣方法</a>
+➡ He has 50 posts for PCL: <a class="link" href="https://blog.csdn.net/keineahnung2345/category_10851348_2.html"  target="_blank" rel="noopener"
+    >keineahnung2345的博客</a>
+➡ Since he has a careful study on MLS, he must read the paper.</small>)</p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/points/">Points</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/vis/pkg-pointcloud/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*YWpRKfA-RRQgjhdG_3EP4g.png" loading="lazy" data-key="" data-hash="https://miro.medium.com/v2/resize:fit:786/format:webp/1*YWpRKfA-RRQgjhdG_3EP4g.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Memo: Lib - Points | Processing Point Cloud</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/vis/pkg-colmap/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://colmap.github.io/_images/sparse.png" loading="lazy" data-key="" data-hash="https://colmap.github.io/_images/sparse.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Memo: Lib - COLMAP | Install and Usages</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/depth/b-test-mvs_ply/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://github.com/kwea123/CasMVSNet_pl/raw/master/assets/demo.png" loading="lazy" data-key="" data-hash="https://github.com/kwea123/CasMVSNet_pl/raw/master/assets/demo.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Test: Points - MVSNets | Restore Point Cloud from Depth Map</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/depth/b-note-point-mvsnet/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://pic2.zhimg.com/v2-557251caddb35bac39401c9440615105_r.jpg" loading="lazy" data-key="" data-hash="https://pic2.zhimg.com/v2-557251caddb35bac39401c9440615105_r.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Depth - MVG | Point-MVSNet</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/splats/b-note-ewa_splatting/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://pic2.zhimg.com/80/v2-7cbe3b0c3b67ce80593fad0d73a814b5_720w.webp" loading="lazy" data-key="" data-hash="https://pic2.zhimg.com/80/v2-7cbe3b0c3b67ce80593fad0d73a814b5_720w.webp"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Render - Points | EWA Splatting</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

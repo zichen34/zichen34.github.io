@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Source videos: 【机器学习】白板推导系列(三十二) ～ 变分自编码器(VAE)】\n1. 模型表示 P1\nVariation 来自概率图模型； Auto Encoder 来自神经网络\nVAE 也是一种 LVM (Latent Variable Model)，最简单的隐变量模型是 GMM，它的概率图模型表示为：\nflowchart TB latent((z)) --> observed((x)) 小 x 是观测变量，小 z 是假想的服从某种分布的隐变量，先对 z 的分布 P(z) 中采样，再在 z 固定的情况下，从分布 P(x|z) 中采样 x。\nGMM K 个高斯分布的混合，样本数据 x 可能来自于这 K 个高斯分布的任一个，只是概率不同。 而 VAE 是无限个高斯分布的混合。\nGMM 假设隐变量 z 是服从一维的离散型概率分布：z～Categorical dist，分布列：\nz 1 2 &hellip; K p p₁ p₂ &hellip; pₖ z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1。x 在 z 选定的情况下，服从高斯分布：x|zₖ～N(x|μₖ,Σₖ)\n">
+<title>watch: ML - 白板 32 | VAE</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/32-vae/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: ML - 白板 32 | VAE">
+<meta property='og:description' content="Source videos: 【机器学习】白板推导系列(三十二) ～ 变分自编码器(VAE)】\n1. 模型表示 P1\nVariation 来自概率图模型； Auto Encoder 来自神经网络\nVAE 也是一种 LVM (Latent Variable Model)，最简单的隐变量模型是 GMM，它的概率图模型表示为：\nflowchart TB latent((z)) --> observed((x)) 小 x 是观测变量，小 z 是假想的服从某种分布的隐变量，先对 z 的分布 P(z) 中采样，再在 z 固定的情况下，从分布 P(x|z) 中采样 x。\nGMM K 个高斯分布的混合，样本数据 x 可能来自于这 K 个高斯分布的任一个，只是概率不同。 而 VAE 是无限个高斯分布的混合。\nGMM 假设隐变量 z 是服从一维的离散型概率分布：z～Categorical dist，分布列：\nz 1 2 &hellip; K p p₁ p₂ &hellip; pₖ z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1。x 在 z 选定的情况下，服从高斯分布：x|zₖ～N(x|μₖ,Σₖ)\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/32-vae/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-12-19T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-19T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: ML - 白板 32 | VAE">
+<meta name="twitter:description" content="Source videos: 【机器学习】白板推导系列(三十二) ～ 变分自编码器(VAE)】\n1. 模型表示 P1\nVariation 来自概率图模型； Auto Encoder 来自神经网络\nVAE 也是一种 LVM (Latent Variable Model)，最简单的隐变量模型是 GMM，它的概率图模型表示为：\nflowchart TB latent((z)) --> observed((x)) 小 x 是观测变量，小 z 是假想的服从某种分布的隐变量，先对 z 的分布 P(z) 中采样，再在 z 固定的情况下，从分布 P(x|z) 中采样 x。\nGMM K 个高斯分布的混合，样本数据 x 可能来自于这 K 个高斯分布的任一个，只是概率不同。 而 VAE 是无限个高斯分布的混合。\nGMM 假设隐变量 z 是服从一维的离散型概率分布：z～Categorical dist，分布列：\nz 1 2 &hellip; K p p₁ p₂ &hellip; pₖ z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1。x 在 z 选定的情况下，服从高斯分布：x|zₖ～N(x|μₖ,Σₖ)\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-模型表示">1. 模型表示</a>
+      <ol>
+        <li><a href="#gmm">GMM</a></li>
+      </ol>
+    </li>
+    <li><a href="#推断学习">推断&amp;学习</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/32-vae/">watch: ML - 白板 32 | VAE</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 19, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-模型表示">1. 模型表示</a>
+      <ol>
+        <li><a href="#gmm">GMM</a></li>
+      </ol>
+    </li>
+    <li><a href="#推断学习">推断&amp;学习</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>Source videos: <a class="link" href="https://www.bilibili.com/video/BV15E411w7Pz/"  target="_blank" rel="noopener"
+    >【机器学习】白板推导系列(三十二) ～ 变分自编码器(VAE)】</a></p>
+<h2 id="1-模型表示">1. 模型表示
+</h2><p><a class="link" href="https://www.bilibili.com/video/BV15E411w7Pz?p=1"  target="_blank" rel="noopener"
+    >P1</a></p>
+<p>Variation 来自概率图模型；
+Auto Encoder 来自神经网络</p>
+<p>VAE 也是一种 LVM (Latent Variable Model)，最简单的隐变量模型是 GMM，它的概率图模型表示为：</p>
+<div class="mermaid">flowchart TB
+latent((z)) --> observed((x))
+</div>
+
+<p>小 x 是观测变量，小 z 是假想的服从某种分布的隐变量，先对 z 的分布 P(z) 中采样，再在 z 固定的情况下，从分布 P(x|z) 中采样 x。</p>
+<h3 id="gmm">GMM
+</h3><p>K 个高斯分布的混合，样本数据 x 可能来自于这 K 个高斯分布的任一个，只是概率不同。
+而 VAE 是无限个高斯分布的混合。</p>
+<p>GMM 假设隐变量 z 是服从一维的离散型概率分布：z～Categorical dist，分布列：</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>z</th>
+          <th>1</th>
+          <th>2</th>
+          <th>&hellip;</th>
+          <th>K</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>p</td>
+          <td>p₁</td>
+          <td>p₂</td>
+          <td>&hellip;</td>
+          <td>pₖ</td>
+      </tr>
+  </tbody>
+</table></div>
+<p>z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1。x 在 z 选定的情况下，服从高斯分布：x|zₖ～N(x|μₖ,Σₖ)</p>
+<p>GMM 顶多可以被用来做聚类任务，但无法解决复杂的任务，比如目标检测，因为它的 z 太简单了，只有 1 维还是离散型的变量，只能对 1 个属性划分 K 类别，</p>
+<p>比如有一群人作为样本，想学习出一个z 用来表示一个样本。
+GMM 假设了 z 只是一个 1 维K类的变量，就只能把这群人分成 K 类
+（比如按“职业”属性分成：工人，农民，知识份子&hellip;），所以只能表达出一个人是来自于哪类。
+也就是说，GMM 对样本的表达非常肤浅，因为一个人有多个属性，必须用用多个维度表达：
+比如 “性别”z₁={男,女}，“肤色”z₂={黄,白,黑}，“年龄”z₃={ℤ}，“身高”z₄连续的，这么多维度 GMM 无法表达出来。</p>
+<p>隐变量 z 应该是高维的，连续的随机变量，假设 z 服从高斯分布: z～N(μ=0,Σ=I)，满足高维连续。P(z) 是先验，它并不重要，只是辅助建模，我们最终关心的是 inference 过程：给一个 x 返回它的 z，也就是后验 P(z|x)</p>
+<p>如果样本 x 本身是连续的，可以假设它的条件概率也服从高斯分布：x|z～N(μ(z),Σ(z))。若是离散的，则仍然用 categorical distribution。</p>
+<p>条件概率 x|z 的均值和方差都是 z 的函数，也就是先给定了 z，然后求出 μ(z) 和 Σ(z)，相当于得到了 x。所以实际上要学 μ,Σ 与 z 之间函数关系。
+可以用神经网络逼近出来这个函数，所以 μ,Σ 是神经网络（参数θ）的函数，用 μ_θ, Σ_θ 表示。</p>
+<p>而不直接通过算 Likelihood 求 x|z 的概率分布，是因为 z 的维度太高，不好把 z 积掉：P(x) = ∫_z P(x,z) dz =∫_z P(z) P(x|z) dz。
+因为假设了 z 的维度很高，高到积分算不出来，则 P(x) 是 intractable 的，
+又因为后验分布 P(z|x) = P(x|z)P(z) / P(x)，所以z的后验也算不出来。也就无法从 x 到 z 做inference。
+只能用重参数化技巧和神经网络逼近后验分布。</p>
+<h2 id="推断学习">推断&amp;学习
+</h2><p><a class="link" href="https://www.bilibili.com/video/BV15E411w7Pz/?p=2"  target="_blank" rel="noopener"
+    >P2</a></p>
+<div class="mermaid">flowchart TB
+latent((z)) -- "Pᶿ(x|z) \n Decode \n Generation" --> observed((x))
+observed((x)) -. "Pᶿ(z|x) or qᶲ(z|x)\n Encode \n Inference" .-> latent((z))
+</div>
+
+<p>z 是隐变量假定服从高斯分布 P(z)=N(0,I)，x 是观测变量假定服从高斯分布 P_θ (x|z)=N(μ_θ (z), Σ_θ (z))。
+假如参数 θ 已经训练好了，生成样本时，先从 z 的分布 P(z) 中采样一个 z⁽ⁱ⁾，然后就能从 P_θ( x|z⁽ⁱ⁾) 采样出一个 x⁽ⁱ⁾。</p>
+<p>因为后验分布 P(z|x) 无法通过贝叶斯公式算出，所以用 q_ϕ(z|x) 不断逼近后验分布P_θ(z|x)。</p>
+<p>用 EM 求解 GMM 时，是最大化似然，似然可以分成下界 ELBO 和 KL( q_ϕ(z|x) || P_θ(z|x))。</p>
+<ul>
+<li>最原始的 EM 的 E-step 要写出n个样本似然p(x)的（最大的）期望：当 q(z|x)=P(z|x) 时, KL=0, 似然的期望就是 ELBO。<br></li>
+<li>M-step 就是解最大化问题：θ = arg max_θ ELBO = arg max_θ E_P(z|x,θ⁽ᵗ⁺¹⁾) [ log P(x,z|θ⁽ᵗ⁾) ].</li>
+<li>E-M 即“最大的期望 与 期望的最大”</li>
+</ul>
+<p>VAE 不能用基础的 EM 解决，因为需要 q(z|x) 能取到 P(z|x)，但是这里的后验 P(z|x) 是 intractable 的，所以只能让 KL 散度足够小，找出最好的 q，也就是找出它最好的参数ϕ，让 q_ϕ(z|x) 足够接近 P_θ(z|x)。</p>
+<p>在EM中，通过引入隐变量 z 和 Z 的分布 q(Z)，对数似然 logP(X) 被拆分成 ELBO + KL散度(q(Z)||P(Z|X))。
+对应到这里的情况，KL 散度中的 q(Z) 应该是后验 qᵩ(z|x)，也就是对似然 P(x|z) 引入的是 qᵩ(z|x)，同样 ELBO 中也是按 q(z|x) 求期望。
+ELBO 把里面的 log 展开，即可写成联合概率P(z,x) + 熵H[q(z|x)]；再把联合概率拆开，其中 z 的先验 P(z) 可与后验的熵 H[q(z|x)] 结合成一个KL散度：z的后验与z的先验要靠近。</p>
+<p>$<\\^θ,\\^ϕ>$ = arg min KL( q_ϕ(z|x) || P_θ(z|x) ) <br>
+= arg max ELBO ，等价于最大化似然P(x|z)的下界 <br>
+= arg max E_qᵩ(z|x) [ log (P_θ (z,x)/qᵩ(z|x)) ] ，以 z 的后验加权 <br>
+= arg max E_qᵩ(z|x) [ log P_θ (z,x) - log qᵩ(z|x)) ] <br>
+= arg max E_qᵩ(z|x) [ log P_θ(z,x) ] - E_qᵩ(z|x) [ log q(z|x) ] ，第2项是 q(z|x) 的熵 <br>
+= arg max E_qᵩ(z|x) [ log P_θ(z,x) ] + H[qᵩ(z|x)] ，log里面的联合概率拆开 <br>
+= arg max E_qᵩ(z|x) [ log P_θ(x|z) ] + E_qᵩ(z|x) [ log P(z) ] + H[qᵩ] ，P(z) 是先验分布不带参数<br>
+= arg max E_qᵩ(z|x) [ log P_θ(x|z) ] + E_qᵩ(z|x) [ log P(z)-log q(z|x)] <br>
+= arg max E_qᵩ(z|x) [ log (P_θ(x|z) ] + E_qᵩ(z|x) [ log (P(z) / q(z|x))] <br>
+= arg max E_qᵩ(z|x) [ log P_θ(x|z) ] + ∫_z qᵩ(z|x)⋅log ( P(z) / q(z|x)) dz <br>
+= arg max E_qᵩ(z|x) [ log P_θ(x|z) ] - KL( qᵩ(z|x) || P(z) )</p>
+<p>目标函数是一个期望减 KL 散度，期望要最大，而KL散度要最小。</p>
+<p>变分推断用梯度上升求最大化问题，首先求目标函数对 θ,ϕ 的梯度，然后更新</p>
+<p>采用 SGVI / SGVB / SVI / Armotized Inference （重参数化技巧+神经网络）求后验，解决 Inference 问题。</p>
+<p>SGVI 假设 z|x 服从高斯分布 z|x～N(μ_ϕ(x),Σ_ϕ(x))，并且与随机高斯噪声 ε～N(0,I) 之间有函数关系 z= μ_ϕ(x) + Σ_ϕ¹ᐟ²(x)⋅ε，协方差矩阵的指数是½，因为 Σ 里面是σ²。</p>
+<div class="mermaid">flowchart LR
+x("Input x") --> net("NN-ϕ") --> a("μ(x)") --> o(("+")) --> z("latent z")
+net --> b("Σ(x)") --> m(("×")) --> o
+ε --> m
+</div>
+
+<p>对于目标函数中的 E_qᵩ(z|x) [ log P_θ(x|z) ]，中括号里面是给定 z 生成 x，而期望的权重 q(z|x) 是给定 x 时，z 的后验概率。
+整个训练过程就是，先给了样本 x 得到了后验 q_ϕ(z|x)，从中采样得一个 z⁽ⁱ⁾，然后用它算似然 logP(x|z⁽ⁱ⁾)，是一个环路。
+所以在训练过程中，log 里的 z 不是先验 P(z)，而是后验 P(z|x)。
+在训练好之后，得到了θ，生成样本时，就直接从 P(z) 中采样，再代入 P_θ(x|z) 得到 x。</p>
+<div class="mermaid">flowchart LR
+x --> Decoder --> z --> Encoder --> x'
+</div>
+
+<p>目标函数后面的 KL 散度相当于 正则化项。在训练时，要让 q_ϕ(z|x) 尽量与先验 P(z) 靠近，避免坍缩到一个点上，否则第 1 项似然的期望很可能就过拟合了。
+或者说让 q_ϕ 的熵 H[q_ϕ] 倾向于大。
+熵意味着信息量，信息量大意味着有广泛的可能性，分布更平均，高斯分布越扁方差越大熵越大，钟形曲线越瘦高，说明只在期望那一个点上可能性最大，基本上是确定的，熵就很小，</p>
+<p><a class="link" href="http://blog.zichen.uk/post/writenotes/model/imagen/vae/c-sum-vae/" >sumNote</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script>
+        mermaid.initialize({ startOnLoad: true });
+      </script>
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="4 网络八股扩展 4.1 自制数据集 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 import tensorflow as tf from PIL import Image import numpy as np import os train_dir = &#39;./mnist_image_label/mnist_train_jpg_60000/&#39; train_txt = &#39;./mnist_image_label/mnist_train_jpg_60000.txt&#39; x_train_savepath = &#39;./mnist_image_label/mnist_x_train.npy&#39; y_train_savepath = &#39;./mnist_image_label/mnist_y_train.npy&#39; test_dir = &#39;./mnist_image_label/mnist_test_jpg_10000/&#39; test_txt = &#39;./mnist_image_label/mnist_test_jpg.txt&#39; x_test_savepath = &#39;./mnist_image_label/mnist_x_test.npy&#39; y_test_savepath = &#39;./mnist_image_label/mnist_y_test.npy&#39; def generateDS(dir, labels_path): f = open(labels_path, &#39;r&#39;)\t# 存有 文件名 及其 标签 contents = f.readlines()\t# 读取所有行 f.close()\t# 关闭 x, y_ = [], []\t# 每张图对应的灰度值数据和标签 for content in contents:\t# 逐行读出 value = content.split()\t# 以空格分开 img_path = dir + value[0]\t# 图片名 img = Image.open(img_path) img = np.array(img.convert(&#39;L&#39;)) # 8位灰度图像 img = img/255. x.append(img)\t# 灰度值np.array 放入列表 y_.append(value[1])\t# 标签 放入列表 print(&#39;loading: &#39;+content) x = np.array(x)\t# 列表变 np.array y_ = np.array(y_) y_ = y_.astype(np.int64)\t# 标签是64位整型 return x, y_ if os.path.exists(x_train_savepath) and os.path.exists(y_train_savepath) and os.path.exists(x_test_savepath) and os.path.exists(y_test_savepath): print(&#39;---Loading dataset---&#39;) x_train_save = np.load(x_train_savepath)\t# 读 y_train = np.load(y_train_savepath) x_test_save = np.load(x_test_savepath) y_test = np.load(y_test_savepath) x_train = np.reshape(x_train_save, (len(x_train_save),28,28))\t# 变形 x_test = np.reshape(x_test_save, (len(x_test_save),28,28)) else:\t#不存在，要制作数据集 print(&#39;---Generating dataset---&#39;) x_train, y_train = generate(train_dir, train_txt) x_test, y_test = generate(test_dir, test_txt) print(&#39;---Saving dataset&#39;)\t# 保存为以后使用 x_train_save = np.reshape(x_train, (len(x_train), -1)) x_test_save = np.reshape(x_test, (len(x_test), -1)) np.save(x_train_savepath, x_train_save) np.save(y_train_savepath, y_train) np.save(x_test_savepath, x_test_save) np.save(y_test_savepath, y_test) 4.2 数据增强 用于扩展数据集，对图像的增强就是对图像的简单形变，用来应对因拍照角度不同引起的图片变形\n">
+<title>watch: TF2 - PKU 04 | NN Framework Extension</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lib/tf2-%E5%8C%97%E5%A4%A7/4_%E7%BD%91%E7%BB%9C%E5%85%AB%E8%82%A1%E6%89%A9%E5%B1%95/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: TF2 - PKU 04 | NN Framework Extension">
+<meta property='og:description' content="4 网络八股扩展 4.1 自制数据集 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 import tensorflow as tf from PIL import Image import numpy as np import os train_dir = &#39;./mnist_image_label/mnist_train_jpg_60000/&#39; train_txt = &#39;./mnist_image_label/mnist_train_jpg_60000.txt&#39; x_train_savepath = &#39;./mnist_image_label/mnist_x_train.npy&#39; y_train_savepath = &#39;./mnist_image_label/mnist_y_train.npy&#39; test_dir = &#39;./mnist_image_label/mnist_test_jpg_10000/&#39; test_txt = &#39;./mnist_image_label/mnist_test_jpg.txt&#39; x_test_savepath = &#39;./mnist_image_label/mnist_x_test.npy&#39; y_test_savepath = &#39;./mnist_image_label/mnist_y_test.npy&#39; def generateDS(dir, labels_path): f = open(labels_path, &#39;r&#39;)\t# 存有 文件名 及其 标签 contents = f.readlines()\t# 读取所有行 f.close()\t# 关闭 x, y_ = [], []\t# 每张图对应的灰度值数据和标签 for content in contents:\t# 逐行读出 value = content.split()\t# 以空格分开 img_path = dir + value[0]\t# 图片名 img = Image.open(img_path) img = np.array(img.convert(&#39;L&#39;)) # 8位灰度图像 img = img/255. x.append(img)\t# 灰度值np.array 放入列表 y_.append(value[1])\t# 标签 放入列表 print(&#39;loading: &#39;+content) x = np.array(x)\t# 列表变 np.array y_ = np.array(y_) y_ = y_.astype(np.int64)\t# 标签是64位整型 return x, y_ if os.path.exists(x_train_savepath) and os.path.exists(y_train_savepath) and os.path.exists(x_test_savepath) and os.path.exists(y_test_savepath): print(&#39;---Loading dataset---&#39;) x_train_save = np.load(x_train_savepath)\t# 读 y_train = np.load(y_train_savepath) x_test_save = np.load(x_test_savepath) y_test = np.load(y_test_savepath) x_train = np.reshape(x_train_save, (len(x_train_save),28,28))\t# 变形 x_test = np.reshape(x_test_save, (len(x_test_save),28,28)) else:\t#不存在，要制作数据集 print(&#39;---Generating dataset---&#39;) x_train, y_train = generate(train_dir, train_txt) x_test, y_test = generate(test_dir, test_txt) print(&#39;---Saving dataset&#39;)\t# 保存为以后使用 x_train_save = np.reshape(x_train, (len(x_train), -1)) x_test_save = np.reshape(x_test, (len(x_test), -1)) np.save(x_train_savepath, x_train_save) np.save(y_train_savepath, y_train) np.save(x_test_savepath, x_test_save) np.save(y_test_savepath, y_test) 4.2 数据增强 用于扩展数据集，对图像的增强就是对图像的简单形变，用来应对因拍照角度不同引起的图片变形\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lib/tf2-%E5%8C%97%E5%A4%A7/4_%E7%BD%91%E7%BB%9C%E5%85%AB%E8%82%A1%E6%89%A9%E5%B1%95/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-07-24T16:41:00&#43;00:00'/><meta property='article:modified_time' content='2022-07-24T16:41:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: TF2 - PKU 04 | NN Framework Extension">
+<meta name="twitter:description" content="4 网络八股扩展 4.1 自制数据集 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 import tensorflow as tf from PIL import Image import numpy as np import os train_dir = &#39;./mnist_image_label/mnist_train_jpg_60000/&#39; train_txt = &#39;./mnist_image_label/mnist_train_jpg_60000.txt&#39; x_train_savepath = &#39;./mnist_image_label/mnist_x_train.npy&#39; y_train_savepath = &#39;./mnist_image_label/mnist_y_train.npy&#39; test_dir = &#39;./mnist_image_label/mnist_test_jpg_10000/&#39; test_txt = &#39;./mnist_image_label/mnist_test_jpg.txt&#39; x_test_savepath = &#39;./mnist_image_label/mnist_x_test.npy&#39; y_test_savepath = &#39;./mnist_image_label/mnist_y_test.npy&#39; def generateDS(dir, labels_path): f = open(labels_path, &#39;r&#39;)\t# 存有 文件名 及其 标签 contents = f.readlines()\t# 读取所有行 f.close()\t# 关闭 x, y_ = [], []\t# 每张图对应的灰度值数据和标签 for content in contents:\t# 逐行读出 value = content.split()\t# 以空格分开 img_path = dir + value[0]\t# 图片名 img = Image.open(img_path) img = np.array(img.convert(&#39;L&#39;)) # 8位灰度图像 img = img/255. x.append(img)\t# 灰度值np.array 放入列表 y_.append(value[1])\t# 标签 放入列表 print(&#39;loading: &#39;+content) x = np.array(x)\t# 列表变 np.array y_ = np.array(y_) y_ = y_.astype(np.int64)\t# 标签是64位整型 return x, y_ if os.path.exists(x_train_savepath) and os.path.exists(y_train_savepath) and os.path.exists(x_test_savepath) and os.path.exists(y_test_savepath): print(&#39;---Loading dataset---&#39;) x_train_save = np.load(x_train_savepath)\t# 读 y_train = np.load(y_train_savepath) x_test_save = np.load(x_test_savepath) y_test = np.load(y_test_savepath) x_train = np.reshape(x_train_save, (len(x_train_save),28,28))\t# 变形 x_test = np.reshape(x_test_save, (len(x_test_save),28,28)) else:\t#不存在，要制作数据集 print(&#39;---Generating dataset---&#39;) x_train, y_train = generate(train_dir, train_txt) x_test, y_test = generate(test_dir, test_txt) print(&#39;---Saving dataset&#39;)\t# 保存为以后使用 x_train_save = np.reshape(x_train, (len(x_train), -1)) x_test_save = np.reshape(x_test, (len(x_test), -1)) np.save(x_train_savepath, x_train_save) np.save(y_train_savepath, y_train) np.save(x_test_savepath, x_test_save) np.save(y_test_savepath, y_test) 4.2 数据增强 用于扩展数据集，对图像的增强就是对图像的简单形变，用来应对因拍照角度不同引起的图片变形\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#4-网络八股扩展">4 网络八股扩展</a>
+      <ol>
+        <li><a href="#41-自制数据集">4.1 自制数据集</a></li>
+        <li><a href="#42-数据增强">4.2 数据增强</a></li>
+        <li><a href="#43-断点续训-存取模型">4.3 断点续训, 存取模型</a></li>
+        <li><a href="#44-提取可训练参数">4.4 提取可训练参数</a></li>
+        <li><a href="#45-acclocc-可视化">4.5 acc/locc 可视化</a></li>
+        <li><a href="#46-调用模型">4.6 调用模型</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lib/tf2-%E5%8C%97%E5%A4%A7/4_%E7%BD%91%E7%BB%9C%E5%85%AB%E8%82%A1%E6%89%A9%E5%B1%95/">watch: TF2 - PKU 04 | NN Framework Extension</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 24, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#4-网络八股扩展">4 网络八股扩展</a>
+      <ol>
+        <li><a href="#41-自制数据集">4.1 自制数据集</a></li>
+        <li><a href="#42-数据增强">4.2 数据增强</a></li>
+        <li><a href="#43-断点续训-存取模型">4.3 断点续训, 存取模型</a></li>
+        <li><a href="#44-提取可训练参数">4.4 提取可训练参数</a></li>
+        <li><a href="#45-acclocc-可视化">4.5 acc/locc 可视化</a></li>
+        <li><a href="#46-调用模型">4.6 调用模型</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="4-网络八股扩展">4 网络八股扩展
+</h2><h3 id="41-自制数据集">4.1 自制数据集
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">train_dir</span> <span class="o">=</span> <span class="s1">&#39;./mnist_image_label/mnist_train_jpg_60000/&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">train_txt</span> <span class="o">=</span> <span class="s1">&#39;./mnist_image_label/mnist_train_jpg_60000.txt&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">x_train_savepath</span> <span class="o">=</span> <span class="s1">&#39;./mnist_image_label/mnist_x_train.npy&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">y_train_savepath</span> <span class="o">=</span> <span class="s1">&#39;./mnist_image_label/mnist_y_train.npy&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">test_dir</span> <span class="o">=</span> <span class="s1">&#39;./mnist_image_label/mnist_test_jpg_10000/&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">test_txt</span> <span class="o">=</span> <span class="s1">&#39;./mnist_image_label/mnist_test_jpg.txt&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">x_test_savepath</span> <span class="o">=</span> <span class="s1">&#39;./mnist_image_label/mnist_x_test.npy&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">y_test_savepath</span> <span class="o">=</span> <span class="s1">&#39;./mnist_image_label/mnist_y_test.npy&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">generateDS</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">labels_path</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>	<span class="c1"># 存有 文件名 及其 标签</span>
+</span></span><span class="line"><span class="cl">    <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>	<span class="c1"># 读取所有行</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>		<span class="c1"># 关闭</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span><span class="p">,</span> <span class="n">y_</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>	<span class="c1"># 每张图对应的灰度值数据和标签</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>	<span class="c1"># 逐行读出</span>
+</span></span><span class="line"><span class="cl">        <span class="n">value</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>	<span class="c1"># 以空格分开</span>
+</span></span><span class="line"><span class="cl">        <span class="n">img_path</span> <span class="o">=</span> <span class="nb">dir</span> <span class="o">+</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>	<span class="c1"># 图片名</span>
+</span></span><span class="line"><span class="cl">        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">))</span> <span class="c1"># 8位灰度图像</span>
+</span></span><span class="line"><span class="cl">        <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">/</span><span class="mf">255.</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>	<span class="c1"># 灰度值np.array 放入列表</span>
+</span></span><span class="line"><span class="cl">        <span class="n">y_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>	<span class="c1"># 标签 放入列表</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;loading: &#39;</span><span class="o">+</span><span class="n">content</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>		<span class="c1"># 列表变 np.array</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y_</span> <span class="o">=</span> <span class="n">y_</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>	<span class="c1"># 标签是64位整型</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y_</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">x_train_savepath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">y_train_savepath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">x_test_savepath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">y_test_savepath</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---Loading dataset---&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_train_save</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">x_train_savepath</span><span class="p">)</span>	<span class="c1"># 读</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">y_train_savepath</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_test_save</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">x_test_savepath</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">y_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">y_test_savepath</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x_train_save</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train_save</span><span class="p">),</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">))</span>	<span class="c1"># 变形</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x_test_save</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_test_save</span><span class="p">),</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>	<span class="c1">#不存在，要制作数据集</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---Generating dataset---&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="n">generate</span><span class="p">(</span><span class="n">train_dir</span><span class="p">,</span> <span class="n">train_txt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">generate</span><span class="p">(</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">test_txt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---Saving dataset&#39;</span><span class="p">)</span>	<span class="c1"># 保存为以后使用</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_train_save</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x_test_save</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_test</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">x_train_savepath</span><span class="p">,</span> <span class="n">x_train_save</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">y_train_savepath</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">x_test_savepath</span><span class="p">,</span> <span class="n">x_test_save</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">y_test_savepath</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="42-数据增强">4.2 数据增强
+</h3><p>用于扩展数据集，对图像的增强就是对图像的简单形变，用来应对因拍照角度不同引起的图片变形</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">image_gen_train</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ImageDataGenerator</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">rescale</span> <span class="o">=</span> <span class="n">所有数据将乘以该数值</span><span class="err">，</span>
+</span></span><span class="line"><span class="cl">    <span class="n">rotation_range</span> <span class="o">=</span> <span class="n">随机旋转角度数范围</span><span class="err">，</span>
+</span></span><span class="line"><span class="cl">    <span class="n">width_shift_range</span> <span class="o">=</span> <span class="n">随机宽度偏移量</span><span class="err">，</span>
+</span></span><span class="line"><span class="cl">    <span class="n">height_shift_range</span> <span class="o">=</span> <span class="n">随机高度偏移量</span><span class="err">，</span>
+</span></span><span class="line"><span class="cl">    <span class="n">horizontal_flip</span> <span class="o">=</span> <span class="n">是否随机水平翻转</span><span class="err">，</span>
+</span></span><span class="line"><span class="cl">    <span class="n">zoom_range</span> <span class="o">=</span> <span class="n">随机缩放的范围</span><span class="p">[</span><span class="mi">1</span><span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="n">n</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">image_gen_train</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>其中 <code>x_train</code> 需要是四维，需要变形：<code>x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)</code>，把 (60000, 28, 28) -&gt; (60000, 28, 28, 1)</p>
+<p>例如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">image_gen_train</span> <span class="o">=</span> <span class="n">ImageDataGenerator</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">rescale</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="mf">1.</span><span class="p">,</span>  <span class="c1"># 若为图像，分母为255时，可归至0~1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">rotation_range</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span>    <span class="c1"># 随机45度旋转 </span>
+</span></span><span class="line"><span class="cl">    <span class="n">width_shift_range</span><span class="o">=</span><span class="mf">.15</span><span class="p">,</span>  <span class="c1"># 宽度偏移</span>
+</span></span><span class="line"><span class="cl">    <span class="n">height_shift_range</span><span class="o">=</span><span class="mf">.15</span><span class="p">,</span> <span class="c1"># 高度偏移</span>
+</span></span><span class="line"><span class="cl">    <span class="n">horizontal_flip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># 水平翻转</span>
+</span></span><span class="line"><span class="cl">    <span class="n">zoom_range</span> <span class="o">=</span> <span class="mf">0.5</span>        <span class="c1"># 将图像随机缩放阈量50%</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">image_gen_train</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>模型训练也要改，把 <code>model.fit(x_train, y_train, batch_size=32, ...)</code> 改为 <code>model.fit(image_gen_train.flow(x_train, y_train, batch_size=32), ...)</code></p>
+<h3 id="43-断点续训-存取模型">4.3 断点续训, 存取模型
+</h3><p>读取模型：<code>load_weights(文件路径)</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">checkpoint_save_path</span> <span class="o">=</span> <span class="s1">&#39;./checkpoint/mnist.ckpt&#39;</span>    <span class="c1"># 定义文件路径</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">checkpoint_save_path</span> <span class="o">+</span> <span class="s1">&#39;.index&#39;</span><span class="p">):</span> <span class="c1"># 存在索引表说明已经保存过参数了</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---- Loading the model ----&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">checkpoint_save_path</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>保存模型：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">cp_callback</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">filepath</span><span class="o">=</span><span class="n">checkpoint_save_path</span><span class="p">,</span>  <span class="c1"># 保存路径</span>
+</span></span><span class="line"><span class="cl">                <span class="n">save_weights_only</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>   <span class="c1"># 是否只保留 weights</span>
+</span></span><span class="line"><span class="cl">                <span class="n">save_best_only</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>      <span class="c1"># 是否只保留最优结果</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="c1"># 在训练过程中保存，记录到history中</span>
+</span></span><span class="line"><span class="cl"><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span> <span class="n">validation_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">cp_callback</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="44-提取可训练参数">4.4 提取可训练参数
+</h3><p>返回模型中可训练的参数 <code>model.trainable_variables</code></p>
+<p>设置print输出格式：<code>np.set_printoptions(threshold=超过多少省略显示)</code> np.inf 表示无限大</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">)</span>    <span class="c1"># 把参数直接打印出来</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./weights.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>   <span class="c1"># 把参数存入文件</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">trainable_variables</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="45-acclocc-可视化">4.5 acc/locc 可视化
+</h3><p>用于查看训练效果。history中记录了训练集的<code>loss</code>和<code>sparse_categorical_accuracy</code>；测试集上的<code>val_loss</code> 和 <code>val_sparse_categorical_accuracy</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">acc</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;sparse_categorical_accuracy&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">val_acc</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;val_sparse_categorical_accuracy&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">loss</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">val_loss</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;val_loss&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Training Accuracy&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">val_acc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Validation Accuracy&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Training and Validation Accuracy&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Training Loss&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">val_loss</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Validation Loss&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Training and Validation Loss&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="46-调用模型">4.6 调用模型
+</h3><p>返回前向传播计算结果：<code>predict(输入特征，batch_size=整数)</code></p>
+<p>三步：复现模型，加载参数，预测</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model_save_path</span> <span class="o">=</span> <span class="s1">&#39;./checkpoint/mnist.ckpt&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Sequential</span><span class="p">([</span>    <span class="c1"># 复现网络</span>
+</span></span><span class="line"><span class="cl">            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">model_save_path</span><span class="p">)</span>     <span class="c1"># 加载网络</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">preNum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&#34;Input the number of test pictures: &#34;</span><span class="p">))</span>  <span class="c1"># 接收用户输入</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">preNum</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image_path</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&#34;the path of test picture: &#34;</span><span class="p">)</span>    <span class="c1"># 输入 1.png</span>
+</span></span><span class="line"><span class="cl">    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>        <span class="c1"># 读取图片</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># 预处理输入图片的格式 与 训练数据一致</span>
+</span></span><span class="line"><span class="cl">    <span class="n">img</span> <span class="o">=</span> <span class="n">Img</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">Image</span><span class="o">.</span><span class="n">ANTIALIAS</span><span class="p">)</span> <span class="c1"># 变为 28x28 与训练图片尺寸相同</span>
+</span></span><span class="line"><span class="cl">    <span class="n">img_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;L&#39;</span><span class="p">))</span>    <span class="c1"># 变为灰度图</span>
+</span></span><span class="line"><span class="cl">    <span class="n">img_arr</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">-</span> <span class="n">img_arr</span>             <span class="c1"># 黑白反转</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># 预处理或者变为只有黑白像素的高对比度图片, 2种方法二选一</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">28</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">28</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">img_arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">200</span><span class="p">:</span>     <span class="c1"># 小于200 全变白. 可滤去背景噪声，当阈值选择合适识别效果更好</span>
+</span></span><span class="line"><span class="cl">                <span class="n">img_arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">img_arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">img_arr</span> <span class="o">=</span> <span class="n">img_arr</span> <span class="o">/</span> <span class="mf">255.0</span>       <span class="c1"># 归一化</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">x_predict</span> <span class="o">=</span> <span class="n">img_arr</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>    <span class="c1"># (28, 28) -&gt; (1, 28, 28)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_predict</span><span class="p">)</span>       <span class="c1"># 输入网络</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pred</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>        <span class="c1"># 返回最大概率值的索引</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

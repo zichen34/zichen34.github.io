@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="\n本系列笔记刊载的所有内容，包括文字、图片等，均来自云南大学丁怀义老师的课程《电磁场理论与计算》以及他的讲义，版权归丁怀义老师（dinghy@ynu.edu.cn）所有。\n[toc]\n1. 静电磁场 库伦定律解决了静电场的一切问题:\n$$ \\pmb E(\\pmb x) = \\iiint_V \\frac{ρ(\\pmb{x&rsquo;})}{4πε_0 |\\pmb x - \\pmb{x&rsquo;}|^3} (\\pmb x - \\pmb{x&rsquo;}) d \\pmb{V'}\n\\Longleftrightarrow\n\\begin{cases} \\pmb ∇ \\cdot \\pmb E = \\frac{ρ}{ε_0} \\ \\pmb ∇ × \\pmb E = 0 \\end{cases} $$\n库伦定律可以推出高斯定律（电场散度等于电荷密度除以$ε_0$），但是高斯定律推不出库伦定律，还需要电场旋度=0（因为泊松方程使用的是电势，而电势场的旋度为0，所以由泊松方程 $\\pmb ∇^2 φ = \\frac{ρ(\\pmb{x'})}{ε_0}$ 可以推出库伦定律）。 毕奥-萨伐尔定律解决了静磁场的一切问题：\n$$ \\left. \\begin{aligned} \\pmb B(\\pmb x) = \\frac{μ_0}{4π} \\int \\frac{\\pmb J( \\pmb{x&rsquo;}) × (\\pmb x - \\pmb{x&rsquo;})}{|\\pmb x\\ -\\pmb{x&rsquo;}|^3} dV&rsquo; \\\\ \\pmb ∇ \\cdot \\pmb J = 0 \\end{aligned} \\right}\n">
+<title>ch3:麦克斯韦方程组</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/cem-dhy/2021-05-01-ch3_%E9%BA%A6%E5%85%8B%E6%96%AF%E9%9F%A6%E6%96%B9%E7%A8%8B%E7%BB%84/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="ch3:麦克斯韦方程组">
+<meta property='og:description' content="\n本系列笔记刊载的所有内容，包括文字、图片等，均来自云南大学丁怀义老师的课程《电磁场理论与计算》以及他的讲义，版权归丁怀义老师（dinghy@ynu.edu.cn）所有。\n[toc]\n1. 静电磁场 库伦定律解决了静电场的一切问题:\n$$ \\pmb E(\\pmb x) = \\iiint_V \\frac{ρ(\\pmb{x&rsquo;})}{4πε_0 |\\pmb x - \\pmb{x&rsquo;}|^3} (\\pmb x - \\pmb{x&rsquo;}) d \\pmb{V'}\n\\Longleftrightarrow\n\\begin{cases} \\pmb ∇ \\cdot \\pmb E = \\frac{ρ}{ε_0} \\ \\pmb ∇ × \\pmb E = 0 \\end{cases} $$\n库伦定律可以推出高斯定律（电场散度等于电荷密度除以$ε_0$），但是高斯定律推不出库伦定律，还需要电场旋度=0（因为泊松方程使用的是电势，而电势场的旋度为0，所以由泊松方程 $\\pmb ∇^2 φ = \\frac{ρ(\\pmb{x'})}{ε_0}$ 可以推出库伦定律）。 毕奥-萨伐尔定律解决了静磁场的一切问题：\n$$ \\left. \\begin{aligned} \\pmb B(\\pmb x) = \\frac{μ_0}{4π} \\int \\frac{\\pmb J( \\pmb{x&rsquo;}) × (\\pmb x - \\pmb{x&rsquo;})}{|\\pmb x\\ -\\pmb{x&rsquo;}|^3} dV&rsquo; \\\\ \\pmb ∇ \\cdot \\pmb J = 0 \\end{aligned} \\right}\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/cem-dhy/2021-05-01-ch3_%E9%BA%A6%E5%85%8B%E6%96%AF%E9%9F%A6%E6%96%B9%E7%A8%8B%E7%BB%84/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='CEM' /><meta property='article:published_time' content='2021-05-01T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-05-01T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="ch3:麦克斯韦方程组">
+<meta name="twitter:description" content="\n本系列笔记刊载的所有内容，包括文字、图片等，均来自云南大学丁怀义老师的课程《电磁场理论与计算》以及他的讲义，版权归丁怀义老师（dinghy@ynu.edu.cn）所有。\n[toc]\n1. 静电磁场 库伦定律解决了静电场的一切问题:\n$$ \\pmb E(\\pmb x) = \\iiint_V \\frac{ρ(\\pmb{x&rsquo;})}{4πε_0 |\\pmb x - \\pmb{x&rsquo;}|^3} (\\pmb x - \\pmb{x&rsquo;}) d \\pmb{V'}\n\\Longleftrightarrow\n\\begin{cases} \\pmb ∇ \\cdot \\pmb E = \\frac{ρ}{ε_0} \\ \\pmb ∇ × \\pmb E = 0 \\end{cases} $$\n库伦定律可以推出高斯定律（电场散度等于电荷密度除以$ε_0$），但是高斯定律推不出库伦定律，还需要电场旋度=0（因为泊松方程使用的是电势，而电势场的旋度为0，所以由泊松方程 $\\pmb ∇^2 φ = \\frac{ρ(\\pmb{x'})}{ε_0}$ 可以推出库伦定律）。 毕奥-萨伐尔定律解决了静磁场的一切问题：\n$$ \\left. \\begin{aligned} \\pmb B(\\pmb x) = \\frac{μ_0}{4π} \\int \\frac{\\pmb J( \\pmb{x&rsquo;}) × (\\pmb x - \\pmb{x&rsquo;})}{|\\pmb x\\ -\\pmb{x&rsquo;}|^3} dV&rsquo; \\\\ \\pmb ∇ \\cdot \\pmb J = 0 \\end{aligned} \\right}\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#1-静电磁场">1. 静电磁场</a></li>
+        <li><a href="#2-介质中">2. 介质中</a></li>
+        <li><a href="#3-变化的电磁场">3. 变化的电磁场</a></li>
+        <li><a href="#4-介质中">4. 介质中</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/cem-dhy/2021-05-01-ch3_%E9%BA%A6%E5%85%8B%E6%96%AF%E9%9F%A6%E6%96%B9%E7%A8%8B%E7%BB%84/">ch3:麦克斯韦方程组</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 01, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#1-静电磁场">1. 静电磁场</a></li>
+        <li><a href="#2-介质中">2. 介质中</a></li>
+        <li><a href="#3-变化的电磁场">3. 变化的电磁场</a></li>
+        <li><a href="#4-介质中">4. 介质中</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <br>
+<p>本系列笔记刊载的所有内容，包括文字、图片等，均来自云南大学丁怀义老师的课程《电磁场理论与计算》以及他的讲义，版权归丁怀义老师（dinghy@ynu.edu.cn）所有。</p>
+<br>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      }
+    });
+</script>
+<!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> 适配老浏览器可不用-->
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<p>[toc]</p>
+<h3 id="1-静电磁场">1. 静电磁场
+</h3><p><strong>库伦定律解决了静电场的一切问题:</strong></p>
+<p>$$
+\pmb E(\pmb x) = \iiint_V \frac{ρ(\pmb{x&rsquo;})}{4πε_0 |\pmb x - \pmb{x&rsquo;}|^3} (\pmb x - \pmb{x&rsquo;}) d \pmb{V'}</p>
+<p>\Longleftrightarrow</p>
+<p>\begin{cases}
+\pmb ∇ \cdot \pmb E = \frac{ρ}{ε_0} \
+\pmb ∇ × \pmb E = 0
+\end{cases}
+$$</p>
+<ul>
+<li><strong>库伦定律</strong>可以推出<strong>高斯定律</strong>（电场散度等于电荷密度除以$ε_0$），但是高斯定律推不出库伦定律，还需要电场旋度=0（因为泊松方程使用的是电势，而电势场的旋度为0，所以由<strong>泊松方程</strong> $\pmb ∇^2 φ = \frac{ρ(\pmb{x'})}{ε_0}$ 可以推出库伦定律）。</li>
+</ul>
+<p><strong>毕奥-萨伐尔定律解决了静磁场的一切问题：</strong></p>
+<p>$$
+\left.
+\begin{aligned}
+\pmb B(\pmb x) = \frac{μ_0}{4π} \int \frac{\pmb J( \pmb{x&rsquo;}) × (\pmb x - \pmb{x&rsquo;})}{|\pmb x\ 		-\pmb{x&rsquo;}|^3} dV&rsquo; \\
+\pmb ∇ \cdot \pmb J = 0
+\end{aligned}
+\right}</p>
+<p>\Longleftrightarrow
+\begin{cases}
+∇ \cdot \pmb B = 0 \
+∇ × \pmb B = μ_0 \pmb J(\pmb x)
+\end{cases}
+$$</p>
+<ul>
+<li>$\pmb B$ 的散度=0 是自然满足的，$\pmb B$ 的旋度是使用毕奥-萨伐尔定律和恒稳电流散度为0（$\pmb ∇ \cdot \pmb J = 0$）推出来的。</li>
+</ul>
+<p>所以静电磁场核心可总结为以下四个微分方程：</p>
+$$
+\begin{cases}
+\pmb ∇ \cdot \pmb E = \frac{ρ}{ε_0} \\
+∇ × \pmb E = 0 \\
+∇ \cdot \pmb B = 0  \\
+∇ × \pmb B = μ_0 \pmb J
+\end{cases}
+$$<p>外加一个约束方程：$\pmb ∇ \cdot \pmb J = 0$</p>
+<h3 id="2-介质中">2. 介质中
+</h3><p>在电中性介质中（去除了净电荷），只剩极化电荷是若干个偶极子。电偶极子的一级近似为0（正负电荷相等，从远处看总电荷量为0）；（极化）恒稳电流产生的磁场的一级近似也等于0，所以都只保留到偶极项。把极化电荷和极化电流对电势和磁矢势的贡献纳入到电位移矢量 $\pmb D$ 和磁场强度 $\pmb H$ 中：</p>
+<ul>
+<li>
+$$
+  \pmb D = ε_0 \pmb E + \pmb P
+  $$<p>$\pmb E$ 是外电场，$\pmb P$ 是电极化强度（电偶极密度），对电位移矢量 $\pmb D$ 求散度：</p>
+</li>
+<li>
+$$
+  \pmb ∇ \cdot \pmb D = ρ - ρ_p = ρ_f
+  $$<p>$ρ$ 是空间中全部电荷，$ρ_p$是极化电荷，两者一减就是自由电荷$ρ_f$ 。</p>
+</li>
+<li>
+$$
+  \pmb H = \frac{\pmb B}{μ_0} - \pmb M
+  $$<p>$\pmb B$ 是空间磁感应强度（磁感线），$\pmb M$ 是磁化强度（磁偶极密度），对磁场强度$\pmb H$求旋度：</p>
+</li>
+<li>
+$$
+  \pmb ∇ × \pmb H = \pmb J - \pmb J_m = \pmb J_f
+  $$<p>$\pmb J$是空间全部电流，$\pmb J_f$是极化电流。</p>
+</li>
+</ul>
+<p>于是，介质中麦克斯韦方程组可写成：</p>
+$$
+\begin{cases}
+\pmb ∇ \cdot \pmb D = ρ_f \\
+\pmb ∇ × \pmb E = 0 \\
+\pmb ∇ \cdot \pmb B = 0 \\
+\pmb ∇ × \pmb H = \pmb J_f(\pmb x)
+\end{cases}
+$$<h3 id="3-变化的电磁场">3. 变化的电磁场
+</h3><p>在静电场和静磁场的方程中电场和磁场是分离的。但是：法拉第发现了<strong>磁生电</strong>：（磁铁穿过载流螺线管）变化的磁场能产生感生电动势；楞次确定了电动势的方向，总结为：</p>
+<blockquote>
+<p>任何封闭电路中感应<a class="link" href="https://zh.wikipedia.org/wiki/%e7%94%b5%e5%8a%a8%e5%8a%bf"  target="_blank" rel="noopener"
+    >电动势</a>的大小，等于穿过这一电路<a class="link" href="https://zh.wikipedia.org/wiki/%e7%a3%81%e9%80%9a%e9%87%8f"  target="_blank" rel="noopener"
+    >磁通量</a>的变化率。</p></blockquote>
+$$
+U = \oint \pmb E \cdot d \pmb l = -\frac{∂}{∂t} \int \pmb B \cdot d \pmb s
+$$<ul>
+<li>$\pmb B$ 是磁感线密度？，乘上面积 s 就是磁通量。</li>
+</ul>
+<p>根据斯托克斯定理：矢量场环路积分等于矢量场旋度的面积分</p>
+$$
+\oint \pmb E \cdot d \pmb l = \int \pmb ∇ × \pmb E\ d\pmb s
+$$<p>所以有：</p>
+$$
+\pmb ∇ × \pmb E = -\frac{∂ \pmb B}{∂t}
+$$<p>在静电场中，E是保守场，环路积分一圈等于0，旋度为0；但是变化的电场的旋度与磁场有关。受此启发，麦克斯韦临门一脚，做了最后一个补充：电生磁。如果 $\pmb J$ 并非恒稳电流，即 $\pmb ∇ \cdot \pmb J \neq 0$，就不能推出 $\pmb ∇ × \pmb B = μ_0 \pmb J$ 了。对第四个方程求散度：</p>
+$$
+\pmb ∇ \cdot (\pmb ∇ × \pmb B) 
+= μ_0 \pmb ∇ \cdot \pmb J 
+$$<p>方程左边自动等于0（旋度场的散度等于零），再根据电荷守恒：</p>
+$$
+\begin{aligned}
+-\frac{∂ ρ}{∂ t} &= ∇ \cdot \pmb J & \text{散度就是净流出} \\
+\pmb ∇ \cdot \pmb J + \frac{∂ ρ}{∂ t} &= 0 & \text{电荷守恒(流出+流入=0)}
+\end{aligned}
+$$<p>因为$\pmb ∇ \cdot \pmb E = \frac{ρ}{ε_0}$ 这个式子没改，把 $ρ$ 用 $\pmb E$ 来表示。</p>
+$$
+0 = \pmb ∇ \cdot \pmb J + \frac{∂ ρ}{∂ t} = \pmb ∇ \cdot \left( \pmb J + ε_0 \frac{∂ \pmb E}{∂ t} \right)
+$$<p>所以磁场的旋度改写为：</p>
+$$
+\pmb ∇ × \pmb B = μ_0 \pmb J + μ_0 ε_0 \frac{∂ \pmb E}{∂ t}
+$$<p>所以麦克斯韦方程组写为：</p>
+$$
+\begin{cases}
+\pmb ∇ \cdot \pmb E = \frac{ρ}{ε_0} \\
+∇ × \pmb E = -\frac{∂ \pmb B}{∂ t} \\
+∇ \cdot \pmb B = 0  \\
+∇ × \pmb B = μ_0 \pmb J + μ_0 ε_0 \frac{∂ \pmb E}{∂ t}
+\end{cases}
+$$<p>$ρ$ 和 $\pmb J$ 说明电荷决定了电磁场，再加上电荷在电磁场中的受力方程：</p>
+$$
+\pmb F = q (\pmb E + \pmb v + \pmb B)
+$$<p>就解决了经典电磁学的一切动力学问题。</p>
+<h3 id="4-介质中">4. 介质中
+</h3><p>如果在介质中，还是使用偶极近似，不过电偶极密度和磁偶极密度是时间的函数 $\pmb P(\pmb x ,t)$，$\pmb M( \pmb x ,t)$。极化电荷密度和极化电流密度的概念仍然成立：</p>
+<p>$$</p>
+<ul>
+<li>\pmb ∇ \cdot \pmb P(\pmb x,t) = ρ_P \
+\pmb ∇ × \pmb M(\pmb x,t) = \pmb J_M
+$$</li>
+</ul>
+<p>电偶极子的正负电荷，在拉伸收缩时会有电流效应（电子移动）：</p>
+<p>$$
+\pmb p(t) = \sum q_i x_i(t) \quad \text{电偶极} \</p>
+<p>\frac{d \pmb p}{d t} = \sum q_i v_i  \quad \text{qv就是电流}
+$$</p>
+<p>严谨写为：</p>
+$$
+\pmb p = \int \pmb x ρ(\pmb x) dV \\
+\frac{d \pmb p}{d t} = \frac{d}{dt} \int \pmb x ρ(\pmb x) dV = \int \frac{d \pmb x}{d t} ρ(\pmb x) dV = \int \pmb J_p dV
+$$<p>因而：</p>
+$$
+\frac{d \pmb P}{d t} =\frac{d \frac{\sum_i \pmb p_i}{\Delta V}}{d t}
+= \pmb J_p
+$$<p>$\pmb J_p$ 被称为“<strong>电极化电流</strong>”。将极化电荷 $ρ_P$ 极化电流 $\pmb J_M$ 和电极化电流 $\pmb J_p$ 代入方程组：</p>
+$$
+\begin{cases}
+\pmb ∇ \cdot \pmb E = \frac{ρ_f + ρ_p}{ε_0} \\
+\pmb ∇ × \pmb E = -\frac{∂ \pmb B}{∂ t} \\
+\pmb ∇ \cdot \pmb B = 0 \\
+\pmb ∇ × \pmb B = μ_0 \pmb J_f + μ_0 \pmb J_M + μ_0 \pmb J_P + μ_0 ε_0 \frac{∂ \pmb E}{∂ t}
+\end{cases}
+$$<p>把 $ρ_P,\ ρ_M,\ \pmb J_M$ 的表达式代入<strong>麦克斯韦方程组</strong>：（考试要考）</p>
+$$
+\begin{cases}
+\pmb ∇ \cdot \pmb E = \frac{ρ_f}{ε_0} - \frac{\pmb ∇ \cdot \pmb P(\pmb x, t)}{ε_0} \\
+\pmb ∇ × \pmb E = -\frac{∂ \pmb B}{∂ t} \\
+\pmb ∇ \cdot \pmb B = 0 \\
+\pmb ∇ × \pmb B = μ_0 \pmb J_f + μ_0 \pmb ∇ × \pmb M(\pmb x, t) + μ_0 \frac{∂ \pmb P}{∂ t} + μ_0 ε_0 \frac{∂ \pmb E}{∂ t} 
+\end{cases}
+$$<p>仿照静电磁场中对电位移矢量和磁场强度的定义：</p>
+$$
+\pmb D = ε_0 \pmb E + \pmb P \\
+\pmb H = \frac{\pmb B}{μ_0} - \pmb M
+$$<p>则：</p>
+$$
+\begin{aligned}
+\pmb ∇ \cdot \pmb D &= ε_0 \pmb ∇ \cdot \pmb E + \pmb ∇ \cdot \pmb P  \\
+& = ρ_f + ρ_p - ρ_p \\
+& = ρ_f
+\end{aligned}
+$$$$
+\begin{aligned}
+\pmb ∇ × \pmb H &= \frac{\pmb ∇ × \pmb B}{μ_0}-\pmb ∇ × \pmb M(\pmb x, t) \\
+& = \pmb J_f + \pmb ∇ × \pmb M(\pmb x, t) 
+	+ \frac{∂ \pmb P}{∂ t} 
+	+ ε_0 \frac{∂ \pmb E}{∂ t}
+	- \pmb ∇ × \pmb M(\pmb x, t) \\
+& = \pmb J_f +\frac{∂ \pmb P}{∂ t} 
+	+ ε_0 \frac{∂ \pmb E}{∂ t} \\
+& = \pmb J_f + \frac{∂ \pmb D}{∂ t}
+\end{aligned}
+$$<p>所以介质中麦克斯韦方程组可写成：</p>
+$$
+\begin{cases}
+\pmb ∇ \cdot \pmb D = ρ_f \\
+\pmb ∇ × \pmb E = -\frac{∂ \pmb B}{∂ t} \\
+\pmb ∇ \cdot \pmb B = 0 \\
+\pmb ∇ × \pmb H = \pmb J_f + \frac{∂ \pmb D}{∂ t}
+\end{cases}
+$$<p>由于 $\frac{∂ \pmb D}{∂ t}$ 在这里跟电流密度 $\pmb J$ 具有等同地位，所以 $\frac{∂ \pmb D}{∂ t}$ 也称作 “<strong>位移电流</strong>”，变化的电场产生磁场。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/cem/">CEM</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/writenotes/calc/cem-dhy/2021-03-09-ch1_%E9%9D%99%E7%94%B5%E5%9C%BA/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ch1:静电场</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/calc/cem-dhy/2021-04-01-ch2_%E9%9D%99%E7%A3%81%E5%9C%BA/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">ch2:静磁场</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

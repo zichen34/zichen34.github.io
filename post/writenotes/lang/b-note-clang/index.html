@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Data Types Problems:\nThe composition of a data type References:\nTypedef declaration - cppreference.com Searched by typedef in c lang in DDG Notes:\n(2025-05-16T15:09)\nSupports:\nTypedef declaration -&gt; Type -&gt; Declarations -&gt; Identifier -&gt; Enumerations\nMake A Cases Set Problems:\n">
+<title>C Lang </title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lang/b-note-clang/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="C Lang ">
+<meta property='og:description' content="Data Types Problems:\nThe composition of a data type References:\nTypedef declaration - cppreference.com Searched by typedef in c lang in DDG Notes:\n(2025-05-16T15:09)\nSupports:\nTypedef declaration -&gt; Type -&gt; Declarations -&gt; Identifier -&gt; Enumerations\nMake A Cases Set Problems:\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lang/b-note-clang/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-05-16T10:55:12-04:00'/><meta property='article:modified_time' content='2025-05-16T10:55:12-04:00'/>
+<meta name="twitter:title" content="C Lang ">
+<meta name="twitter:description" content="Data Types Problems:\nThe composition of a data type References:\nTypedef declaration - cppreference.com Searched by typedef in c lang in DDG Notes:\n(2025-05-16T15:09)\nSupports:\nTypedef declaration -&gt; Type -&gt; Declarations -&gt; Identifier -&gt; Enumerations\nMake A Cases Set Problems:\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#data-types">Data Types</a></li>
+    <li><a href="#make-a-cases-set">Make A Cases Set</a>
+      <ol>
+        <li><a href="#enum">Enum</a></li>
+        <li><a href="#typedef">Typedef</a></li>
+        <li><a href="#typedef-enum">Typedef Enum</a></li>
+        <li><a href="#typedef-struct">Typedef Struct</a>
+          <ol>
+            <li><a href="#两种创建结构体的方式">两种创建结构体的方式</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#stack-memory">Stack Memory</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#how-to-define-global-var">How to Define Global Var</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lang/b-note-clang/">C Lang </a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 16, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#data-types">Data Types</a></li>
+    <li><a href="#make-a-cases-set">Make A Cases Set</a>
+      <ol>
+        <li><a href="#enum">Enum</a></li>
+        <li><a href="#typedef">Typedef</a></li>
+        <li><a href="#typedef-enum">Typedef Enum</a></li>
+        <li><a href="#typedef-struct">Typedef Struct</a>
+          <ol>
+            <li><a href="#两种创建结构体的方式">两种创建结构体的方式</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#stack-memory">Stack Memory</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#how-to-define-global-var">How to Define Global Var</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="data-types">Data Types
+</h2><p><strong>Problems</strong>:</p>
+<ol>
+<li>The composition of a data type</li>
+</ol>
+<hr>
+<p><strong>References</strong>:</p>
+<ol>
+<li><a id=""></a>
+<a class="link" href="https://en.cppreference.com/w/c/language/typedef"  target="_blank" rel="noopener"
+    >Typedef declaration - cppreference.com</a>
+<small>
+<ul>
+<li>Searched by <code>typedef in c lang</code> in
+<a class="link" href="https://duckduckgo.com/?q=typedef&#43;in&#43;c&#43;lang&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p>(2025-05-16T15:09)</p>
+<ol>
+<li></li>
+</ol>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>
+<p>Typedef declaration -&gt; Type -&gt; Declarations -&gt; Identifier -&gt; Enumerations</p>
+
+
+
+<div id="jsmind_container_0" class="jsmind-container" style="width:100%; height:400px;"></div>
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      if (typeof window.jsmindMaps === 'undefined') {
+        window.jsmindMaps = [];
+      }
+      
+      
+      window.jsmindMaps.push({
+        containerId: "jsmind_container_0",
+        dataString: ``
+      });
+      
+    } catch (e) {
+      console.error("Error storing jsmind data:", e);
+    }
+  });
+</script>
+
+</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="make-a-cases-set">Make A Cases Set
+</h2><p><strong>Problems</strong>:</p>
+<ol>
+<li>A lumbar has 3 bladders, how can the active infating bladder be referenced?</li>
+</ol>
+<hr>
+<p><strong>Issues</strong>:</p>
+<ol>
+<li></li>
+</ol>
+<h3 id="enum">Enum
+</h3><ol>
+<li>
+<p>Use <code>enum</code> for case label<sup></sup></p>
+<ul>
+<li>
+<p><strong>References</strong>:</p>
+<ol>
+<li><a id=""></a>
+<a class="link" href="https://en.cppreference.com/w/c/language/enum#:~:text=g.%20as%20a-,case%20label,-or%20as%20a"  target="_blank" rel="noopener"
+    >Enumerations - cppreference.com</a></li>
+<li><a id=""></a>
+<a class="link" href="https://yuanbao.tencent.com/chat/naQivTmsDa/a61f0a9c-8dfc-4d5d-98bd-5ec6a340f11d"  target="_blank" rel="noopener"
+    >元宝 - C语言枚举知识点总结</a></li>
+</ol>
+</li>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>Each enumerator is integer constant</li>
+</ol>
+<p>(2025-05-21T13:26)</p>
+<ol start="2">
+<li>
+<p>Enum can restrict the valid values.</p>
+<ul>
+<li>
+<p>This reminds me in Python, using a class to confine the available properties.</p>
+<p><example>好像是高天讲过</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="typedef">Typedef
+</h3><hr>
+<h3 id="typedef-enum">Typedef Enum
+</h3><hr>
+<h3 id="typedef-struct">Typedef Struct
+</h3><h4 id="两种创建结构体的方式">两种创建结构体的方式
+</h4><ol>
+<li>
+<p><strong>Problems</strong>:</p>
+<ol>
+<li>How to creat a struct in C language</li>
+</ol>
+</li>
+<li>
+<p><strong>Supports</strong>:</p>
+<!-- (2025-11-14T16:29) -->
+<ol>
+<li>
+<p>struct</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// app.h
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Defining and create a structure
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">static</span> <span class="k">struct</span> <span class="n">lin_frame_02</span> <span class="cm">/*Normal LIN Transmit Commands*/</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint8_t</span> <span class="n">Commands_Pump_Speed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint8_t</span> <span class="n">Commands_Lumbar_Command</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">lin_frame_02</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>If adding <code>static</code>, each file included <code>app.h</code> will have its own struct</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// app.c
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&#34;app.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">struct</span> <span class="n">lin_frame_02</span> <span class="n">watch_lin_frame_02</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// lin_frame_02&#39;s values get updated...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="n">watch_lin_frame_02</span> <span class="o">=</span> <span class="n">lin_frame_02</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>app.c will have another <code>lin_frame_02</code> in different memory area.</li>
+</ul>
+</li>
+<li>
+<p>typedef struct
+<sup><a class="link" href="" >r2-GPT</a></sup></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// app.h
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Define the struct type
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">typedef</span> <span class="k">struct</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">Commands_Pump_Speed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">Commands_Lumbar_Command</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">Haptic_Mode</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">Haptic_Cushion_Left</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">Haptic_Cushion_Right</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">Haptic_Back_Left</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">Haptic_Back_Right</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint8_t</span> <span class="n">Cushion_Massage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="kt">lin_frame_02_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Declare the global instance (no static!)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">extern</span> <span class="kt">lin_frame_02_t</span> <span class="n">lin_frame_02</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// app.c
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&#34;app.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">lin_frame_02_t</span> <span class="n">lin_frame_02</span><span class="p">;</span>   <span class="c1">// single global definition
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p>::: aside</p>
+<details><summary>References</summary> {{{
+1. [C Structures - GeeksforGeeks](https://www.geeksforgeeks.org/c/structures-c/)
+   <br><small>
+   Searched by `c language struct define` at
+   [DDG](https://duckduckgo.com/?q=c+language+struct+define&ia=web)
+   </small>
+2. [GPT5 - Accessing lin_frame_02 issue](https://chatgpt.com/c/69177e7f-660c-8327-852e-6deae882cf07)
+}}}
+</details>
+:::
+</li>
+</ol>
+<hr>
+<h2 id="stack-memory">Stack Memory
+</h2><ol>
+<li>
+<p>压栈</p>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<p>(2025-07-02T15:26)</p>
+<ol>
+<li>
+<p>RL78 的内存划分</p>
+</li>
+<li>
+<p>static 有固定的地址，它们不会在程序运行时被销毁。
+局部变量占用的内存在栈区，程序执行完毕后，它们在栈中的空间会被清除（出栈），
+所以局部变量在函数每次执行时，都会在栈中重新分配地址，所以地址不一样。</p>
+</li>
+<li>
+<p>当要调用 func1 的时候，需要把它所需使用的资源放入 stack</p>
+</li>
+<li>
+<p>压栈顺序：</p>
+<ol>
+<li>
+<p>返回地址（即 func1 的下一个函数的地址），</p>
+</li>
+<li>
+<p>传入参数（如果是 primitive 变量直接把值放入栈中，
+如果是数组，就把数组第一字节的地址放入栈中）</p>
+</li>
+<li>
+<p>返回值（只是留出空间？因为还没算出结果？）</p>
+</li>
+<li>
+<p>局部变量只是给它们在栈里留出空间（也有的 compiler 会分配固定地址）</p>
+</li>
+</ol>
+</li>
+<li>
+<p>栈的使用是动态变化的，因为同一时间，只能有一个函数运行
+（严格来讲是只有一条指令运行，除非是双核 cpu，那就需要处理资源调度问题）
+如果有中断发生，那么 ISR 的变量（返回地址，传入变量，返回值，局部变量）就需要压栈，
+如果中断太多，可能就会发生 stack overflow</p>
+</li>
+<li>
+<p>被 static 修饰的局部变量被放在和全局变量一起，不在栈中，所以不会被销毁</p>
+</li>
+<li>
+<p>8 位处理器返回一个 16 位数据时，需要 2 次操作，这两步操作不能被打断，需要加锁</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<ol>
+<li>
+<p>栈帧</p>
+<ul>
+<li>
+<p><strong>References</strong>:</p>
+<ol>
+<li><a id=""></a>
+<a class="link" href="https://www.bilibili.com/video/BV1gN411T7BJ?t=4157.9"  target="_blank" rel="noopener"
+    >2. 编译、连接、栈帧、变量的生存域 - 范懿的线上学堂</a></li>
+</ol>
+</li>
+<li>
+<p><strong>Supports</strong>:</p>
+<p>(2025-07-03T08:59)</p>
+<ol>
+<li>函数的标志是小括号。</li>
+<li>难道栈这种数据结构的出现是因为有数据 Last In First Out 的需求？因为程序是线性执行的
+<sup><a class="link" href="" >r1-范懿</a></sup></li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="how-to-define-global-var">How to Define Global Var
+</h4><ol>
+<li>
+<p><strong>Supports</strong>:</p>
+<!-- (2025-09-23T16:01) -->
+<ol>
+<li>
+<p>Jackie&rsquo;s practice</p>
+<ol>
+<li>
+<p>Define in <code>demo.c</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">uint8_t</span> <span class="n">g_var</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Declare in <code>demo.h</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">extern</span> <span class="n">uint8_t</span> <span class="n">g_var</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Initialization in <code>main.c</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">demo.h</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="n">g_var</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+      
+      <link type="text/css" rel="stylesheet" href="https://unpkg.com/jsmind@0.8.7/style/jsmind.css" />
+
+      <script type="text/javascript" src="https://unpkg.com/jsmind@0.8.7/es6/jsmind.js"></script>
+
+      <script>
+          console.log("Hello from jsmind!");
+      </script>
+
+      
+      <div id="jsmind_container"></div>
+
+      
+      <script type="text/javascript">
+        
+        function renderJsMindMap(containerId, dataString) {
+          try {
+            console.log("Attempting to render mind map with data:", dataString);
+            
+            
+            var mindData = JSON.parse(dataString);
+            
+            var options = {
+              container: containerId,
+              editable: false,
+              theme: 'orange'
+            };
+            
+            var jm = new jsMind(options);
+            jm.show(mindData);
+            console.log("Successfully rendered mind map in", containerId);
+          } catch (e) {
+            console.error("Error rendering mind map:", e, "with data:", dataString);
+          }
+        }
+        
+        
+        document.addEventListener('DOMContentLoaded', function() {
+          setTimeout(function() {
+            if (window.jsmindMaps && window.jsmindMaps.length) {
+              console.log("Found", window.jsmindMaps.length, "mind maps to render");
+              window.jsmindMaps.forEach(function(map) {
+                renderJsMindMap(map.containerId, map.dataString);
+              });
+            }
+          }, 1000); 
+        });
+      </script>
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

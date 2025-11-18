@@ -1,0 +1,2739 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="(Feature image from: A Comprehensive Overview of Gaussian Splatting - Medium - Kate Yurkova)\nSurveys A Survey on 3D Gaussian Splatting\nArxiv\n(2024-01-10)\nReview papers until Jan 2024 Not very detailed. 3D Gaussian as a New Vision Era: A Survey\n(2024-02-13)\nPapaers in 2023. Render Quality Sorting StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering SIG'24 | Lukas Radl, Bernhard Kerbl, TU Graz\n(Mentioned by will)\nCode\n">
+<title>Sympo: Render - Points | 3DGS</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/splats/c-symp-3dgs/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Sympo: Render - Points | 3DGS">
+<meta property='og:description' content="(Feature image from: A Comprehensive Overview of Gaussian Splatting - Medium - Kate Yurkova)\nSurveys A Survey on 3D Gaussian Splatting\nArxiv\n(2024-01-10)\nReview papers until Jan 2024 Not very detailed. 3D Gaussian as a New Vision Era: A Survey\n(2024-02-13)\nPapaers in 2023. Render Quality Sorting StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering SIG'24 | Lukas Radl, Bernhard Kerbl, TU Graz\n(Mentioned by will)\nCode\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/splats/c-symp-3dgs/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Splatting' /><meta property='article:published_time' content='2023-11-30T13:30:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-30T13:30:00&#43;00:00'/><meta property='og:image' content='http://blog.zichen.uk/post/writenotes/model/splats/c-symp-3dgs/feat_img-nerf_vs_3dgs.webp' />
+<meta name="twitter:title" content="Sympo: Render - Points | 3DGS">
+<meta name="twitter:description" content="(Feature image from: A Comprehensive Overview of Gaussian Splatting - Medium - Kate Yurkova)\nSurveys A Survey on 3D Gaussian Splatting\nArxiv\n(2024-01-10)\nReview papers until Jan 2024 Not very detailed. 3D Gaussian as a New Vision Era: A Survey\n(2024-02-13)\nPapaers in 2023. Render Quality Sorting StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering SIG'24 | Lukas Radl, Bernhard Kerbl, TU Graz\n(Mentioned by will)\nCode\n"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='http://blog.zichen.uk/post/writenotes/model/splats/c-symp-3dgs/feat_img-nerf_vs_3dgs.webp' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#surveys">Surveys</a></li>
+    <li><a href="#render-quality">Render Quality</a>
+      <ol>
+        <li><a href="#sorting">Sorting</a></li>
+        <li><a href="#mlp">MLP</a></li>
+        <li><a href="#quantum-physics">Quantum Physics</a></li>
+      </ol>
+    </li>
+    <li><a href="#reduction">Reduction</a></li>
+    <li><a href="#pbr">PBR</a></li>
+    <li><a href="#geometry">Geometry</a>
+      <ol>
+        <li><a href="#mesh-recon">Mesh Recon</a></li>
+      </ol>
+    </li>
+    <li><a href="#single-view">Single-View</a></li>
+    <li><a href="#sparse-views">Sparse views</a>
+      <ol>
+        <li><a href="#mask">Mask</a>
+          <ol>
+            <li><a href="#gaussianobject">GaussianObject</a></li>
+          </ol>
+        </li>
+        <li><a href="#depth-regularized">Depth Regularized</a>
+          <ol>
+            <li><a href="#dngaussian">DNGaussian</a></li>
+            <li><a href="#nexusgs">NexusGS</a></li>
+          </ol>
+        </li>
+        <li><a href="#image-features">Image Features</a>
+          <ol>
+            <li><a href="#coherentgs">CoherentGS</a></li>
+            <li><a href="#pixelsplat">pixelSplat</a></li>
+          </ol>
+        </li>
+        <li><a href="#frequency">Frequency</a></li>
+      </ol>
+    </li>
+    <li><a href="#accurate-densification">Accurate Densification</a>
+      <ol>
+        <li><a href="#gradient-direction">Gradient Direction</a></li>
+        <li><a href="#regularization">Regularization</a></li>
+        <li><a href="#interpolate">Interpolate</a></li>
+        <li><a href="#stochastic-process">Stochastic Process</a></li>
+        <li><a href="#attack">Attack</a>
+          <ol>
+            <li><a href="#poison">Poison</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#deblur">Deblur</a></li>
+    <li><a href="#slam">SLAM</a></li>
+    <li><a href="#anti-alias">Anti-alias</a></li>
+    <li><a href="#edit">Edit</a>
+      <ol>
+        <li><a href="#diffusion-prior">Diffusion Prior</a></li>
+      </ol>
+    </li>
+    <li><a href="#splatting">Splatting</a></li>
+    <li><a href="#simulation">Simulation</a>
+      <ol>
+        <li><a href="#dynamic-3dgs">Dynamic 3DGS</a>
+          <ol>
+            <li><a href="#material-points">Material Points</a></li>
+          </ol>
+        </li>
+        <li><a href="#depth-regularized-1">Depth Regularized</a></li>
+      </ol>
+    </li>
+    <li><a href="#text23d">Text23D</a></li>
+    <li><a href="#no-pose">No Pose</a></li>
+    <li><a href="#speed">Speed</a>
+      <ol>
+        <li><a href="#nerf-prior">NeRF Prior</a></li>
+      </ol>
+    </li>
+    <li><a href="#texture">Texture</a></li>
+    <li><a href="#init-point-cloud">Init Point Cloud</a>
+      <ol>
+        <li><a href="#vggt-replace-colmap">VGGT Replace Colmap</a>
+          <ol>
+            <li><a href="#vggt-bad-pose">VGGT Bad Pose</a></li>
+            <li><a href="#vggt--ba">VGGT + BA</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#number-of-points">Number of Points</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/model/splats/c-symp-3dgs/">
+                <img src="/post/writenotes/model/splats/c-symp-3dgs/feat_img-nerf_vs_3dgs.webp"
+                        
+                        width="603" 
+                        height="232" 
+                        loading="lazy"
+                        alt="Featured image of post Sympo: Render - Points | 3DGS" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/sympo/" style="background-color: #34495E; color: #fff;">
+                Sympo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/splats/c-symp-3dgs/">Sympo: Render - Points | 3DGS</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 30, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    14 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#surveys">Surveys</a></li>
+    <li><a href="#render-quality">Render Quality</a>
+      <ol>
+        <li><a href="#sorting">Sorting</a></li>
+        <li><a href="#mlp">MLP</a></li>
+        <li><a href="#quantum-physics">Quantum Physics</a></li>
+      </ol>
+    </li>
+    <li><a href="#reduction">Reduction</a></li>
+    <li><a href="#pbr">PBR</a></li>
+    <li><a href="#geometry">Geometry</a>
+      <ol>
+        <li><a href="#mesh-recon">Mesh Recon</a></li>
+      </ol>
+    </li>
+    <li><a href="#single-view">Single-View</a></li>
+    <li><a href="#sparse-views">Sparse views</a>
+      <ol>
+        <li><a href="#mask">Mask</a>
+          <ol>
+            <li><a href="#gaussianobject">GaussianObject</a></li>
+          </ol>
+        </li>
+        <li><a href="#depth-regularized">Depth Regularized</a>
+          <ol>
+            <li><a href="#dngaussian">DNGaussian</a></li>
+            <li><a href="#nexusgs">NexusGS</a></li>
+          </ol>
+        </li>
+        <li><a href="#image-features">Image Features</a>
+          <ol>
+            <li><a href="#coherentgs">CoherentGS</a></li>
+            <li><a href="#pixelsplat">pixelSplat</a></li>
+          </ol>
+        </li>
+        <li><a href="#frequency">Frequency</a></li>
+      </ol>
+    </li>
+    <li><a href="#accurate-densification">Accurate Densification</a>
+      <ol>
+        <li><a href="#gradient-direction">Gradient Direction</a></li>
+        <li><a href="#regularization">Regularization</a></li>
+        <li><a href="#interpolate">Interpolate</a></li>
+        <li><a href="#stochastic-process">Stochastic Process</a></li>
+        <li><a href="#attack">Attack</a>
+          <ol>
+            <li><a href="#poison">Poison</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#deblur">Deblur</a></li>
+    <li><a href="#slam">SLAM</a></li>
+    <li><a href="#anti-alias">Anti-alias</a></li>
+    <li><a href="#edit">Edit</a>
+      <ol>
+        <li><a href="#diffusion-prior">Diffusion Prior</a></li>
+      </ol>
+    </li>
+    <li><a href="#splatting">Splatting</a></li>
+    <li><a href="#simulation">Simulation</a>
+      <ol>
+        <li><a href="#dynamic-3dgs">Dynamic 3DGS</a>
+          <ol>
+            <li><a href="#material-points">Material Points</a></li>
+          </ol>
+        </li>
+        <li><a href="#depth-regularized-1">Depth Regularized</a></li>
+      </ol>
+    </li>
+    <li><a href="#text23d">Text23D</a></li>
+    <li><a href="#no-pose">No Pose</a></li>
+    <li><a href="#speed">Speed</a>
+      <ol>
+        <li><a href="#nerf-prior">NeRF Prior</a></li>
+      </ol>
+    </li>
+    <li><a href="#texture">Texture</a></li>
+    <li><a href="#init-point-cloud">Init Point Cloud</a>
+      <ol>
+        <li><a href="#vggt-replace-colmap">VGGT Replace Colmap</a>
+          <ol>
+            <li><a href="#vggt-bad-pose">VGGT Bad Pose</a></li>
+            <li><a href="#vggt--ba">VGGT + BA</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#number-of-points">Number of Points</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>(Feature image from: <a class="link" href="https://towardsdatascience.com/a-comprehensive-overview-of-gaussian-splatting-e7d570081362"  target="_blank" rel="noopener"
+    >A Comprehensive Overview of Gaussian Splatting - Medium - Kate Yurkova</a>)</p>
+<hr>
+<h2 id="surveys">Surveys
+</h2><ul>
+<li>
+<p><strong>A Survey on 3D Gaussian Splatting</strong></p>
+<p><a class="link" href="https://arxiv.org/abs/2401.03890"  target="_blank" rel="noopener"
+    >Arxiv</a></p>
+<p>(2024-01-10)</p>
+<ul>
+<li>Review papers until Jan 2024</li>
+<li>Not very detailed.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>3D Gaussian as a New Vision Era: A Survey</strong></p>
+<p>(2024-02-13)</p>
+<ul>
+<li>Papaers in 2023.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="render-quality">Render Quality
+</h2><h3 id="sorting">Sorting
+</h3><ul>
+<li>
+<p><strong>StopThePop: Sorted Gaussian Splatting for View-Consistent Real-time Rendering</strong>
+<a class="link" href="https://r4dl.github.io/StopThePop/"  target="_blank" rel="noopener"
+    >SIG'24</a> | Lukas Radl, Bernhard Kerbl, TU Graz</p>
+<p>(<small>Mentioned by will</small>)</p>
+<p><a class="link" href="https://github.com/r4dl/StopThePop?tab=readme-ov-file"  target="_blank" rel="noopener"
+    >Code</a></p>
+<figure>
+<img src="https://d3i71xaburhd42.cloudfront.net/6fae9f895093e5b69af5c0706c81a6df602a6b05/4-Figure4-1.png" link="https://www.semanticscholar.org/paper/StopThePop%3A-Sorted-Gaussian-Splatting-for-Real-time-Radl-Steiner/6fae9f895093e5b69af5c0706c81a6df602a6b05">
+</figure>
+<ol>
+<li>
+<p><strong>Task</strong>: Rending with splatting</p>
+</li>
+<li>
+<p><strong>Why matter?</strong>: Real-time rendering</p>
+</li>
+<li>
+<p><strong>Problem</strong>: 3D Gaussians are not sorted carefully for varing view directions.</p>
+</li>
+<li>
+<p><strong>Solution</strong>:</p>
+<ul>
+<li>Progressively find the first intersection with a 3D Gaussian on the ray</li>
+<li>Optical flow</li>
+</ul>
+</li>
+<li>
+<p><strong>Conclusion</strong></p>
+</li>
+<li>
+<p><strong>Rethink</strong></p>
+</li>
+<li>
+<p><strong>Sidenotes</strong></p>
+</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h3 id="mlp">MLP
+</h3><ul>
+<li>
+<p><strong>Scaffold-GS: Structured 3D Gaussians for View-Adaptive Rendering</strong> <a class="link" href="https://arxiv.org/abs/2312.00109"  target="_blank" rel="noopener"
+    >CVPR'24</a>
+| Tao Lu, Bo Dai</p>
+<p><a class="link" href="https://city-super.github.io/scaffold-gs/"  target="_blank" rel="noopener"
+    >Code</a> |
+<a class="link" href="https://www.bilibili.com/video/BV1gs421T7u9/"  target="_blank" rel="noopener"
+    >Live: 【CVPR大佬讲paper第二期】上海AI实验室鲁涛大佬讲Scaffold-GS, GSDF, OctreeGS录制内容</a></p>
+<img src="https://city-super.github.io/scaffold-gs/static/images/pipeline.png">
+<p>(2024-05-04)</p>
+<ul>
+<li>显隐结合</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="quantum-physics">Quantum Physics
+</h3><p>(2024-09-25)</p>
+<ul>
+<li>Jason wechat group (24/09/02):
+<blockquote>
+<p>清华大学的2DGH，从量子物理中汲取灵感，提出使用高斯-埃尔米特核作为高斯分层中的新基元，
+在几何重建和新视图合成任务中的非凡性能。</p></blockquote>
+</li>
+</ul>
+<hr>
+<h2 id="reduction">Reduction
+</h2><ul>
+<li>
+<p><strong>EAGLES: Efficient Accelerated 3D Gaussians with Lightweight EncodingS</strong></p>
+<p><a class="link" href="https://github.com/Sharath-girish/efficientgaussian"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2312.04564"  target="_blank" rel="noopener"
+    >Arxiv</a></p>
+<p>(2023-12-08)</p>
+<ol>
+<li>Vector-Quantized to encode each Gaussian&rsquo;s color and rotation attributes to a discrete vector to reduce memory usage.</li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>LightGaussian: Unbounded 3D Gaussian Compression with 15x Reduction and 200+ FPS</strong></p>
+<p><a class="link" href="https://lightgaussian.github.io/"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>(2023-12-09)</p>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Compressed 3D Gaussian Splatting for Accelerated Novel View Synthesis</strong></p>
+<p><a class="link" href="https://www.emergentmind.com/papers/2401.02436"  target="_blank" rel="noopener"
+    >Emergent</a></p>
+<p>(2024-01-08)</p>
+<ol>
+<li>Sensitivity-aware clustering, quantization-aware fine-tuning, and entropy encoding.</li>
+<li>Learned codebooks, compress 31x</li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Compact 3D Gaussian Representation for Radiance Field</strong></p>
+<p><a class="link" href="https://github.com/maincold2/Compact-3DGS"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://www.emergentmind.com/papers/2311.13681"  target="_blank" rel="noopener"
+    >Emergent</a>
+| <a class="link" href="https://maincold2.github.io/c3dgs/"  target="_blank" rel="noopener"
+    >ProjPage</a> | Joo Chan Lee</p>
+<p>(2024-01-15)</p>
+<ol>
+<li>Reduce the number of Gaussians by learnable masking.</li>
+<li>use MLP to enhance the Gaussians&rsquo; color.</li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>GES</strong>
+<a class="link" href="https://www.emergentmind.com/papers/2402.10128"  target="_blank" rel="noopener"
+    >emergent</a></p>
+<p>(2024-02-18)</p>
+<ol>
+<li>Replace Gaussian distribution with Generalized Exponential Function</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="pbr">PBR
+</h2><ul>
+<li>
+<p><strong>Relightable 3D Gaussian: Real-time Point Cloud Relighting with BRDF Decomposition and Ray Tracing</strong></p>
+<p><a class="link" href="https://nju-3dv.github.io/projects/Relightable3DGaussian/"  target="_blank" rel="noopener"
+    >ProjPage</a></p>
+</li>
+</ul>
+<hr>
+<p>(2025-04-17T23:40:22)</p>
+<ul>
+<li>
+<p>Will&rsquo;s collection:</p>
+<blockquote>
+<p>3D Gaussian Ray Tracing: Fast Tracing of Particle Scenes  Moenne-Loccoz等
+Radiant Foam: Real-Time Differentiable Ray Tracing        Govindarajan 等
+RaySplats: Ray Tracing based Gaussian Splatting           Byrski 等
+REdiSplats:Ray Tracing for Editable Gaussian Splatting    Byrski 等
+Reflective Gaussian Splatting                             Yao 等</p></blockquote>
+</li>
+</ul>
+<hr>
+<h2 id="geometry">Geometry
+</h2><h3 id="mesh-recon">Mesh Recon
+</h3><ul>
+<li>
+<p><strong>Trim 3D Gaussian Splatting for Accurate Geometry Representation</strong>
+<a class="link" href="https://arxiv.org/abs/2406.07499"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| Lue Fan, Zhaoxiang Zhang, CASIA</p>
+<p><a class="link" href="https://trimgs.github.io/"  target="_blank" rel="noopener"
+    >No Code</a> | src:QChatGrp</p>
+<p>(2024-06-12)</p>
+<ul>
+<li>Task: Geometry reconstruction</li>
+<li>Problem: redundant and inaccurate Gaussians</li>
+<li>Solution: Contribution-based trimming and small Gaussians&rsquo; scale</li>
+<li>Conclusion: Remove false Gaussian and preserve correct structures.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>SuGaR: Surface-Aligned Gaussian Splatting for Efficient 3D Mesh Reconstruction and High-Quality Mesh Rendering</strong></p>
+<p><a class="link" href="https://github.com/Anttwo/SuGaR"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2311.12775"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://papers.cool/arxiv/2311.12775"  target="_blank" rel="noopener"
+    >Coolpaper</a></p>
+<p>(2023-12-17)</p>
+<ol>
+<li>Align Gaussians with <strong>surface</strong></li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>NeuSG: Neural Implicit Surface Reconstruction with 3D Gaussian Splatting Guidance</strong></p>
+<p><a class="link" href="https://arxiv.org/abs/2312.00846"  target="_blank" rel="noopener"
+    >Arxiv</a></p>
+<p>(2024-02-20)</p>
+<ol>
+<li>Joint optimization (3DGS can&rsquo;t perform gradient descent simultaneously with a neural network.)</li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p>QQ chat 2024-02-20: 除了 Sugar，现在还有什么新的 3DGS 提 mesh 的方法嘛</p>
+<p>will：GaMeS，GSIR，Mesh-based Gaussian splatting for real-time large-scale deformation，
+都得把 gs 退化成椭圆，目前应该只有 sugar 开了源。
+还有一个 NeuSG 是 nerf+GS 联合出 mesh 的。
+gs 本身的拓扑关系不强，提 mesh 还是不如 nerf，更别说比过传统方法了。</p>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>2D Gaussian Splatting for Geometrically Accurate Radiance Fields</strong></p>
+<p><a class="link" href="https://arxiv.org/abs/2403.17888"  target="_blank" rel="noopener"
+    >Arxiv</a></p>
+<p>(2024-04-16)</p>
+<ul>
+<li>2D Gaussians compose of the surface.</li>
+</ul>
+<p>(2024-04-24)</p>
+<ul>
+<li>Math derivation (Chinese): <a class="link" href="https://github.com/will-zzy/2dgs-non-official/"  target="_blank" rel="noopener"
+    >will-zzy/2dgs-non-official</a></li>
+<li><a class="link" href="https://colab.research.google.com/drive/1qoclD7HJ3-o0O1R8cvV3PxLhoDCMsH8W"  target="_blank" rel="noopener"
+    >python imple - Colab</a></li>
+</ul>
+</li>
+<li>
+<p>GOF</p>
+</li>
+</ul>
+<hr>
+<h2 id="single-view">Single-View
+</h2><ul>
+<li>
+<p><strong>Splatter Image: Ultra-Fast Single-View 3D Reconstruction</strong></p>
+<p><a class="link" href="https://github.com/szymanowiczs/splatter-image"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2312.13150"  target="_blank" rel="noopener"
+    >arXiv</a>
+| <a class="link" href="https://www.bilibili.com/video/BV1me41167DM/"  target="_blank" rel="noopener"
+    >brief</a></p>
+<p>(2023-12-30)</p>
+<ol>
+<li>One image is input into a UNet to reconstruct &ldquo;images&rdquo; that
+is interpreted as parameters (opacity, RGB, Covariance, positon) of all Guassians.</li>
+<li>Each pixel corresponds to a Guassian.</li>
+<li>Cross-view transformer</li>
+<li>Compared with PixelNeRF</li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>AGG: Amortized Generative 3D Gaussians for Single Image to 3D</strong></p>
+<p><a class="link" href="https://ir1d.github.io/AGG/"  target="_blank" rel="noopener"
+    >No Code</a>
+| <a class="link" href="https://papers.cool/arxiv/2401.04099"  target="_blank" rel="noopener"
+    >CoolPaper</a>
+| <a class="link" href="https://www.emergentmind.com/papers/2401.04099"  target="_blank" rel="noopener"
+    >Emergent</a>
+| Dejia Xu, UofTexas</p>
+<p>(2024-01-10)</p>
+<ol>
+<li>
+<p>Comparing with optimization-based single image to 3D method, such as leveraging diffusion model,
+AGG obtains Gaussian-wise color and opacity from augmented <strong>image features</strong>.</p>
+</li>
+<li>
+<p>Coarse representation: DINOv2 image features followed by 2 transformers that <strong>encode</strong> features to Gaussian locations and a tri-plane texture field.</p>
+</li>
+<li>
+<p>The Gaussian locations + texture feature are mapped to color and opacity for each Gaussian by an <strong>MLP</strong></p>
+<ul>
+<li>While in NeRF, MLP is used to output <strong>each point</strong>&rsquo;s rgb and density.</li>
+</ul>
+<figure>
+<img src="https://ir1d.github.io/AGG/static/media/stage1.34ca5aad6b671578d76f.png" width="80%">
+</figure>
+</li>
+<li>
+<p>In fine stage, Gaussian&rsquo;s coarse color and opacity are augmented with the DINOv2 image feature,
+and perform <strong>super-resolution</strong> on the low-resolution feature map, which will be decoded by MLP.</p>
+<figure>
+<img src="https://ir1d.github.io/AGG/static/media/stage2.9c1312bf8ca2a0338b07.png" width="80%">
+</figure>
+</li>
+</ol>
+<p>(2024-04-12)</p>
+<ul>
+<li>
+<p>Triplane is a kind of implicit representation. While Gaussians is an explicit representation. 显隐结合</p>
+</li>
+<li>
+<p>Upsampling Gaussians is a densification? (Heard from <a class="link" href="https://www.bilibili.com/video/BV1iM4m197Ay/?&amp;t=2155"  target="_blank" rel="noopener"
+    >【3D AIGC论文串讲】单视图3D重建-从单视图中预测3D模型】</a>)</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Triplane Meets Gaussian Splatting: Fast and Generalizable Single-View 3D Reconstruction with Transformers</strong></p>
+<p><a class="link" href="https://huggingface.co/spaces/VAST-AI/TriplaneGaussian"  target="_blank" rel="noopener"
+    >Gradio Demo</a>
+| <a class="link" href="https://github.com/VAST-AI-Research/TriplaneGaussian"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://zouzx.github.io/TriplaneGaussian/"  target="_blank" rel="noopener"
+    >ProjPage</a> | VAST</p>
+<p>(2024-01-20)</p>
+<ul>
+<li>
+<blockquote>
+<p>This model (on huggingface) is trained on Objaverse-LVIS (~45K synthetic objects) only.</p></blockquote>
+<p>Is their multi-view consistency derivated from geometry prior contained in the huge dataset?</p>
+</li>
+<li>
+<p>Image -&gt; pre-trained ViT &ndash;&gt; Upsample (SnowflakeNet) &ndash;&gt; point cloud -&gt; Tri-plane -&gt; Gaussians&rsquo; parameters &ndash;&gt; Splatting</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Gamba: Marry Gaussian Splatting with Mamba for single view 3D reconstruction</strong></p>
+<p><a class="link" href="https://arxiv.org/abs/2403.18795"  target="_blank" rel="noopener"
+    >Arxiv</a></p>
+<p>(2024-04-16)</p>
+<ul>
+<li>Single view -&gt; DINO features -&gt; Mamba-based sequential network -&gt; 3D Gaussians</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p>Touch-GS <a class="link" href="https://arxiv.org/abs/2403.09875"  target="_blank" rel="noopener"
+    >IROS'24</a></p>
+<p><a class="link" href="https://github.com/armlabstanford/Touch-GS"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>(2024-07-09)</p>
+<ul>
+<li><a class="link" href="https://www.bilibili.com/video/BV1Kr421M7sC/"  target="_blank" rel="noopener"
+    >斯坦福开源Touch-GS！视觉-触觉有监督的3D高斯泼溅-计算机视觉life</a></li>
+<li>Bayesian. How to introduce probability?</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="sparse-views">Sparse views
+</h2><h3 id="mask">Mask
+</h3><h4 id="gaussianobject">GaussianObject
+</h4><ul>
+<li>
+<p><strong>GaussianObject: Just Taking Four Images to Get A High-Quality 3D Object with Gaussian Splatting</strong></p>
+<p><a class="link" href="https://github.com/GaussianObject/GaussianObject/tree/main"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2402.10259"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://papers.cool/arxiv/2402.10259"  target="_blank" rel="noopener"
+    >CoolPapers</a>
+| Chen Yang, Wei Shen, SJTU</p>
+<p>(2024-02-24)</p>
+<ul>
+<li>Mask for an object. Not reconstructing a scene.</li>
+<li>Train a diffusion model for repairing.</li>
+</ul>
+<p>(2024-04-09)</p>
+<p>Two problems and two solutions:</p>
+<ol>
+<li>
+<p>Problem 1: Overfitting to sparse views resulting in fragmented structure.</p>
+<ul>
+<li>Visual hull of objects for structure prior to restrict Gaussian kernel within object outline.</li>
+</ul>
+</li>
+<li>
+<p>Problem 2: Information missing.</p>
+<ul>
+<li>Train a 2D diffusion model, with leave-one-out training and noise-added gaussians,
+to predict what a corrupt rendered image should have looked like. (for arbitrary viewpoint?)</li>
+<li>The predicted images are used to refine 3DGS.</li>
+</ul>
+</li>
+</ol>
+<p>(2024-07-26)</p>
+<ul>
+<li>
+<p>The project: SAM has been archived. I&rsquo;m confused as it&rsquo;s so popular.</p>
+</li>
+<li>
+<p>Download the &ldquo;Dataset Pt. 1&rdquo; of <a class="link" href="https://jonbarron.info/mipnerf360/"  target="_blank" rel="noopener"
+    >Mip-NeRF 360</a> (11.7G):
+<code>wget http://storage.googleapis.com/gresearch/refraw360/360_v2.zip</code></p>
+<p>Check: <code>unzip -l 360_v2.zip</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="depth-regularized">Depth Regularized
+</h3><h4 id="dngaussian">DNGaussian
+</h4><ul>
+<li>
+<p><strong>DNGaussian: Optimizing Sparse-View 3D Gaussian Radiance Fields with Global-Local Depth Normalization</strong> ~ CVPR 2024</p>
+<!-- (2024-04-08) -->
+<p><a class="link" href="https://github.com/Fictionarry/DNGaussian"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2403.06912"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://fictionarry.github.io/"  target="_blank" rel="noopener"
+    >Jiahe Li</a>, Beihang</p>
+<figure>
+<img src="https://github.com/Fictionarry/DNGaussian/raw/main/assets/main.png">
+</figure>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Supports</strong></p>
+<p>(2024-04-14)</p>
+<p>Less training time and less memory footprint.</p>
+<p>Geometry degradation can be mitigate by dpeth constraint.</p>
+<p>Loss: hard- and soft-depth regularization; Global- and local-depth normalization.</p>
+<p>Freeze Gaussians&rsquo; shape (covariance), and apply depth regularization to position and opacity of Gaussians.</p>
+<ul>
+<li>
+<p>Hard depth: Gaussians on the surface are the outest hull of the point cloud,
+they can be identified by setting a large opacity, and when rendering depth map, only their depths are revealed.</p>
+</li>
+<li>
+<p>Small depth variation <strong>matters</strong> for 3DGS -&gt; normalization</p>
+</li>
+<li>
+<p>A depth map is split into <strong>patches</strong>.
+Normalize each patch with local patch-level depth variance, and global image-level depth variance separately.</p>
+</li>
+<li>
+<p>Colors are predicted by a MLP.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Depth-Regularized Optimization for 3D Gaussian Splatting in Few-Shot Images</strong></p>
+<p><a class="link" href="https://arxiv.org/abs/2311.13398"  target="_blank" rel="noopener"
+    >Arxiv</a> | Jaeyoung Chung</p>
+<p>(2023-11-30)</p>
+<ol>
+<li>Few shot but without overfitting</li>
+<li>Pre-trained monocular depth estimation model</li>
+</ol>
+<blockquote>
+<p>Representing a 3D scene by combining numerous Gaussian splats has yielded outstanding visual quality.</p></blockquote>
+</li>
+</ul>
+<hr>
+<h4 id="nexusgs">NexusGS
+</h4><ul>
+<li>
+<p><strong>References</strong>:</p>
+<ol>
+<li><a class="link" href="https://arxiv.org/abs/2503.18794"  target="_blank" rel="noopener"
+    >NexusGS: Sparse View Synthesis with Epipolar Depth Priors in 3D Gaussian Splatting</a></li>
+<li><a class="link" href="https://github.com/USMizuki/NexusGS"  target="_blank" rel="noopener"
+    >Code</a></li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<!-- (2025-09-15T14:15) -->
+<ol>
+<li>
+<p>Problem solving</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 448 57"
+      >
+      <g transform='translate(8,16)'>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>├</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>▷</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='96' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='168' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>├</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>▷</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='240' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='280' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='288' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='296' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='304' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='312' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='328' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='336' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='344' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='360' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='360' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='368' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='376' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='376' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>Implementation</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 720 57"
+      >
+      <g transform='translate(8,16)'>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>E</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='96' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>├</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>▷</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='168' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='240' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>├</text>
+<text text-anchor='middle' x='280' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>▷</text>
+<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='312' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='328' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='336' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='344' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='360' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='360' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='368' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='376' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='376' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='384' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='392' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='392' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='400' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='400' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='400' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='408' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='408' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='408' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='416' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='416' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='424' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='424' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='432' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='432' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='440' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='440' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='448' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='448' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='456' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='456' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='464' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='464' y='20' fill='currentColor' style='font-size:1em'>├</text>
+<text text-anchor='middle' x='464' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+<text text-anchor='middle' x='472' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='480' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='488' y='20' fill='currentColor' style='font-size:1em'>▷</text>
+<text text-anchor='middle' x='496' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='496' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='496' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='504' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='504' y='20' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='504' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='512' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='512' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='512' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='520' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='520' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='520' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='528' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='528' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='528' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='536' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='536' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='536' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='544' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='544' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='544' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='552' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='552' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='552' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='560' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='560' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='568' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='568' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='568' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='576' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='576' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='576' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='584' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='584' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='584' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='592' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='592' y='20' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='592' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='600' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='600' y='20' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='600' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='608' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='608' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='616' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='616' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='616' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='624' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='624' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='624' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='632' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='632' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='632' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='640' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='640' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='640' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='648' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='648' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='648' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='656' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='656' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='656' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='664' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='664' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='672' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='672' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='672' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='680' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='680' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='680' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='688' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='688' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='688' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='696' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='696' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='696' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='704' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='704' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='704' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Introduction</strong>:</p>
+<ol>
+<li>
+<p>Problem Analyzing</p>
+<div class="mermaid">flowchart LR
+a("Densification")
+a --> b1("The number of points")
+a --> b2("Their position accuracy")
+b1 --> c1("FSGS")
+b2 --> c2("Depth")
+</div>
+
+</li>
+<li>
+<p>Competition</p>
+<blockquote>
+<p>&ldquo;NexusGS for Novel View Synthesis&rdquo;</p></blockquote>
+<ol>
+<li>
+<p>Continuous camera pose rendering</p>
+</li>
+<li>
+<p>Metrics: PSNR, SSIM, LPIPS</p>
+</li>
+<li>
+<p><strong>Sparse</strong> input views</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Approach</p>
+<div class="mermaid">flowchart LR
+a("Depth map") -- constrainted --> b("Optical Flow,<br> Epipolar Line")
+b --> c("Point insert")
+</div>
+
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 664 57"
+      >
+      <g transform='translate(8,16)'>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>├</text>
+<text text-anchor='middle' x='88' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>▷</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='232' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='240' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='240' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='248' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='248' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='288' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='296' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='304' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='312' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='328' y='20' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='336' y='20' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>&lt;</text>
+<text text-anchor='middle' x='344' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='360' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='360' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='368' y='20' fill='currentColor' style='font-size:1em'>&gt;</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='376' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='376' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='384' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='384' y='20' fill='currentColor' style='font-size:1em'>E</text>
+<text text-anchor='middle' x='384' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='392' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='392' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='392' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='400' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='400' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='400' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='408' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='408' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='408' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='416' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='416' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='416' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='424' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='424' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='432' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='432' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='432' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='440' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='440' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='448' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='448' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='456' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>L</text>
+<text text-anchor='middle' x='456' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='464' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='464' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='464' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='472' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='472' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='472' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='480' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='480' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='480' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='488' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='488' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='496' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='496' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='504' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='504' y='20' fill='currentColor' style='font-size:1em'>├</text>
+<text text-anchor='middle' x='504' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+<text text-anchor='middle' x='512' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='520' y='20' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='528' y='20' fill='currentColor' style='font-size:1em'>▷</text>
+<text text-anchor='middle' x='536' y='4' fill='currentColor' style='font-size:1em'>┌</text>
+<text text-anchor='middle' x='536' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='536' y='36' fill='currentColor' style='font-size:1em'>└</text>
+<text text-anchor='middle' x='544' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='544' y='20' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='544' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='552' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='552' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='552' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='560' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='560' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='560' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='568' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='568' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='568' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='576' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='576' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='576' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='584' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='584' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='592' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='592' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='592' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='600' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='600' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='600' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='608' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='608' y='20' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='608' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='616' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='616' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='616' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='624' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='624' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='624' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='632' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='632' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='632' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='640' y='4' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='640' y='36' fill='currentColor' style='font-size:1em'>─</text>
+<text text-anchor='middle' x='648' y='4' fill='currentColor' style='font-size:1em'>┐</text>
+<text text-anchor='middle' x='648' y='20' fill='currentColor' style='font-size:1em'>│</text>
+<text text-anchor='middle' x='648' y='36' fill='currentColor' style='font-size:1em'>┘</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h3 id="image-features">Image Features
+</h3><h4 id="coherentgs">CoherentGS
+</h4><ul>
+<li>
+<p><strong>CoherentGS: Sparse Novel View Synthesis with Coherent 3D Gaussians</strong></p>
+<p><a class="link" href="https://people.engr.tamu.edu/nimak/Papers/CoherentGS/index.html"  target="_blank" rel="noopener"
+    >No Code</a>
+| <a class="link" href="https://arxiv.org/abs/2403.19495"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| Avinash Paliwal, Texas A&amp;M</p>
+<p>(2024-04-06)</p>
+<figure>
+<img src="https://people.engr.tamu.edu/nimak/Papers/CoherentGS/images/overview.png">
+<figure>
+<p>(2024-04-16)</p>
+<ul>
+<li>Regularizer: single&amp;multiview convolution decoder + total variance loss + flow-based loss.</li>
+<li>Initilization: Monocular depth estimation model</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="pixelsplat">pixelSplat
+</h4><ul>
+<li>
+<p><strong>pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable 3D Reconstruction</strong></p>
+<p><a class="link" href="https://github.com/dcharatan/pixelsplat"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://papers.cool/arxiv/2312.12337"  target="_blank" rel="noopener"
+    >CoolPapers</a>
+| David Charatan, Vincent Sitzmann</p>
+<p>(2024-04-15)</p>
+<ul>
+<li>
+<p>2 views</p>
+</li>
+<li>
+<p>Sample from a distribution with reparameterization trick.</p>
+</li>
+<li>
+<p>Feed-forward: reference-image colors are fused into novel-views colors.</p>
+<p>Feed-forward (Generalizable) methods require training on <strong>large datasets</strong>,
+e.g., RealEstate10K, which is also used by: IBRNet, GNT, MuRF,
+to accquire a general 3D scene prior.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images</strong></p>
+<p><a class="link" href="https://github.com/donydchen/mvsplat"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2403.14627"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| Yuedong Chen, Monash</p>
+<p>(2024-04-13)</p>
+<figure>
+<img src="https://donydchen.github.io/mvsplat/static/images/architecture.png">
+</figure>
+<ul>
+<li>MVSNet + 3DGS</li>
+<li>I guess this paper has been rejected like his last project Match-NeRF, because as Jiayuan said, &ldquo;just changed a dataset&rdquo;.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>MVSGaussian: Fast Generalizable Gaussian Splatting Reconstruction from Multi-View Stereo</strong></p>
+<p><a class="link" href="https://mvsgaussian.github.io/"  target="_blank" rel="noopener"
+    >NoCode</a>
+| <a class="link" href="https://arxiv.org/abs/2405.12218"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| Tianqi Liu, HUST</p>
+<p>(2024-05-27)</p>
+<ul>
+<li>
+<p>&ldquo;MVSNet&rdquo; -&gt; depth map -&gt; pixel-aligned feature -&gt; Gaussian parameters.</p>
+<figure>
+<img src="https://mvsgaussian.github.io/static/images/pipeline.png" link="https://mvsgaussian.github.io/">
+</figure>
+</li>
+<li>
+<p><a class="link" href="https://mp.weixin.qq.com/s/sY3-EZDACNJ5B-eLary93Q"  target="_blank" rel="noopener"
+    >Chinese post</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="frequency">Frequency
+</h3><ul>
+<li>
+<p>RAIN-GS: Relaxing Accurate Initialization Constraint for 3D Gaussian Splatting</p>
+<p><a class="link" href="https://github.com/KU-CVLAB/RAIN-GS"  target="_blank" rel="noopener"
+    >Code</a>
+| Jaewoo Jung, KoreaU</p>
+<p>(2024-04-18)</p>
+<figure>
+<img src="https://arxiv.org/html/2403.09413v1/x5.png">
+<figure>
+</li>
+</ul>
+<hr>
+<h2 id="accurate-densification">Accurate Densification
+</h2><ul>
+<li>
+<p><strong>Revising Densification in Gaussian Splatting</strong></p>
+<p>(2024-04-10)</p>
+<p><a class="link" href="https://x.com/zhenjun_zhao/status/1777948508030677204?s=46&amp;t=n4uAaZsSjP0mEziWYvnpuw"  target="_blank" rel="noopener"
+    >X - Zhenjun Bao</a></p>
+</li>
+</ul>
+<hr>
+<h3 id="gradient-direction">Gradient Direction
+</h3><ul>
+<li>
+<p><strong>Pixel-GS: Density Control with Pixel-aware Gradient for 3D Gaussian Splatting</strong></p>
+<p><a class="link" href="https://pixelgs.github.io/"  target="_blank" rel="noopener"
+    >Code</a> | <a class="link" href="https://arxiv.org/abs/2403.15530"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| Zheng Zhang, UoHK</p>
+<p>(2024-05-09)</p>
+<ul>
+<li>Improve the clone and split with focus on gradients.</li>
+</ul>
+<p>(2024-05-27)</p>
+<ul>
+<li>The Gaussian growth is based on the gradient. Thus, controling the growth requires to control the gradients.</li>
+</ul>
+<ul>
+<li>Use the number of visible views as the weights of gradients
+<ul>
+<li>This reminds me the NeuRay which uses &ldquo;visibility&rdquo; to facilitate consistent geometry.</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>Scale the gradient according to the distance to the camera to avoid the tendency that folaters exist near the camera.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>AbsGS: Recovering Fine Details for 3D Gaussian Splatting</strong></p>
+<p><a class="link" href="https://github.com/TY424/AbsGS"  target="_blank" rel="noopener"
+    >No Code</a>
+| <a class="link" href="https://arxiv.org/abs/2404.10484"  target="_blank" rel="noopener"
+    >Arxiv</a></p>
+<p>(2024-04-17)</p>
+<figure>
+<img src="https://ty424.github.io/AbsGS.github.io/resources/image/pip.png">
+</figure>
+<ul>
+<li>The gradients of various Gaussians have different directions,
+so the gradients from covered pixels for a big Gaussian get canceled each other out.
+Thus, the big Gaussians won&rsquo;t split</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="regularization">Regularization
+</h3><ul>
+<li>
+<p><strong>GaussianPro: 3D Gaussian Splatting with Progressive Propagation</strong></p>
+<p><a class="link" href="https://github.com/kcheng1021/GaussianPro"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2402.14650"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://papers.cool/arxiv/2402.14650"  target="_blank" rel="noopener"
+    >CoolPapers</a></p>
+<p>(2024-04-17)</p>
+<figure>
+<figure src="https://github.com/kcheng1021/GaussianPro/raw/main/figs/pipeline.png">
+</figure>
+<ul>
+<li>
+<p>Supplement Gaussians with high uncertainty from the rendered normal maps.</p>
+</li>
+<li>
+<p>Regularization term: planer normal map loss</p>
+</li>
+<li>
+<p>Propagate: fuse neighboring pixels&rsquo; normals</p>
+</li>
+<li>
+<p>Accurate geometry: evaluate new Gaussians with photometric consistancy.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="interpolate">Interpolate
+</h3><ul>
+<li>
+<p><strong>FSGS: Real-Time Few-Shot View Synthesis using Gaussian Splatting</strong></p>
+<p><a class="link" href="https://github.com/VITA-Group/FSGS"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://zehaozhu.github.io/FSGS/"  target="_blank" rel="noopener"
+    >ProjPage</a>
+| Zhiwen Fan, UoTexas</p>
+<p>(2023-12-04)</p>
+<figure>
+<img src="https://arxiv.org/html/2312.00451v1/x4.png" style="width: 50%">
+</figure>
+<ul>
+<li>3 views</li>
+</ul>
+<ol>
+<li>Unpooling the existing Gaussians to densify the sparse point cloud resulting from sparse views</li>
+<li>Depth regularization from a pre-trained monocular depth estimation model.</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h3 id="stochastic-process">Stochastic Process
+</h3><ul>
+<li>
+<p><strong>References</strong>:</p>
+<ol>
+<li><strong>3D Gaussian Splatting as Markov Chain Monte Carlo</strong> <a class="link" href="https://ar5iv.labs.arxiv.org/html/2404.09591"  target="_blank" rel="noopener"
+    >Arxiv</a>
+<small>
+(Was trying to find the img of densifying. Search: &ldquo;3D Gaussian Splatting ar5iv&rdquo; in <a class="link" href="https://duckduckgo.com/?q=3D&#43;Gaussian&#43;Splatting&#43;ar5iv&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>)
+</small></li>
+</ol>
+</li>
+</ul>
+<p>(2024-07-19)</p>
+<ol>
+<li>
+<p>Task:</p>
+</li>
+<li>
+<p>Rethink:</p>
+<ul>
+<li>感觉 densification 就是点云上采样的问题，可以单独研究上采样的问题，和 3DGS 结合就是蹭热点。
+3DGS 的“本质”是：渲染快。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="attack">Attack
+</h3><h4 id="poison">Poison
+</h4><ol>
+<li>
+<p><strong>Problem Investigating</strong></p>
+<ol>
+<li>Make a computation-intense attack on the service vendor server</li>
+</ol>
+<p>::: aside</p>
+<ul>
+<li><strong>References</strong>:
+<ol>
+<li><a id=""></a>
+<a class="link" href="https://www.bilibili.com/video/BV1eRMBzBE7C/"  target="_blank" rel="noopener"
+    >Talk | 新加坡国立大学博士生卢嘉昊：Poison-Splat：针对3D高斯溅射的计算成本攻击 - TechBeat人工智能社区</a>
+:::</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<ol start="2">
+<li>
+<p><strong>Supports</strong></p>
+<ol>
+<li>f</li>
+</ol>
+</li>
+</ol>
+<hr>
+<ol start="3">
+<li>
+<p><strong>Extend</strong></p>
+<!-- (2025-09-17T21:04) -->
+<ol>
+<li>
+<p><strong>How to densify wisely?</strong></p>
+<div class="mermaid">flowchart LR
+a("Wise densification")
+a -- reverse --> b("Suppress bad densification")
+b --> c("Defence computational-intense attack")
+</div>
+
+</li>
+<li>
+<p><strong>Solutions</strong></p>
+<div class="mermaid">flowchart LR
+a("抵制下毒：计算成本的增加")
+a --> b("分类问题：判别一个 “高斯基元是否对场景重要？”")
+a --> c("去噪问题：消除输入图片中的（高频）噪声")
+</div>
+
+</li>
+<li>
+<p>Attack in another way?</p>
+<div class="mermaid">flowchart LR
+a("攻击") --> b("加噪") --> c("DDPM")
+</div>
+
+</li>
+</ol>
+</li>
+</ol>
+<hr>
+<h2 id="deblur">Deblur
+</h2><ul>
+<li>
+<p><strong>Deblurring 3D Gaussian Splatting</strong></p>
+<p><a class="link" href="https://www.emergentmind.com/papers/2401.00834"  target="_blank" rel="noopener"
+    >Emergent</a></p>
+<p>(2024-01-05)</p>
+<ol>
+<li>MLP &ldquo;re-fuses&rdquo; quaternion (covariance matrix), scaling matrix and position</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="slam">SLAM
+</h2><p>Generic 3DGS optimize a pre-generated point cloud.</p>
+<ul>
+<li>
+<p><strong>Gaussian Splatting SLAM</strong></p>
+<p><a class="link" href="https://arxiv.org/abs/2312.06741"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://rmurai.co.uk/projects/GaussianSplattingSLAM/"  target="_blank" rel="noopener"
+    >ProjPage</a></p>
+<p>(2023-12-14)</p>
+<ul>
+<li><strong>Incrementally</strong> construct the point cloud</li>
+</ul>
+<ol>
+<li>
+<p>Optimize camera pose alongside point cloud via gradient descent
+according to the <strong>Jacobian of camera pose</strong> w.r.t. the 3D Gaussian map (screen function).</p>
+</li>
+<li>
+<p>Confine geometry consistency via</p>
+</li>
+<li>
+<p>Point cloud growing and pruning</p>
+</li>
+</ol>
+</li>
+<li>
+<p><a class="link" href="https://www.bilibili.com/video/BV1ew411g718?"  target="_blank" rel="noopener"
+    >哈工大博士分享：基于Gaussian Splatting的SLAM新发展与新论文（上）- bilibili - 计算机视觉life</a></p>
+</li>
+<li>
+<p><a class="link" href="https://arxiv.org/abs/2402.13255"  target="_blank" rel="noopener"
+    >How NeRFs and 3D Gaussian Splatting are Reshaping SLAM: a Survey</a></p>
+<p>(2024-02-29)</p>
+</li>
+</ul>
+<hr>
+<h2 id="anti-alias">Anti-alias
+</h2><ul>
+<li>
+<p><strong>TRIPS: Trilinear Point Splatting for Real-Time Radiance Field Rendering</strong></p>
+<p><a class="link" href="https://github.com/lfranke/trips"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://www.emergentmind.com/papers/2401.06003"  target="_blank" rel="noopener"
+    >Emergent</a>
+| <a class="link" href="https://lfranke.github.io/trips/"  target="_blank" rel="noopener"
+    >ProjPage</a> | Linus Franke</p>
+<p>(2024-01-14)</p>
+<ul>
+<li>screen-space image pyramid</li>
+<li>Light-weight MLP</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="edit">Edit
+</h2><ul>
+<li>
+<p><strong>GaussianEditor: Swift and Controllable 3D Editing with Gaussian Splatting</strong></p>
+<p><a class="link" href="https://buaacyw.github.io/gaussian-editor/"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2311.14521"  target="_blank" rel="noopener"
+    >arxiv</a> | Yiwen Chen, Guosheng Lin</p>
+<p>(2024-01-21)</p>
+<ol>
+<li>Integrated various papers.</li>
+<li>Gaussian semantic tracing ? Hierarchical Gaussian Splatting ?</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h3 id="diffusion-prior">Diffusion Prior
+</h3><ul>
+<li>
+<p><strong>InFusion: Inpainting 3D Gaussians via Learning Depth Completion from Diffusion Prior</strong></p>
+<p><a class="link" href="https://github.com/ali-vilab/infusion"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2404.11613"  target="_blank" rel="noopener"
+    >Arxiv</a></p>
+<p>(2024-04-18)</p>
+<figure>
+<img src="https://arxiv.org/html/2404.11613v1/x2.png">
+</figure>
+</li>
+</ul>
+<hr>
+<h2 id="splatting">Splatting
+</h2><ul>
+<li>
+<p><strong>GS++: Error Analyzing and Optimal Gaussian Splatting</strong></p>
+<p><a class="link" href="https://arxiv.org/abs/2402.00752"  target="_blank" rel="noopener"
+    >Arxiv</a> | Letian Huang, NJU</p>
+<p>(2024-02-04)</p>
+<ul>
+<li>
+<p>Minimize the Taylor approximation error in the projective transformation</p>
+</li>
+<li>
+<p>Research aspect: point cloud storage, performance , and robustness in sparse viewpoints</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>360-GS: Layout-guided Panoramic Gaussian Splatting For Indoor Roaming</strong></p>
+<p><a class="link" href="https://arxiv.org/abs/2402.00763"  target="_blank" rel="noopener"
+    >Arxiv</a> | Jiayang Bai, NJU</p>
+<p>(2024-02-04)</p>
+<ul>
+<li>Spherical surface, analogy to NeRF++</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="simulation">Simulation
+</h2><h3 id="dynamic-3dgs">Dynamic 3DGS
+</h3><ul>
+<li>GMix.ai Dynamic Gaussian Splatting <a class="link" href="https://radiancefields.com/gmix-ai-dynamic-gaussian-splatting/"  target="_blank" rel="noopener"
+    >post</a></li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>Gaussian-Flow: 4D Reconstruction with Dynamic 3D Gaussian Particle</strong></p>
+<p><a class="link" href="https://nju-3dv.github.io/projects/Gaussian-Flow/"  target="_blank" rel="noopener"
+    >ProjPage</a>
+|Youtian Lin, Yao Yao</p>
+<p>(2024-02-21)</p>
+<ul>
+<li>Movement in a timestep</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>GaMeS: Mesh-Based Adapting and Modification of Gaussian Splatting</strong></p>
+<p>| Surfaced by <a class="link" href="https://zhuanlan.zhihu.com/p/682844788"  target="_blank" rel="noopener"
+    >Jason</a></p>
+<p>(2024-02-29)</p>
+<p>网格面的顶点对每个高斯分量进行参数化</p>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>SC-GS: Sparse-Controlled Gaussian Splatting for Editable Dynamic Scenes</strong> ~ CVPR 2024</p>
+<p><a class="link" href="https://yihua7.github.io/SC-GS-web/"  target="_blank" rel="noopener"
+    >ProjPage</a>
+| Yi-hua Huang, Xiaojuan Qi</p>
+<p>(2024-03-06)</p>
+<ul>
+<li>Sparse control points</li>
+<li>Decompose motion and appearance</li>
+<li>MLP predict 6DoF movement. MLP can&rsquo;t reach accurate result, so it works for large-scale movement.
+And can it represent the multi-object interaction? like collision?</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="material-points">Material Points
+</h4><p><strong>References</strong>:</p>
+<ol>
+<li><a id=""></a>
+<a class="link" href="https://xpandora.github.io/PhysGaussian/"  target="_blank" rel="noopener"
+    >PhysGaussian: Physics-Integrated 3D Gaussians for Generative Dynamics</a></li>
+<li><a id="Simu-Dynm-Ptcl-r2"></a>
+<a class="link" href="https://xjay18.github.io/projects/neuma.html"  target="_blank" rel="noopener"
+    >NeuMA: Neural Material Adaptor for Visual Grounding of Intrinsic Dynamics - NeuIPS‘24</a>
+<small>
+<ul>
+<li>Mentioned in Jason&rsquo;s WeChat group.
+</small></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong><Method paradiam One></strong></p>
+<p>(2024-03-06)</p>
+<ol>
+<li>
+<p><strong>PhysGaussian: Physics-Integrated 3D Gaussians for Generative Dynamics</strong></p>
+<ul>
+<li>
+<p><strong>Related</strong>:</p>
+<ol>
+<li><a class="link" href="https://xpandora.github.io/PhysGaussian/"  target="_blank" rel="noopener"
+    >Code</a></li>
+<li><a class="link" href="https://arxiv.org/abs/2311.12198"  target="_blank" rel="noopener"
+    >Pdf</a>: Xuan Li, Chenfanfu Jiang</li>
+</ol>
+</li>
+<li>
+<p><strong>Reasons</strong>:</p>
+<ol>
+<li>MPM solver!</li>
+<li>This method may produce reasonable effects as the underling physics simulation.</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>(2024-12-02)</p>
+<ol start="2">
+<li>NeuMA <sup><a class="link" href="#Simu-Dynm-Ptcl-r2" >r2-Nips</a></sup></li>
+</ol>
+<hr>
+<h3 id="depth-regularized-1">Depth Regularized
+</h3><ul>
+<li>
+<p><strong>EndoGS: Deformable Endoscopic Tissues Reconstruction with Gaussian Splatting</strong>
+<a class="link" href="https://www.emergentmind.com/papers/2401.11535"  target="_blank" rel="noopener"
+    >Emergent</a>
+| <a class="link" href="https://github.com/HKU-MedAI/EndoGS"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>(2024-02-10)</p>
+<ul>
+<li>Depth-guided supervision for handling occulusion</li>
+</ul>
+</li>
+</ul>
+<hr>
+<hr>
+<h2 id="text23d">Text23D
+</h2><ul>
+<li>
+<p>GSGEN: Text-to-3D using Gaussian Splatting</p>
+<p><a class="link" href="https://github.com/gsgen3d/gsgen"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://scholar.google.com/citations?hl=en&amp;user=2pbka1gAAAAJ&amp;view_op=list_works&amp;sortby=pubdate"  target="_blank" rel="noopener"
+    >Zilong Chen</a></p>
+<p>(2024-02-29)</p>
+</li>
+</ul>
+<hr>
+<h2 id="no-pose">No Pose
+</h2><ul>
+<li>
+<p><strong>InstantSplat: Unbounded Sparse-view Pose-free Gaussian Splatting in 40 Seconds</strong></p>
+<p><a class="link" href="https://instantsplat.github.io/"  target="_blank" rel="noopener"
+    >ProjPage</a>
+| Zhiwen Fan, UTAustin</p>
+<p>(2024-04-01)</p>
+<p>3DGS + DUSt3R</p>
+</li>
+</ul>
+<hr>
+<ul>
+<li>
+<p><strong>COLMAP-Free 3D Gaussian Splatting</strong> ~ CVPR 2024</p>
+<p><a class="link" href="https://oasisyang.github.io/colmap-free-3dgs/"  target="_blank" rel="noopener"
+    >No Code</a>
+| <a class="link" href="https://arxiv.org/abs/2312.07504"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://oasisyang.github.io/publications/"  target="_blank" rel="noopener"
+    >Yang Fu</a>,
+Xiaolong Wang, UCSD</p>
+<p>(2024-04-09)</p>
+<ul>
+<li>
+<p>Given a video, each frame produces a depth map and a <em>local</em> Gaussian set,
+which will be merged into a global Gaussian set.</p>
+</li>
+<li>
+<p>Optimize the camera pose affine transformation between 2 adjacent frams: the current frame and its previous frame.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="speed">Speed
+</h2><h3 id="nerf-prior">NeRF Prior
+</h3><ul>
+<li>
+<p><strong>RadSplat: Radiance Field-Informed Gaussian Splatting for Robust Real-Time Rendering with 900+ FPS</strong></p>
+<p><a class="link" href="https://m-niemeyer.github.io/radsplat/"  target="_blank" rel="noopener"
+    >No Code</a>
+| <a class="link" href="https://papers.cool/arxiv/2403.13806"  target="_blank" rel="noopener"
+    >CoolPapers</a>
+| Michael Niemeyer ;</p>
+<p>(2024-04-16)</p>
+<ul>
+<li>Training 3DGS with NeRF as supervision.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="texture">Texture
+</h2><ul>
+<li>
+<p>Textured-GS: Gaussian Splatting with Spatially Defined Color and Opacity <a class="link" href="https://arxiv.org/abs/2407.09733"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| Zhentao Huang, Minglun Gong, UofGuelph</p>
+<p><a class="link" href="" ></a></p>
+<figure>
+<img src="https://d3i71xaburhd42.cloudfront.net/6e5e2f6d4c9c40ccedbde54a5b84d556e3a2b690/2-Figure1-1.png" link="https://www.semanticscholar.org/paper/Textured-GS%3A-Gaussian-Splatting-with-Spatially-and-Huang-Gong/6e5e2f6d4c9c40ccedbde54a5b84d556e3a2b690/" width="90%">
+</figure>
+<p>(2024-07-20)</p>
+<ol>
+<li>
+<p>Task: The color attribute of each 3D Gaussian</p>
+</li>
+<li>
+<p>Why matter: Rendering surface</p>
+</li>
+<li>
+<p>Problem: SH coeffs</p>
+</li>
+<li>
+<p>Solution:</p>
+<ul>
+<li>
+<p>SH coeffs -&gt; RGB,opacity</p>
+<figure>
+<img src="https://d3i71xaburhd42.cloudfront.net/6e5e2f6d4c9c40ccedbde54a5b84d556e3a2b690/5-Figure2-1.png" width="70%">
+</figure>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="init-point-cloud">Init Point Cloud
+</h2><h3 id="vggt-replace-colmap">VGGT Replace Colmap
+</h3><ol>
+<li>
+<p><strong>Motivation</strong></p>
+<ol>
+<li>
+<p>Colmap functionality: Generate sparse point cloud</p>
+</li>
+<li>
+<p>VGGT functionality:</p>
+</li>
+<li>
+<p>Implementation: VGGT + 3DGS<sup><a class="link" href="" >r1-快速</a></sup></p>
+<ul>
+<li>Use <code>Brush</code></li>
+</ul>
+</li>
+</ol>
+<p>::: aside</p>
+<ul>
+<li><strong>References</strong>:
+<ol>
+<li><a class="link" href="https://www.bilibili.com/video/BV18rHyzUEvz/"  target="_blank" rel="noopener"
+    >VGGT＋3DGS快速生成高质量场景 - Yuinix</a></li>
+<li><a class="link" href="https://github.com/ArthurBrussee/brush"  target="_blank" rel="noopener"
+    >ArthurBrussee/brush</a></li>
+</ol>
+</li>
+</ul>
+<p>:::</p>
+</li>
+<li>
+<p><strong>Results</strong></p>
+<!-- (2025-09-21T15:41) -->
+<ol>
+<li>
+<p>Speed up</p>
+</li>
+<li>
+<p>Process more input images</p>
+</li>
+</ol>
+</li>
+</ol>
+<hr>
+<h4 id="vggt-bad-pose">VGGT Bad Pose
+</h4><ol>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>It is said the pose are not usable for gs
+<sup><a class="link" href="" >r1-Dscd</a></sup></li>
+</ol>
+<p>::: aside</p>
+<ul>
+<li><strong>References</strong>: {{{
+<ol>
+<li><a id=""></a>
+<a class="link" href="https://discord.com/channels/1293599119989805087/1299406262399926337/1419527002909577327"  target="_blank" rel="noopener"
+    >Discord - MrNeRF &amp; Brush | camera-pose-estimation</a>
+}}}
+:::</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="vggt--ba">VGGT + BA
+</h4><ol>
+<li>
+<p><strong>Problem</strong>:</p>
+<p>(2025-09-22T12:55)</p>
+<ol>
+<li>
+<p>Bundle Adjustment can improve the poses generated by VGGT</p>
+<ul>
+<li>Although the poses are not as accurate as those from COLMAP,
+it could be an alternative when Colmap fails.
+<sup><a class="link" href="" >r1-Dscd</a></sup></li>
+</ul>
+</li>
+</ol>
+<p>::: aside</p>
+<ul>
+<li><strong>References</strong>: {{{
+<ol>
+<li><a class="link" href="https://discord.com/channels/1293599119989805087/1299406262399926337/1419589564179415094"  target="_blank" rel="noopener"
+    >Discord - MrNeRF &amp; Brush | camera-pose-estimation</a>
+}}}
+:::</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="number-of-points">Number of Points
+</h2><ol>
+<li>
+<p><strong>Problems</strong></p>
+<!-- (2025-09-21T15:44) -->
+<ol>
+<li>
+<p>空间中的高斯基元数量是否指定？</p>
+<ul>
+<li>
+<p>有的 3dgs 实现需要指定高斯基元的数量：LichtFeld (MCMC)</p>
+</li>
+<li>
+<p>而如果不指定数量，即允许随场景规模扩张增加的话，这会是一个潜在的安全漏洞: 计算成本攻击</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>::: aside</p>
+<ul>
+<li><strong>References</strong>:
+<ol>
+<li><a class="link" href="https://github.com/MrNeRF/LichtFeld-Studio"  target="_blank" rel="noopener"
+    >MrNeRF/LichtFeld-Studio</a>
+:::</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/splatting/">Splatting</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script>
+        mermaid.initialize({ startOnLoad: true });
+      </script>
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/splats/b-note-ewa_splatting/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://pic2.zhimg.com/80/v2-7cbe3b0c3b67ce80593fad0d73a814b5_720w.webp" loading="lazy" data-key="" data-hash="https://pic2.zhimg.com/80/v2-7cbe3b0c3b67ce80593fad0d73a814b5_720w.webp"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Render - Points | EWA Splatting</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/splats/b-note-3dgs-debug/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: 3DGS | Debug Code</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/splats/d-vid-3dgs-explain-%E8%91%B5/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://img.youtube.com/vi/1buFrKUaqwM/maxresdefault.jpg" loading="lazy" data-key="" data-hash="https://img.youtube.com/vi/1buFrKUaqwM/maxresdefault.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: 3DGS | AI葵 Cuda Code Walkthrough</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/splats/b-note-3dgs-read/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&amp;f=1&amp;ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&amp;ipo=images" loading="lazy" data-key="" data-hash="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.bfDD9_L28UK7AsADDzB8vwHaEo%26pid%3DApi&amp;f=1&amp;ipt=3b34b7952e1e03305e5c085185ede1ad09e8edc71e9c1161a33c17b6b9f2b3ac&amp;ipo=images"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: NVS - 3DGS | 3D Gaussian Splatting</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="类似分布式系统中的概念 1\ngroup: 当前process group (world)，一个job是一个组。一个组里面有多个主机（node） world_size: 参与job（整个网络中）的进程个数 (or gpu个数 or 数据集被切成world_size份） rank: 当前主机的编号，group内各进程的标志符是从 0 到 world_size 的连续整数 local_rank: 为当前主机内的一个进程分配GPU（每台主机可以开启多个进程（执行同一份代码）） DP vs DDP Comparison between Dataparallel and DistributedDataParallel 8\nDataParallel is single-process, multi-thread, and only works on single machine (with multiple card). While DistributedDataParallel is multi-process and works for both single- and multi- machine training. DDP works with model parallel torch.distributed 使用流程 Refer to 2\n创建进程组:\n1 torch.distributed.init_process_group(backend=&#39;nccl&#39;, init_method=&#39;env://&#39;) 如果需要 group 内集体通信，用new_group 创建子分组\n">
+<title>memo: PyTorch | Data Parallel</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lib/pytorch_distributed/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: PyTorch | Data Parallel">
+<meta property='og:description' content="类似分布式系统中的概念 1\ngroup: 当前process group (world)，一个job是一个组。一个组里面有多个主机（node） world_size: 参与job（整个网络中）的进程个数 (or gpu个数 or 数据集被切成world_size份） rank: 当前主机的编号，group内各进程的标志符是从 0 到 world_size 的连续整数 local_rank: 为当前主机内的一个进程分配GPU（每台主机可以开启多个进程（执行同一份代码）） DP vs DDP Comparison between Dataparallel and DistributedDataParallel 8\nDataParallel is single-process, multi-thread, and only works on single machine (with multiple card). While DistributedDataParallel is multi-process and works for both single- and multi- machine training. DDP works with model parallel torch.distributed 使用流程 Refer to 2\n创建进程组:\n1 torch.distributed.init_process_group(backend=&#39;nccl&#39;, init_method=&#39;env://&#39;) 如果需要 group 内集体通信，用new_group 创建子分组\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lib/pytorch_distributed/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-09-22T19:49:00&#43;00:00'/><meta property='article:modified_time' content='2022-09-22T19:49:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: PyTorch | Data Parallel">
+<meta name="twitter:description" content="类似分布式系统中的概念 1\ngroup: 当前process group (world)，一个job是一个组。一个组里面有多个主机（node） world_size: 参与job（整个网络中）的进程个数 (or gpu个数 or 数据集被切成world_size份） rank: 当前主机的编号，group内各进程的标志符是从 0 到 world_size 的连续整数 local_rank: 为当前主机内的一个进程分配GPU（每台主机可以开启多个进程（执行同一份代码）） DP vs DDP Comparison between Dataparallel and DistributedDataParallel 8\nDataParallel is single-process, multi-thread, and only works on single machine (with multiple card). While DistributedDataParallel is multi-process and works for both single- and multi- machine training. DDP works with model parallel torch.distributed 使用流程 Refer to 2\n创建进程组:\n1 torch.distributed.init_process_group(backend=&#39;nccl&#39;, init_method=&#39;env://&#39;) 如果需要 group 内集体通信，用new_group 创建子分组\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#dp-vs-ddp">DP vs DDP</a></li>
+    <li><a href="#torchdistributed-使用流程">torch.distributed 使用流程</a></li>
+    <li><a href="#multi-node-multi-gpu">Multi-node multi-gpu</a></li>
+    <li><a href="#single-node-multi-worker">Single-node multi-worker</a></li>
+    <li><a href="#example-of-launchjson">Example of launch.json</a></li>
+    <li><a href="#pass-env-to-args">Pass env to args</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lib/pytorch_distributed/">memo: PyTorch | Data Parallel</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 22, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#dp-vs-ddp">DP vs DDP</a></li>
+    <li><a href="#torchdistributed-使用流程">torch.distributed 使用流程</a></li>
+    <li><a href="#multi-node-multi-gpu">Multi-node multi-gpu</a></li>
+    <li><a href="#single-node-multi-worker">Single-node multi-worker</a></li>
+    <li><a href="#example-of-launchjson">Example of launch.json</a></li>
+    <li><a href="#pass-env-to-args">Pass env to args</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>类似分布式系统中的概念 <a class="link" href="#ref-murphypei" ><sup>1</sup></a></p>
+<ul>
+<li>group: 当前process group (world)，一个job是一个组。一个组里面有多个主机（node）</li>
+<li>world_size: 参与job（整个网络中）的进程个数 (or gpu个数 or 数据集被切成world_size份）</li>
+<li>rank: 当前主机的编号，group内各进程的标志符是从 0 到 world_size 的连续整数</li>
+<li>local_rank: 为当前主机内的一个进程分配GPU（每台主机可以开启多个进程（执行同一份代码））</li>
+</ul>
+<hr>
+<h2 id="dp-vs-ddp">DP vs DDP
+</h2><p>Comparison between Dataparallel and DistributedDataParallel <a class="link" href="#8-torchdocs" ><sup>8</sup></a></p>
+<ul>
+<li><code>DataParallel</code> is single-process, multi-thread, and only works on single machine (with multiple card). While <code>DistributedDataParallel</code> is multi-process and works for both single- and multi- machine training.</li>
+<li>DDP works with model parallel</li>
+</ul>
+<hr>
+<h2 id="torchdistributed-使用流程">torch.distributed 使用流程
+</h2><p>Refer to <a class="link" href="#ref-%e5%92%b8%e9%b1%bc" ><sup>2</sup></a></p>
+<ol>
+<li>
+<p>创建进程组:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;nccl&#39;</span><span class="p">,</span> <span class="n">init_method</span><span class="o">=</span><span class="s1">&#39;env://&#39;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>如果需要 group 内集体通信，用<code>new_group</code> 创建子分组</p>
+</li>
+<li>
+<p>创建DDP对象：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">ddp_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">DistributedDataParallel</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">     <span class="n">net</span><span class="p">,</span> <span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">local_rank</span><span class="p">],</span> <span class="n">output_device</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">local_rank</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>net位于<code>local_rank</code>指定的gpu上</p>
+</li>
+<li>
+<p>为数据集创建sampler:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">train_sampler</span> <span class="o">=</span> <span class="n">DistributedSampler</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="n">world_size</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>确保每个进程的 dataloader 只会 load 到整个数据集的一个特定子集，而不重复 <a class="link" href="#ref-%e8%b0%9c%e7%94%b7%e5%ad%90" ><sup>3</sup></a></p>
+</li>
+<li>
+<p>在每个主机上用命令 <code>torch.distributed.launch</code> 启动进程（如果已开启的进程未达到<code>world_size</code>，则所有进程会一直等待），开始训练</p>
+</li>
+<li>
+<p>恢复训练时，给第一主机的命令加上<code>--resume</code></p>
+</li>
+<li>
+<p>销毁进程组：<code>destory_process_group()</code></p>
+</li>
+</ol>
+<p><code>init_method</code> 指定了各进程(主机)向 rank=0 的进程发送信息的(url)地址。</p>
+<ul>
+<li>
+<p>TCP 方式需要指定 rank 0 进程的ip地址 (<code>init_method='tcp://10.1.1.20:23456'</code>)，并且需要手动指定各进程的rank。</p>
+</li>
+<li>
+<p>第2种是使用一个在同组内各进程共享的文件交换信息, url应以<code>file://</code>开头+文件地址，例如 <code>init_method=file:///mnt/nfs/sharedfile</code>，不会自动删除。</p>
+</li>
+<li>
+<p>第3种（默认）从环境变量中读取配置：<code>MASTER_PORT</code>, <code>MASTER_ADDR</code>, <code>WORLD_SIZE</code>, <code>RANK</code>。
+<code>init_method=env://</code> <a class="link" href="#ref-doc-dist" ><sup>7</sup></a></p>
+</li>
+<li>
+<p>使用tcp初始化，使用3台主机，执行3次命令:</p>
+</li>
+</ul>
+<hr>
+<h2 id="multi-node-multi-gpu">Multi-node multi-gpu
+</h2><p>All you need to do is <a class="link" href="#ref-lambda" ><sup>4</sup></a></p>
+<ol>
+<li>Create a process group by <code>RANK</code> and <code>WORLD_SIZE</code> (auto set from the command arguments <code>nproc_per_node</code>,<code>nnodes</code>,and <code>node_rank</code> of <code>torchrun</code>)</li>
+<li>Wrap the model by <code>torch.nn.parallel.DistributedDataParallel()</code></li>
+<li>move the model to gpu through <code>LOCAL_RANK</code></li>
+<li>Wrap the dataset by <code>DistributedSampler()</code></li>
+</ol>
+<p>resnet_ddp.py <a class="link" href="#ref-leimao" ><sup>5</sup></a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">train</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># read hyper params from command</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--local_rank&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;Local rank. Necessary for using the torch.distributed.launch utility.&#34;</span><span class="p">)</span> <span class="c1"># specify gpu index</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># initialize process group</span>
+</span></span><span class="line"><span class="cl">    <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&#34;nccl&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># construct model</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">resnet18</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Wrap the model on the GPU assigned to the current process</span>
+</span></span><span class="line"><span class="cl">    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;cuda:</span><span class="si">{</span><span class="n">local_rank</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ddp_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="n">local_rank</span><span class="p">],</span> <span class="n">output_device</span><span class="o">=</span><span class="n">local_rank</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># only save (and restore) the model on the gpu whose local_rank=0</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">resume</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">map_location</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;cuda:0&#34;</span><span class="p">:</span> <span class="s2">&#34;cuda:</span><span class="si">{}</span><span class="s2">&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">local_rank</span><span class="p">)}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ddp_model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_filepath</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">map_location</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># prepare dataset </span>
+</span></span><span class="line"><span class="cl">    <span class="n">train_set</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">CIFAR10</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&#34;./data&#34;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># a process will only use its own subset</span>
+</span></span><span class="line"><span class="cl">    <span class="n">train_sampler</span> <span class="o">=</span> <span class="n">DistributedSampler</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">train_set</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">tarin_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="n">train_sampler</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># loss function and optimizer</span>
+</span></span><span class="line"><span class="cl">    <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">ddp_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># training cycle</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># check accuracy of the model on local_rank=0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># train mode</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ddp_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># iter all train_set</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">train_loader</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outputs</span> <span class="o">=</span> <span class="n">ddp_model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">train</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The training script <code>resnet_ddp.py</code> will run on two nodes, and each of nodes has 8 gpus and each gpu would launch one process.</p>
+<p>In the terminal of the first node, excute the following command.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">python -m torch.distributed.launch <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--nproc_per_node<span class="o">=</span><span class="m">8</span> --nnodes<span class="o">=</span><span class="m">2</span> --node_rank<span class="o">=</span><span class="m">0</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--master_addr<span class="o">=</span><span class="s2">&#34;192.168.0.1&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--master_port<span class="o">=</span><span class="m">1234</span> resnet_ddp.py
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Excute the same command but with different node_rank on the second node:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">python -m torch.distributed.launch <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--nproc_per_node<span class="o">=</span><span class="m">8</span> --nnodes<span class="o">=</span><span class="m">2</span> --node_rank<span class="o">=</span><span class="m">1</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--master_addr<span class="o">=</span><span class="s2">&#34;192.168.0.1&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--master_port<span class="o">=</span><span class="m">1234</span> resnet_ddp.py
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="single-node-multi-worker">Single-node multi-worker
+</h2><p>Refer to <a class="link" href="#ref-torchrun" >6</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">torchrun --standalone --nnodes<span class="o">=</span><span class="m">1</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--nproc_per_node<span class="o">=</span><span class="nv">$NUM_TRAINERS</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>YOUR_TRAINING_SCRIPT.py <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="o">(</span>--arg1 ... train script args ...<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>(2023-08-27)</p>
+<h2 id="example-of-launchjson">Example of launch.json
+</h2><p><a class="link" href="https://github.com/taoyang1122/adapt-image-models/blob/main/tools/dist_train.sh"  target="_blank" rel="noopener"
+    >For running AIM</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;version&#34;</span><span class="p">:</span> <span class="s2">&#34;0.2.0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;configurations&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;Python: Current File&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;python&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;request&#34;</span><span class="p">:</span> <span class="s2">&#34;launch&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;module&#34;</span><span class="p">:</span> <span class="s2">&#34;torch.distributed.launch&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;console&#34;</span><span class="p">:</span> <span class="s2">&#34;internalConsole&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;justMyCode&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;env&#34;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&#34;CUDA_VISIBLE_DEVICES&#34;</span><span class="p">:</span> <span class="s2">&#34;4&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;args&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;--nproc_per_node&#34;</span><span class="p">,</span> <span class="s2">&#34;1&#34;</span><span class="p">,</span> <span class="c1">// GPUs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="s2">&#34;--master_port&#34;</span><span class="p">,</span> <span class="s2">&#34;29500&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;tools/train.py&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;configs/recognition/vit/vitclip_base_diving48.py&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;--launcher&#34;</span><span class="p">,</span> <span class="s2">&#34;pytorch&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;--test-last&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;--validate&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;--cfg-options&#34;</span><span class="p">,</span> <span class="s2">&#34;model.backbone.pretrained=openaiclip&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">                               <span class="s2">&#34;work_dir=work_dirs_vit/diving48/debug&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="pass-env-to-args">Pass env to args
+</h2><p>Settings below in &ldquo;launch.json&rdquo; don&rsquo;t work:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">&#34;env&#34;</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;CUDA_VISIBLE_DEVICES&#34;</span><span class="p">:</span> <span class="s2">&#34;4&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;GPUS&#34;</span><span class="p">:</span> <span class="s2">&#34;1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;PORT&#34;</span><span class="p">:</span> <span class="s2">&#34;29500&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="err">,</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;args&#34;</span><span class="err">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--nproc_per_node&#34;</span><span class="p">,</span> <span class="s2">&#34;${env:GPUS}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;--master_port&#34;</span><span class="p">,</span> <span class="s2">&#34;${env:PORT}&#34;</span><span class="p">,</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>May refer to</p>
+<ul>
+<li><a class="link" href="https://stackoverflow.com/a/70748562/18003182"  target="_blank" rel="noopener"
+    >Launch.json: how to reference an environment variable</a></li>
+<li><a class="link" href="https://github.com/microsoft/vscode/issues/91053"  target="_blank" rel="noopener"
+    >Resolve Environment Variables in Args defined in launch.json for Debugging #91053</a></li>
+</ul>
+<hr>
+<h2 id="ref">Ref
+</h2><ol>
+<li>
+<div id="ref-murphypei"><a href="https://murphypei.github.io/blog/2020/09/pytorch-distributed">PyTorch 多进程分布式训练实战-murphypei-githubio</a></div>
+</li>
+<li>
+<div id="ref-咸鱼"><a href="https://zhuanlan.zhihu.com/p/76638962">Pytorch 分布式训练 - 会飞的闲鱼的文章 - 知乎</a></div>
+</li>
+<li>
+<div id="ref-谜男子"><a href="https://zhuanlan.zhihu.com/p/68717029">Pytorch多机多卡分布式训练 - 谜一样的男子的文章 - 知乎</a></div>
+</li>
+<li>
+<div id="ref-lambda"><a href="https://lambdalabs.com/blog/multi-node-pytorch-distributed-training-guide/">Multi node PyTorch Distributed Training Guide For People In A Hurry-Lambda</a></div>
+</li>
+<li>
+<div id="ref-leimao"><a href="https://leimao.github.io/blog/PyTorch-Distributed-Training/">PyTorch Distributed Training - Lei Mao</a></div>
+</li>
+<li>
+<div id="ref-torchrun"><a href="https://pytorch.org/docs/stable/elastic/run.html">TORCHRUN (ELASTIC LAUNCH)</a></div>
+</li>
+<li>
+<div id="ref-doc-dist"><a href="https://pytorch.org/docs/stable/distributed.html">DISTRIBUTED COMMUNICATION PACKAGE - TORCH.DISTRIBUTED</a></div> 
+</li>
+<li>
+<div id="8-torchdocs"><a href="https://pytorch.org/tutorials/intermediate/ddp_tutorial.html">GETTING STARTED WITH DISTRIBUTED DATA PARALLEL</a></div>
+</li>
+</ol>
+<hr>
+<p><a class="link" href="https://www.bilibili.com/video/BV1zK42187Kv/"  target="_blank" rel="noopener"
+    >【pytorch distributed】nccl 集合通信（collective communication）</a></p>
+<hr>
+<p>(2024-06-02)</p>
+<p><a class="link" href="https://www.bilibili.com/video/BV1jS411K72E/?share_source=copy_web&amp;vd_source=ad69034b33858e279e8e152111d79fe5"  target="_blank" rel="noopener"
+    >【pytorch distributed】accelerate 基本用法（config，launch）数据并行 - 五道口纳什</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

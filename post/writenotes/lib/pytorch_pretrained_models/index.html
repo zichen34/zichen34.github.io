@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="How to extract features of an image from a trained model - PyTorch Forum\nHow can l load my best model as a feature extractor/evaluator?\nLoad and call torchvision.models | ResNet50 Docs\n1 2 3 4 5 6 7 8 9 10 11 import torch from torch import nn from torchvision import models, transforms import PIL resnet50 = models.resnet50(weights=&#39;DEFAULT&#39;) resnet50.eval() im_tensor = transforms.ToTensor()(PIL.Image.open(&#39;data/nerf_llff_data/fern/images_4/image000.png&#39;)) output = resnet50(im_tensor[None, ...]) Or using the weights object:\n">
+<title>memo: PyTorch | Pre-trained models</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lib/pytorch_pretrained_models/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: PyTorch | Pre-trained models">
+<meta property='og:description' content="How to extract features of an image from a trained model - PyTorch Forum\nHow can l load my best model as a feature extractor/evaluator?\nLoad and call torchvision.models | ResNet50 Docs\n1 2 3 4 5 6 7 8 9 10 11 import torch from torch import nn from torchvision import models, transforms import PIL resnet50 = models.resnet50(weights=&#39;DEFAULT&#39;) resnet50.eval() im_tensor = transforms.ToTensor()(PIL.Image.open(&#39;data/nerf_llff_data/fern/images_4/image000.png&#39;)) output = resnet50(im_tensor[None, ...]) Or using the weights object:\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lib/pytorch_pretrained_models/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2023-07-18T19:25:00&#43;00:00'/><meta property='article:modified_time' content='2023-07-18T19:25:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: PyTorch | Pre-trained models">
+<meta name="twitter:description" content="How to extract features of an image from a trained model - PyTorch Forum\nHow can l load my best model as a feature extractor/evaluator?\nLoad and call torchvision.models | ResNet50 Docs\n1 2 3 4 5 6 7 8 9 10 11 import torch from torch import nn from torchvision import models, transforms import PIL resnet50 = models.resnet50(weights=&#39;DEFAULT&#39;) resnet50.eval() im_tensor = transforms.ToTensor()(PIL.Image.open(&#39;data/nerf_llff_data/fern/images_4/image000.png&#39;)) output = resnet50(im_tensor[None, ...]) Or using the weights object:\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#load-and-call">Load and call</a></li>
+    <li><a href="#adjust-image-input">Adjust image input</a></li>
+    <li><a href="#inspect-models-modules">Inspect model&rsquo;s modules</a></li>
+    <li><a href="#extract--intrpl-feature-maps">Extract &amp; Intrpl feature maps</a></li>
+    <li><a href="#feature-extraction">Feature extraction</a></li>
+    <li><a href="#modules-vs-_modules">.modules vs ._modules</a></li>
+    <li><a href="#truncate-pre-trained-model">Truncate pre-trained model</a></li>
+    <li><a href="#alexnet">AlexNet</a>
+      <ol>
+        <li><a href="#get-pre-logits-vector">Get pre-logits vector</a></li>
+        <li><a href="#get-feature-maps">Get feature maps</a></li>
+      </ol>
+    </li>
+    <li><a href="#resnet">ResNet</a>
+      <ol>
+        <li><a href="#get-feat-map-of-resnet34">Get feat map of resnet34</a></li>
+        <li><a href="#hook-feat-maps">Hook feat maps</a></li>
+      </ol>
+    </li>
+    <li><a href="#mobilenet-v3">MobileNet v3</a>
+      <ol>
+        <li><a href="#inspect-mobilenet">Inspect mobilenet</a></li>
+        <li><a href="#hook-feature-maps">Hook feature maps</a></li>
+        <li><a href="#faster-rcnn-obj-detect">faster-rcnn Obj Detect</a></li>
+        <li><a href="#lraspp-segment">lraspp segment</a></li>
+        <li><a href="#deeplabv3-segment">deeplabv3 segment</a></li>
+      </ol>
+    </li>
+    <li><a href="#replace-forward-of-predefined-model">Replace forward of predefined model</a></li>
+    <li><a href="#extract--interpolate-feature-maps">Extract &amp; interpolate feature maps</a>
+      <ol>
+        <li><a href="#bing-chat">Bing chat</a></li>
+        <li><a href="#chatgpt">ChatGPT</a></li>
+      </ol>
+    </li>
+    <li><a href="#convnext-tiny">ConvNeXt-tiny</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lib/pytorch_pretrained_models/">memo: PyTorch | Pre-trained models</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 18, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    13 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#load-and-call">Load and call</a></li>
+    <li><a href="#adjust-image-input">Adjust image input</a></li>
+    <li><a href="#inspect-models-modules">Inspect model&rsquo;s modules</a></li>
+    <li><a href="#extract--intrpl-feature-maps">Extract &amp; Intrpl feature maps</a></li>
+    <li><a href="#feature-extraction">Feature extraction</a></li>
+    <li><a href="#modules-vs-_modules">.modules vs ._modules</a></li>
+    <li><a href="#truncate-pre-trained-model">Truncate pre-trained model</a></li>
+    <li><a href="#alexnet">AlexNet</a>
+      <ol>
+        <li><a href="#get-pre-logits-vector">Get pre-logits vector</a></li>
+        <li><a href="#get-feature-maps">Get feature maps</a></li>
+      </ol>
+    </li>
+    <li><a href="#resnet">ResNet</a>
+      <ol>
+        <li><a href="#get-feat-map-of-resnet34">Get feat map of resnet34</a></li>
+        <li><a href="#hook-feat-maps">Hook feat maps</a></li>
+      </ol>
+    </li>
+    <li><a href="#mobilenet-v3">MobileNet v3</a>
+      <ol>
+        <li><a href="#inspect-mobilenet">Inspect mobilenet</a></li>
+        <li><a href="#hook-feature-maps">Hook feature maps</a></li>
+        <li><a href="#faster-rcnn-obj-detect">faster-rcnn Obj Detect</a></li>
+        <li><a href="#lraspp-segment">lraspp segment</a></li>
+        <li><a href="#deeplabv3-segment">deeplabv3 segment</a></li>
+      </ol>
+    </li>
+    <li><a href="#replace-forward-of-predefined-model">Replace forward of predefined model</a></li>
+    <li><a href="#extract--interpolate-feature-maps">Extract &amp; interpolate feature maps</a>
+      <ol>
+        <li><a href="#bing-chat">Bing chat</a></li>
+        <li><a href="#chatgpt">ChatGPT</a></li>
+      </ol>
+    </li>
+    <li><a href="#convnext-tiny">ConvNeXt-tiny</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://discuss.pytorch.org/t/how-to-extract-features-of-an-image-from-a-trained-model/119?u=klory"  target="_blank" rel="noopener"
+    >How to extract features of an image from a trained model - PyTorch Forum</a></p>
+<p><a class="link" href="https://discuss.pytorch.org/t/how-can-l-load-my-best-model-as-a-feature-extractor-evaluator/17254"  target="_blank" rel="noopener"
+    >How can l load my best model as a feature extractor/evaluator?</a></p>
+<h2 id="load-and-call">Load and call
+</h2><p><a class="link" href="https://pytorch.org/vision/stable/models.html#using-the-pre-trained-models"  target="_blank" rel="noopener"
+    >torchvision.models</a>
+| <a class="link" href="https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html"  target="_blank" rel="noopener"
+    >ResNet50 Docs</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">transforms</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">PIL</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">resnet50</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet50</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">resnet50</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">im_tensor</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;data/nerf_llff_data/fern/images_4/image000.png&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">output</span> <span class="o">=</span> <span class="n">resnet50</span><span class="p">(</span><span class="n">im_tensor</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Or using the weights object:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision.io</span> <span class="kn">import</span> <span class="n">read_image</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">im</span> <span class="o">=</span> <span class="n">read_image</span><span class="p">(</span><span class="s2">&#34;data/nerf_llff_data/fern/images_4/image000.png&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 1: Initialize model with the best available weights</span>
+</span></span><span class="line"><span class="cl"><span class="n">weights</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ResNet50_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet50</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 2: Initialize the inference transforms</span>
+</span></span><span class="line"><span class="cl"><span class="n">preprocess</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">transforms</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 3: Apply inference preprocessing transforms</span>
+</span></span><span class="line"><span class="cl"><span class="n">batch</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">im</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 4: Use the model and print the predicted category</span>
+</span></span><span class="line"><span class="cl"><span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">category_id</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">score</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">category_id</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">category_name</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&#34;categories&#34;</span><span class="p">][</span><span class="n">category_id</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">category_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">score</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>triceratops: 11.5%</p>
+<p>But the prediction seems not to be accurate.</p>
+<hr>
+<h2 id="adjust-image-input">Adjust image input
+</h2><p><a class="link" href="https://pytorch.org/vision/stable/models.html#using-the-pre-trained-models"  target="_blank" rel="noopener"
+    >example</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Initialize the Weight Transforms</span>
+</span></span><span class="line"><span class="cl"><span class="n">weights</span> <span class="o">=</span> <span class="n">ResNet50_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+</span></span><span class="line"><span class="cl"><span class="n">preprocess</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">transforms</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Apply it to the input image</span>
+</span></span><span class="line"><span class="cl"><span class="n">img_transformed</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>(2023-07-23)</p>
+<h2 id="inspect-models-modules">Inspect model&rsquo;s modules
+</h2><p>Use hook to print layer name and the shape of their outputs.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">InspectModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">hook_handles</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># print layers and their outputs&#39; shape</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">named_children</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">      <span class="n">module</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">name</span>
+</span></span><span class="line"><span class="cl">      <span class="n">handle</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">register_forward_hook</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="k">lambda</span> <span class="n">module</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> 
+</span></span><span class="line"><span class="cl">          <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">output</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">; Op: </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">_get_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">hook_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hook_handles</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">handle</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Another ugly way is using a for loop:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="extract--intrpl-feature-maps">Extract &amp; Intrpl feature maps
+</h2><p>Retrieve specified layers&rsquo;s feature maps and interpolate them to the same size.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">ExtractIntrplFeatures</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">               <span class="n">layer_names</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">               <span class="n">chnl_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">layer_names</span> <span class="o">=</span> <span class="n">layer_names</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Register a hook for each layer</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">layer_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">layer_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_modules</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">layerName</span> <span class="ow">in</span> <span class="n">layer_names</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">layer</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">named_children</span><span class="p">()])[</span><span class="n">layerName</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">layer</span><span class="o">.</span><span class="n">register_forward_hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_features</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                                  <span class="n">layerName</span><span class="p">,</span> <span class="n">chnl_dim</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">save_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerName</span><span class="p">,</span> <span class="n">chnl_dim</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># print(layerName)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">hook_func</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="n">chnl_dim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">perm_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">shape</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">        <span class="n">perm_order</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">chnl_dim</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">perm_order</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">chnl_dim</span><span class="p">]</span> <span class="o">+</span> <span class="n">perm_order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="o">*</span><span class="n">perm_order</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="n">layerName</span><span class="p">]</span> <span class="o">=</span> <span class="n">output</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">hook_func</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Interpolate to the same size as the first conv feature</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">      <span class="n">layerName</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">size</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="n">layerName</span><span class="p">]</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="n">layerName</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">mode</span><span class="o">=</span><span class="s2">&#34;bilinear&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">align_corners</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>(2023-08-08)</p>
+<h2 id="feature-extraction">Feature extraction
+</h2><p>Get feature map at certain layers through <code>create_feature_extractor()</code>
+<a class="link" href="https://pytorch.org/vision/0.11/feature_extraction.html"  target="_blank" rel="noopener"
+    >torchvision.models.feature_extraction — Torchvision 0.11.0 documentation</a>
+I guess it cannot realize fine-tuning the pre-trained model.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision.models.feature_extraction</span> <span class="kn">import</span> <span class="n">get_graph_node_names</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision.models.feature_extraction</span> <span class="kn">import</span> <span class="n">create_feature_extractor</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet50</span><span class="p">(</span> <span class="n">weights</span><span class="o">=</span><span class="s2">&#34;DEFAULT&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">train_nodes</span><span class="p">,</span> <span class="n">eval_nodes</span> <span class="o">=</span> <span class="n">get_graph_node_names</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">train_nodes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">featExtractor</span> <span class="o">=</span> <span class="n">create_feature_extractor</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">return_nodes</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;layer4.2.relu_2&#39;</span><span class="p">:</span><span class="s1">&#39;layer4_feat&#39;</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl"><span class="n">inp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span><span class="mi">224</span><span class="p">,</span><span class="mi">224</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">out</span> <span class="o">=</span> <span class="n">featExtractor</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span> <span class="c1"># dict</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>(2023-08-08)</p>
+<h2 id="modules-vs-_modules">.modules vs ._modules
+</h2><ul>
+<li>
+<p><code>convnext.modules</code> is a method. Its output content is in a sepcific format.</p>
+</li>
+<li>
+<p><code>convnext.modules()</code> is a generator.
+<a class="link" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.modules"  target="_blank" rel="noopener"
+    >Docs - nn.Module()</a>; <br>
+<a class="link" href="https://pytorch.org/docs/stable/notes/modules.html"  target="_blank" rel="noopener"
+    >Docs - Modules</a></p>
+</li>
+<li>
+<p>However, if I traverse it like <code>for _ in convnext.modules(): print(_)</code>, it will repeatly print all the modules in the model.</p>
+<p>And chatGPT answer:</p>
+<blockquote>
+<p><code>modules()</code> function also iterates through sub-modules of each module, resulting in duplicate prints.
+To avoid this, you can use the <code>children()</code>.
+Using <code>children()</code> will only give you the immediate sub-modules of the <code>features</code> module</p></blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torchvision.models</span> <span class="k">as</span> <span class="nn">models</span>
+</span></span><span class="line"><span class="cl"><span class="n">convnext</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">convnext_tiny</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">convnext</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>convnext._modules</code> is an OrderedDict</p>
+</li>
+<li>
+<p><code>list(convnext._modules)</code> only has the keys (name of the modules).</p>
+</li>
+</ul>
+<hr>
+<h2 id="truncate-pre-trained-model">Truncate pre-trained model
+</h2><p>Question for chatGPT:</p>
+<blockquote>
+<p>&ldquo;Given a pre-trained multiple-layer neural network in PyTorch, how to run a part of it and stop at certain layer?&rdquo;</p></blockquote>
+<p>Just extract features up to a certain layer, without performing classification or regresion steps.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 1. Load model</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span>
+</span></span><span class="line"><span class="cl"><span class="n">pre_model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">alexnet</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 2. Create a new model</span>
+</span></span><span class="line"><span class="cl"><span class="n">sliced_model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">pre_model</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">children</span><span class="p">())[:</span><span class="mi">5</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">sliced_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The new model will inherit the pre-trained weights.</p>
+<hr>
+<h2 id="alexnet">AlexNet
+</h2><p><a class="link" href="https://github.com/pytorch/vision/blob/main/torchvision/models/alexnet.py"  target="_blank" rel="noopener"
+    >Source code</a></p>
+<p><code>AlexNet.features</code> contains 13 modules</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">alexnet</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">alexnet</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">alexnet_debug</span> <span class="o">=</span> <span class="n">InspectModel</span><span class="p">(</span><span class="n">alexnet</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">dummy_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">alexnet_debug</span><span class="p">(</span><span class="n">dummy_input</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="get-pre-logits-vector">Get pre-logits vector
+</h3><p>Retrieve the feature vector before it gets compressed to 1_000 categories,
+i.e., removing the last <code>Linear</code> layer of &lsquo;classifier&rsquo; module in alexnet and making a new model</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">alexnet</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">alexnet</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># drop the last &#39;linear layer&#39; in classifier module</span>
+</span></span><span class="line"><span class="cl"><span class="n">new_classifier</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">alexnet</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">children</span><span class="p">())[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">alexnet</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">new_classifier</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="get-feature-maps">Get feature maps
+</h3><p>Make a new model that stops at a certain feature map</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">AlexNetConv4</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_alexnet</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># stop at conv4</span>
+</span></span><span class="line"><span class="cl">    <span class="n">layer_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">original_alexnet</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">children</span><span class="p">())[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layer_list</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">AlexNetConv4</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">alexnet</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">dummy_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">features</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">dummy_input</span><span class="p">)</span>  <span class="c1"># (1, 256, 13, 13)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Retrieve the feature maps after ReLU each time:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">alexnet</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">alexnet</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">alexnet_features</span> <span class="o">=</span> <span class="n">ExtractIntrplFeatures</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">alexnet</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">layer_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="s1">&#39;9&#39;</span><span class="p">,</span> <span class="s1">&#39;11&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">dummy_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">feat_alexnet</span> <span class="o">=</span> <span class="n">alexnet_features</span><span class="p">(</span><span class="n">dummy_input</span><span class="p">)</span> <span class="c1"># (1, 1152, 55, 55)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="resnet">ResNet
+</h2><h3 id="get-feat-map-of-resnet34">Get feat map of resnet34
+</h3><p>Pixel-NeRF obtains the feature map by <strong>copying</strong> the forward method <strong>until</strong> the <code>layer4</code>
+and concat feature maps of each layer along the channels.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">SpatialEncoder</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backbone</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">torchvision</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">backbone</span><span class="p">)(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Modifying model here doesn&#39;t affect forward method.</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">avgpool</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span> <span class="c1"># DTU img: (1, 3, H=300, W=400)</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">      <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># (B, 64, H/2, W/2)</span>
+</span></span><span class="line"><span class="cl">      <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">bn1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">latents</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>       <span class="c1"># store feature maps after different times of convlution</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_first_pool</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">maxpool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># (B, 64, H/4, W/4)</span>
+</span></span><span class="line"><span class="cl">          <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layer1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>   <span class="c1"># (B, 64, H/4, W/4)</span>
+</span></span><span class="line"><span class="cl">          <span class="n">latents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layer2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>   <span class="c1"># (B, 128, H/8, W/8)</span>
+</span></span><span class="line"><span class="cl">          <span class="n">latents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layer3</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>   <span class="c1"># (B, 256, H/16, W/16)</span>
+</span></span><span class="line"><span class="cl">          <span class="n">latents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layer4</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>   <span class="c1"># (B, 512, H/32, W/32)</span>
+</span></span><span class="line"><span class="cl">          <span class="n">latents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">latents</span> <span class="o">=</span> <span class="n">latents</span>
+</span></span><span class="line"><span class="cl">      <span class="n">align_corners</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_interp</span> <span class="o">==</span> <span class="s2">&#34;nearest &#34;</span> <span class="k">else</span> <span class="kc">True</span>   
+</span></span><span class="line"><span class="cl">      <span class="n">latent_sz</span> <span class="o">=</span> <span class="n">latents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>   <span class="c1"># (H/2, W/2)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="c1"># expand the feature maps to the original size</span>
+</span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">latents</span><span class="p">)):</span>   
+</span></span><span class="line"><span class="cl">          <span class="n">latents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">              <span class="nb">input</span><span class="o">=</span><span class="n">latents</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="n">size</span><span class="o">=</span><span class="n">latent_sz</span><span class="p">,</span>     <span class="c1"># (H/2, W/2)</span>
+</span></span><span class="line"><span class="cl">              <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">upsample_interp</span><span class="p">,</span>  <span class="c1"># bilinear</span>
+</span></span><span class="line"><span class="cl">              <span class="n">align_corners</span><span class="o">=</span><span class="n">align_corners</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="bp">self</span><span class="o">.</span><span class="n">latent</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">latents</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>     <span class="c1"># (B, 64+64+128+256, H/2, W/2)</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">latent_scaling</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># W, 200</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">latent_scaling</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># H, 150</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">latent_scaling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_scaling</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latent_scaling</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.0</span>     
+</span></span><span class="line"><span class="cl">    <span class="c1"># tensor([200., 150.]) -&gt; tensor([2.0101, 2.0134])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent</span>  <span class="c1"># (B, 512, H/2, W/2)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>There is a <strong>flatten</strong> step in the <code>forward</code> method (<a class="link" href="https://github.com/pytorch/vision/blob/29418e34a94e2c43f861a321265f7f21035e7b19/torchvision/models/resnet.py#L279"  target="_blank" rel="noopener"
+    >Source code</a>),
+so even the <code>avgpool</code> and <code>fc</code> are canceled as <code>self.model.fc = nn.Sequential()</code>,
+the output after calling the modified model will still become a vector, but not a feature map (planes).</p>
+<p>The solution is to create a model whose <code>forward</code> method doesn&rsquo;t contain the <code>torch.flatten</code> operation.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">resnet34</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet34</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">resnet_feat</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">resnet34</span><span class="o">.</span><span class="n">children</span><span class="p">())[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">im_tensor</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;path/to/png&#39;</span><span class="p">))[</span><span class="kc">None</span><span class="p">,</span><span class="o">...</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">resnet_feat</span><span class="p">(</span><span class="n">im_tensor</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>However, if want to keep the feature map at every level, <del>the <code>forward</code> method has to be rewritten.</del> hooks for modules can realize this.</p>
+<hr>
+<p>(2023-07-23)</p>
+<h3 id="hook-feat-maps">Hook feat maps
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">resnet34</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet34</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># save feature maps after: relu, layer1, layer2, layer3.</span>
+</span></span><span class="line"><span class="cl"><span class="n">resnet_features</span> <span class="o">=</span> <span class="n">ExtractIntrplFeatures</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">resnet34</span><span class="p">,</span> <span class="p">[</span><span class="s2">&#34;relu&#34;</span><span class="p">,</span> <span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">resnet34</span><span class="o">.</span><span class="n">_modules</span><span class="p">)[</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]]</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">im_tensor</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">()(</span>
+</span></span><span class="line"><span class="cl">  <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;data/nerf_llff_data/fern/images_4/image000.png&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">feat</span> <span class="o">=</span> <span class="n">resnet_features</span><span class="p">(</span><span class="n">im_tensor</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The result is identical to pixel-NeRF&rsquo;s SpatialEncoder,
+which I copied its definition to a ipynb and instantiate it:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">pixelNeRFEncoder</span> <span class="o">=</span> <span class="n">SpatialEncoder</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">feature_maps</span> <span class="o">=</span> <span class="n">pixelNeRFEncoder</span><span class="p">(</span><span class="n">im_tensor</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">feat</span><span class="p">,</span> <span class="n">feature_maps</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>(2023-07-21)</p>
+<h2 id="mobilenet-v3">MobileNet v3
+</h2><p>MobileNetV3 contains 3 components: <code>features</code>, <code>avgpool</code>, and <code>classifier</code>.</p>
+<p>The <code>MobileNetV3.features</code> starts with a <code>Conv2dNormActivation</code> layer followed by 15 <code>InvertResidual</code> blocks, and ends with a <code>Conv2dNormActivation</code> layer.</p>
+<p>An <code>InvertResidual</code> module is a <code>nn.Sequential</code> model of 3 <code>Conv2dNormActivation()</code> layers, corresponding to &ldquo;expand&rdquo;, &ldquo;depthwise&rdquo;, and &ldquo;project&rdquo;.
+<a class="link" href="https://github.com/pytorch/vision/blob/main/torchvision/models/mobilenetv3.py"  target="_blank" rel="noopener"
+    >Source code</a></p>
+<hr>
+<h3 id="inspect-mobilenet">Inspect mobilenet
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">mobilenetv3</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">mobilenet_v3_large</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">mobilenet_inspect</span> <span class="o">=</span> <span class="n">InspectModel</span><span class="p">(</span><span class="n">mobilenetv3</span><span class="o">.</span><span class="n">features</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="n">dummy_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">mobilenet_inspect</span><span class="p">(</span><span class="n">dummy_input</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="hook-feature-maps">Hook feature maps
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">mobilenetv3</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">mobilenet_v3_large</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">mobilenet_feats</span> <span class="o">=</span> <span class="n">ExtractIntrplFeatures</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mobilenetv3</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">layer_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">mobilenetv3</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">_modules</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">feat_mbnet</span> <span class="o">=</span> <span class="n">mobilenet_feats</span><span class="p">(</span><span class="n">dummy_input</span><span class="p">)</span> <span class="c1"># (1,1224,112,112)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="faster-rcnn-obj-detect">faster-rcnn Obj Detect
+</h3><p><a class="link" href="https://pytorch.org/blog/torchvision-mobilenet-v3-implementation/"  target="_blank" rel="noopener"
+    >Everything you need to know about TorchVision’s MobileNetV3 implementation - PyTorch blog</a></p>
+<p><a class="link" href="http://pytorch.org/vision/master/models/faster_rcnn.html"  target="_blank" rel="noopener"
+    >Docs</a> |
+<a class="link" href="https://github.com/pytorch/vision/blob/main/torchvision/models/detection/faster_rcnn.py"  target="_blank" rel="noopener"
+    >Faster RCNN Code</a></p>
+<p>MobileNet feature maps &ndash;&gt; Feature Pyramid Network &ndash;&gt; FasterRCNN detector for locating bounding box</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">high_res</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">detection</span><span class="o">.</span><span class="n">fasterrcnn_mobilenet_v3_large_fpn</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="n">high_res</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">out</span> <span class="o">=</span> <span class="n">high_res</span><span class="p">([</span><span class="n">im_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">]])[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">low_res</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">detection</span><span class="o">.</span><span class="n">fasterrcnn_mobilenet_v3_large_320_fpn</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">weights</span><span class="o">=</span><span class="n">FasterRCNN_MobileNet_V3_Large_320_FPN_Weights</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">low_res</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">im_tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">400</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl"><span class="n">predictions</span> <span class="o">=</span> <span class="n">low_res</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="lraspp-segment">lraspp segment
+</h3><p>Outputs are masks for different classes. I guess these masks may be not suitable to serve as feature maps.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">lraspp</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">lraspp_mobilenet_v3_large</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># input: (B, C, H, W); output: (B, C&#39;, H, W)</span>
+</span></span><span class="line"><span class="cl"><span class="n">output</span> <span class="o">=</span> <span class="n">lraspp</span><span class="p">(</span><span class="n">im_tensor</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">out</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="deeplabv3-segment">deeplabv3 segment
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">deeplabv3</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">deeplabv3_mobilenet_v3_large</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">deeplabv3</span><span class="p">(</span><span class="n">im_tensor</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>(2023-07-22)</p>
+<h2 id="replace-forward-of-predefined-model">Replace forward of predefined model
+</h2><p><a class="link" href="https://discuss.pytorch.org/t/how-can-i-replace-the-forward-method-of-a-predefined-torchvision-model-with-my-customized-forward-function/54224/11"  target="_blank" rel="noopener"
+    >How can I replace the forward method of a predefined torchvision model with my customized forward function?</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torchvision.models</span> <span class="k">as</span> <span class="nn">models</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">new_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxpool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer3</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer4</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># define a resnet instance</span>
+</span></span><span class="line"><span class="cl"><span class="n">resent</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet18</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># add new_forward function to the resnet instance as a class method</span>
+</span></span><span class="line"><span class="cl"><span class="n">bound_method</span> <span class="o">=</span> <span class="n">new_forward</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="n">resent</span><span class="p">,</span> <span class="n">resent</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">setattr</span><span class="p">(</span><span class="n">resent</span><span class="p">,</span> <span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">bound_method</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>(2023-07-22)</p>
+<h2 id="extract--interpolate-feature-maps">Extract &amp; interpolate feature maps
+</h2><p>Question:
+I want to extract and interpolate all the features maps after each stage of convolution to the same size form a pytorch pretrained model, for example, mobilenet v3. Please give the code.</p>
+<h3 id="bing-chat">Bing chat
+</h3><p>Here is an example code that extracts and interpolates all the feature maps after each stage of convolution to the same size from a PyTorch pre-trained model, MobileNet V3.</p>
+<details>
+<summary>Click to expand the code</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">torchvision.models.mobilenetv3</span> <span class="kn">import</span> <span class="n">mobilenet_v3_large</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">FeatureExtractor</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">(</span><span class="n">FeatureExtractor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([</span>
+</span></span><span class="line"><span class="cl">            <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="n">m</span><span class="o">.</span><span class="n">conv</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">m</span><span class="o">.</span><span class="n">bn</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">m</span><span class="o">.</span><span class="n">hs</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">m</span><span class="o">.</span><span class="n">se</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">m</span><span class="o">.</span><span class="n">conv_pw</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">m</span><span class="o">.</span><span class="n">bn_pw</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">m</span><span class="o">.</span><span class="n">hs_pw</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mobilenet_v3_large</span><span class="p">()</span><span class="o">.</span><span class="n">features</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">])</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">x</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">out</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">FeatureExtractor</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<p>This code creates a <code>FeatureExtractor</code> class that extracts all the feature maps after each stage of convolution to the same size from a PyTorch pre-trained model, MobileNet V3. The <code>forward</code> method takes an input tensor <code>x</code> and returns a list of feature maps. The <code>out</code> variable contains all the feature maps after each stage of convolution to the same size.</p>
+<p>I hope this helps! Let me know if you have any other questions.</p>
+<p>Run it:</p>
+<p>AttributeError: &lsquo;Conv2dNormActivation&rsquo; object has no attribute &lsquo;conv&rsquo;</p>
+<h3 id="chatgpt">ChatGPT
+</h3><p>To extract and interpolate all the feature maps after each stage of convolution in a PyTorch pre-trained model like MobileNetV3,
+you can use the <code>intermediate_layers</code> functionality to access intermediate outputs and the <code>nn.Upsample</code> module for interpolation. Here&rsquo;s a step-by-step guide on how to achieve this:</p>
+<ol>
+<li>Load the pre-trained MobileNetV3 model.</li>
+<li>Modify the model to store intermediate feature maps during forward pass.</li>
+<li>Use the <code>nn.Upsample</code> module to interpolate the feature maps to a common size.</li>
+</ol>
+<p>First, make sure you have PyTorch and torchvision installed:
+<code>pip install torch torchvision</code></p>
+<p>Now, let&rsquo;s create the code:</p>
+<Details>
+<summary>Click to expand the code</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torchvision.models</span> <span class="k">as</span> <span class="nn">models</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MobileNetV3WithIntermediateOutputs</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;mobilenet_v3_large&#39;</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">super</span><span class="p">(</span><span class="n">MobileNetV3WithIntermediateOutputs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">model_name</span><span class="p">](</span><span class="n">pretrained</span><span class="o">=</span><span class="n">pretrained</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Register hooks to save intermediate outputs</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">hook_handles</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">modules</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="n">handle</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">register_forward_hook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hook_fn</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="bp">self</span><span class="o">.</span><span class="n">hook_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">hook_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_outputs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Clear previous intermediate outputs</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_outputs</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">interpolate_to_common_size</span><span class="p">(</span><span class="n">feature_maps</span><span class="p">,</span> <span class="n">target_size</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">feature_maps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">==</span> <span class="n">target_size</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">feature_maps</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">interpolated_feature_maps</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">fmap</span> <span class="ow">in</span> <span class="n">feature_maps</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">interpolated_feature_maps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">fmap</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">target_size</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">,</span> <span class="n">align_corners</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">interpolated_feature_maps</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Example usage:</span>
+</span></span><span class="line"><span class="cl"><span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;mobilenet_v3_large&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+</span></span><span class="line"><span class="cl"><span class="n">target_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mi">56</span><span class="p">)</span>  <span class="c1"># Specify the target size you want to interpolate the feature maps to</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Load the MobileNetV3 model with intermediate outputs</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">MobileNetV3WithIntermediateOutputs</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Set the model to evaluation mode</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Create a random input tensor (batch size 1, 3 channels, height=input_size, width=input_size)</span>
+</span></span><span class="line"><span class="cl"><span class="n">input_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">input_size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Get the intermediate feature maps</span>
+</span></span><span class="line"><span class="cl"><span class="n">intermediate_feature_maps</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Interpolate the feature maps to the common size</span>
+</span></span><span class="line"><span class="cl"><span class="n">interpolated_feature_maps</span> <span class="o">=</span> <span class="n">interpolate_to_common_size</span><span class="p">(</span><span class="n">intermediate_feature_maps</span><span class="p">,</span> <span class="n">target_size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># The &#39;interpolated_feature_maps&#39; now contain all the intermediate feature maps, each resized to the &#39;target_size&#39;.</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></Details>
+<p>In the code above, we create a <code>MobileNetV3WithIntermediateOutputs</code> class that inherits from <code>nn.Module</code>.
+This class will hold the pre-trained MobileNetV3 model and includes a hook function to store intermediate feature maps during forward pass.</p>
+<p>The <code>interpolate_to_common_size</code> function takes a list of feature maps and resizes each one to the specified <code>target_size</code> using bilinear interpolation.
+If the size of the feature maps already matches the target size, they are left unchanged.</p>
+<p>Finally, we load the MobileNetV3 model with intermediate outputs, perform a forward pass with a random input tensor, and then interpolate all the intermediate feature maps to the common size specified by <code>target_size</code>.</p>
+<p>Please note that the example assumes you want to interpolate the feature maps to a target size of (56, 56).
+You can modify the <code>target_size</code> to your desired dimensions. Additionally, you can change the <code>model_name</code> parameter to use other versions of MobileNetV3, such as &lsquo;mobilenet_v3_small&rsquo;, etc.</p>
+<p>Run it:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/home/zichen/Downloads/GNT-comments/temptest.ipynb Cell <span class="m">4</span> in interpolate_to_common_size<span class="o">(</span>feature_maps, target_size<span class="o">)</span>
+</span></span><span class="line"><span class="cl">     <span class="m">25</span> def interpolate_to_common_size<span class="o">(</span>feature_maps, target_size<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">---&gt; <span class="m">26</span>     _, _, H, <span class="nv">W</span> <span class="o">=</span> feature_maps<span class="o">[</span>-1<span class="o">]</span>.size<span class="o">()</span>
+</span></span><span class="line"><span class="cl">     <span class="m">27</span>     <span class="k">if</span> <span class="o">(</span>H, W<span class="o">)</span> <span class="o">==</span> target_size:
+</span></span><span class="line"><span class="cl">     <span class="m">28</span>         <span class="k">return</span> feature_maps
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ValueError: not enough values to unpack <span class="o">(</span>expected 4, got 2<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>It used hook, but it registered a hook for each module.
+But it didn&rsquo;t stop before <code>torch.flatten</code> when forwarding, so the last feature_maps is a vector.
+Maybe that&rsquo;s my bad in prompting.</p>
+<hr>
+<p>(2023-07-24)</p>
+<h2 id="convnext-tiny">ConvNeXt-tiny
+</h2><p>Print the shape of output after each layer:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">convnext</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">convnext_tiny</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;DEFAULT&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">convnext_inspect</span> <span class="o">=</span> <span class="n">InspectModel</span><span class="p">(</span><span class="n">convnext</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">dummy_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">754</span><span class="p">,</span><span class="mi">1008</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">convnext_inspect</span><span class="p">(</span><span class="n">dummy_input</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Extract specified feature maps and interpolate them to specified size:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">convnext_features</span> <span class="o">=</span> <span class="n">ExtractIntrplFeatures</span><span class="p">(</span><span class="n">convnext</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">H_maps</span><span class="p">,</span> <span class="n">W_maps</span> <span class="o">=</span> <span class="n">dummy_input</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl"><span class="n">features</span> <span class="o">=</span> <span class="n">convnext_features</span><span class="p">(</span><span class="n">dummy_input</span><span class="p">,</span> <span class="p">(</span><span class="n">H_maps</span><span class="p">,</span> <span class="n">W_maps</span><span class="p">))</span> <span class="c1"># (1,192,754,1008)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Book site; book\nⅠ. Curve Fitting Sec 4.1: Classic Curve Fitting and Least-Squares Regression\nRegression ≈ curve fitting ≈ 𝐀𝐱=𝐛 (Least-square fitting), where 𝐀 is the data, 𝐱 is the parameters of the model, 𝐛 is the target.\nRegression: Fitting a model to some data with some parameters\nOver- and Under-determined Models could be Over- and Under-determined.\nOver-determined system normally has No solution.\nThere&rsquo;re massive constraints (equations, samples) given, but the complexity (#variables) of the system is not enough to describe the existing data.\n">
+<title>watch: Nathan 10 | Regression and Model Selection</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/ala-nathan/10_regression_model_selection/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: Nathan 10 | Regression and Model Selection">
+<meta property='og:description' content="Book site; book\nⅠ. Curve Fitting Sec 4.1: Classic Curve Fitting and Least-Squares Regression\nRegression ≈ curve fitting ≈ 𝐀𝐱=𝐛 (Least-square fitting), where 𝐀 is the data, 𝐱 is the parameters of the model, 𝐛 is the target.\nRegression: Fitting a model to some data with some parameters\nOver- and Under-determined Models could be Over- and Under-determined.\nOver-determined system normally has No solution.\nThere&rsquo;re massive constraints (equations, samples) given, but the complexity (#variables) of the system is not enough to describe the existing data.\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/ala-nathan/10_regression_model_selection/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2023-05-23T17:24:00&#43;00:00'/><meta property='article:modified_time' content='2023-05-23T17:24:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: Nathan 10 | Regression and Model Selection">
+<meta name="twitter:description" content="Book site; book\nⅠ. Curve Fitting Sec 4.1: Classic Curve Fitting and Least-Squares Regression\nRegression ≈ curve fitting ≈ 𝐀𝐱=𝐛 (Least-square fitting), where 𝐀 is the data, 𝐱 is the parameters of the model, 𝐛 is the target.\nRegression: Fitting a model to some data with some parameters\nOver- and Under-determined Models could be Over- and Under-determined.\nOver-determined system normally has No solution.\nThere&rsquo;re massive constraints (equations, samples) given, but the complexity (#variables) of the system is not enough to describe the existing data.\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#-curve-fitting">Ⅰ. Curve Fitting</a>
+      <ol>
+        <li><a href="#over--and-under-determined">Over- and Under-determined</a></li>
+        <li><a href="#how-to-solve">How to solve</a></li>
+        <li><a href="#over--and-under-fitting">Over- and Under-fitting</a></li>
+        <li><a href="#regression-framework">Regression framework</a></li>
+      </ol>
+    </li>
+    <li><a href="#-nonlinear-regression">Ⅱ. Nonlinear Regression</a></li>
+    <li><a href="#-regularization">Ⅲ. Regularization</a></li>
+    <li><a href="#-optimization">Ⅳ. Optimization</a>
+      <ol>
+        <li><a href="#simple-example">Simple Example</a></li>
+        <li><a href="#different-regression">Different regression</a></li>
+      </ol>
+    </li>
+    <li><a href="#pareto-front">Pareto front</a></li>
+    <li><a href="#connect-nns">Connect NNs</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/ala-nathan/10_regression_model_selection/">watch: Nathan 10 | Regression and Model Selection</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 23, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#-curve-fitting">Ⅰ. Curve Fitting</a>
+      <ol>
+        <li><a href="#over--and-under-determined">Over- and Under-determined</a></li>
+        <li><a href="#how-to-solve">How to solve</a></li>
+        <li><a href="#over--and-under-fitting">Over- and Under-fitting</a></li>
+        <li><a href="#regression-framework">Regression framework</a></li>
+      </ol>
+    </li>
+    <li><a href="#-nonlinear-regression">Ⅱ. Nonlinear Regression</a></li>
+    <li><a href="#-regularization">Ⅲ. Regularization</a></li>
+    <li><a href="#-optimization">Ⅳ. Optimization</a>
+      <ol>
+        <li><a href="#simple-example">Simple Example</a></li>
+        <li><a href="#different-regression">Different regression</a></li>
+      </ol>
+    </li>
+    <li><a href="#pareto-front">Pareto front</a></li>
+    <li><a href="#connect-nns">Connect NNs</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://databookuw.com"  target="_blank" rel="noopener"
+    >Book site</a>;
+<a class="link" href="https://databookuw.com/databook.pdf"  target="_blank" rel="noopener"
+    >book</a></p>
+<h2 id="-curve-fitting">Ⅰ. Curve Fitting
+</h2><p><a class="link" href="https://youtu.be/32qEQ29QJco"  target="_blank" rel="noopener"
+    >Sec 4.1:  Classic Curve Fitting and Least-Squares Regression</a></p>
+<p>Regression ≈ curve fitting ≈ 𝐀𝐱=𝐛 (Least-square fitting), where 𝐀 is the data, 𝐱 is the parameters of the model, 𝐛 is the target.</p>
+<p>Regression: Fitting a model to some data with some parameters</p>
+<h3 id="over--and-under-determined">Over- and Under-determined
+</h3><p>Models could be Over- and Under-determined.</p>
+<ol>
+<li>
+<p>Over-determined system normally has No solution.</p>
+<p>There&rsquo;re massive constraints (equations, samples) given, but the complexity (#variables) of the system is not enough to describe the existing data.</p>
+<p>An over-determined system can be &ldquo;No solution&rdquo; or &ldquo;Infinitely many solution&rdquo;
+<a class="link" href="https://en.wikipedia.org/wiki/Overdetermined_system"  target="_blank" rel="noopener"
+    >Over~ wiki</a></p>
+<ul>
+<li>
+<p><strong>Homogeneous case:</strong> (no bias)</p>
+<ul>
+<li>The coefficient matrix is a <strong>tall, skinny</strong> matrix, the <strong>&ldquo;all-zero solution&rdquo;</strong> always holds.</li>
+<li>If there&rsquo;re enough equations are dependent, and after eliminating #non-zero row $<$ #cols in the coefficient matrix in row-echelon form,
+this over-determined homogeneous system has <strong>&ldquo;infinitely many solutions&rdquo;</strong> (including all-0 solution).
+Otherwise, &ldquo;all-zero&rdquo; is the only solution.</li>
+</ul>
+</li>
+<li>
+<p><strong>Non-homogeneous case:</strong></p>
+<ul>
+<li>
+<p>If the last non-zero row of the augmented matrix in row echelon form is only having the constant entry of the last column (giving an equaltion 0=c), this system has <strong>&ldquo;No solution&rdquo;</strong>.</p>
+<p>Since it&rsquo;s a tall matrix, this case is likely to happen:</p>
+$$
+       \left[ \begin{array}{cc|c}
+       2  & 1 & -1 \\\
+       -3 & 1 & -2  \\\
+       -1 & 1 & 1  \\\
+       \end{array} \right] 
+       \rightarrow
+       \left[ \begin{array}{cc|c}
+       2 & 1   & -1 \\\
+       0 & 5/2 & -7/2  \\\
+       0 & 3/2 & 1/2  \\\
+       \end{array} \right] \rightarrow
+       \left[ \begin{array}{cc|c}
+       2 & 1   & -1 \\\
+       0 & 5/2 & -7/2  \\\
+       0 & 0   & 13/5  \\\
+       \end{array} \right]
+       $$<p><img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/3_equations_-1.JPG"
+	
+	
+	
+	loading="lazy"
+	
+		alt="img-wiki"
+	
+	
+></p>
+</li>
+<li>
+<p>Since the equations are way more than unknowns, the coefficient matrix in row echelon form is most likely not having: #non-zero rows = #cols.
+So the case &ldquo;single unique solution&rdquo; is almost impossible, but there&rsquo;ll be <strong>&ldquo;Infinite many solutions&rdquo;</strong>.</p>
+</li>
+<li>
+<p>Unless, enough rows can be eliminated (lines overlap), and the remaining coefficient matrix has the same rank as the augmented matrix, and also
+the #non-zero rows = #cols in the coefficient matrix, this system has <strong>&ldquo;single unique solution&rdquo;</strong>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>(2024-05-31)</p>
+<ul>
+<li>
+<p>如果约束太多，就变成“超定系统”了，通常无解；
+此时就要引入更多的“未知量”，变成一个“欠定系统”，就有无穷多解了</p>
+</li>
+<li>
+<p>之前我说老弟顾忌的东西太多，无解；所以要引入“变量”。多看多尝试不同的东西，有人就有变数，变则通。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Under-determined system normally has infinitely many solutions.</p>
+<p>Because the #parameters is more than equations (samples), some variables are not restricted, which caused the infinitude of solutions. In other words, there&rsquo;re not enough equations to uniquely determine each unknown.
+So the problems is how to determine which solution is the best.</p>
+<p>An underdetermined linear system has either No solution or Infinitely many solutions.<a class="link" href="https://en.wikipedia.org/wiki/Underdetermined_system"  target="_blank" rel="noopener"
+    >Under~ wiki</a></p>
+<ul>
+<li>Homogeneous case: The coefficient matrix is a <strong>short, fat</strong> matrix, #non-zero rows $<$ #cols. So the system always has &ldquo;Infinitely many solutions&rdquo; (including all-0 solution).</li>
+<li>Non-homogeneous case:
+<ul>
+<li>Rank of augmented matrix &gt; Rank of coefficient matrix: No solution</li>
+<li>Rank of augmented matrix = Rank of coefficient matrix:
+There must be some solutions. But since the #row is already less than #cols for the coefficient matrix, the single unique solution (except for all-0) is impossible.
+So this system indeed has infinitely many potential solutions.
+$$
+       \left[ \begin{array}{ccc|c}
+       1 & 1 & 1 & 1 \\\ 1 & 1 & 2 & 3
+       \end{array} \right] \rightarrow
+       \left[ \begin{array}{ccc|c}
+       1 & 1 & 1 & 1 \\\ 0 & 0 & 1 & 2
+       \end{array} \right]
+       $$</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="how-to-solve">How to solve
+</h3><ol>
+<li>
+<p>If there&rsquo;re infinite optional solutions, then the best model should be selected according to other constraints, i.e., regularizers g(𝐱).</p>
+<p>For instance, the penalty for L2 norm of the parameters vector ‖𝐱‖₂ can lead to the model with smallest mse;
+And the penalty for L1 norm of the parameters vector ‖𝐱‖₁ can lead to the model with sparse number of parameters.</p>
+<p>Therefore, the objective is:</p>
+<p>$argmin_𝐱 g(𝐱)$ subject to ‖𝐀𝐱-𝐛‖₂=0.</p>
+<p>If some error can be tolerated to just find the model that has the minimum L2-norm params, the constraint can be relaxed by a small error, like: ‖𝐀𝐱-𝐛‖₂≤ε</p>
+</li>
+<li>
+<p>If there&rsquo;s no solution, the expected model should have the minimum error.</p>
+<p>Therefore, the objective is: $argmin_𝐱$ (‖𝐀𝐱-𝐛‖₂).</p>
+<p>Adding regularizers can confine the optimizer to find the right model, so the objective can be</p>
+<p>$argmin_𝐱$ (‖𝐀𝐱-𝐛‖₂ + λg(𝐱))</p>
+<p>Ordinary least squares gives the approximate solutions (when no exact solution exists) or the exact solution (when it exists) by minimizing the square error:</p>
+<p>$argmin_𝐱$ ‖𝐀𝐱-𝐛‖</p>
+<p>Its solution is 𝐱 = (𝐀ᵀ𝐀)⁻¹𝐀ᵀ𝐛.
+And using QR factorization of A to solve the least squares can achieve good numerical accuracy.</p>
+</li>
+</ol>
+<p>More broadly, this generic architecture can be generalized to <strong>non-linear regressions</strong> by replacing ‖𝐀𝐱-𝐛‖₂ to non-linear constraints f(𝐀,𝐱,𝐛):</p>
+$$
+argmin_𝐱 ( f(𝐀,𝐱,𝐛) + λg(𝐱)) \quad \text{(Over-determined) or}  \\\
+argmin_𝐱 g(𝐱) \ \text{subject to } f(𝐀,𝐱,𝐛) ≤ ε \quad \text{(Under-determined)}
+$$<p>An over-determined non-linear system can be solved by <a class="link" href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Newton_algorithm#Solving_overdetermined_systems_of_equations"  target="_blank" rel="noopener"
+    >Gauss-Newton iteration</a></p>
+<h3 id="over--and-under-fitting">Over- and Under-fitting
+</h3><p>Two canonical issues:</p>
+<ol>
+<li>
+<p>Over-fitting: With enhencing the model complexity, the training error keeps dropping, but the evaluating error on withhold data goes up.</p>
+</li>
+<li>
+<p>Under-fitting: No matter how you increase the model complexity (parameters), the training error doesn&rsquo;t drop,
+<strong>either that&rsquo;s a bad model or there&rsquo;s not enough data</strong>.</p>
+</li>
+</ol>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /post/writenotes/calc/ala-nathan/img/01_Over-Under-fitting_6-26.png width=ZgotmplZ>
+  
+  
+
+
+<h3 id="regression-framework">Regression framework
+</h3><p>Generic Regression: 𝐘 = 𝑓(𝐗,𝛃), input 𝐗 into model 𝑓, then target 𝐘 can be obtained.</p>
+<p>Regression needs 2 things: select a model 𝑓 and find its parameters beta that can map X to Y.</p>
+<p>Different norms are used to measure the error: L∞ norm, L1 norm, L2 norm.
+And the selected norm (error metric) has big impact on the &ldquo;Goodness of Fit&rdquo;.</p>
+<h2 id="-nonlinear-regression">Ⅱ. Nonlinear Regression
+</h2><p><a class="link" href="https://www.youtube.com/watch?v=YepA2w3EUEM"  target="_blank" rel="noopener"
+    >Sec 4.2: Nonlinear Regression and Gradient Descent</a></p>
+<h2 id="-regularization">Ⅲ. Regularization
+</h2><p><a class="link" href="https://youtu.be/jnSi1Q3WVEw"  target="_blank" rel="noopener"
+    >Sec 4.3: Over- and Under-determined Systems</a>;
+<a class="link" href="https://youtu.be/jnSi1Q3WVEw?t=1351"  target="_blank" rel="noopener"
+    >Code demo</a></p>
+<h2 id="-optimization">Ⅳ. Optimization
+</h2><p><a class="link" href="https://youtu.be/c5ish_bQetE"  target="_blank" rel="noopener"
+    >Sec 4.4: Optimization for regression</a></p>
+<blockquote>
+<p>Optimization is the cornerstone of regression.</p></blockquote>
+<ul>
+<li>Optimization is to minimize some objective function.</li>
+<li>Regression is finding the parameters of the given model that maps the input to the output.</li>
+</ul>
+<blockquote>
+<p>Regularization is Critical</p></blockquote>
+<ul>
+<li>Regularizers are what determine the type solutions obtained.</li>
+</ul>
+<h3 id="simple-example">Simple Example
+</h3><p>The data is generated from parabola + noise $f(x) = x^2 + 𝐍(0,σ)$.
+However, the model in practice is unknown, and regularization can help find better models.</p>
+<p>Given 100 Realizations of data. And the model is represented as $𝐘 = 𝑓(𝐗,β)$</p>
+<p>Small noise results complex predicted models.</p>
+<h3 id="different-regression">Different regression
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-matlab" data-lang="matlab"><span class="line"><span class="cl"><span class="n">f</span> <span class="p">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.^</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)).</span><span class="o">&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">lambda</span> <span class="p">=</span> <span class="mf">0.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">phi</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li><code>pinv()</code>: Pseudo-inverse (Least square with the minimum L2 norm)</li>
+<li><code>\</code> (bashslash): QR decomposition</li>
+<li><code>lasso()</code></li>
+<li><code>robustfit()</code></li>
+<li><code>()</code></li>
+</ol>
+<p>Least-square fit <code>pinv</code> get very different model for samll pertubation every time and all the coefficients are functioning.
+The uncertainty of this solver is high.</p>
+<p>The high-dgree terms are highly volatile, which makes the model unstable.</p>
+<p>Parsimony (Pareto front) Keep adding higher degree polynomials to the model, the error will no longer decrease at some point and instead even rise up.</p>
+<h2 id="pareto-front">Pareto front
+</h2><p><a class="link" href="https://youtu.be/sMEpJGKUYoE"  target="_blank" rel="noopener"
+    >Sec 4.7: The Pareto front and Lex Parsimoniae</a></p>
+<p>Small number of parameters can bring interperity</p>
+<h2 id="connect-nns">Connect NNs
+</h2><p><a class="link" href="https://youtu.be/v2EVAj0a8g8"  target="_blank" rel="noopener"
+    >Sec Neural Networks: 1-Layer Networks</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

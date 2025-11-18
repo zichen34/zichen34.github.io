@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="(Feature figure from g++ → make → cmake - 二圈妹的文章 - 知乎)\n《CMake实践》\n三、cmake工程 建立工程目录 t1\n1 2 3 mkdir t1 cd t1 touch main.c CMakeLists.txt 编辑源文件 main.c\n1 2 3 4 5 6 # include &lt;stdio.h&gt; int main() { printf(&#34;Hello World from t1 Main!\\n&#34;); return 0; } 编辑CMakeLists.txt (原书最后一行有误)\n1 2 3 4 5 PROJECT(HELLO)\t#定义工程名称 SET(SRC_LIST main.c)\t#定义变量SRC_LIST, 值为main.c源文件 MESSAGE(STATUS &#34;This is BINARY dir&#34; ${HELLO_BINARY_DIR})\t#向终端输出用户定义的信息 MESSAGE(STATUS &#34;This is SOURCE dir&#34; ${HELLO_SOURCE_DIR}) ADD_EXECUTABLE(hello ${SRC_LIST})\t#编译源文件生成可执行文件hello PROJECT(projectname [CXX] [C] [JAVA])\n">
+<title>memo: CMake实践</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lang/cmake_practice/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: CMake实践">
+<meta property='og:description' content="(Feature figure from g++ → make → cmake - 二圈妹的文章 - 知乎)\n《CMake实践》\n三、cmake工程 建立工程目录 t1\n1 2 3 mkdir t1 cd t1 touch main.c CMakeLists.txt 编辑源文件 main.c\n1 2 3 4 5 6 # include &lt;stdio.h&gt; int main() { printf(&#34;Hello World from t1 Main!\\n&#34;); return 0; } 编辑CMakeLists.txt (原书最后一行有误)\n1 2 3 4 5 PROJECT(HELLO)\t#定义工程名称 SET(SRC_LIST main.c)\t#定义变量SRC_LIST, 值为main.c源文件 MESSAGE(STATUS &#34;This is BINARY dir&#34; ${HELLO_BINARY_DIR})\t#向终端输出用户定义的信息 MESSAGE(STATUS &#34;This is SOURCE dir&#34; ${HELLO_SOURCE_DIR}) ADD_EXECUTABLE(hello ${SRC_LIST})\t#编译源文件生成可执行文件hello PROJECT(projectname [CXX] [C] [JAVA])\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lang/cmake_practice/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-01-06T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-01-06T00:00:00&#43;00:00'/><meta property='og:image' content='https://picx.zhimg.com/v2-42db546bd0f2ffdd462636ddd87ecdc3_1440w.jpg?source=172ae18b' />
+<meta name="twitter:title" content="memo: CMake实践">
+<meta name="twitter:description" content="(Feature figure from g++ → make → cmake - 二圈妹的文章 - 知乎)\n《CMake实践》\n三、cmake工程 建立工程目录 t1\n1 2 3 mkdir t1 cd t1 touch main.c CMakeLists.txt 编辑源文件 main.c\n1 2 3 4 5 6 # include &lt;stdio.h&gt; int main() { printf(&#34;Hello World from t1 Main!\\n&#34;); return 0; } 编辑CMakeLists.txt (原书最后一行有误)\n1 2 3 4 5 PROJECT(HELLO)\t#定义工程名称 SET(SRC_LIST main.c)\t#定义变量SRC_LIST, 值为main.c源文件 MESSAGE(STATUS &#34;This is BINARY dir&#34; ${HELLO_BINARY_DIR})\t#向终端输出用户定义的信息 MESSAGE(STATUS &#34;This is SOURCE dir&#34; ${HELLO_SOURCE_DIR}) ADD_EXECUTABLE(hello ${SRC_LIST})\t#编译源文件生成可执行文件hello PROJECT(projectname [CXX] [C] [JAVA])\n"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://picx.zhimg.com/v2-42db546bd0f2ffdd462636ddd87ecdc3_1440w.jpg?source=172ae18b' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#三cmake工程">三、cmake工程</a>
+      <ol>
+        <li><a href="#cmake基本语法">cmake基本语法</a></li>
+        <li><a href="#外部构建">外部构建：</a></li>
+      </ol>
+    </li>
+    <li><a href="#四规范的工程">四、规范的工程</a>
+      <ol>
+        <li><a href="#规范要求">规范要求</a></li>
+        <li><a href="#编译">编译</a></li>
+        <li><a href="#install指令">INSTALL指令</a>
+          <ol>
+            <li><a href="#1-目标文件的安装"><strong>1. 目标文件的安装：</strong></a></li>
+            <li><a href="#2-普通文件的安装"><strong>2. 普通文件的安装</strong></a></li>
+            <li><a href="#3-目录的安装">3. 目录的安装</a></li>
+            <li><a href="#4-安装时脚本的运行">4. 安装时脚本的运行</a></li>
+          </ol>
+        </li>
+        <li><a href="#安装">安装</a></li>
+      </ol>
+    </li>
+    <li><a href="#五静态库与动态库构建">五、静态库与动态库构建</a>
+      <ol>
+        <li><a href="#1-准备工作">1. 准备工作</a></li>
+        <li><a href="#2-建立共享库">2. 建立共享库</a>
+          <ol>
+            <li><a href="#add_library">ADD_LIBRARY</a></li>
+          </ol>
+        </li>
+        <li><a href="#3-添加静态库">3. 添加静态库</a></li>
+        <li><a href="#4-动态库版本号">4. 动态库版本号</a></li>
+        <li><a href="#5-安装共享库和头文件">5. 安装共享库和头文件</a></li>
+        <li><a href="#完整代码">完整代码：</a></li>
+      </ol>
+    </li>
+    <li><a href="#六如何使用外部共享库和头文件">六、如何使用外部共享库和头文件</a>
+      <ol>
+        <li><a href="#1-准备工作-1">1. 准备工作</a></li>
+        <li><a href="#2-编写源文件">2. 编写源文件</a></li>
+        <li><a href="#3-引入头文件搜索路径">3. 引入头文件搜索路径</a></li>
+        <li><a href="#4-为-target-链接共享库">4. 为 target 链接共享库</a></li>
+        <li><a href="#特殊的环境变量">特殊的环境变量:</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/lang/cmake_practice/">
+                
+                    <img src="https://picx.zhimg.com/v2-42db546bd0f2ffdd462636ddd87ecdc3_1440w.jpg?source=172ae18b" loading="lazy" alt="Featured image of post memo: CMake实践" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lang/cmake_practice/">memo: CMake实践</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 06, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#三cmake工程">三、cmake工程</a>
+      <ol>
+        <li><a href="#cmake基本语法">cmake基本语法</a></li>
+        <li><a href="#外部构建">外部构建：</a></li>
+      </ol>
+    </li>
+    <li><a href="#四规范的工程">四、规范的工程</a>
+      <ol>
+        <li><a href="#规范要求">规范要求</a></li>
+        <li><a href="#编译">编译</a></li>
+        <li><a href="#install指令">INSTALL指令</a>
+          <ol>
+            <li><a href="#1-目标文件的安装"><strong>1. 目标文件的安装：</strong></a></li>
+            <li><a href="#2-普通文件的安装"><strong>2. 普通文件的安装</strong></a></li>
+            <li><a href="#3-目录的安装">3. 目录的安装</a></li>
+            <li><a href="#4-安装时脚本的运行">4. 安装时脚本的运行</a></li>
+          </ol>
+        </li>
+        <li><a href="#安装">安装</a></li>
+      </ol>
+    </li>
+    <li><a href="#五静态库与动态库构建">五、静态库与动态库构建</a>
+      <ol>
+        <li><a href="#1-准备工作">1. 准备工作</a></li>
+        <li><a href="#2-建立共享库">2. 建立共享库</a>
+          <ol>
+            <li><a href="#add_library">ADD_LIBRARY</a></li>
+          </ol>
+        </li>
+        <li><a href="#3-添加静态库">3. 添加静态库</a></li>
+        <li><a href="#4-动态库版本号">4. 动态库版本号</a></li>
+        <li><a href="#5-安装共享库和头文件">5. 安装共享库和头文件</a></li>
+        <li><a href="#完整代码">完整代码：</a></li>
+      </ol>
+    </li>
+    <li><a href="#六如何使用外部共享库和头文件">六、如何使用外部共享库和头文件</a>
+      <ol>
+        <li><a href="#1-准备工作-1">1. 准备工作</a></li>
+        <li><a href="#2-编写源文件">2. 编写源文件</a></li>
+        <li><a href="#3-引入头文件搜索路径">3. 引入头文件搜索路径</a></li>
+        <li><a href="#4-为-target-链接共享库">4. 为 target 链接共享库</a></li>
+        <li><a href="#特殊的环境变量">特殊的环境变量:</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>(Feature figure from <a class="link" href="https://zhuanlan.zhihu.com/p/374290275"  target="_blank" rel="noopener"
+    >g++ → make → cmake - 二圈妹的文章 - 知乎</a>)</p>
+<p>《CMake实践》</p>
+<h2 id="三cmake工程">三、cmake工程
+</h2><ol>
+<li>
+<p><strong>建立工程目录 t1</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir t1
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> t1
+</span></span><span class="line"><span class="cl">touch main.c CMakeLists.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>编辑源文件 main.c</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp"># include &lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Hello World from t1 Main!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>编辑CMakeLists.txt (原书<a class="link" href="https://www.cnblogs.com/52php/p/5681741.html"  target="_blank" rel="noopener"
+    >最后一行有误</a>)</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">PROJECT</span><span class="p">(</span><span class="s">HELLO</span><span class="p">)</span>			<span class="c">#定义工程名称
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">SET</span><span class="p">(</span><span class="s">SRC_LIST</span> <span class="s">main.c</span><span class="p">)</span>	<span class="c">#定义变量SRC_LIST, 值为main.c源文件
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">MESSAGE</span><span class="p">(</span><span class="s">STATUS</span> <span class="s2">&#34;This is BINARY dir&#34;</span> <span class="o">${</span><span class="nv">HELLO_BINARY_DIR</span><span class="o">}</span><span class="p">)</span>	<span class="c">#向终端输出用户定义的信息
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">MESSAGE</span><span class="p">(</span><span class="s">STATUS</span> <span class="s2">&#34;This is SOURCE dir&#34;</span> <span class="o">${</span><span class="nv">HELLO_SOURCE_DIR</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">ADD_EXECUTABLE</span><span class="p">(</span><span class="s">hello</span> <span class="o">${</span><span class="nv">SRC_LIST</span><span class="o">}</span><span class="p">)</span>	<span class="c">#编译源文件生成可执行文件hello
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p><strong>PROJECT(projectname [CXX] [C] [JAVA])</strong></p>
+<p>定义工程名称projectname，可指定工程支持的语言(支持的语言列表可缺省)，默认支持所有语言。这条projecct<strong>指令</strong>隐式地<strong>定义了2个cmake变量</strong>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="err">&lt;projectname&gt;_BINARY_DIR</span>	<span class="c">#此例为：HELLO_BINARY_DIR 二进制文件目录
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="err">&lt;projectname&gt;_SOURCE_DIR</span>	<span class="c">#源文件目录
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>因为采用的是<strong>内部编译</strong>，2个变量目前指的都是工程所在路径 <code>/backup/cmake/t1</code></p>
+<p>同时 cmake <strong>系统</strong>也帮我们<strong>预定义</strong>了2变量：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="err">PROJECT_BINARY_DIR
+</span></span></span><span class="line"><span class="cl"><span class="err">PROJECT_SOURCE_DIR
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>他们的值分别跟 <strong>HELLO_BINARY_DIR</strong> 与 <strong>HELLO_SOURCE_DIR</strong> 一致。</li>
+<li>为了统一起见,建议以后直接使用 <strong>PROJECT_BINARY_DIR</strong>，<strong>PROJECT_SOURCE_DIR</strong>，即使<strong>修改了工程名称</strong>,也不会影响这两个变量。</li>
+<li>如果使用了**&lt;projectname&gt;_SOURCE_DIR**，修改工程名称后,需要同时修改这些变量。</li>
+</ul>
+</li>
+<li>
+<p><strong>SET (VAR [VALUE] [CACHE TYPE DOCSTRING [FORCE]])</strong></p>
+<p>set 指令可以用来显式的定义变量。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET</span><span class="p">(</span><span class="s">SRC_LIST</span> <span class="s">main.c</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">SET</span><span class="p">(</span><span class="s">SRC_LIST</span> <span class="s">main.c;t1.c;t2.c</span><span class="p">)</span>	<span class="c">#源文件列表也可以是多个文件
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>MESSAG ([SEND_ERROR | STATUS | FATAL_ERROR] &ldquo;message to display&rdquo;&hellip;)</strong></p>
+<p>向终端输出用户定义的信息，包含了三种类型：</p>
+<ol>
+<li>SEND_ERROR 产生错误，生成过程被跳过</li>
+<li>STATUS 输出前缀为 - 的信息</li>
+<li>FATAL_ERROR 立即终止所有 cmake 过程</li>
+</ol>
+</li>
+<li>
+<p><strong>ADD_EXECUTABLE(hello ${SRC_LIST})</strong></p>
+<p>定义了这个工程会生成一个文件<strong>名为 hello</strong> 的可执行文件，相关的<strong>源文件</strong>是 SRC_LIST中定义的源文件列表。用 <strong>${ }</strong> 来引用变量</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>开始构建</strong></p>
+<p>在工程目录下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cmake .	<span class="c1">#构建当前目录，生成了Makefile</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>根据Makefile编译源代码，连接，生成目标文件、可执行文件(hello)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make
+</span></span><span class="line"><span class="cl"><span class="c1">#或者</span>
+</span></span><span class="line"><span class="cl">make <span class="nv">VERBOSE</span><span class="o">=</span>1	<span class="c1">#可以看到make构建的详细过程,以便排查错误</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>运行可执行文件(hello)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">./hello
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<h3 id="cmake基本语法">cmake基本语法
+</h3><ol>
+<li>
+<p>变量使用 <strong>${ }</strong> 方式取值，但是在IF控制语句中是直接使用变量名</p>
+</li>
+<li>
+<p>指令(参数1 参数2 &hellip;)</p>
+<p>参数用括号括住，参数之间用<strong>空格</strong>或<strong>分号</strong>隔开：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">ADD_EXECUTABLE</span><span class="p">(</span><span class="s">hello</span> <span class="s">main.c</span> <span class="s">func.c</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">ADD_EXECUTABLE</span><span class="p">(</span><span class="s">hello</span> <span class="s">main.c;func.c</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>指令是大小写无关的，参数和变量是大小写敏感的。（推荐全部大写指令）</p>
+</li>
+<li>
+<p><strong>工程名</strong>HELLO 和 <strong>可执行文件名</strong>hello 是没有任何关系的</p>
+</li>
+<li>
+<p>如果文件名中有空格，使用<strong>双引号</strong>括住：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET</span><span class="p">(</span><span class="s">SRC_LIST</span> <span class="s2">&#34;func.c&#34;</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>清理工程：</strong></p>
+<p>清除上次的<strong>make</strong>命令所产生的<strong>目标(object)文件</strong>（后缀为“.o”的文件）及<strong>可执行文件</strong>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make clean
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>make disclean 对cmake无效，所以需要用<strong>外部构建</strong>(out-of-source)，来使工程目录<strong>整洁</strong>。</p>
+</li>
+<li>
+<p><strong>安装</strong></p>
+<p>将编译成功的<strong>可执行文件</strong>安装到<strong>系统目录</strong>中，一般为<code>/usr/local/bin</code> 目录中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make install
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>生成发行版软件包</strong></p>
+<p>将可执行文件及相关文件打包成一个tar.gz压缩的文件用来作为发布软件的软件包。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make dist
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>它会在当前目录下生成一个名字类似“PACKAGE-VERSION.tar.gz”的文件。PACKAGE和VERSION，是我们在configure.in中定义的AM_INIT_AUTOMAKE(PACKAGE, VERSION)。</p>
+</li>
+<li>
+<p><strong>检查发行软件包</strong></p>
+<p>生成发布软件包并对其进行测试检查，以确定发布包的正确性。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make distcheck
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个操作将自动把压缩包文件解开，然后执行configure命令，并且执行make，来确认编译不出现错误，最后提示你软件包已经准备好，可以发布了。</p>
+</li>
+</ol>
+<h3 id="外部构建">外部构建：
+</h3><p>编译会生成一些<strong>无法自动删除</strong>的中间文件，所以在工程目录下建立<strong>build</strong>目录，用于<strong>存放中间文件</strong>，然后 <code>cmake ..</code> 对上层目录编译，在build目录中生成了make需要的Makefile和其他的中间文件。运行<code>make</code>编译，就会在build目录下获得<strong>目标文件 hello.o</strong></p>
+<ul>
+<li>PROJECT_SOURCE_DIR 仍指代工程目录，即 <code>/backup/cmake/t1</code></li>
+<li>PROJECT_BINARY_DIR 则指代编译目录，即 <code>/backup/cmake/t1/build</code></li>
+</ul>
+<h2 id="四规范的工程">四、规范的工程
+</h2><h3 id="规范要求">规范要求
+</h3><ol>
+<li>为工程添加一个子目录 <strong>src</strong>， 用来放置工程<strong>源代码</strong></li>
+<li>添加一个子目录 <strong>doc</strong>，用来放置工程的文档 hello.txt；</li>
+<li>在工程目录添加文本文件 <strong>COPYRIGHT，README</strong>；</li>
+<li>在工程目录添加一个 runhello.sh <strong>脚本</strong>，用来调用可执行文件 hello</li>
+<li>将构建后的<strong>目标(object)文件</strong>放入构建目录的 bin 子目录</li>
+<li>最终<strong>安装</strong>这些文件：将可<strong>执行文件</strong> hello 与 runhello.sh 安装至 /usr/bin, 将doc 目录的内容以及 COPYRIGHT/README 安装到 <code>/usr/share/doc/cmake/t2</code>,</li>
+</ol>
+<h3 id="编译">编译
+</h3><ol>
+<li>
+<p><strong>准备工作</strong></p>
+<p>在 /backup/cmake 目录下建立 /t2 目录，将 /t1 工程的 main.c 和 CMakeLists.txt 拷贝到 /t2 目录下。</p>
+</li>
+<li>
+<p><strong>构建工程</strong></p>
+<ol>
+<li>
+<p><strong>添加子目录 src：</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir src
+</span></span><span class="line"><span class="cl">mv main.c src	<span class="c1">#源代码放入 src 目录</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>进入 /t2/src</strong>，编写 CMakeLists.txt （需要为<strong>任何子目录</strong>建立一个 CMakeLists.txt）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">ADD_EXECUTABLE</span><span class="p">(</span><span class="s">hello</span> <span class="s">main.c</span><span class="p">)</span>	<span class="c">#把mainc.c源码编译成一个名为hello的可执行文件
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>修改 <strong>/t2</strong> 工程目录下的CMakeLists.txt ，指定源代码文件夹和编译输出(包括中间结果：每个子文件夹下都有CMakeLists.txt，都会产生编译结果)文件夹</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">PROJECT</span><span class="p">(</span><span class="s">HELLO</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">ADD_SUBDIRECTORY</span><span class="p">(</span><span class="s">src</span> <span class="s">bin</span><span class="p">)</span>	<span class="c">#指定源码目录/t2/src，指定make编译结果放入/build/bin， 
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><strong>ADD_SUBDIRECTORY(source_dir [binary_dir] [EXCLUDE_FORM_ALL])</strong></p>
+<p>此指令用于向当前工程<strong>添加存放源文件的子目录</strong>(source_dir)，并可以<strong>指定编译输出</strong>存放的位置(binary_dir)。<strong><code>[EXCLUDE_FROM_ALL]</code></strong> 参数的含义是将这个目录从编译过程中<strong>排除</strong>，比如，工程的example，可能就需要工程编译完成后，再进入example 目录单独进行构建。</p>
+<p>如果不指定 bin 目录，编译结果（包括中间结果）都将存放在 build/src 目录下，指定 bin 目录后，<strong>相当于</strong>在编译时将 /build/src <strong>重命名</strong>为 /bin。</p>
+</li>
+<li>
+<p><strong>换个地方保存可执行文件和库文件</strong></p>
+<p>不论是 <strong><code>SUBDIRS</code></strong> 还是 <strong><code>ADD_SUBDIRECTORY</code></strong> 指令(不论是否指定编译输出目录),我们都可以通过 <strong><code>SET</code></strong> 指令重新定义 <strong><code>EXECUTABLE_OUTPUT_PATH</code><strong>和 <strong><code>LIBRARY_OUTPUT_PATH</code></strong> 变量，来指定最终的目标二进制的位置（即最终生成的</strong>可执行文件</strong> hello 或者最终的<strong>共享库</strong>,不包含编译生成的中间文件)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET</span><span class="p">(</span><span class="s">EXECUTABLE_OUTPUT_PATH</span> <span class="o">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="o">}</span><span class="s">/bin</span><span class="p">)</span>	<span class="c">#即为/build/bin
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">SET</span><span class="p">(</span><span class="s">LIBRARY_OUTPUT_PATH</span> <span class="o">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="o">}</span><span class="s">/lib</span><span class="p">)</span>	<span class="c">#即为/build/lib
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>在<code>ADD_EXECUTABLE</code>或<code>ADD_LIBRARY</code>后面，写这条指令。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>建立build，<strong>进入build</strong>目录，进行<strong>外部编译</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> build
+</span></span><span class="line"><span class="cl">cmake ..
+</span></span><span class="line"><span class="cl">make
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>构建完成后，你会发现生成的可执行文件 hello 位于 build/bin 目录中。</p>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="install指令">INSTALL指令
+</h3><p>有两种安装方法，一种是从代码编译后直接 <code>make install</code> 安装，一种是<strong>打包</strong>时的<strong>指定目录</strong>安装。可以通过：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make install	<span class="c1">#将 hello 直接安装到 /usr/bin 目录</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>或者：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make install <span class="nv">DESTDIR</span><span class="o">=</span>/tmp/test	<span class="c1">#安装在/tmp/test/usr/bin 目录，打包时这个方式经常被使用。</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>稍微复杂一点的是还需要定义 <strong><code>PREFIX</code></strong>，一般autotools工程，会运行这样的指令：</p>
+<p><strong><code>./configure -prefix=/usr</code></strong> 或者 **<code>./configure --prefix=/usr/local</code>**来指定 <strong><code>PREFIX</code></strong>。</p>
+<p>对于cmake来说，使用：</p>
+<p><a class="link" href="https://blog.csdn.net/qq_38410730/article/details/102837401"  target="_blank" rel="noopener"
+    ><strong>INSTALL 指令：</strong></a></p>
+<p>用于定义安装规则，安装的内容可以包括<strong>二进制、动态库、静态库以及文件、目录、脚本</strong>等：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">&lt;target&gt;...</span> <span class="s">[...]</span><span class="p">)</span>			<span class="c">#安装二进制
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">{FILES</span> <span class="s">|</span> <span class="s">PROGRAMS}</span> <span class="s">&lt;file&gt;...</span> <span class="s">[...]</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">DIRECTORY</span> <span class="s">&lt;dir&gt;...</span> <span class="s">[...]</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">SCRIPT</span> <span class="s">&lt;file&gt;</span> <span class="s">[...]</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">CODE</span> <span class="s">&lt;code&gt;</span> <span class="s">[...]</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">EXPORT</span> <span class="s">&lt;export-name&gt;</span> <span class="s">[...]</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>有时候，也会用到一个非常有用的变量**<code>CMAKE_INSTALL_PREFIX</code>**，<strong>用于指定<code>cmake install</code>时的相对地址前缀</strong>。用法如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cmake -DCMAKE_INSTALL_PREFIX<span class="o">=</span>/usr ..
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>CMAKE_INSTALL_PREFIX</code>变量类似与configure 脚本的 -prefix。</p>
+<p>INSTALL 指令的各种安装类型：</p>
+<h4 id="1-目标文件的安装"><strong>1. 目标文件的安装：</strong>
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">targets</span> <span class="s">...</span>		<span class="c">#各种目标文件
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>	    <span class="s">[EXPORT</span> <span class="s">&lt;export-name&gt;]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[[ARCHIVE|LIBRARY|RUNTIME|OBJECTS|FRAMEWORK|BUNDLE|</span>
+</span></span><span class="line"><span class="cl">          <span class="s">PRIVATE_HEADER|PUBLIC_HEADER|RESOURCE]</span> <span class="c">#目标文件类型
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>         <span class="s">[DESTINATION</span> <span class="s">&lt;dir&gt;]</span>					<span class="c">#指定各文件的安装目录&lt;dir&gt;
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>         <span class="s">[PERMISSIONS</span> <span class="s">permissions...]</span>			<span class="c">#文件的权限
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>         <span class="s">[CONFIGURATIONS</span> <span class="s">[Debug|Release|...]]</span>	 <span class="c">#指定安装规则适用的构建配置列表(DEBUG或RELEASE等)
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>         <span class="s">[COMPONENT</span> <span class="s">&lt;component&gt;]</span>
+</span></span><span class="line"><span class="cl">         <span class="s">[NAMELINK_COMPONENT</span> <span class="s">&lt;component&gt;]</span>
+</span></span><span class="line"><span class="cl">         <span class="s">[OPTIONAL]</span> 							<span class="c">#如果要安装的文件不存在，则指定不是错误。
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>         <span class="s">[EXCLUDE_FROM_ALL]</span>			<span class="c">#指定该文件从完整安装中排除，仅作为特定于组件的安装的一部分进行安装；
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>         <span class="s">[NAMELINK_ONLY|NAMELINK_SKIP]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">]</span> <span class="s">[...]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[INCLUDES</span> <span class="s">DESTINATION</span> <span class="s">[&lt;dir&gt;</span> <span class="s">...]]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>参数中的<code>TARGET</code>可以是很多种目标文件，最常见的是通过<code>ADD_EXECUTABLE</code>或者<code>ADD_LIBRARY</code>定义的<strong>目标文件</strong>，即<strong>可执行二进制、动态库、静态库</strong>：以下是默认的安装路径</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>目标文件</th>
+          <th>内容</th>
+          <th>安装目录变量</th>
+          <th>默认安装文件夹</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>ARCHIVE</td>
+          <td>静态库</td>
+          <td>${CMAKE_INSTALL_LIBDIR}</td>
+          <td>lib</td>
+      </tr>
+      <tr>
+          <td>LIBRARY</td>
+          <td>动态库</td>
+          <td>${CMAKE_INSTALL_LIBDIR}</td>
+          <td>lib</td>
+      </tr>
+      <tr>
+          <td>RUNTIME</td>
+          <td>可执行二进制文件</td>
+          <td>${CMAKE_INSTALL_BINDIR}</td>
+          <td>bin</td>
+      </tr>
+      <tr>
+          <td>PUBLIC_HEADER</td>
+          <td>与库关联的PUBLIC头文件</td>
+          <td>${CMAKE_INSTALL_INCLUDEDIR}</td>
+          <td>include</td>
+      </tr>
+      <tr>
+          <td>PRIVATE_HEADER</td>
+          <td>与库关联的PRIVATE头文件</td>
+          <td>${CMAKE_INSTALL_INCLUDEDIR}</td>
+          <td>include</td>
+      </tr>
+  </tbody>
+</table></div>
+<p>为了符合一般的默认安装路径，如果设置了<code>DESTINATION</code>参数，推荐配置在<strong>安装目录变量</strong>下的文件夹。</p>
+<p><strong>例如：</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">myrun</span> <span class="s">mylib</span> <span class="s">mystaticlib</span>
+</span></span><span class="line"><span class="cl">       <span class="s">RUNTIME</span> <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_BINDIR</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">       <span class="s">LIBRARY</span> <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_LIBDIR</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">       <span class="s">ARCHIVE</span> <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_LIBDIR</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>上面的例子会将：<strong>可执行二进制</strong><code>myrun</code>安装到<code>${CMAKE_INSTALL_BINDIR}</code>目录，<strong>动态库</strong><code>libmylib.so</code>安装到<code>${CMAKE_INSTALL_LIBDIR}</code>目录，<strong>静态库</strong><code>libmystaticlib.a</code>安装到<code>${CMAKE_INSTALL_LIBDIR}</code>目录。</p>
+<p>INSTALL命令的<strong>其他一些参数</strong>的含义：</p>
+<ul>
+<li><strong>DESTINATION</strong>：指定磁盘上要安装文件的目录；</li>
+<li><strong>PERMISSIONS</strong>：指定安装文件的权限。<strong>有效权限是OWNER_READ，OWNER_WRITE，OWNER_EXECUTE，GROUP_READ，GROUP_WRITE，GROUP_EXECUTE，WORLD_READ，WORLD_WRITE，WORLD_EXECUTE，SETUID和SETGID</strong>；（11种权限）</li>
+<li><strong>CONFIGURATIONS</strong>：指定安装规则适用的构建配置列表(DEBUG或RELEASE等)；</li>
+<li><strong>EXCLUDE_FROM_ALL</strong>：指定该文件从完整安装中排除，仅作为特定于组件的安装的一部分进行安装；</li>
+<li><strong>OPTIONAL</strong>：如果要安装的文件不存在，则指定不是错误。</li>
+</ul>
+<p>注意一下<code>CONFIGURATIONS</code>参数，<strong>此选项指定的值仅适用于此选项之后列出的选项</strong>：例如，要为<strong>调试</strong>和<strong>发布</strong>配置设置<strong>单独的安装路径</strong>，请执行以下操作：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">target</span>
+</span></span><span class="line"><span class="cl">        <span class="s">CONFIGURATIONS</span> <span class="s">Debug</span>
+</span></span><span class="line"><span class="cl">        <span class="s">RUNTIME</span> <span class="s">DESTINATION</span> <span class="s">Debug/bin</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">target</span>
+</span></span><span class="line"><span class="cl">        <span class="s">CONFIGURATIONS</span> <span class="s">Release</span>
+</span></span><span class="line"><span class="cl">        <span class="s">RUNTIME</span> <span class="s">DESTINATION</span> <span class="s">Release/bin</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>也就是说，<code>DEBUG和RELEASE</code>版本的<code>DESTINATION</code>安装路径不同，那么<code>DESTINATION</code>必须在<code>CONFIGUATIONS</code>后面。</p>
+<h4 id="2-普通文件的安装"><strong>2. 普通文件的安装</strong>
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">&lt;FILES|PROGRAMS&gt;</span> <span class="s">files...</span>
+</span></span><span class="line"><span class="cl">        <span class="s">TYPE</span> <span class="s">&lt;type&gt;</span> <span class="s">|</span> <span class="s">DESTINATION</span> <span class="s">&lt;dir&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[PERMISSIONS</span> <span class="s">permissions...]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[CONFIGURATIONS</span> <span class="s">[Debug|Release|...]]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[COMPONENT</span> <span class="s">&lt;component&gt;]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[RENAME</span> <span class="s">&lt;name&gt;]</span> <span class="s">[OPTIONAL]</span> <span class="s">[EXCLUDE_FROM_ALL]</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>FILES|PROGRAMS</code>若为相对路径给出的文件名，将相对于当前源目录进行解释。其中，<strong>FILES为普通的文本文件，PROGRAMS指的是非目标文件的可执行程序(如脚本文件)</strong>。</p>
+<p>如果未提供<code>PERMISSIONS</code>参数，默认情况下，<strong>普通的文本文件将具有OWNER_WRITE，OWNER_READ，GROUP_READ和WORLD_READ权限，即644权限；而非目标文件的可执行程序将具有OWNER_EXECUTE, GROUP_EXECUTE,和WORLD_EXECUTE，即755权限</strong>。</p>
+<p>其中，不同的<code>TYPE</code>，<code>cmake</code>也提供了<strong>默认的安装路径</strong>，如下表：</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>TYPE类型</th>
+          <th>安装目录变量</th>
+          <th>默认安装文件夹</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>BIN</td>
+          <td>${CMAKE_INSTALL_BINDIR}</td>
+          <td>bin</td>
+      </tr>
+      <tr>
+          <td>SBIN</td>
+          <td>${CMAKE_INSTALL_SBINDIR}</td>
+          <td>sbin</td>
+      </tr>
+      <tr>
+          <td>LIB</td>
+          <td>${CMAKE_INSTALL_LIBDIR}</td>
+          <td>lib</td>
+      </tr>
+      <tr>
+          <td>INCLUDE</td>
+          <td>${CMAKE_INSTALL_INCLUDEDIR}</td>
+          <td>include</td>
+      </tr>
+      <tr>
+          <td>SYSCONF</td>
+          <td>${CMAKE_INSTALL_SYSCONFDIR}</td>
+          <td>etc</td>
+      </tr>
+      <tr>
+          <td>SHAREDSTATE</td>
+          <td>${CMAKE_INSTALL_SHARESTATEDIR}</td>
+          <td>com</td>
+      </tr>
+      <tr>
+          <td>LOCALSTATE</td>
+          <td>${CMAKE_INSTALL_LOCALSTATEDIR}</td>
+          <td>var</td>
+      </tr>
+      <tr>
+          <td>RUNSTATE</td>
+          <td>${CMAKE_INSTALL_RUNSTATEDIR}</td>
+          <td>/run</td>
+      </tr>
+      <tr>
+          <td>DATA</td>
+          <td>${CMAKE_INSTALL_DATADIR}</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>INFO</td>
+          <td>${CMAKE_INSTALL_INFODIR}</td>
+          <td>/info</td>
+      </tr>
+      <tr>
+          <td>LOCALE</td>
+          <td>${CMAKE_INSTALL_LOCALEDIR}</td>
+          <td>/locale</td>
+      </tr>
+      <tr>
+          <td>MAN</td>
+          <td>${CMAKE_INSTALL_MANDIR}</td>
+          <td>/man</td>
+      </tr>
+      <tr>
+          <td>DOC</td>
+          <td>${CMAKE_INSTALL_DOCDIR}</td>
+          <td>/doc</td>
+      </tr>
+  </tbody>
+</table></div>
+<p>请注意，某些类型的内置默认值使用<code>DATAROOT</code>目录作为前缀，以<code>CMAKE_INSTALL_DATAROOTDIR</code>变量值为内容。</p>
+<p>该命令的其他一些参数的含义：</p>
+<ul>
+<li>DESTINATION：指定磁盘上要安装文件的目录；</li>
+<li>PERMISSIONS：指定安装文件的权限。<strong>有效权限是OWNER_READ，OWNER_WRITE，OWNER_EXECUTE，GROUP_READ，GROUP_WRITE，GROUP_EXECUTE，WORLD_READ，WORLD_WRITE，WORLD_EXECUTE，SETUID和SETGID</strong>；</li>
+<li>CONFIGURATIONS：指定安装规则适用的构建配置列表(DEBUG或RELEASE等)；</li>
+<li>EXCLUDE_FROM_ALL：指定该文件从完整安装中排除，仅作为特定于组件的安装的一部分进行安装；</li>
+<li>OPTIONAL：如果要安装的文件不存在，则指定不是错误；</li>
+<li>RENAME：指定已安装文件的名称，该名称可能与原始文件不同。仅当命令安装了单个文件时，才允许重命名。</li>
+</ul>
+<h4 id="3-目录的安装">3. 目录的安装
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">DIRECTORY</span> <span class="s">dirs...</span>
+</span></span><span class="line"><span class="cl">        <span class="s">TYPE</span> <span class="s">&lt;type&gt;</span> <span class="s">|</span> <span class="s">DESTINATION</span> <span class="s">&lt;dir&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[FILE_PERMISSIONS</span> <span class="s">permissions...]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[DIRECTORY_PERMISSIONS</span> <span class="s">permissions...]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[USE_SOURCE_PERMISSIONS]</span> <span class="s">[OPTIONAL]</span> <span class="s">[MESSAGE_NEVER]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[CONFIGURATIONS</span> <span class="s">[Debug|Release|...]]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[COMPONENT</span> <span class="s">&lt;component&gt;]</span> <span class="s">[EXCLUDE_FROM_ALL]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[FILES_MATCHING]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[[PATTERN</span> <span class="s">&lt;pattern&gt;</span> <span class="s">|</span> <span class="s">REGEX</span> <span class="s">&lt;regex&gt;]</span>
+</span></span><span class="line"><span class="cl">         <span class="s">[EXCLUDE]</span> <span class="s">[PERMISSIONS</span> <span class="s">permissions...]]</span> <span class="s">[...]</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>该命令将<strong>一个或多个目录</strong>的内容安装到指定的目的地，目录结构被逐个复制到目标位置。每个目录名称的最后一个组成部分都附加到目标目录中，但是可以使用后跟斜杠来避免这种情况，因为它将最后一个组成部分留空。这是什么意思呢？</p>
+<p>比如，<code>DIRECTORY</code>后面如果是<code>abc</code>意味着<code>abc</code>这个目录会安装在目标路径下，<code>abc/</code>意味着<code>abc</code>这个目录的内容会被安装在目标路径下，而<code>abc</code>目录本身却不会被安装。即，<strong>如果目录名不以&quot;/&ldquo;结尾，那么这个目录将被安装为目标路径下的abc，如果目录名以/结尾，代表将这个目录中的内容安装到目标路径，但不包括这个目录本身</strong>。</p>
+<p><code>FILE_PERMISSIONS</code>和<code>DIRECTORY_PERMISSIONS</code>选项指定对目标中<strong>文件</strong>和<strong>目录</strong>的权限。如果指定了<code>USE_SOURCE_PERMISSIONS</code>而未指定<code>FILE_PERMISSIONS</code>，则将从源目录结构中复制文件权限。如果未指定权限，则将为文件提供在命令的<code>FILES</code>形式中指定的默认权限(<code>644</code>权限)，而目录将被赋予在命令的<code>PROGRAMS</code>形式中指定的默认权限(<code>755</code>权限)。</p>
+<p>可以使用<code>PATTERN</code>或<code>REGEX</code>选项以精细的粒度控制目录的安装，可以<strong>指定一个通配模式或正则表达式以匹配输入目录中遇到的目录或文件</strong>。<strong>PATTERN仅匹配完整的文件名，而REGEX将匹配文件名的任何部分，但它可以使用/和$模拟PATTERN行为</strong>。</p>
+<p><strong>某些跟随PATTERN或REGEX表达式后的参数，仅应用于满足表达式的文件或目录</strong>。如：<code>EXCLUDE</code>选项将跳过匹配的文件或目录。<code>PERMISSIONS</code>选项将覆盖匹配文件或目录的权限设置。</p>
+<p>例如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">DIRECTORY</span> <span class="s">icons</span> <span class="s">scripts/</span> 
+</span></span><span class="line"><span class="cl">	    <span class="s">DESTINATION</span> <span class="s">share/myproj</span>
+</span></span><span class="line"><span class="cl">        <span class="s">PATTERN</span> <span class="s2">&#34;CVS&#34;</span> <span class="s">EXCLUDE</span>
+</span></span><span class="line"><span class="cl">        <span class="s">PATTERN</span> <span class="s2">&#34;scripts/*&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="s">PERMISSIONS</span> <span class="s">OWNER_EXECUTE</span> <span class="s">OWNER_WRITE</span> <span class="s">OWNER_READ</span>
+</span></span><span class="line"><span class="cl">                    <span class="s">GROUP_EXECUTE</span> <span class="s">GROUP_READ</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这条命令的执行结果是：将<code>icons</code>目录安装到<code>share/myproj</code>，将<code>scripts/</code>中的内容安装到<code>share/myproj</code>，两个目录<strong>均不包含</strong>目录名为<code>CVS</code>的子目录，对于<code>scripts/*</code>的文件指定权限为OWNER_EXECUTE，OWNER_WRITE，OWNER_READ，GROUP_EXECUTE，GROUP_READ。</p>
+<h4 id="4-安装时脚本的运行">4. 安装时脚本的运行
+</h4><p>有时候需要在<code>install</code>的过程中打印一些语句，或者执行一些<code>cmake</code>指令：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">[[SCRIPT</span> <span class="s">&lt;file&gt;]</span> <span class="s">[CODE</span> <span class="s">&lt;code&gt;]]</span>
+</span></span><span class="line"><span class="cl">        <span class="s">[COMPONENT</span> <span class="s">&lt;component&gt;]</span> <span class="s">[EXCLUDE_FROM_ALL]</span> <span class="s">[...]</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>SCRIPT</code>参数将在安装过程中<strong>调用给定的CMake脚本文件(即.cmake脚本文件)</strong>，如果脚本文件名是相对路径，则将相对于当前源目录进行解释。<code>CODE</code>参数将在安装过程中调用给定的<code>CMake</code>代码。将代码<strong>指定为双引号字符串内的单个参数</strong>。</p>
+<p>例如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">CODE</span> <span class="s2">&#34;MESSAGE(\&#34;</span><span class="s">Sample</span> <span class="s">install</span> <span class="s">message.\</span><span class="s2">&#34;)&#34;</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这条命令将会在<code>install</code>的过程中执行<code>cmake</code>代码，打印语句。</p>
+<h3 id="安装">安装
+</h3><p>就是把文件复制到到指定目录下</p>
+<ol>
+<li>
+<p><strong>添加 doc 目录及文件</strong>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> /backup/cmake/t2
+</span></span><span class="line"><span class="cl">mkdir doc	<span class="c1">#存储工程文档</span>
+</span></span><span class="line"><span class="cl">touch doc/hello.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>**添加脚本：**在工程目录添加 runhello.sh，内容为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> /home/jack/backup/cmake/t2/build/bin
+</span></span><span class="line"><span class="cl">./hello		<span class="c1">#调用可执行文件</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>**添加文件：**工程目录中的 COPYRIGHT 和 README</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">touch COPYRIGHT README
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>修改 CMakeLists.txt</strong> ，使之可以支持各种文件的安装</p>
+<ol>
+<li>
+<p><strong>安装文档</strong>，修改<strong>工程目录</strong>下的 CMakeLists.txt</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="c"># 安装 COPYRIGHT/README 到 /&lt;prefix&gt;/share/doc/cmake/t2
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">FILES</span> <span class="s">COPYRIGHT</span> <span class="s">README</span> <span class="s">DESTINATION</span> <span class="s">share/doc/cmake/t2</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 安装 runhello.sh 到 /&lt;prefix&gt;/bin
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">PROGRAMS</span> <span class="s">runhello.sh</span> <span class="s">DESTINATION</span> <span class="s">bin</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>安装 doc 中的 hello.txt , 两种方式：</p>
+</li>
+<li>
+<p>通过 doc 目录建立 CMakeLists.txt 并将 doc 目录通过 ADD_SUBDIRECTORY 加入工程来完成。</p>
+</li>
+<li>
+<p>直接在<strong>工程目录</strong>通过 INSTALL(DIRECTORY 来完成)：</p>
+<p>因为 hello.txt 要安装到 <strong><code>/&lt;prefix&gt;/share/doc/cmake/t2</code></strong>,所以我们不能直接安装整个 doc 目录，这里采用的方式是安装 doc 目录中的内容，也就是使用 &quot; <strong>doc/</strong> &ldquo;。 在工程目录下的CMakeLists.txt 中添加：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl">   <span class="nb">INSTALL</span><span class="p">(</span><span class="s">DIRECTORY</span> <span class="s">doc/</span> <span class="s">DESTINATION</span> <span class="s">share/doc/cmake/t2</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+<li>
+<p><strong>编译并安装</strong></p>
+<p><strong>进入build 目录</strong>进行外部编译，注意使用 <strong><code>CMAKE_INSTALL_PREFIX</code></strong> 参数，这里将它安装到了 <code>/tmp/t2</code> 目录:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cmake -DCMAKE_INSTALL_PREFIX<span class="o">=</span>/tmp/t2/usr ..
+</span></span><span class="line"><span class="cl">make
+</span></span><span class="line"><span class="cl">make install
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>cd 进入 /tmp/t2 目录看以下安装结果：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">./usr
+</span></span><span class="line"><span class="cl">./usr/share
+</span></span><span class="line"><span class="cl">./usr/share/doc
+</span></span><span class="line"><span class="cl">./usr/share/doc/cmake
+</span></span><span class="line"><span class="cl">./usr/share/doc/cmake/t2
+</span></span><span class="line"><span class="cl">./usr/share/doc/cmake/t2/hello.txt
+</span></span><span class="line"><span class="cl">./usr/share/doc/cmake/t2/README
+</span></span><span class="line"><span class="cl">./usr/share/doc/cmake/t2/COPYRIGHT
+</span></span><span class="line"><span class="cl">./usr/bin
+</span></span><span class="line"><span class="cl">./usr/bin/hello
+</span></span><span class="line"><span class="cl">./usr/bin/runhello.sh
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果要直接安装到<strong>系统</strong>，可以使用如下指令：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cmake -DCMAKE_INSTALL_PREFIX<span class="o">=</span>/usr ..
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果没有额外定义，<strong><code>CMAKE_INSTALL_PREFIX</code></strong> 的<strong>默认定义</strong>是 <strong><code>/usr/local</code></strong></p>
+</li>
+</ol>
+<h2 id="五静态库与动态库构建">五、静态库与动态库构建
+</h2><p><a class="link" href="https://blog.csdn.net/zxyhhjs2017/article/details/84101192"  target="_blank" rel="noopener"
+    >动态库、静态库与可执行文件的区别：</a></p>
+<p>动态链接库（Dynamic Link Library，缩写为DLL）是在程序运行时动态调用的，可以被其它应用程序共享的程序模块，其中封装了一些可以被共享的例程和资源。动态链接库文件的扩展名一般是dll，也有可能是drv、sys和fon，它和可执行文件（exe）非常类似，区别在于DLL中虽然包含了可执行代码却<strong>不能单独执行</strong>，而应由Windows应用程序直接或间接<strong>调用</strong>。</p>
+<p>Lib称为静态链接库(static link library)，是在编译的<strong>链接期间</strong>使用的，他里面其实就是源文件的函数实现。Lib只是Dll的附带品，是DLL导出的函数列表文件而已。</p>
+<p>Dll其实和Exe是几乎完全一样的，唯一的不一样就是Exe的入口函数式WinMain函数（console程序是main函数），而Dll是DllMain函数，其他完全是一样的。所以有人也戏称Dll是不能自己运行的Exe。</p>
+<ul>
+<li><strong>静态链接</strong>是指把要调用的函数或者过程链接到可执行文件中，成为可执行文件的一部分(拷贝函数)</li>
+<li><strong>动态链接</strong>所调用的函数代码并没有被拷贝到应用程序的可执行文件中去，而是仅仅在其中加入了所调用函数的描述信息（往往是一些重定位信息）。仅当应用程序被装入内存开始运行时，在操作系统的管理下，才在应用程序与相应的DLL之间建立链接关系。当要执行所调用DLL中的函数时，根据链接产生的重定位信息，操作系统才转去执行DLL中相应的函数代码。</li>
+</ul>
+<p><a class="link" href="https://blog.csdn.net/cyz_2014/article/details/108772575"  target="_blank" rel="noopener"
+    >可执行文件和动态库之间的区别</a>：可执行文件中有main函数，动态库中没有main函数，可执行文件可以被程序执行，动态库需要依赖程序调用者。</p>
+<p>本节任务：</p>
+<ol>
+<li>建立一个<strong>静态库</strong>和<strong>动态库</strong>，<strong>提供 HelloFunc 函数</strong>供其他程序编程使用，HelloFunc 向终端输出 Hello World 字符串。</li>
+<li>安装头文件与共享库。</li>
+</ol>
+<h3 id="1-准备工作">1. 准备工作
+</h3><p>在 /back/cmake 目录下建立 t3 目录，用于存放本节工程</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> /backup/cmake/t3
+</span></span><span class="line"><span class="cl">touch CMakeLists.txt	<span class="c1">#建立工程文件</span>
+</span></span><span class="line"><span class="cl">mkdir lib				<span class="c1">#建立库文件夹</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> lib
+</span></span><span class="line"><span class="cl">touch hello.c hello.h	<span class="c1">#在lib目录下建立两个源文件</span>
+</span></span><span class="line"><span class="cl">touch CMakeLists.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-建立共享库">2. 建立共享库
+</h3><p>编辑工程目录下的 CMakeLists.txt 文件内容为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">PROJECT</span><span class="p">(</span><span class="s">HELLOLIB</span><span class="p">)</span>		<span class="c">#定义工程名
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">ADD_SUBDIRECTORY</span><span class="p">(</span><span class="s">lib</span><span class="p">)</span>	<span class="c">#指定 库 的文件夹
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>编辑 lib文件夹下的 hello.h 内容如下：( <a class="link" href="http://c.biancheng.net/view/1986.html"  target="_blank" rel="noopener"
+    >#if、#ifdef、#ifndef 区别 </a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#ifndef HELLO_H		</span><span class="c1">//如果当前的宏未被定义，HELLO_H是宏名
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#define HELLO_H		</span><span class="c1">//定义宏
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;	//引入头文件</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">void</span> <span class="nf">HelloFunc</span><span class="p">();</span>	<span class="c1">//声明函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#endif
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>编辑 lib文件夹下的 hello.c 内容为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;hello.h&#34;	//&#34;&#34;括住表示: 预处理程序先到当前目录下寻找文件，再到预定义的缺省路径(通常由INCLUDE环境变量指定)下寻找文件</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">void</span> <span class="nf">HelloFunc</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Hello world</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>编辑 /lib/CMakeLists.txt :</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET</span><span class="p">(</span><span class="s">LIBHELLO_SRC</span> <span class="s">hello.c</span><span class="p">)</span>	<span class="c">#定义变量
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">ADD_LIBRARY</span><span class="p">(</span><span class="s">hello</span> <span class="s">SHARED</span> <span class="o">${</span><span class="nv">LIBHELLO_SRC</span><span class="o">}</span><span class="p">)</span>	<span class="c">#将指定的源文件编译成库
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>采用外部编译，在工程目录下建立一个 build 目录，</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir build
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> build
+</span></span><span class="line"><span class="cl">cmake ..
+</span></span><span class="line"><span class="cl">make
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这时，在 <strong>/build/lib</strong> 目录下得到一个 <strong><code>libhello.so</code></strong>，这就是我们期望的<strong>共享库</strong>。</p>
+<p>如果要指定 libhello.so 生成的位置，可以通过在主工程文件 CMakeLists.txt 中修改 <code>ADD_SUBDIRECTORY(lib)</code> 指令来指定一个编译输出位置或者在 <code>lib/CMakeLists.txt</code> 中添加：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET</span><span class="p">(</span><span class="s">LIBRARY_OUTPUT_PATH</span> <span class="s">&lt;路径&gt;</span><span class="p">)</span>	<span class="c">#指定新的位置
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="add_library">ADD_LIBRARY
+</h4><p>主要作用就是将指定的源文件生成链接文件，然后添加到工程中去。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">ADD_LIBRARY</span><span class="p">(</span><span class="s">libname</span> 				<span class="c">#生成的库文件的名字
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>			<span class="s">[SHARED|STATIC|MODULE]</span>	<span class="c">#库文件类型
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>			<span class="s">[EXCLUDE_FROM_ALL]</span>		<span class="c">#指定这个库不会被默认构建,除非有其他的组件依赖或者手动构建
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>			<span class="s">source1</span> <span class="s">source2</span> <span class="s">...</span> <span class="s">sourceN</span><span class="p">)</span>	<span class="c">#各个源文件
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><strong>SHARED</strong> 库：会被动态链接（动态链接库），在运行时会被加载。</li>
+<li><strong>STATIC</strong> 库：是目标文件的归档文件，在链接其它目标的时候使用。</li>
+<li><strong>MODULE</strong> 库：是一种不会被链接到其它目标中的插件，但是可能会在运行时使用dlopen-系列的函数。</li>
+</ul>
+<h3 id="3-添加静态库">3. 添加静态库
+</h3><p>同样使用上面的指令，我们在支持动态库的<strong>基础上</strong>再为工程添加一个静态库，按照一般的习
+惯，静态库名字跟动态库名字应该是一致的，只不过后缀是.a 罢了。</p>
+<p>添加静态库的指令：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">ADD_LIBRARY</span><span class="p">(</span><span class="s">hello</span> <span class="s">STATIC</span> <span class="o">${</span><span class="nv">LIBHELLO_SRC</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后再在 build 目录进行外部编译，我们会发现，静态库根本没有被构建，仍然只生成了
+一个动态库。因为 hello 作为一个 target 是<strong>不能重名</strong>的，所以，静态库构建指令无效。</p>
+<p>如果我们把上面的 hello 修改为 <strong>hello_static</strong>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">ADD_LIBRARY</span><span class="p">(</span><span class="s">hello_static</span> <span class="s">STATIC</span> <span class="o">${</span><span class="nv">LIBHELLO_SRC</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>就可以构建一个 <strong>libhello_static.a</strong> 的静态库了。</p>
+<p><strong>但是</strong>这种结果显示不是我们想要的,我们需要的是名字相同的静态库和动态库,因为 target 名
+称是唯一的,所以,我们肯定不能通过 ADD_LIBRARY 指令来实现了。这时候我们需要用到
+另外一个指令:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET_TARGET_PROPERTITES</span><span class="p">(</span><span class="s">target1</span> <span class="s">target2</span> <span class="s">...</span>
+</span></span><span class="line"><span class="cl">					   <span class="s">PROPERTIES</span> <span class="s">prop1</span> <span class="s">value1</span>
+</span></span><span class="line"><span class="cl">					   			  <span class="s">prop2</span> <span class="s">value2</span>
+</span></span><span class="line"><span class="cl">					   			  <span class="s">...</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这条指令可以用来<strong>设置输出的名称</strong>，对于动态库，还可以用来指定动态库版本和 API 版本。</p>
+<p>在本例中,我们需要作的是向 lib/CMakeLists.txt 中添加一条:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET_TARGET_PROPERTIES</span><span class="p">(</span><span class="s">hello_static</span> <span class="s">PROPERTIES</span> <span class="s">OUTPUT_NAME</span> <span class="s2">&#34;hello&#34;</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这样，我们就可以同时得到 <strong>libhello.so</strong> 和 <strong>libhello.a</strong> 两个库了。</p>
+<p>与<code>SET_TARGET_PROPERTIES</code>对应的指令是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">GET_TARGET_PROPERTY</span><span class="p">(</span><span class="s">VAR</span> <span class="s">target</span> <span class="s">property</span><span class="p">)</span>	<span class="c">#得到属性值
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>具体用法如下：我们向 <code>lib/CMakeLists.txt</code> 中添加：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">GET_TARGET_PROPERTY</span><span class="p">(</span><span class="s">OUTPUT_VALUE</span> <span class="s">hello_static</span> <span class="s">OUTPUT_NAME</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">MESSAGE</span><span class="p">(</span><span class="s">STATUS</span> <span class="s2">&#34;This is the hello_static OUTPUT_NAME:&#34;</span><span class="o">${</span><span class="nv">OUTPUT_VALUE</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果没有这个属性定义，则返回 NOTFOUND。</p>
+<h3 id="4-动态库版本号">4. 动态库版本号
+</h3><p>按照规则，动态库是应该包含一个版本号的，我们可以看一下系统的动态库，一般情况是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">libhello.so.1.2
+</span></span><span class="line"><span class="cl">libhello.so -&gt;libhello.so.1
+</span></span><span class="line"><span class="cl">libhello.so.1-&gt;libhello.so.1.2
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>为了实现动态库版本号,我们仍然需要使用 SET_TARGET_PROPERTIES 指令。
+具体使用方法如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET_TARGET_PROPERTIES</span><span class="p">(</span><span class="s">hello</span> <span class="s">PROPERTIES</span> <span class="s">VERSION</span> <span class="s">1.2</span> <span class="s">SOVERSION</span> <span class="s">1</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>VERSION ：指代动态库版本，</li>
+<li>SOVERSION：指代API 版本</li>
+</ul>
+<p>将上述指令加入 lib/CMakeLists.txt 中,重新构建看看结果。
+在 build/lib 目录会生成:
+libhello.so.1.2
+libhello.so.1-&gt;libhello.so.1.2
+libhello.so -&gt;libhello.so.1</p>
+<h3 id="5-安装共享库和头文件">5. 安装共享库和头文件
+</h3><p>以上面的例子，我们需要将 libhello.a， libhello.so.x 以及 hello.h 安装到系统目录，才能真正让其他人开发使用，在本例中我们将 hello 的共享库安装到 <strong><code>&lt;prefix&gt;/lib</code></strong> 目录，将 hello.h 安装到**<code>&lt;prefix&gt;/include/hello</code>** 目录。</p>
+<p>利用上一节了解到的 INSTALL 指令，我们向 <strong><code>lib/CMakeLists.txt</code></strong> 中添加如下指令:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INSTALL</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">hello</span> <span class="s">hello_static</span> 
+</span></span><span class="line"><span class="cl">		<span class="s">LIBRARY</span> <span class="s">DESTINATION</span> <span class="s">lib</span> 
+</span></span><span class="line"><span class="cl">		<span class="s">ARCHIVE</span> <span class="s">DESTINATION</span> <span class="s">lib</span><span class="p">)</span>	<span class="c">#注意,静态库要使用 ARCHIVE 关键字
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">FILES</span> <span class="s">hello.h</span> 
+</span></span><span class="line"><span class="cl">		<span class="s">DESTINATION</span> <span class="s">include/hello</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>终端输入：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cmake -DCMAKE_INSTALL_PREFIX<span class="o">=</span>/usr ..
+</span></span><span class="line"><span class="cl">make
+</span></span><span class="line"><span class="cl">make install	<span class="c1">#Permission denied</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>我们就可以将头文件和共享库安装到系统目录/usr/lib 和/usr/include/hello 中了。</p>
+<h3 id="完整代码">完整代码：
+</h3><p>lib/CMakeLists.txt</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">SET</span><span class="p">(</span><span class="s">LIBHELLO_SRC</span> <span class="s">hello.c</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">ADD_LIBRARY</span><span class="p">(</span><span class="s">hello</span> <span class="s">SHARED</span> <span class="o">${</span><span class="nv">LIBHELLO_SRC</span><span class="o">}</span><span class="p">)</span>	<span class="c">#将源码编译成动态库
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">ADD_LIBRARY</span><span class="p">(</span><span class="s">hello_static</span> <span class="s">STATIC</span> <span class="o">${</span><span class="nv">LIBHELLO_SRC</span><span class="o">}</span><span class="p">)</span>	<span class="c">#编译成静态库
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">SET_TARGET_PROPERTIES</span><span class="p">(</span><span class="s">hello_static</span> <span class="s">PROPERTIES</span> <span class="s">OUTPUT_NAME</span> <span class="s2">&#34;hello&#34;</span><span class="p">)</span> <span class="c">#重命名
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">GET_TARGET_PROPERTY</span><span class="p">(</span><span class="s">OUTPUT_VALUE</span> <span class="s">hello_static</span> <span class="s">OUTPUT_NAME</span><span class="p">)</span> <span class="c">#读取名字输出显示
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">MESSAGE</span><span class="p">(</span><span class="s">STATUS</span> <span class="s2">&#34;This is the hello_static OUTPUT_NAME:&#34;</span><span class="o">${</span><span class="nv">OUTPUT_VALUE</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">SET_TARGET_PROPERTIES</span><span class="p">(</span><span class="s">hello</span> <span class="s">PROPERTIES</span> <span class="s">VERSION</span> <span class="s">1.2</span> <span class="s">SOVERSION</span> <span class="s">1</span><span class="p">)</span> <span class="c">#版本号
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">hello</span> <span class="s">hello_static</span>	<span class="c">#安装动态库和静态库
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>        <span class="s">LIBRARY</span> <span class="s">DESTINATION</span> <span class="s">lib</span>
+</span></span><span class="line"><span class="cl">        <span class="s">ARCHIVE</span> <span class="s">DESTINATION</span> <span class="s">lib</span><span class="p">)</span>	<span class="c">#注意,静态库要使用 ARCHIVE 关键字
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">INSTALL</span><span class="p">(</span><span class="s">FILES</span> <span class="s">hello.h</span>				<span class="c">#安装头文件
+</span></span></span><span class="line"><span class="cl"><span class="c"></span>        <span class="s">DESTINATION</span> <span class="s">include/hello</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="六如何使用外部共享库和头文件">六、如何使用外部共享库和头文件
+</h2><p>上一节我们已经完成了 libhello 动态库的构建以及安装，本节我们的任务很简单：
+编写一个程序使用我们上一节构建的共享库。</p>
+<h3 id="1-准备工作-1">1. 准备工作
+</h3><p>建立工程文件夹：在/backup/cmake 目录建立 t4 目录,本节所有资源将存储在 t4 目录。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> t4
+</span></span><span class="line"><span class="cl">touch CMakeLists.txt
+</span></span><span class="line"><span class="cl">mkdir src
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> src
+</span></span><span class="line"><span class="cl">touch main.c CMakeList.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-编写源文件">2. 编写源文件
+</h3><p>建立 src 目录，编写源文件 main.c ：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;hello.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">HelloFunc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>编辑工程目录下的 CMakeLists.txt：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">PROJECT</span><span class="p">(</span><span class="s">NEWHELLO</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">ADD_SUBDIRECTORY</span><span class="p">(</span><span class="s">src</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>编辑 /src/CMakeLists.txt：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">ADD_EXECUTABLE</span><span class="p">(</span><span class="s">main</span> <span class="s">main.c</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果直接编译会出错：<strong><code>/backup/cmake/t4/src/main.c:1:19: error: hello.h: 没有那个文件或目录</code></strong></p>
+<h3 id="3-引入头文件搜索路径">3. 引入头文件搜索路径
+</h3><p>hello.h 位于 /usr/include/hello 目录中，并没有位于系统标准的头文件路径，为了让我们的工程能够找到 hello.h 头文件，我们需要引入一个新的指令：<code>INCLUDE_DIRECTORIES</code>，其完整的语法是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INCLUDE_DIRECTORIES</span><span class="p">(</span><span class="s">[AFTER|BEFORE]</span>
+</span></span><span class="line"><span class="cl">					<span class="s">[SYSTEM]</span>
+</span></span><span class="line"><span class="cl">					<span class="s">dir1</span> <span class="s">dir2</span> <span class="s">...</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这条指令可以用来向工程添加多个<strong>特定的头文件搜索路径</strong>，路径之间用空格分割，如果路径中包含了空格，可以使用<strong>双引号</strong>将它括起来，默认的行为是<strong>追加到当前的头文件搜索路径的后面</strong>，你可以通过两种方式来进行控制搜索路径添加的方式:</p>
+<ol>
+<li>CMAKE_INCLUDE_DIRECTORIES_BEFORE，通过 SET 这个 cmake 变量为 on，可以
+将添加的头文件搜索路径<strong>放在已有路径的前面</strong>。</li>
+<li>通过 AFTER 或者 BEFORE 参数，也可以控制是追加还是置前。</li>
+</ol>
+<p>现在我们在 src/CMakeLists.txt 中添加一个头文件搜索路径，方式很简单，加入:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">INCLUDE_DIRECTORIES</span><span class="p">(</span><span class="s">/usr/include/hello</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>进入 build 目录，重新进行构建，这是找不到 hello.h 的错误已经消失，但是出现了一个新的错误：
+<strong><code>main.c:(.text+0x12): undefined reference to </code>HelloFunc&rsquo;`</strong></p>
+<p>这是因为我们并没有 <strong>link</strong> 到<strong>共享库 libhello</strong> 上。</p>
+<h3 id="4-为-target-链接共享库">4. 为 target 链接共享库
+</h3><p>我们现在需要完成的任务是<strong>将目标文件(target)链接到 libhello</strong>，这里我们需要引入两个新的指令**<code>LINK_DIRECTORIES</code>** 和 <strong><code>TARGET_LINK_LIBRARIES</code></strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">LINK_DIRECTORIES</span><span class="p">(</span><span class="s">directory1</span> <span class="s">directory2</span> <span class="s">...</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个指令非常简单，<strong>添加非标准的共享库搜索路径</strong>，比如，在工程内部同时存在<strong>共享库</strong>和<strong>可执行二进制</strong>,在编译时就需要指定一下这些共享库的路径。这个例子中我们没有用到这个指令。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">TARGET_LINK_LIBRARIES</span><span class="p">(</span><span class="s">target</span> <span class="s">library1</span>
+</span></span><span class="line"><span class="cl">					  <span class="s">&lt;debug</span> <span class="s">|</span> <span class="s">optimized&gt;</span> <span class="s">library2</span>
+</span></span><span class="line"><span class="cl">					  <span class="s">...</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个指令可以用来为 target 添加需要链接的共享库，本例中是一个<strong>可执行文件</strong>，但是同样可以用于为自己编写的共享库<strong>添加共享库链接</strong>。</p>
+<p>为了解决我们前面遇到的 HelloFunc 未定义错误,我们需要作的是向 <code>src/CMakeLists.txt</code> 中添加如下指令：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">TARGET_LINK_LIBRARIES</span><span class="p">(</span><span class="s">main</span> <span class="s">hello</span><span class="p">)</span>	<span class="c">#hello 是共享库 libhello.so
+</span></span></span><span class="line"><span class="cl"><span class="c"># 也可以写成
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">TARGET_LINK_LIBRARIES</span><span class="p">(</span><span class="s">main</span> <span class="s">libhello.so</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>进入 build 目录重新进行构建，就得到了一个链接到 libhello 的可执行程序 main，位于 build/src 目录，运行 main 的结果是输出：Hello world</p>
+<p>让我们来检查一下 main 的链接情况:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ldd src/main	<span class="c1">#可以用來尋找此執行檔鏈接了哪一些函式庫</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">linux-gate.so.1 =&gt;  (0xb7ee7000)
+</span></span><span class="line"><span class="cl">libhello.so.1 =&gt; /usr/lib/libhello.so.1 (0xb7ece000)
+</span></span><span class="line"><span class="cl">libc.so.6 =&gt; /lib/libc.so.6 (0xb7d77000)
+</span></span><span class="line"><span class="cl">/lib/ld-linux.so.2 (0xb7ee8000)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以清楚的看到 main 确实链接了共享库 libhello，而且链接的是动态库 libhello.so.1</p>
+<p>那如何<strong>链接到静态库</strong>呢?
+方法很简单:
+将 TARGET_LINK_LIBRRARIES 指令修改为:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">TARGET_LINK_LIBRARIES</span><span class="p">(</span><span class="s">main</span> <span class="s">libhello.a</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>重新构建后再来看一下 main 的链接情况：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ldd src/main
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">linux-gate.so.1 =&gt; (0xb7fa8000)
+</span></span><span class="line"><span class="cl">libc.so.6 =&gt; /lib/libc.so.6 (0xb7e3a000)
+</span></span><span class="line"><span class="cl">/lib/ld-linux.so.2 (0xb7fa9000)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>说明,main 确实链接到了静态库 libhello.a</p>
+<h3 id="特殊的环境变量">特殊的环境变量:
+</h3><p><strong>CMAKE_INCLUDE_PATH</strong> 和 <strong>CMAKE_LIBRARY_PATH</strong> 务必注意,这两个是环境变量而不是 cmake 变量。
+使用方法是要在 bash 中用 export 或者在 csh 中使用 set 命令设置或者 <code>CMAKE_INCLUDE_PATH=/home/include cmake ..</code>等方式。</p>
+<p>这两个变量主要是用来解决以前 autotools 工程中 <code>--extra-include-dir</code> 等参数的支持的。也就是,如果<strong>头文件没有存放在常规路径</strong> (<strong>/usr/include</strong>, <strong>/usr/local/include</strong> 等)，则可以通过这些变量就行<strong>弥补</strong>。</p>
+<p>我们以本例中的 hello.h 为例，它存放在**/usr/include/hello** 目录,所以直接查找肯定是<strong>找不到</strong>的。前面我们直接使用了**绝对路径****<code>INCLUDE_DIRECTORIES(/usr/include/hello)</code>**告诉工程这个头文件目录。</p>
+<p>为了将程序<strong>更智能</strong>一点,我们可以使用 **<code>CMAKE_INCLUDE_PATH</code>**来进行，使用 bash 的方法如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CMAKE_INCLUDE_PATH</span><span class="o">=</span>/usr/include/hello
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后在头文件中将 **<code>INCLUDE_DIRECTORIES(/usr/include/hello)</code>**替换为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">FIND_PATH</span><span class="p">(</span><span class="s">myHeader</span> <span class="s">hello.h</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">IF</span><span class="p">(</span><span class="s">myHeader</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">INCLUDE_DIRECTORIES</span><span class="p">(</span><span class="o">${</span><span class="nv">myHeader</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">ENDIF</span><span class="p">(</span><span class="s">myHeader</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>上述的一些指令我们在后面会介绍。这里简单说明一下，<strong><code>FIND_PATH</code></strong> 用来在指定路径中搜索文件名，比如: <strong><code>FIND_PATH(myHeader NAMES hello.h PATHS /usr/include /usr/include/hello)</code></strong></p>
+<p>这里我们没有指定路径，但是，cmake 仍然可以帮我们找到 hello.h 存放的路径，就是因为我们设置了环境变量 <strong><code>CMAKE_INCLUDE_PATH</code></strong>。</p>
+<p>如果你不使用 <strong><code>FIND_PATH</code></strong>，**<code>CMAKE_INCLUDE_PATH</code>**变量的设置是没有作用的，你不能指望它会直接为编译器命令添加参数 <strong><code>-I&lt;CMAKE_INCLUDE_PATH&gt;</code></strong>。</p>
+<p>以此为例，<strong><code>CMAKE_LIBRARY_PATH</code></strong> 可以用在 <strong><code>FIND_LIBRARY</code></strong> 中。</p>
+<p>同样,因为这些变量直接为 <code>FIND_</code>指令所使用,所以所有使用 <code>FIND_</code>指令的 cmake 模块都会受益。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

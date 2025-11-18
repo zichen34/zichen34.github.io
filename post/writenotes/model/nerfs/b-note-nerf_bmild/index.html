@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis (ECCV 2020)">
+<title>read: Render - NVS | NeRF</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/nerfs/b-note-nerf_bmild/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="read: Render - NVS | NeRF">
+<meta property='og:description' content="NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis (ECCV 2020)">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/nerfs/b-note-nerf_bmild/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='NeRF' /><meta property='article:published_time' content='2022-01-08T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-01-08T00:00:00&#43;00:00'/><meta property='og:image' content='https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg' />
+<meta name="twitter:title" content="read: Render - NVS | NeRF">
+<meta name="twitter:description" content="NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis (ECCV 2020)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#optimize-tricks">Optimize Tricks</a></li>
+    <li><a href="#code">Code</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/model/nerfs/b-note-nerf_bmild/">
+                
+                    <img src="https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg" loading="lazy" alt="Featured image of post read: Render - NVS | NeRF" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                Read
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/nerfs/b-note-nerf_bmild/">read: Render - NVS | NeRF</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis (ECCV 2020)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jan 08, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#optimize-tricks">Optimize Tricks</a></li>
+    <li><a href="#code">Code</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://arxiv.org/abs/2003.08934"  target="_blank" rel="noopener"
+    >Arxiv</a></p>
+<h2 id="summary">Summary
+</h2><p>(2024-08-01)</p>
+<ul>
+<li>
+<p>Novel view synthesis is a solution for image-based rendering task.</p>
+</li>
+<li>
+<p>NeRF leverages volumetric representation and volume rendering for novel view synthesis.
+While <a class="link" href="https://bmild.github.io/llff/index.html"  target="_blank" rel="noopener"
+    >LLFF</a> uses light field representation and MPI for NVS.</p>
+<p>As Ben quoted Kajiya: &ldquo;&hellip; in 10 years, all rendering will be volume rendering.&rdquo;
+on <a class="link" href="https://vimeo.com/766415501#t=15s"  target="_blank" rel="noopener"
+    >ECCV2022Tutorial</a></p>
+</li>
+</ul>
+<hr>
+<p>(2022-01-08)</p>
+<ol>
+<li>The input and output are the same as a volumetric model, but the loss function is based on the renderer error.</li>
+<li>A volumetric model maps something to the attributes of every volumetric grid.</li>
+<li>The output of a model is determined by the loss function.
+In NeRF, the loss is the rendering error between ground truth RGB image and the rendered image
+that is generated according to density (alpha channel) and RGB color at each point on the path of ray <a class="link" href="#ref1" ><sup>1</sup></a>.
+Therefore, the output of the network should be a filed of density and color.</li>
+</ol>
+<h2 id="overview">Overview
+</h2><p>diagram</p>
+<h2 id="optimize-tricks">Optimize Tricks
+</h2><ol>
+<li>
+<p>Positional encoding: mapping the inputs to a higher dimensional space so that MLP could converge to a high-frequency function.</p>
+<p>(2023-10-27) PE is Fourier transform and then MLP re-composes Fourier coefficicent to the final value.</p>
+<ul>
+<li>
+<p>will. - QQ group:</p>
+<blockquote>
+<p>傅里叶级数是对三角函数项的线性加权；神经网络的线性层是对输入的线性加权。
+density 网络就是用傅里叶级数拟合了 sigma 在三维空间中的分布
+用优化器优化了傅里叶级数，然后通过体渲染约束体密度的性质。</p></blockquote>
+</li>
+<li>
+<p>赤子泛舟：</p>
+<blockquote>
+<p>我理解也是等效做了一次傅里叶变换和反变换，mlp其实在拟合频域特征。
+虽然声称没用卷积，但其实整个过程相当于做了个大的卷积。</p></blockquote>
+</li>
+<li>
+<p>群除我佬：就是一个更吊的3d输入。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hierarchical volume sampling: allocating more samples to where it is expected to have a significant contribution on the final rendering.</p>
+</li>
+</ol>
+<p>viewdir is represented by Cartesian (x,y,z), rather than spherical coordinates (φ,θ,r)</p>
+<p>σ is output of linear layer, so it lies in (-∞,+∞); but volume density is [0~∞), so σ(x) is activated by ReLU. Then it converts to alpha (the probability of terminating) by $(1-e^{-σ⋅δ})$, that is when σ=0, alpha=0 meaning no volume no block, while if σ→∞, the alpha→1 meaning this volume block light entirely.
+Therefore, the transmittance is (1-alpha)=$e^{-σδ}$, so the decay coefficient (cumulative transimitance) of a RGB color is $Π^{i-1}e^{-σδ}$</p>
+<p>Math derivation <a class="link" href="https://drops.dagstuhl.de/opus/volltexte/2010/2709/pdf/18.pdf"  target="_blank" rel="noopener"
+    >2.3 Integration along Ray Segmetns</a></p>
+<p>Second sampling is based on &ldquo;color decay coeff (weights)&rdquo;, rather than volume density.
+The bigger color weights means more volume here. σ(x) is proportional to alpha and weights</p>
+<p>(2024-07-20)</p>
+<ul>
+<li>
+<p>Ben has an derivation in his <a class="link" href="https://sites.google.com/berkeley.edu/nerf-tutorial"  target="_blank" rel="noopener"
+    >ECCV2022</a>
+<a class="link" href="https://drive.google.com/file/d/1QsCK5V0d6DSc0QGcKsV97u83JFd-dFoz/view"  target="_blank" rel="noopener"
+    >report</a></p>
+<ul>
+<li>
+<p>Opacity is alpha. If so, the opacity and alpha in 3DGS may should be understood as:
+opacity is an attribute of the <strong>scene elements</strong>, while alpha is an attribute of the <strong>filter</strong> contributing to <strong>pixels</strong>.</p>
+</li>
+<li>
+<p>Density is used in the <strong>continuous</strong> volume render function,
+whereas Alpha is used the <strong>discrete</strong> alpha compositing.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Challenge: Indirect illumination is even more computationally-expensive than rendering with direct lighting.
+<a class="link" href="https://drive.google.com/file/d/13wnrLMPj4KUqKjqL5WgP27Av3kFKVyq6/view?usp=share_link"  target="_blank" rel="noopener"
+    >Angjoo</a></p>
+</li>
+</ul>
+<p>(2024-07-22)</p>
+<ul>
+<li>NeRF 是在各射线上采样数据点，用MLP拟合 <strong>整个</strong>三维空间的从坐标到 RGBA 的函数；
+MLS 是用多项式拟合各点 <strong>局部</strong>的曲面函数，然后在各点的 local plane 采样以实现 resampling。</li>
+</ul>
+<hr>
+<h2 id="code">Code
+</h2><ol>
+<li>
+<p>ImportError: No module named &lsquo;_pywrap_tensorflow_internal&rsquo;</p>
+<p>Create environment: <code>conda env create -f environment.yml</code>, and this error occured when executing <code>import tensorflow</code>.</p>
+<p>Solution: I didn&rsquo;t creat the envrionment from the yml file but directly specify packages and version.
+<code>conda create -n nerf python=3.7 cudatoolkit=10.0 tensorflow-gpu=1.15 -c conda-forge</code></p>
+</li>
+</ol>
+<h2 id="reference">Reference
+</h2><div id='ref1'><a href='https://dl.acm.org/doi/abs/10.1145/964965.808594'>1. Ray tracing volume densities</a></div>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/nerf/">NeRF</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

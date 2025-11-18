@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="极坐标系下的二维拉普拉斯方程 - 知乎 Let the two-dimensional function u(x,y) be expressed as u(r,φ) in polar coordinate system. The Laplace equation: $\\nabla^2 u = 0$\nAccording to the chain rule, the derivative of u(r,φ) with respect to x equals the derivative of u(r,φ) with respect to r and φ first then multiplying their derivative with respect to x:\n$$ \\begin{cases} \\frac{∂u(r,φ)}{∂x} = \\frac{∂u}{∂r} \\frac{∂r}{∂x} + \\frac{∂u}{∂φ} \\frac{∂φ}{∂x} \\\n\\frac{∂u(r,φ)}{∂y} = \\frac{∂u}{∂r} \\frac{∂r}{∂y} + \\frac{∂u}{∂φ} \\frac{∂φ}{∂y} \\end{cases} $$\n">
+<title>球谐函数</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/cem-dhy/%E7%90%83%E8%B0%90%E5%87%BD%E6%95%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="球谐函数">
+<meta property='og:description' content="极坐标系下的二维拉普拉斯方程 - 知乎 Let the two-dimensional function u(x,y) be expressed as u(r,φ) in polar coordinate system. The Laplace equation: $\\nabla^2 u = 0$\nAccording to the chain rule, the derivative of u(r,φ) with respect to x equals the derivative of u(r,φ) with respect to r and φ first then multiplying their derivative with respect to x:\n$$ \\begin{cases} \\frac{∂u(r,φ)}{∂x} = \\frac{∂u}{∂r} \\frac{∂r}{∂x} + \\frac{∂u}{∂φ} \\frac{∂φ}{∂x} \\\n\\frac{∂u(r,φ)}{∂y} = \\frac{∂u}{∂r} \\frac{∂r}{∂y} + \\frac{∂u}{∂φ} \\frac{∂φ}{∂y} \\end{cases} $$\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/cem-dhy/%E7%90%83%E8%B0%90%E5%87%BD%E6%95%B0/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-05-17T13:18:00&#43;00:00'/><meta property='article:modified_time' content='2022-05-17T13:18:00&#43;00:00'/>
+<meta name="twitter:title" content="球谐函数">
+<meta name="twitter:description" content="极坐标系下的二维拉普拉斯方程 - 知乎 Let the two-dimensional function u(x,y) be expressed as u(r,φ) in polar coordinate system. The Laplace equation: $\\nabla^2 u = 0$\nAccording to the chain rule, the derivative of u(r,φ) with respect to x equals the derivative of u(r,φ) with respect to r and φ first then multiplying their derivative with respect to x:\n$$ \\begin{cases} \\frac{∂u(r,φ)}{∂x} = \\frac{∂u}{∂r} \\frac{∂r}{∂x} + \\frac{∂u}{∂φ} \\frac{∂φ}{∂x} \\\n\\frac{∂u(r,φ)}{∂y} = \\frac{∂u}{∂r} \\frac{∂r}{∂y} + \\frac{∂u}{∂φ} \\frac{∂φ}{∂y} \\end{cases} $$\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#极坐标系下的二维拉普拉斯方程---知乎"><a href="https://zhuanlan.zhihu.com/p/440178890">极坐标系下的二维拉普拉斯方程 - 知乎</a></a></li>
+        <li><a href="#球坐标系下拉普拉斯方程"><a href="https://zhuanlan.zhihu.com/p/474386730">球坐标系下拉普拉斯方程</a></a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/cem-dhy/%E7%90%83%E8%B0%90%E5%87%BD%E6%95%B0/">球谐函数</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 17, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#极坐标系下的二维拉普拉斯方程---知乎"><a href="https://zhuanlan.zhihu.com/p/440178890">极坐标系下的二维拉普拉斯方程 - 知乎</a></a></li>
+        <li><a href="#球坐标系下拉普拉斯方程"><a href="https://zhuanlan.zhihu.com/p/474386730">球坐标系下拉普拉斯方程</a></a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h3 id="极坐标系下的二维拉普拉斯方程---知乎"><a class="link" href="https://zhuanlan.zhihu.com/p/440178890"  target="_blank" rel="noopener"
+    >极坐标系下的二维拉普拉斯方程 - 知乎</a>
+</h3><p>Let the two-dimensional function u(x,y) be expressed as u(r,φ) in polar coordinate system.
+The Laplace equation: $\nabla^2 u = 0$</p>
+<p>According to the <strong>chain rule</strong>, the derivative of u(r,φ) with respect to x equals the derivative of u(r,φ) with respect to r and φ first then multiplying their derivative with respect to x:</p>
+<p>$$
+\begin{cases}
+\frac{∂u(r,φ)}{∂x} = \frac{∂u}{∂r} \frac{∂r}{∂x} + \frac{∂u}{∂φ} \frac{∂φ}{∂x} \</p>
+<p>\frac{∂u(r,φ)}{∂y} = \frac{∂u}{∂r} \frac{∂r}{∂y} + \frac{∂u}{∂φ} \frac{∂φ}{∂y}
+\end{cases}
+$$</p>
+<p>So the second-order partial derivative formula is:</p>
+<p>$$
+\begin{cases}
+\frac{∂^2u}{∂ x^2} = \frac{∂}{∂x} (\frac{∂u}{∂x}) = \frac{∂}{∂x} \left( \frac{∂u}{∂r} \frac{∂r}{∂x} + \frac{∂u}{∂φ} \frac{∂φ}{∂x}\right) \</p>
+<p>\frac{∂^2u}{∂ y^2} = \frac{∂}{∂y} (\frac{∂u}{∂y}) = \frac{∂}{∂y} \left( \frac{∂u}{∂r} \frac{∂r}{∂y} + \frac{∂u}{∂φ} \frac{∂φ}{∂y}\right) \
+\end{cases}
+$$</p>
+<p>According to the derivative product rule:</p>
+<p>$$
+\begin{cases}
+\frac{∂}{∂x} \left( \frac{∂u}{∂r} \frac{∂r}{∂x} + \frac{∂u}{∂φ} \frac{∂φ}{∂x}\right)
+= \underline{\frac{∂}{∂x}(\frac{∂u}{∂r})} \frac{∂r}{∂x} + \frac{∂}{∂x} (\frac{∂r}{∂x}) \frac{∂u}{∂r}</p>
+<ul>
+<li>\underline{\frac{∂}{∂x}(\frac{∂u}{∂φ})} \frac{∂φ}{∂x} + \frac{∂}{∂x} (\frac{∂φ}{∂x}) \frac{∂u}{∂φ}\</li>
+</ul>
+<p>\frac{∂}{∂y} \left( \frac{∂u}{∂r} \frac{∂r}{∂y} + \frac{∂u}{∂φ} \frac{∂φ}{∂y}\right)
+= \underline{\frac{∂}{∂y}(\frac{∂u}{∂r})} \frac{∂r}{∂y} + \frac{∂}{∂y} (\frac{∂r}{∂y}) \frac{∂u}{∂r}</p>
+<ul>
+<li>\underline{\frac{∂}{∂y}(\frac{∂u}{∂φ})} \frac{∂φ}{∂y} + \frac{∂}{∂y} (\frac{∂φ}{∂y}) \frac{∂u}{∂φ}\
+\end{cases}
+$$</li>
+</ul>
+<p>And</p>
+<p>$$
+\begin{aligned}
+\begin{cases}
+\frac{∂}{∂x} (\frac{∂u}{∂r}) = \frac{∂}{∂r}(\frac{∂u}{∂r}) \frac{∂r}{∂x} + \frac{∂}{∂φ}(\frac{∂u}{∂r}) \frac{∂φ}{∂x} \</p>
+<p>\frac{∂}{∂x} (\frac{∂u}{∂φ}) = \frac{∂}{∂r}(\frac{∂u}{∂φ}) \frac{∂r}{∂x} + \frac{∂}{∂φ}(\frac{∂u}{∂φ}) \frac{∂φ}{∂x} \
+\end{cases}</p>
+<p>\quad</p>
+<p>\begin{cases}
+\frac{∂}{∂y} (\frac{∂u}{∂r}) = \frac{∂}{∂r}(\frac{∂u}{∂r}) \frac{∂r}{∂y} + \frac{∂}{∂φ}(\frac{∂u}{∂r}) \frac{∂φ}{∂y} \</p>
+<p>\frac{∂}{∂y} (\frac{∂u}{∂φ}) = \frac{∂}{∂r}(\frac{∂u}{∂φ}) \frac{∂r}{∂y} + \frac{∂}{∂φ}(\frac{∂u}{∂φ}) \frac{∂φ}{∂y} \
+\end{cases}
+\end{aligned}
+$$</p>
+<p>So</p>
+<p>$$
+\begin{cases}
+\frac{∂^2 u}{∂x^2} = \left(\frac{∂}{∂r}(\frac{∂u}{∂r}) \frac{∂r}{∂x} + \frac{∂}{∂φ}(\frac{∂u}{∂r}) \frac{∂φ}{∂x} \right) \frac{∂r}{∂x}</p>
+<ul>
+<li>\frac{∂}{∂x} (\frac{∂r}{∂x}) \frac{∂u}{∂r}</li>
+<li>\left(\frac{∂}{∂r}(\frac{∂u}{∂φ}) \frac{∂r}{∂x} + \frac{∂}{∂φ}(\frac{∂u}{∂φ}) \frac{∂φ}{∂x} \right) \frac{∂φ}{∂x}</li>
+<li>\frac{∂}{∂x} (\frac{∂φ}{∂x}) \frac{∂u}{∂φ} \</li>
+</ul>
+<p>\frac{∂^2 u}{∂y^2} = \left(\frac{∂}{∂r}(\frac{∂u}{∂r}) \frac{∂r}{∂y} + \frac{∂}{∂φ}(\frac{∂u}{∂r}) \frac{∂φ}{∂y} \right) \frac{∂r}{∂y}</p>
+<ul>
+<li>\frac{∂}{∂y} (\frac{∂r}{∂y}) \frac{∂u}{∂r}</li>
+<li>\left(\frac{∂}{∂r}(\frac{∂u}{∂φ}) \frac{∂r}{∂y} + \frac{∂}{∂φ}(\frac{∂u}{∂φ}) \frac{∂φ}{∂y} \right) \frac{∂φ}{∂y}</li>
+<li>\frac{∂}{∂y} (\frac{∂φ}{∂y}) \frac{∂u}{∂φ}
+\end{cases}
+$$</li>
+</ul>
+<p>Simplified:</p>
+<p>$$
+\begin{aligned}</p>
+<p>\begin{cases}
+\frac{∂^2 u}{∂x^2} = \frac{∂^2 u}{∂r^2} \frac{∂r}{∂x}\frac{∂r}{∂x} + \frac{∂^2 u}{∂φ∂r} \frac{∂φ}{∂x} \frac{∂r}{∂x} + \frac{∂^2r}{∂x^2} \frac{∂u}{∂r}</p>
+<ul>
+<li>\frac{∂^2 u}{∂r∂φ} \frac{∂r}{∂x} \frac{∂φ}{∂x} + \frac{∂^2 u}{∂φ^2} \frac{∂φ}{∂x} \frac{∂φ}{∂x} + \frac{∂^2φ}{∂x^2} \frac{∂u}{∂φ} \</li>
+</ul>
+<p>\frac{∂^2 u}{∂y^2} = \frac{∂^2 u}{∂r^2} \frac{∂r}{∂y} \frac{∂r}{∂y} + \frac{∂^2 u}{∂φ∂r} \frac{∂φ}{∂y} \frac{∂r}{∂y} + \frac{∂^2r}{∂y^2} \frac{∂u}{∂r}</p>
+<ul>
+<li>\frac{∂^2 u}{∂r∂φ} \frac{∂r}{∂y} \frac{∂φ}{∂y} + \frac{∂^2 u}{∂φ^2} \frac{∂φ}{∂y} \frac{∂φ}{∂y} + \frac{∂^2φ}{∂y^2} \frac{∂u}{∂φ} \
+\end{cases}</li>
+</ul>
+<p>\ \Rightarrow</p>
+<p>\begin{cases}
+\frac{∂^2 u}{∂x^2} = \frac{∂^2 u}{∂r^2} \frac{∂r}{∂x} \frac{∂r}{∂x}+ 2\frac{∂^2 u}{∂φ∂r} \frac{∂φ}{∂x} \frac{∂r}{∂x} + \frac{∂^2r}{∂x^2} \frac{∂u}{∂r}</p>
+<ul>
+<li>\frac{∂^2 u}{∂φ^2}\frac{∂φ}{∂x} \frac{∂φ}{∂x}+ \frac{∂^2φ}{∂x^2} \frac{∂u}{∂φ} \</li>
+</ul>
+<p>\frac{∂^2 u}{∂y^2} = \frac{∂^2 u}{∂r^2} \frac{∂r}{∂y} \frac{∂r}{∂y} + 2\frac{∂^2 u}{∂φ∂r} \frac{∂φ}{∂y} \frac{∂r}{∂y} + \frac{∂^2r}{∂y^2} \frac{∂u}{∂r}</p>
+<ul>
+<li>\frac{∂^2 u}{∂φ^2} \frac{∂φ}{∂y} \frac{∂φ}{∂y} + \frac{∂^2φ}{∂y^2} \frac{∂u}{∂φ} \
+\end{cases}</li>
+</ul>
+<p>\end{aligned}
+$$</p>
+<p>In polar coordinate system:</p>
+$$
+\begin{aligned}
+\frac{∂r}{∂x} &= (\sqrt{x^2+y^2})' = \frac{1}{2}(x^2+y^2)^{-\frac{1}{2}} 2x = \frac{x}{r} = cosφ \\
+\frac{∂φ}{∂x} &= (arctan(\frac{y}{x}))' = \frac{1}{1+(\frac{y}{x})^2} \cdot (\frac{y}{x})' = -\frac{y}{r^2} = \frac{-sinφ}{r} \\
+\frac{∂r}{∂y} &= (\sqrt{x^2+y^2})' = \frac{y}{r} = sinφ \\
+\frac{∂φ}{∂y} &= (arctan(\frac{y}{x}))' = \frac{x}{r^2} = \frac{cosφ}{r}
+\end{aligned}
+$$<p>And also:</p>
+$$
+\begin{aligned}
+\frac{∂^2 r}{∂x^2} &= (\frac{x}{r})' = \frac{1}{r} - x^2 r^{-3} = \frac{y^2}{r^3} \\
+\frac{∂^2 r}{∂y^2} &= (\frac{y}{r})' = \frac{1}{r} - y^2 r^{-3} = \frac{x^2}{r^3} \\
+\frac{∂^2 φ}{∂^2 x} &= (\frac{-y}{r^2})' = \frac{2xy}{r^4} \\
+\frac{∂^2 φ}{∂^2 y} &= (\frac{x}{r^2})' = \frac{-2xy}{r^4}
+\end{aligned}
+$$<p>So:</p>
+$$
+\begin{aligned}
+\frac{∂^2 r}{∂x^2} + \frac{∂^2 r}{∂y^2} = \frac{1}{r} \\
+\frac{∂^2 φ}{∂^2 x} + \frac{∂^2 φ}{∂^2 y} = 0
+\end{aligned}
+$$<p>The Laplacian equation becomes:</p>
+<p>$$
+\begin{aligned}
+\frac{∂^2 u}{∂x^2} + \frac{∂^2 u}{∂y^2} =
+&amp;
+\frac{∂^2 u}{∂r^2} \frac{∂r}{∂x} \frac{∂r}{∂x}
++ 2\frac{∂^2 u}{∂φ∂r} \frac{∂φ}{∂x} \frac{∂r}{∂x} + \frac{∂r^2}{∂x^2} \frac{∂u}{∂r}
++ \frac{∂^2 u}{∂φ^2} \frac{∂φ}{∂x} \frac{∂φ}{∂x} + \frac{∂^2φ}{∂x^2} \frac{∂u}{∂φ} \
+&amp;
++\frac{∂^2 u}{∂r^2} \frac{∂r}{∂y} \frac{∂r}{∂y}
++ 2\frac{∂^2 u}{∂φ∂r} \frac{∂φ}{∂y} \frac{∂r}{∂y} + \frac{∂r^2}{∂y^2} \frac{∂u}{∂r}
++ \frac{∂^2 u}{∂φ^2} \frac{∂φ}{∂y} \frac{∂φ}{∂y} + \frac{∂^2φ}{∂y^2} \frac{∂u}{∂φ}  \</p>
+<pre><code>=&amp; (\frac{∂r}{∂x} \frac{∂r}{∂x}+ \frac{∂r}{∂y} \frac{∂r}{∂y}) \frac{∂^2 u}{∂r^2} 
++ 2(\frac{∂φ}{∂x} \frac{∂r}{∂x} + \frac{∂φ}{∂y} \frac{∂r}{∂y}) \frac{∂^2 u}{∂φ∂r} 
++ (\frac{∂r^2}{∂x^2}+\frac{∂r^2}{∂y^2}) \frac{∂u}{∂r} \\
+&amp; + \left(\frac{∂φ}{∂x} \frac{∂φ}{∂x} + \frac{∂φ}{∂y} \frac{∂φ}{∂y} \right) \frac{∂^2u}{∂φ^2} 
++ (\frac{∂^2φ}{∂x^2} +\frac{∂^2φ}{∂y^2})\frac{∂u}{∂φ} \\
+
+=&amp; \frac{∂^2 u}{∂r^2} + 2(\frac{-sinφ cosφ}{r} +\frac{cosφ sinφ}{r}) \frac{∂^2 u}{∂φ∂r} 
+ + \frac{1}{r} \frac{∂u}{∂r} + \frac{1}{r^2} \frac{\partial^2 u}{\partial φ^2} + 0 \\
+
+=&amp; \frac{∂^2 u}{∂r^2} + \frac{1}{r} \frac{∂u}{∂r} + \frac{1}{r^2} \frac{\partial^2 u}{\partial φ^2}
+</code></pre>
+<p>\end{aligned}
+$$</p>
+<p>The form of Laplace operator in polar coordinate system:</p>
+$$
+\nabla^2 = \frac{∂^2}{∂r^2} + \frac{1}{r} \frac{∂}{∂r} + \frac{1}{r^2} \frac{\partial^2}{\partial φ^2}
+$$<p>参考:
+<a class="link" href="https://zhuanlan.zhihu.com/p/193094897"  target="_blank" rel="noopener"
+    >拉普拉斯算子的极坐标、柱坐标和球坐标表示</a></p>
+<h3 id="球坐标系下拉普拉斯方程"><a class="link" href="https://zhuanlan.zhihu.com/p/474386730"  target="_blank" rel="noopener"
+    >球坐标系下拉普拉斯方程</a>
+</h3><p>从直角坐标到球坐标的变换：</p>
+$$
+\begin{cases}
+r = \sqrt{x^2 + y^2 + z^2} \\
+θ = arctan (\frac{\sqrt{x^2 + y^2}}{z}) \\
+φ = arctan \frac{y}{x}
+\end{cases}
+$$<p>拉普拉斯算符：$\nabla^2 = \frac{\partial^2}{\partial x^2} + \frac{\partial^2}{\partial y^2} + \frac{\partial^2}{\partial z^2}$</p>
+<p>将拉普拉斯算符 $\nabla^2$ 作用到球坐标系下的函数 $f(r, \theta, \phi)$ 上:</p>
+$$
+\nabla^2 f(r, \theta, \phi) = \frac{\partial^2 f}{\partial x^2} + \frac{\partial^2 f}{\partial y^2} + \frac{\partial^2 f}{\partial z^2}
+$$<p>根据链式法则：</p>
+<p>$$
+\begin{cases}
+\frac{\partial f}{\partial x} = \frac{∂f}{∂r} \frac{∂r}{∂x} + \frac{∂f}{∂\theta} \frac{∂\theta}{∂x} + \frac{∂f}{∂\phi} \frac{∂\phi}{∂x}\</p>
+<p>\frac{\partial f}{\partial y} = \frac{\partial f}{\partial r} \frac{\partial r}{\partial y} + \frac{\partial f}{\partial \theta} \frac{\partial \theta}{\partial y} + \frac{\partial f}{\partial \phi} \frac{\partial \phi}{\partial y}\</p>
+<p>\frac{\partial f}{\partial z} = \frac{\partial f}{\partial r} \frac{\partial r}{\partial z} + \frac{\partial f}{\partial \theta} \frac{\partial \theta}{\partial z} + \frac{\partial f}{\partial \phi} \frac{\partial \phi}{\partial z}\
+\end{cases}
+$$</p>
+<p>二阶导（运用乘法法则）：</p>
+<p>$$
+\begin{cases}
+\frac{∂^2f}{∂x^2} &amp;= \frac{∂}{∂x}(\frac{∂f}{∂x}) \
+&amp;= \frac{∂}{∂x}(\frac{∂f}{∂r} \frac{∂r}{∂x} + \frac{∂f}{∂\theta} \frac{∂\theta}{∂x} + \frac{∂f}{∂\phi} \frac{∂\phi}{∂x})\</p>
+<pre><code>        &amp;= \frac{∂}{∂x}(\frac{∂f}{∂r}) \frac{∂r}{∂x} + \frac{∂}{∂x}(\frac{∂r}{∂x})\frac{∂f}{∂r} 
+          +\frac{∂}{∂x}(\frac{∂f}{∂θ}) \frac{∂θ}{∂x} + \frac{∂}{∂x}(\frac{∂θ}{∂x})\frac{∂f}{∂θ}
+          +\frac{∂}{∂x}(\frac{∂f}{∂φ}) \frac{∂φ}{∂x} + \frac{∂}{∂x}(\frac{∂φ}{∂x})\frac{∂f}{∂φ}
+</code></pre>
+<p>\</p>
+<p>\frac{∂^2f}{∂y^2} &amp;= \frac{∂}{∂y}(\frac{∂f}{∂y}) \
+&amp;= \frac{∂}{∂y}(\frac{∂f}{∂r} \frac{∂r}{∂y} + \frac{∂f}{∂\theta} \frac{∂\theta}{∂y} + \frac{∂f}{∂\phi} \frac{∂\phi}{∂y})\</p>
+<pre><code>        &amp;= \frac{∂}{∂y}(\frac{∂f}{∂r}) \frac{∂r}{∂y} + \frac{∂}{∂y}(\frac{∂r}{∂y})\frac{∂f}{∂r} 
+          +\frac{∂}{∂y}(\frac{∂f}{∂θ}) \frac{∂θ}{∂y} + \frac{∂}{∂y}(\frac{∂θ}{∂y})\frac{∂f}{∂θ}
+          +\frac{∂}{∂y}(\frac{∂f}{∂φ}) \frac{∂φ}{∂y} + \frac{∂}{∂y}(\frac{∂φ}{∂y})\frac{∂f}{∂φ}
+</code></pre>
+<p>\</p>
+<p>\frac{∂^2f}{∂z^2} &amp;= \frac{∂}{∂z}(\frac{∂f}{∂z}) \
+&amp;= \frac{∂}{∂z}(\frac{∂f}{∂r} \frac{∂r}{∂z} + \frac{∂f}{∂\theta} \frac{∂\theta}{∂z} + \frac{∂f}{∂\phi} \frac{∂\phi}{∂z})\</p>
+<pre><code>        &amp;= \frac{∂}{∂z}(\frac{∂f}{∂r}) \frac{∂r}{∂z} + \frac{∂}{∂z}(\frac{∂r}{∂z})\frac{∂f}{∂r} 
+          +\frac{∂}{∂z}(\frac{∂f}{∂θ}) \frac{∂θ}{∂z} + \frac{∂}{∂z}(\frac{∂θ}{∂z})\frac{∂f}{∂θ}
+          +\frac{∂}{∂z}(\frac{∂f}{∂φ}) \frac{∂φ}{∂z} + \frac{∂}{∂z}(\frac{∂φ}{∂z})\frac{∂f}{∂φ}
+</code></pre>
+<p>\
+\end{cases}
+$$</p>
+<p>因为（再使用链式法则）:</p>
+<p>$$
+\begin{aligned}
+\begin{cases}
+\frac{∂}{∂x} (\frac{∂f}{∂r}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂r}) \frac{∂r}{∂x} + \frac{∂}{∂θ}(\frac{∂f}{∂r}) \frac{∂θ}{∂x} + \frac{∂}{∂φ}(\frac{∂f}{∂r}) \frac{∂φ}{∂x} \
+&amp;= \frac{∂^2f}{∂r^2} \frac{∂r}{∂x}+ \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂x}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂x}
+\</p>
+<p>\frac{∂}{∂x} (\frac{∂f}{∂θ}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂θ}) \frac{∂r}{∂x} + \frac{∂}{∂θ}(\frac{∂f}{∂θ}) \frac{∂θ}{∂x} + \frac{∂}{∂φ}(\frac{∂f}{∂θ}) \frac{∂φ}{∂x} \
+&amp;= \frac{∂^2f}{∂θ∂r} \frac{∂r}{∂x}+ \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂x}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂x}
+\</p>
+<p>\frac{∂}{∂x} (\frac{∂f}{∂φ}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂φ}) \frac{∂r}{∂x} + \frac{∂}{∂θ}(\frac{∂f}{∂φ}) \frac{∂θ}{∂x} + \frac{∂}{∂φ}(\frac{∂f}{∂φ}) \frac{∂φ}{∂x} \
+&amp;= \frac{∂^2f}{∂r∂φ} \frac{∂r}{∂x}+ \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂x}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂x}
+\
+\end{cases}
+\</p>
+<p>\begin{cases}
+\frac{∂}{∂y} (\frac{∂f}{∂r}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂r}) \frac{∂r}{∂y} + \frac{∂}{∂θ}(\frac{∂f}{∂r}) \frac{∂θ}{∂y} + \frac{∂}{∂φ}(\frac{∂f}{∂r}) \frac{∂φ}{∂y} \
+&amp;= \frac{∂^2f}{∂r^2} \frac{∂r}{∂y}+ \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂y}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂y}
+\</p>
+<p>\frac{∂}{∂y} (\frac{∂f}{∂θ}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂θ}) \frac{∂r}{∂y} + \frac{∂}{∂θ}(\frac{∂f}{∂θ}) \frac{∂θ}{∂y} + \frac{∂}{∂φ}(\frac{∂f}{∂θ}) \frac{∂φ}{∂y} \
+&amp;= \frac{∂^2f}{∂θ∂r} \frac{∂r}{∂y}+ \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂y}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂y}
+\</p>
+<p>\frac{∂}{∂y} (\frac{∂f}{∂φ}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂φ}) \frac{∂r}{∂y} + \frac{∂}{∂θ}(\frac{∂f}{∂φ}) \frac{∂θ}{∂y} + \frac{∂}{∂φ}(\frac{∂f}{∂φ}) \frac{∂φ}{∂y} \
+&amp;= \frac{∂^2f}{∂r∂φ} \frac{∂r}{∂y}+ \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂y}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂y}
+\
+\end{cases}
+\</p>
+<p>\begin{cases}
+\frac{∂}{∂z} (\frac{∂f}{∂r}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂r}) \frac{∂r}{∂z} + \frac{∂}{∂θ}(\frac{∂f}{∂r}) \frac{∂θ}{∂z} + \frac{∂}{∂φ}(\frac{∂f}{∂r}) \frac{∂φ}{∂z} \
+&amp;= \frac{∂^2f}{∂r^2} \frac{∂r}{∂z}+ \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂z}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂z}
+\</p>
+<p>\frac{∂}{∂z} (\frac{∂f}{∂θ}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂θ}) \frac{∂r}{∂z} + \frac{∂}{∂θ}(\frac{∂f}{∂θ}) \frac{∂θ}{∂z} + \frac{∂}{∂φ}(\frac{∂f}{∂θ}) \frac{∂φ}{∂z} \
+&amp;= \frac{∂^2f}{∂θ∂r} \frac{∂r}{∂z}+ \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂z}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂z}
+\</p>
+<p>\frac{∂}{∂z} (\frac{∂f}{∂φ}) &amp;= \frac{∂}{∂r}(\frac{∂f}{∂φ}) \frac{∂r}{∂z} + \frac{∂}{∂θ}(\frac{∂f}{∂φ}) \frac{∂θ}{∂z} + \frac{∂}{∂φ}(\frac{∂f}{∂φ}) \frac{∂φ}{∂z} \
+&amp;= \frac{∂^2f}{∂r∂φ} \frac{∂r}{∂z}+ \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂z}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂z}
+\
+\end{cases}
+\end{aligned}
+$$</p>
+<p>所以：</p>
+<p>$$
+\begin{cases}
+\frac{∂^2f}{∂x^2} &amp;=
+(\frac{∂^2f}{∂r^2} \frac{∂r}{∂x}+ \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂x}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂x}) \frac{∂r}{∂x} + \frac{∂}{∂x}(\frac{∂r}{∂x})\frac{∂f}{∂r} \
+&amp;+ (\frac{∂^2f}{∂θ∂r} \frac{∂r}{∂x}+ \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂x}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂x}) \frac{∂θ}{∂x} + \frac{∂}{∂x}(\frac{∂θ}{∂x})\frac{∂f}{∂θ} \
+&amp;+ (\frac{∂^2f}{∂r∂φ} \frac{∂r}{∂x}+ \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂x}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂x}) \frac{∂φ}{∂x} + \frac{∂}{∂x}(\frac{∂φ}{∂x})\frac{∂f}{∂φ} \</p>
+<p>\frac{∂^2f}{∂y^2} &amp;=
+(\frac{∂^2f}{∂r^2} \frac{∂r}{∂y}+ \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂y}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂y}) \frac{∂r}{∂y} + \frac{∂}{∂y}(\frac{∂r}{∂y})\frac{∂f}{∂r} \
+&amp;+ (\frac{∂^2f}{∂θ∂r} \frac{∂r}{∂y}+ \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂y}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂y}) \frac{∂θ}{∂y} + \frac{∂}{∂y}(\frac{∂θ}{∂y})\frac{∂f}{∂θ} \
+&amp;+ (\frac{∂^2f}{∂r∂φ} \frac{∂r}{∂y}+ \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂y}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂y}) \frac{∂φ}{∂y} + \frac{∂}{∂y}(\frac{∂φ}{∂y})\frac{∂f}{∂φ} \</p>
+<p>\frac{∂^2f}{∂z^2} &amp;=
+(\frac{∂^2f}{∂r^2} \frac{∂r}{∂z}+ \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂z}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂z}) \frac{∂r}{∂z} + \frac{∂}{∂z}(\frac{∂r}{∂z})\frac{∂f}{∂r} \
+&amp;+ (\frac{∂^2f}{∂θ∂r} \frac{∂r}{∂z}+ \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂z}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂z}) \frac{∂θ}{∂z} + \frac{∂}{∂z}(\frac{∂θ}{∂z})\frac{∂f}{∂θ} \
+&amp;+ (\frac{∂^2f}{∂r∂φ} \frac{∂r}{∂z}+ \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂z}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂z}) \frac{∂φ}{∂z} + \frac{∂}{∂z}(\frac{∂φ}{∂z})\frac{∂f}{∂φ}
+\end{cases}
+$$</p>
+<p>展开得：</p>
+<p>$$
+\begin{cases}
+\frac{∂^2f}{∂x^2} &amp;= \frac{∂^2f}{∂r^2} \frac{∂r}{∂x} \frac{∂r}{∂x} + \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂x}\frac{∂r}{∂x}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂x} \frac{∂r}{∂x} + \frac{∂^2r}{∂x^2}\frac{∂f}{∂r} \
+&amp;+ \frac{∂^2f}{∂θ∂r} \frac{∂r}{∂x}\frac{∂θ}{∂x} + \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂x} \frac{∂θ}{∂x}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂x} \frac{∂θ}{∂x} + \frac{∂^2θ}{∂x^2} \frac{∂f}{∂θ} \
+&amp;+ \frac{∂^2f}{∂r∂φ} \frac{∂r}{∂x} \frac{∂φ}{∂x}+ \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂x} \frac{∂φ}{∂x}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂x} \frac{∂φ}{∂x} + \frac{∂^2φ}{∂x^2}\frac{∂f}{∂φ} \</p>
+<p>\frac{∂^2f}{∂y^2}
+&amp;= \frac{∂^2f}{∂r^2} \frac{∂r}{∂y} \frac{∂r}{∂y} + \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂y} \frac{∂r}{∂y}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂y} \frac{∂r}{∂y} + \frac{∂^2r}{∂y^2}\frac{∂f}{∂r} \
+&amp;+ \frac{∂^2f}{∂θ∂r} \frac{∂r}{∂y} \frac{∂θ}{∂y} + \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂y} \frac{∂θ}{∂y}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂y} \frac{∂θ}{∂y} + \frac{∂^2θ}{∂y^2} \frac{∂f}{∂θ} \
+&amp;+ \frac{∂^2f}{∂r∂φ} \frac{∂r}{∂y} \frac{∂φ}{∂y} + \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂y} \frac{∂φ}{∂y}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂y} \frac{∂φ}{∂y} + \frac{∂^2φ}{∂y^2}\frac{∂f}{∂φ} \</p>
+<p>\frac{∂^2f}{∂z^2}
+&amp;= \frac{∂^2f}{∂r^2} \frac{∂r}{∂z} \frac{∂r}{∂z} + \frac{∂^2f}{∂θ∂r} \frac{∂θ}{∂z} \frac{∂r}{∂z}+ \frac{∂^2f}{∂φ∂r}\frac{∂φ}{∂z} \frac{∂r}{∂z} + \frac{∂^2r}{∂z^2}\frac{∂f}{∂r} \
+&amp;+ \frac{∂^2f}{∂θ∂r} \frac{∂r}{∂z} \frac{∂θ}{∂z} + \frac{∂^2f}{∂θ^2} \frac{∂θ}{∂z} \frac{∂θ}{∂z}+ \frac{∂^2f}{∂φ∂θ}\frac{∂φ}{∂z} \frac{∂θ}{∂z} + \frac{∂^2θ}{∂z^2} \frac{∂f}{∂θ} \
+&amp;+ \frac{∂^2f}{∂r∂φ} \frac{∂r}{∂z} \frac{∂φ}{∂z} + \frac{∂^2f}{∂θ∂φ} \frac{∂θ}{∂z} \frac{∂φ}{∂z}+ \frac{∂^2f}{∂φ^2}\frac{∂φ}{∂z} \frac{∂φ}{∂z} + \frac{∂^2φ}{∂z^2}\frac{∂f}{∂φ} \
+\end{cases}
+$$</p>
+<p>because:</p>
+<p>$$
+\begin{aligned}
+\begin{cases}
+\frac{∂r}{∂x} &amp;= \frac{x}{r}
+\
+\frac{∂r}{∂y} &amp;= \frac{y}{r}
+\
+\frac{∂r}{∂z} &amp;= \frac{z}{r}
+\end{cases}
+\quad</p>
+<p>\begin{cases}
+\frac{∂θ}{∂x} &amp;= \frac{z}{r^2} \frac{x}{\sqrt{x^2 + y^2}}
+\
+\frac{∂θ}{∂y} &amp;= \frac{z}{r^2} \frac{y}{\sqrt{x^2 + y^2}}
+\
+\frac{∂θ}{∂z} &amp;= \frac{-\sqrt{x^2 + y^2}}{r^2}
+\end{cases}
+\quad</p>
+<p>\begin{cases}
+\frac{∂φ}{∂x} &amp;= \frac{-y}{x^2 + y^2}
+\
+\frac{∂φ}{∂y} &amp;= \frac{x}{x^2 + y^2}
+\
+\frac{∂φ}{∂z} &amp;= 0
+\end{cases}</p>
+<p>\</p>
+<p>\begin{cases}
+\frac{∂^2r}{∂x^2} &amp;= \frac{r^2-x^2}{r^3}
+\
+\frac{∂^2r}{∂y^2} &amp;= \frac{r^2-y^2}{r^3}
+\
+\frac{∂^2r}{∂z^2} &amp;= \frac{r^2-z^2}{r^3}
+\end{cases}
+\quad</p>
+<p>\begin{cases}
+\frac{∂θ}{∂x} &amp;= \frac{zr^2(x^2+y^2) - zx^2 [2(x^2+y^2)+1]}{r^4 (x^2+y^2)^{\frac{3}{2}}}
+\
+\frac{∂θ}{∂y} &amp;=
+\
+\frac{∂θ}{∂z} &amp;=
+\end{cases}
+\quad</p>
+<p>\end{aligned}
+$$</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

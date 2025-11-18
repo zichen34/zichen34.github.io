@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="PointAttN Debugging Issues:\nCreate Environment\nTest on PCN Dataset\nTest on C3D Dataset\nReferences:\nPrevious PyTorch Versions CUDA Toolkit 11.3 Downloads - NVIDIA Developer ModuleNotFoundError: No module named &lsquo;mmcv&rsquo; - CSDN博客 Searched by ModuleNotFoundError: No module named 'mmcv' in DDG 【mmcv报错】ModuleNotFoundError: No module named &lsquo;mmcv.runner - CSDN博客 Searched by No module named 'mmcv.runner' in DDG No force_fp32? · Issue #550 · open-mmlab/mmengine - GitHub Searched by No module named 'mmcv.runner' force_fp32 in DDG docs/zh_cn/get_started/api_reference.md Searched by repo:open-mmlab/mmcv runner in Branch 2.x 你好，我想问一下为什么运行 python test_c3d.py -c PointAttN.yaml后，test.log里没有日志生成？ #31 Searched by logging.info( in Issues Size Mismatch for test_c3d.py #7 Searched by c3d in Issues Addressing:\n">
+<title>Test: PtCld | Various Approaches for Point Cloud Completion</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/points/d-test-ptcld_completion_methods/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Test: PtCld | Various Approaches for Point Cloud Completion">
+<meta property='og:description' content="PointAttN Debugging Issues:\nCreate Environment\nTest on PCN Dataset\nTest on C3D Dataset\nReferences:\nPrevious PyTorch Versions CUDA Toolkit 11.3 Downloads - NVIDIA Developer ModuleNotFoundError: No module named &lsquo;mmcv&rsquo; - CSDN博客 Searched by ModuleNotFoundError: No module named 'mmcv' in DDG 【mmcv报错】ModuleNotFoundError: No module named &lsquo;mmcv.runner - CSDN博客 Searched by No module named 'mmcv.runner' in DDG No force_fp32? · Issue #550 · open-mmlab/mmengine - GitHub Searched by No module named 'mmcv.runner' force_fp32 in DDG docs/zh_cn/get_started/api_reference.md Searched by repo:open-mmlab/mmcv runner in Branch 2.x 你好，我想问一下为什么运行 python test_c3d.py -c PointAttN.yaml后，test.log里没有日志生成？ #31 Searched by logging.info( in Issues Size Mismatch for test_c3d.py #7 Searched by c3d in Issues Addressing:\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/points/d-test-ptcld_completion_methods/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Points' /><meta property='article:published_time' content='2025-03-31T22:12:00&#43;00:00'/><meta property='article:modified_time' content='2025-03-31T22:12:00&#43;00:00'/>
+<meta name="twitter:title" content="Test: PtCld | Various Approaches for Point Cloud Completion">
+<meta name="twitter:description" content="PointAttN Debugging Issues:\nCreate Environment\nTest on PCN Dataset\nTest on C3D Dataset\nReferences:\nPrevious PyTorch Versions CUDA Toolkit 11.3 Downloads - NVIDIA Developer ModuleNotFoundError: No module named &lsquo;mmcv&rsquo; - CSDN博客 Searched by ModuleNotFoundError: No module named 'mmcv' in DDG 【mmcv报错】ModuleNotFoundError: No module named &lsquo;mmcv.runner - CSDN博客 Searched by No module named 'mmcv.runner' in DDG No force_fp32? · Issue #550 · open-mmlab/mmengine - GitHub Searched by No module named 'mmcv.runner' force_fp32 in DDG docs/zh_cn/get_started/api_reference.md Searched by repo:open-mmlab/mmcv runner in Branch 2.x 你好，我想问一下为什么运行 python test_c3d.py -c PointAttN.yaml后，test.log里没有日志生成？ #31 Searched by logging.info( in Issues Size Mismatch for test_c3d.py #7 Searched by c3d in Issues Addressing:\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#pointattn">PointAttN</a>
+      <ol>
+        <li><a href="#debugging">Debugging</a></li>
+        <li><a href="#code-read">Code Read</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/test/" style="background-color: #ff8a22; color: #fff;">
+                Test
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/points/d-test-ptcld_completion_methods/">Test: PtCld | Various Approaches for Point Cloud Completion</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 31, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#pointattn">PointAttN</a>
+      <ol>
+        <li><a href="#debugging">Debugging</a></li>
+        <li><a href="#code-read">Code Read</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="pointattn">PointAttN
+</h2><h3 id="debugging">Debugging
+</h3><p><strong>Issues</strong>:</p>
+<ol>
+<li>
+<p><a class="link" href="#Ptat-Env-Iss1" > <strong>Create Environment</strong></a></p>
+</li>
+<li>
+<p><a class="link" href="#Ptat-Env-Iss2" > <strong>Test on PCN Dataset</strong></a></p>
+</li>
+<li>
+<p><a class="link" href="#Ptat-Env-Iss3" > <strong>Test on C3D Dataset</strong></a></p>
+</li>
+</ol>
+<hr>
+<p><strong>References</strong>:</p>
+<details>
+<ol>
+<li><a id="Ptat-Env-r1"></a>
+<a class="link" href="https://pytorch.org/get-started/previous-versions/#linux-and-windows-44"  target="_blank" rel="noopener"
+    >Previous PyTorch Versions</a></li>
+<li><a id="Ptat-Env-r2"></a>
+<a class="link" href="https://developer.nvidia.com/cuda-11.3.0-download-archive?target_os=Linux&amp;target_arch=x86_64&amp;Distribution=Ubuntu&amp;target_version=20.04&amp;target_type=deb_local"  target="_blank" rel="noopener"
+    >CUDA Toolkit 11.3 Downloads - NVIDIA Developer</a></li>
+<li><a id="Ptat-Env-r3"></a>
+<a class="link" href="https://blog.csdn.net/weixin_43501408/article/details/131393241"  target="_blank" rel="noopener"
+    >ModuleNotFoundError: No module named &lsquo;mmcv&rsquo; - CSDN博客</a>
+<small>
+<ul>
+<li>Searched by <code>ModuleNotFoundError: No module named 'mmcv'</code> in
+<a class="link" href="https://duckduckgo.com/?q=ModuleNotFoundError%3A&#43;No&#43;module&#43;named&#43;%27mmcv%27&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Ptat-Env-r4"></a>
+<a class="link" href="https://blog.csdn.net/holly_Z_P_F/article/details/134251912"  target="_blank" rel="noopener"
+    >【mmcv报错】ModuleNotFoundError: No module named &lsquo;mmcv.runner - CSDN博客</a>
+<small>
+<ul>
+<li>Searched by <code>No module named 'mmcv.runner'</code> in
+<a class="link" href="https://duckduckgo.com/?q=No&#43;module&#43;named&#43;%27mmcv.runner%27&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Ptat-Env-r5"></a>
+<a class="link" href="https://github.com/open-mmlab/mmengine/issues/550"  target="_blank" rel="noopener"
+    >No force_fp32? · Issue #550 · open-mmlab/mmengine - GitHub</a>
+<small>
+<ul>
+<li>Searched by <code>No module named 'mmcv.runner' force_fp32</code> in
+<a class="link" href="https://duckduckgo.com/?q=No&#43;module&#43;named&#43;%27mmcv.runner%27&#43;force_fp32&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Ptat-Env-r6"></a>
+<a class="link" href="https://github.com/open-mmlab/mmcv/blob/f19d3e771c211ca20e3f8ab838e3851cae263035/docs/zh_cn/get_started/api_reference.md?plain=1#L3"  target="_blank" rel="noopener"
+    >docs/zh_cn/get_started/api_reference.md</a>
+<small>
+<ul>
+<li>Searched by <code>repo:open-mmlab/mmcv runner</code> in <a class="link" href="https://github.com/search?q=repo%3Aopen-mmlab%2Fmmcv%20runner&amp;type=code"  target="_blank" rel="noopener"
+    >Branch 2.x</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Ptat-Env-r7"></a>
+<a class="link" href="https://github.com/ohhhyeahhh/PointAttN/issues/31"  target="_blank" rel="noopener"
+    >你好，我想问一下为什么运行 python test_c3d.py -c PointAttN.yaml后，test.log里没有日志生成？ #31</a>
+<small>
+<ul>
+<li>Searched by <code>logging.info(</code> in
+<a class="link" href="https://github.com/search?q=repo%3Aohhhyeahhh%2FPointAttN&#43;logging.info%28&amp;type=issues"  target="_blank" rel="noopener"
+    >Issues</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Ptat-Env-r8"></a>
+<a class="link" href="https://github.com/ohhhyeahhh/PointAttN/issues/7"  target="_blank" rel="noopener"
+    >Size Mismatch for test_c3d.py #7</a>
+<small>
+<ul>
+<li>Searched by <code>c3d</code> in
+<a class="link" href="https://github.com/search?q=repo%3Aohhhyeahhh%2FPointAttN&#43;c3d&amp;type=issues"  target="_blank" rel="noopener"
+    >Issues</a>
+</small></li>
+</ul>
+</li>
+</ol>
+</details>
+<hr>
+<p><strong>Addressing</strong>:</p>
+<p><a id="Ptat-Env-Iss1"></a></p>
+<p>(2025-03-31)</p>
+<ol>
+<li>
+<p><strong>Create a conda environment</strong></p>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>
+<p>System Overview:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">zichen@zichen-X570-AORUS-PRO-WIFI:~$ lsb_release -a
+</span></span><span class="line"><span class="cl">No LSB modules are available.
+</span></span><span class="line"><span class="cl">Distributor ID: Ubuntu
+</span></span><span class="line"><span class="cl">Description:    Ubuntu 22.04.5 LTS
+</span></span><span class="line"><span class="cl">Release:        22.04
+</span></span><span class="line"><span class="cl">Codename:       jammy
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>GPU and NVIDIA Driver:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">zichen@zichen-X570-AORUS-PRO-WIFI:~$ nvidia-smi
+</span></span><span class="line"><span class="cl">Tue Apr  <span class="m">1</span> 01:11:13 <span class="m">2025</span>       
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> NVIDIA-SMI 550.120                Driver Version: 550.120        CUDA Version: 12.4     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>-----------------------------------------+------------------------+----------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> GPU  Name                 Persistence-M <span class="p">|</span> Bus-Id          Disp.A <span class="p">|</span> Volatile Uncorr. ECC <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Fan  Temp   Perf          Pwr:Usage/Cap <span class="p">|</span>           Memory-Usage <span class="p">|</span> GPU-Util  Compute M. <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>                                         <span class="p">|</span>                        <span class="p">|</span>               MIG M. <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span><span class="o">=========================================</span>+<span class="o">========================</span>+<span class="o">======================</span><span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">0</span>  NVIDIA GeForce RTX <span class="m">3090</span> Ti     Off <span class="p">|</span>   00000000:09:00.0 Off <span class="p">|</span>                  Off <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>  0%   25C    P8             34W /  450W <span class="p">|</span>     729MiB /  24564MiB <span class="p">|</span>      1%      Default <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>                                         <span class="p">|</span>                        <span class="p">|</span>                  N/A <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-----------------------------------------+------------------------+----------------------+
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>CUDA Toolkit</strong> is needed as GPU-version PyTorch was compiled by a certain CUDA Toolkit.</p>
+<p>Install the run file<sup><a class="link" href="#Ptat-Env-r2" >r2-Nv</a></sup></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> zichen@zichen-X570-AORUS-PRO-WIFI:~$ nvcc -V
+</span></span><span class="line"><span class="cl">nvcc: NVIDIA <span class="o">(</span>R<span class="o">)</span> Cuda compiler driver
+</span></span><span class="line"><span class="cl">Copyright <span class="o">(</span>c<span class="o">)</span> 2005-2021 NVIDIA Corporation
+</span></span><span class="line"><span class="cl">Built on Sun_Mar_21_19:15:46_PDT_2021
+</span></span><span class="line"><span class="cl">Cuda compilation tools, release 11.3, V11.3.58
+</span></span><span class="line"><span class="cl">Build cuda_11.3.r11.3/compiler.29745058_0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Conda&#39;s pytorch pkg needs CTK runtime</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># conda install pytorch==1.9.0 torchvision==0.10.0 torchaudio==0.9.0 cudatoolkit=11.3 -c pytorch -c conda-forge</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># The torch 1.9 compiled with ctk 11.1 requires ctk 11.1 pre-installed on system.</span>
+</span></span><span class="line"><span class="cl">pip install <span class="nv">torch</span><span class="o">==</span>1.9.0+cu111 <span class="nv">torchvision</span><span class="o">==</span>0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Without CUDA Toolkit, solely installing PyTorch 1.9.0 is not enough
+<sup><a class="link" href="#Ptat-Env-r1" >r1-Docs</a></sup> along with a runtime <code>cudatoolkit</code></p>
+<p>There will be an error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Exception has occurred: ImportError
+</span></span><span class="line"><span class="cl">/mnt/Seagate4T/anaconda3/envs/pointattn/lib/python3.8/site-packages/torch/lib/libtorch_cpu.so: undefined symbol: iJIT_NotifyEvent
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/utils/train_utils.py&#34;</span>, line 1, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    import torch
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/test_c3d.py&#34;</span>, line 8, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from utils.train_utils import *
+</span></span><span class="line"><span class="cl">ImportError: /mnt/Seagate4T/anaconda3/envs/pointattn/lib/python3.8/site-packages/torch/lib/libtorch_cpu.so: undefined symbol: iJIT_NotifyEvent
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># NO CUDA Toolkit installed</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>pointattn<span class="o">)</span> zichen@zichen-X570-AORUS-PRO-WIFI:~/Projects/PointAttN$ nvcc -V
+</span></span><span class="line"><span class="cl">Command <span class="s1">&#39;nvcc&#39;</span> not found, but can be installed with:
+</span></span><span class="line"><span class="cl">sudo apt install nvidia-cuda-toolkit
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<p>(2025-04-07)</p>
+<ul>
+<li>
+<p>After the CUDA Toolkit 11.3 was installed, that error persists.</p>
+</li>
+<li>
+<p>The PyTorch installed by <code>conda</code> is a cpu version:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>pointattn<span class="o">)</span> zichen@zichen-X570-AORUS-PRO-WIFI:~/Projects/PointAttN$ conda list
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pytorch            1.9.0        py3.8_cpu_0    pytorch
+</span></span><span class="line"><span class="cl">torchvision        0.10.0          py38_cpu    pytorch
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li>
+<p>The <code>pytorch=1.9.0</code> is a cpu version?</p>
+<ul>
+<li>
+<p>pip’s package name is <code>torch</code>, not <code>pytorch</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Pip subprocess error:
+</span></span><span class="line"><span class="cl">ERROR: Could not find a version that satisfies the requirement <span class="nv">pytorch</span><span class="o">==</span>1.9.0 <span class="o">(</span>from versions: 0.1.2, 1.0.2<span class="o">)</span>
+</span></span><span class="line"><span class="cl">ERROR: No matching distribution found <span class="k">for</span> <span class="nv">pytorch</span><span class="o">==</span>1.9.0
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Conda’s <code>pytorch</code> and PyPI’s <code>torch</code> are different packages, even if the version numbers match.
+Conda and pip packages are built differently and may link to incompatible CUDA/cuDNN versions.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>(2025-04-08)</p>
+<ol start="5">
+<li>
+<p><code>mmcv</code> is needed by <code>mm3d_pn2</code></p>
+<ul>
+<li>
+<p>Otherwise, there will an error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Exception has occurred: ModuleNotFoundError
+</span></span><span class="line"><span class="cl">No module named <span class="s1">&#39;mmcv&#39;</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/ops/__init__.py&#34;</span>, line 1, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from mmcv.ops import <span class="o">(</span>RoIAlign, SigmoidFocalLoss, get_compiler_version,
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/__init__.py&#34;</span>, line 1, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from .ops import <span class="o">(</span>nms, RoIAlign, roi_align, get_compiler_version, get_compiling_cuda_version,
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/models/PointAttN.py&#34;</span>, line 10, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from utils.mm3d_pn2 import furthest_point_sample, gather_points
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/test_c3d.py&#34;</span>, line 34, in <span class="nb">test</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">model_module</span> <span class="o">=</span> importlib.import_module<span class="o">(</span><span class="s1">&#39;.%s&#39;</span> % args.model_name, <span class="s1">&#39;models&#39;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/test_c3d.py&#34;</span>, line 80, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    test<span class="o">()</span>
+</span></span><span class="line"><span class="cl">ModuleNotFoundError: No module named <span class="s1">&#39;mmcv&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>pip install mmcv</code> will build <code>mmcv</code>, and install:
+mmcv-2.2.0 mmengine-0.10.7 opencv-python-4.11.0.86 yapf-0.43.0</p>
+</li>
+<li>
+<p><code>pip uninstall mmcv</code></p>
+</li>
+</ul>
+</li>
+</ol>
+<p>(2025-04-09)</p>
+<ol start="6">
+<li>
+<p>Install mmcv-1.x.</p>
+<p>Since <code>mmcv-2.x</code>, the <code>mmcv.runner</code> has been removed
+<sup><a class="link" href="#Ptat-Env-r4" >r4-CSDN</a>,<a class="link" href="#Ptat-Env-r6" >r6-GitHub</a></sup>,
+reminded by Cursor initially.</p>
+<p><code>@force_fp32()</code> is used to constrain data type, but it can be replaced by <code>autocast</code> of PyTorch
+</sup><a class="link" href="#Ptat-Env-r5" >r5-GitHub</a></sup>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Exception has occurred: ModuleNotFoundError
+</span></span><span class="line"><span class="cl">No module named <span class="s1">&#39;mmcv.runner&#39;</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/ops/furthest_point_sample/points_sampler.py&#34;</span>, line 3, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from mmcv.runner import force_fp32
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/ops/furthest_point_sample/__init__.py&#34;</span>, line 3, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from .points_sampler import Points_Sampler
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/ops/__init__.py&#34;</span>, line 6, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from .furthest_point_sample import <span class="o">(</span>Points_Sampler, furthest_point_sample,
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/utils/mm3d_pn2/__init__.py&#34;</span>, line 1, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from .ops import <span class="o">(</span>nms, RoIAlign, roi_align, get_compiler_version, get_compiling_cuda_version,
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/models/PointAttN.py&#34;</span>, line 10, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from utils.mm3d_pn2 import furthest_point_sample, gather_points
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/test_c3d.py&#34;</span>, line 34, in <span class="nb">test</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">model_module</span> <span class="o">=</span> importlib.import_module<span class="o">(</span><span class="s1">&#39;.%s&#39;</span> % args.model_name, <span class="s1">&#39;models&#39;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Projects/PointAttN/test_c3d.py&#34;</span>, line 80, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    test<span class="o">()</span>
+</span></span><span class="line"><span class="cl">ModuleNotFoundError: No module named <span class="s1">&#39;mmcv.runner&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+<li>
+<p><strong>Actions</strong>:</p>
+<ol>
+<li>
+<p>Remove <code>pytorch</code> from <code>requiremnts.txt</code> as it&rsquo;s a cpu version.</p>
+</li>
+<li>
+<p>Ask Windsurf to generate an <code>environment.yaml</code> for conda</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">name: pointattn
+</span></span><span class="line"><span class="cl">channels:
+</span></span><span class="line"><span class="cl">  - pytorch
+</span></span><span class="line"><span class="cl">  - conda-forge
+</span></span><span class="line"><span class="cl">  - defaults
+</span></span><span class="line"><span class="cl">dependencies:
+</span></span><span class="line"><span class="cl">  - <span class="nv">python</span><span class="o">=</span>3.8
+</span></span><span class="line"><span class="cl">  <span class="c1"># - pytorch=1.9.0</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># - torchvision==0.10.0</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># - torchaudio==0.9.0</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># - cudatoolkit=11.3</span>
+</span></span><span class="line"><span class="cl">  - pip
+</span></span><span class="line"><span class="cl">  - <span class="nv">h5py</span><span class="o">=</span>3.6.0
+</span></span><span class="line"><span class="cl">  - <span class="nv">matplotlib</span><span class="o">=</span>3.4.3
+</span></span><span class="line"><span class="cl">  - <span class="nv">munch</span><span class="o">=</span>2.5.0
+</span></span><span class="line"><span class="cl">  - <span class="nv">pyyaml</span><span class="o">=</span>5.4.1
+</span></span><span class="line"><span class="cl">  - pip:
+</span></span><span class="line"><span class="cl">    - <span class="nv">torch</span><span class="o">==</span>1.9.0+cu111
+</span></span><span class="line"><span class="cl">    - <span class="nv">torchvision</span><span class="o">==</span>0.10.0+cu111
+</span></span><span class="line"><span class="cl">    - -f https://download.pytorch.org/whl/torch_stable.html
+</span></span><span class="line"><span class="cl">    - transforms3d
+</span></span><span class="line"><span class="cl">    - tensorpack
+</span></span><span class="line"><span class="cl">    - <span class="nv">open3d</span><span class="o">==</span>0.13.0
+</span></span><span class="line"><span class="cl">    - openmim
+</span></span><span class="line"><span class="cl">    - mmcv-full<span class="o">==</span>1.7.2
+</span></span><span class="line"><span class="cl">    <span class="c1"># Additional dependencies for building the 3rd-party modules</span>
+</span></span><span class="line"><span class="cl">    - setuptools
+</span></span><span class="line"><span class="cl">    - wheel
+</span></span><span class="line"><span class="cl">    - numpy
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Create env:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda env create -f environment.yml
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Specify <code>gcc</code> for <code>nvcc</code> (CUDA Toolkit 11.3), which supports <code>gcc-10</code> tops,
+during compiling modules:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">MAX_GCC_VERSION</span><span class="o">=</span><span class="m">10</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sudo apt install gcc-<span class="nv">$MAX_GCC_VERSION</span> g++-<span class="nv">$MAX_GCC_VERSION</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sudo ln -s /usr/bin/gcc-<span class="nv">$MAX_GCC_VERSION</span> /usr/local/cuda/bin/gcc 
+</span></span><span class="line"><span class="cl">sudo ln -s /usr/bin/g++-<span class="nv">$MAX_GCC_VERSION</span> /usr/local/cuda/bin/g++
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>The default <code>gcc-11.4</code> results in an error when <code>nvcc</code> compiles <code>chamfer3D</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/usr/local/cuda-11.3/include/crt/host_config.h:139:2: error: <span class="c1">#error -- unsupported GNU version! gcc versions later than 10 are not supported!</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li>
+<p>Build 3rd-party modules:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> utils/ChamferDistancePytorch/chamfer3D
+</span></span><span class="line"><span class="cl">python setup.py install
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> utils/mm3d_pn2
+</span></span><span class="line"><span class="cl">python setup.py build_ext --inplace
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><a id="Ptat-Env-Iss2"></a></p>
+<p>(2025-04-02)</p>
+<ol start="2">
+<li>
+<p><strong>Test on the PCN Dataset</strong></p>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>PCN(processed data) -&gt;
+<a class="link" href="https://gateway.infinitescript.com/s/ShapeNetCompletion"  target="_blank" rel="noopener"
+    >ShapeNetCompletion (10.6 GB) - Infinite Gateway</a>
+(<a class="link" href="https://www.infinitescript.com/project/grnet/"  target="_blank" rel="noopener"
+    >GRNet</a>) -&gt;
+<a class="link" href="https://hiteducn0-my.sharepoint.com/personal/hzxie_hit_edu_cn/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fhzxie%5Fhit%5Fedu%5Fcn%2FDocuments%2FGRNet%2FDatasets%2FShapeNetCompletion%2Ezip&amp;parent=%2Fpersonal%2Fhzxie%5Fhit%5Fedu%5Fcn%2FDocuments%2FGRNet%2FDatasets&amp;ga=1"  target="_blank" rel="noopener"
+    >OneDrive</a></li>
+</ol>
+</li>
+<li>
+<p><strong>Actions</strong>:</p>
+<ol>
+<li>
+<p>Create a <code>launch.json</code></p>
+<p>&ldquo;Debug&rdquo; -&gt; &ldquo;Python Debugger&rdquo; -&gt;
+&ldquo;Python File with Arguments Debug the currently active Python file with arguments&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Edit the path to dataset in <code>PointAttN.yaml</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Select Interpreter with the correct environment: <code>pointattn</code>.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Actions</strong>:</p>
+<p>(2025-04-28T09:14)</p>
+<ol>
+<li><code>test.log</code> is empty<sup><a class="link" href="#Ptat-Env-r7" >r7-Issue</a></sup>.</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><a id="Ptat-Env-Iss3"></a></p>
+<ol start="3">
+<li>
+<p><strong>Test on the Completion3D Dataset</strong></p>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>
+<p>Browser has <strong>no response</strong> after clicking the URL to 2048K points of <a class="link" href="https://completion3d.stanford.edu/"  target="_blank" rel="noopener"
+    >Completion3D: Stanford 3D Point Cloud Completion Benchmark</a></p>
+<p>I guess its size <strong>exceed the limit</strong> of browser.</p>
+</li>
+<li>
+<p>Use <code>wget</code> to download <code>dataset2019.zip</code> (1.5GB):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">zichen@zichen-X570-AORUS-PRO-WIFI:/mnt/Seagate4T/05-DataBank/PointAttN$ wget http://download.cs.stanford.edu/downloads/completion3d/dataset2019.zip
+</span></span><span class="line"><span class="cl">--2025-04-02 23:52:45--  http://download.cs.stanford.edu/downloads/completion3d/dataset2019.zip
+</span></span><span class="line"><span class="cl">Resolving download.cs.stanford.edu <span class="o">(</span>download.cs.stanford.edu<span class="o">)</span>... 171.64.64.22
+</span></span><span class="line"><span class="cl">Connecting to download.cs.stanford.edu <span class="o">(</span>download.cs.stanford.edu<span class="o">)</span><span class="p">|</span>171.64.64.22<span class="p">|</span>:80... connected.
+</span></span><span class="line"><span class="cl">HTTP request sent, awaiting response... <span class="m">200</span> OK
+</span></span><span class="line"><span class="cl">Length: <span class="m">1585860897</span> <span class="o">(</span>1.5G<span class="o">)</span> <span class="o">[</span>application/zip<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Saving to: ‘dataset2019.zip’
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">dataset2019.zip                     100%<span class="o">[======================================</span>&gt;<span class="o">]</span>   1.48G  5.14MB/s    in 4m 59s  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2025-04-02 23:57:45 <span class="o">(</span>5.05 MB/s<span class="o">)</span> - ‘dataset2019.zip’ saved <span class="o">[</span>1585860897/1585860897<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+<li>
+<p><strong>Actions</strong>:</p>
+<ol>
+<li>
+<p>Run <code>python3 test_c3d.py -c PointAttN_test_c3d.yaml</code></p>
+<p>Error<sup><a class="link" href="#Ptat-Env-r8" >r8-Issue</a></sup>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="code-read">Code Read
+</h3><p><strong>Problems</strong>:</p>
+<ol>
+<li>How does the <code>forward</code></li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p>(2025-04-11)</p>
+<ol>
+<li>
+<p>Model Breakdown</p>
+<ul>
+<li>
+<p><strong>Supports</strong>:</p>
+<ol>
+<li>A neural network model contains 4 parts:
+Dataset, Network definition, Loss, Optimizer</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/points/">Points</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/points/b-note-voronoimls/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/3-Figure3-1.png" loading="lazy" data-key="" data-hash="https://d3i71xaburhd42.cloudfront.net/b7e0ebc678153eb2c341702247d2fafb872f0465/3-Figure3-1.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Points - Surface | Voronoi &#43; MLS</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/vis/pkg-pointcloud/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*YWpRKfA-RRQgjhdG_3EP4g.png" loading="lazy" data-key="" data-hash="https://miro.medium.com/v2/resize:fit:786/format:webp/1*YWpRKfA-RRQgjhdG_3EP4g.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Memo: Lib - Points | Processing Point Cloud</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/vis/pkg-colmap/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://colmap.github.io/_images/sparse.png" loading="lazy" data-key="" data-hash="https://colmap.github.io/_images/sparse.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Memo: Lib - COLMAP | Install and Usages</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/depth/b-test-mvs_ply/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://github.com/kwea123/CasMVSNet_pl/raw/master/assets/demo.png" loading="lazy" data-key="" data-hash="https://github.com/kwea123/CasMVSNet_pl/raw/master/assets/demo.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Test: Points - MVSNets | Restore Point Cloud from Depth Map</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/depth/b-note-point-mvsnet/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://pic2.zhimg.com/v2-557251caddb35bac39401c9440615105_r.jpg" loading="lazy" data-key="" data-hash="https://pic2.zhimg.com/v2-557251caddb35bac39401c9440615105_r.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Depth - MVG | Point-MVSNet</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

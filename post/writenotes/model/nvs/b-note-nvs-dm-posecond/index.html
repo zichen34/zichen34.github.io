@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Novel View Synthesis with Diffusion Models (ICLR 2023)">
+<title>read: NVS with Pose-conditioned Diffusion Models</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/nvs/b-note-nvs-dm-posecond/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="read: NVS with Pose-conditioned Diffusion Models">
+<meta property='og:description' content="Novel View Synthesis with Diffusion Models (ICLR 2023)">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/nvs/b-note-nvs-dm-posecond/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Diffusion' /><meta property='article:published_time' content='2023-08-12T09:40:00&#43;00:00'/><meta property='article:modified_time' content='2023-08-12T09:40:00&#43;00:00'/><meta property='og:image' content='https://ar5iv.labs.arxiv.org/html/2210.04628/assets/figures/training.png' />
+<meta name="twitter:title" content="read: NVS with Pose-conditioned Diffusion Models">
+<meta name="twitter:description" content="Novel View Synthesis with Diffusion Models (ICLR 2023)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ar5iv.labs.arxiv.org/html/2210.04628/assets/figures/training.png' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#qa">Q&amp;A</a></li>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#intro">Intro</a></li>
+    <li><a href="#model">Model</a>
+      <ol>
+        <li><a href="#pose-conditioned">Pose-conditioned</a></li>
+        <li><a href="#stochastic-condition">Stochastic condition</a></li>
+        <li><a href="#x-unet">X-UNet</a></li>
+        <li><a href="#experiments">Experiments</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/model/nvs/b-note-nvs-dm-posecond/">
+                
+                    <img src="https://ar5iv.labs.arxiv.org/html/2210.04628/assets/figures/training.png" loading="lazy" alt="Featured image of post read: NVS with Pose-conditioned Diffusion Models" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/nvs/b-note-nvs-dm-posecond/">read: NVS with Pose-conditioned Diffusion Models</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Novel View Synthesis with Diffusion Models (ICLR 2023)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 12, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#qa">Q&amp;A</a></li>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#intro">Intro</a></li>
+    <li><a href="#model">Model</a>
+      <ol>
+        <li><a href="#pose-conditioned">Pose-conditioned</a></li>
+        <li><a href="#stochastic-condition">Stochastic condition</a></li>
+        <li><a href="#x-unet">X-UNet</a></li>
+        <li><a href="#experiments">Experiments</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://github.com/a6o/3d-diffusion-pytorch"  target="_blank" rel="noopener"
+    >Code-pytroch</a>
+| <a class="link" href="https://arxiv.org/abs/2210.04628"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://openreview.net/forum?id=HtoA0oT30jC"  target="_blank" rel="noopener"
+    >OpenReview</a></p>
+<h2 id="qa">Q&amp;A
+</h2><ol start="2">
+<li>Condition image vs target image?</li>
+</ol>
+<h2 id="abstract">Abstract
+</h2><ol>
+<li>
+<p>A <strong>img2img</strong> diffusion model is conditioned with <strong>pose</strong> and a <strong>single</strong> source view to generate multiviews.</p>
+</li>
+<li>
+<p>Stochastic conditioning: Randomly select a view from <strong>avaliable views</strong> as condition image at each <strong>denoising step</strong> during <strong>sampling</strong>?,
+rather than using only the given view.</p>
+</li>
+<li>
+<p>Reconstruct a NeRF to <strong>measure</strong> 3D consistency of multi-views.</p>
+<ul>
+<li>NeRF is not their ultimate objective.</li>
+</ul>
+</li>
+</ol>
+<h2 id="intro">Intro
+</h2><ol>
+<li>
+<p><strong>Regressive</strong> methods for NVS from sparse views based on NeRF are still not <strong>generalizable</strong> enough or able to produce high-quality completion for the <strong>occluded</strong> parts.</p>
+<ul>
+<li>
+<p>Regularized NeRF (RegNeRF) suffer from artifacts when only few views are given <del>because they</del> and didn&rsquo;t apply the features of commen prior of multiple scenes.</p>
+</li>
+<li>
+<p>Regressing a NeRF from image feataures (pixel-NeRF) tend to get blurred images.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Geometry-free</strong> methods for NVS obtain colors that aren&rsquo;t directly derived from volume rendering.</p>
+<ul>
+<li>Light field network</li>
+<li>Scene Representation Transformer</li>
+<li>EG3D combines StyleGAN and volume rendering</li>
+</ul>
+</li>
+<li>
+<p>3D diffusion model is a <strong>generative and geometry-free</strong> method.</p>
+<ul>
+<li>Use <strong>pairs</strong> of images of the <strong>same</strong> scene to train a diffusion model.</li>
+<li>During training, one of them serves as the original, and the other is the condition image.</li>
+<li>The trained model can produce a multi-view set of a scene given one condition image.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="model">Model
+</h2><p>They consider multiple views from a scene are <strong>not independent</strong>, but follow the distribution of the <strong>training views</strong>, to enhance multi-view consistency.</p>
+<ul>
+<li>
+<p>The distributions of different views, given a scene with a total observation set 𝐒, $p(𝐱|S)$ are conditionally independent (different).</p>
+</li>
+<li>
+<p>NeRF solves NVS under an even strict condition: each ray in the scen is conditionally independent.</p>
+</li>
+<li>
+<p>However, with this nature, the diffusion model cannot guarantee the samplings (generated images), conditioned with different source view, follow a common distribution,
+i.e., the diffusion model needs a unique distribution to learn.</p>
+<p>Ideally, the common distribution should be p(S), but it&rsquo;s difficult to approximate the entire scene based on sparse views. (Not sure, my guess.)</p>
+<p>That&rsquo;s why they reused the generated views previously for later condition.</p>
+</li>
+</ul>
+<h3 id="pose-conditioned">Pose-conditioned
+</h3><p>Given the data distribution p(𝐱₁, 𝐱₂), diffusion model learns the distribution of one of the two images conditioned on the other image and both poses.</p>
+<ol>
+<li>Noise schedule involving signal-to-noise ratio λ.</li>
+<li>Loss function of DDPM</li>
+</ol>
+<h3 id="stochastic-condition">Stochastic condition
+</h3><figure><img src="https://ar5iv.labs.arxiv.org/html/2210.04628/assets/figures/stochastic_cond_shoe.png"
+    alt="Figure 3: Stochastic conditioning sampler"><figcaption>
+      <p>Figure 3: Stochastic conditioning sampler</p>
+    </figcaption>
+</figure>
+
+<ol>
+<li>
+<p><strong>Markovian model</strong> didn&rsquo;t perform well, where the next image is conditioned on (k) previously generated views.
+Thus, a scene can be represented as $p(𝐗) = ∏ᵢp(𝐱ᵢ|𝐱_{<i})$.</p>
+<ul>
+<li>
+<p>Using all previous sampled views is imfesible due to the <strong>limited memory</strong>.</p>
+</li>
+<li>
+<p>They found <strong>k=2</strong> can achieve 3D consistency, but more previous states impair the sampling quality.</p>
+</li>
+<li>
+<p>And instead of conditioning on the last few samplings as in the Markovian model,
+2 views are stochastically selected as condition images at <strong>each denoising step</strong>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Generating a new view $𝐱ₖ₊₁$ needs 256 denoising steps,
+where each time the condition image 𝐱ᵢ is <strong>randomly</strong> chosen from the current views set 𝜲 = {𝐱₁,&hellip;,𝐱ₖ}.</p>
+<ul>
+<li>
+<p>In a denoising step, noise in the intermediate image $\hat 𝐱ₖ₊₁$ will be subtracted from $𝐳ₖ₊₁^{(λₜ)}$,
+which follows a <strong>forward</strong> noising distribution 𝒒,
+given the noisy image $𝐳ₖ₊₁^{(λₜ₋₁)}$ of last step and the denoised image $\hat 𝐱ₖ₊₁$.</p>
+$$
+     \hat 𝐱ₖ₊₁ = \frac{1}{\sqrt{σ(λₜ)}} 
+     \left( 𝐳ₖ₊₁^{(λₜ)} - \sqrt{σ(-λₜ)}\ ε_θ(𝐳ₖ₊₁^{(λₜ)}, 𝐱ᵢ) \right)  \\\
+     \ \\\
+     𝐳ₖ₊₁^{(λₜ₋₁)} \sim q(𝐳ₖ₊₁^{λₜ₋₁};\ 𝐳ₖ₊₁^{(λₜ)}, \hat 𝐱ₖ₊₁ ) 
+     $$<ul>
+<li>
+<p>( I guess 𝒒 gets <strong>&ldquo;reversed&rdquo;</strong> after applying Bayes rule)</p>
+</li>
+<li>
+<p>The first noisy image $𝐳ₖ₊₁^{(λ_T)}$ is Gaussian N(0,𝐈).</p>
+</li>
+</ul>
+</li>
+<li>
+<p>After 256 steps finished, <strong>add</strong> the result image 𝐱ₖ₊₁ to set 𝜲.</p>
+</li>
+<li>
+<p>256 can be larger to cover all the existing views.</p>
+</li>
+<li>
+<p>This scheme approximate the true autoregressive sampling.</p>
+<ul>
+<li>
+<p>Autoregressive model always use <strong>all</strong> previous states to predict the next state,
+unlike Markov chain only considering <strong>limited recent</strong> outputs,</p>
+<p>Therefore, to train an autoregressive model, a <strong>sequence</strong>, i.e. multi-view training data here, is needed.</p>
+<blockquote>
+<p>&ldquo;True autoregressive sampling needs a score model of the form
+$log\ q(𝐳ₖ₊₁^{(λ)} | 𝐱₁,...,𝐱ₖ)$ and multi-view training data.&rdquo;</p></blockquote>
+</li>
+<li>
+<p>But they&rsquo;re not interesting in multiple source views here.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="x-unet">X-UNet
+</h3><figure><img src="https://ar5iv.labs.arxiv.org/html/2210.04628/assets/figures/unet.png"
+    alt="Figure 4: X-UNet Architecture"><figcaption>
+      <p>Figure 4: X-UNet Architecture</p>
+    </figcaption>
+</figure>
+
+<p>UNet with only self-attention fails to generate images with multi-view consistency,
+given limited training images.</p>
+<ol>
+<li>Different frame has a different noise-level</li>
+<li>Positional encoding of pose is the same size of feature maps</li>
+<li>Use cross-attention to make two images attend to each other.</li>
+</ol>
+<p>Inputs:</p>
+<p>Concat two images?
+such that the weights of Conv2d and self-attention layers are shared for the noisy image and condition image</p>
+<h3 id="experiments">Experiments
+</h3><p>Dataset: SRN ShapeNet (synthetic cars and chairs) <a class="link" href="" >github</a></p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>file</th>
+          <th>size</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>cars_train.zip</td>
+          <td>3.26GB</td>
+      </tr>
+      <tr>
+          <td>chairs_train.zip</td>
+          <td>60.3GB</td>
+      </tr>
+  </tbody>
+</table></div>
+<p>Use instant-NGP without view dependent modules</p>
+<div id="flow_0">
+</div>
+
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/diffusion/">Diffusion</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+        <div id='canvas'>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="http://flowchart.js.org/flowchart-latest.js"></script>
+        
+        </div>
+        <script>
+        let flowPageOptions =  null ;
+	    let flowSiteOptions =  null ;
+	    flowPageOptions = !!flowPageOptions ? flowPageOptions : "{}"
+	    flowSiteOptions = !!flowSiteOptions ? flowSiteOptions : "{}"
+
+	    flowPageOptions = eval("(" + flowPageOptions + ")")
+	    flowSiteOptions = eval("(" + flowSiteOptions + ")")
+	    
+	    let flowOptions = {...flowSiteOptions, ...flowPageOptions}; 
+	    $("[id^=flow_]").flowChart(flowOptions);
+        </script>
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/nvs/b-note-mvdiffusion-scene/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: MVDiffusion generates multi-view images</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/nvs/b-note-diffustereo-human/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: DiffuStereo reconstruct 3D human</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/imagen/diffusion/d-vid-outlier/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: Diffusion - Outlier | Explain 4 papers</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/imagen/diffusion/d-vid-dlai/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">watch: DM - DLAI | How Diffusion Models Work</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

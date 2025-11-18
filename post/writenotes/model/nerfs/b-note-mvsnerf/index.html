@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="MVSNeRF: Fast Generalizable Radiance Field Reconstruction from Multi-View Stereo (ICCV 2021)">
+<title>read: NVS - NeRF | MVS-NeRF</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/nerfs/b-note-mvsnerf/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="read: NVS - NeRF | MVS-NeRF">
+<meta property='og:description' content="MVSNeRF: Fast Generalizable Radiance Field Reconstruction from Multi-View Stereo (ICCV 2021)">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/nerfs/b-note-mvsnerf/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='NeRF' /><meta property='article:published_time' content='2022-12-06T14:19:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-06T14:19:00&#43;00:00'/><meta property='og:image' content='https://ar5iv.labs.arxiv.org/html/2103.15595/assets/x2.png' />
+<meta name="twitter:title" content="read: NVS - NeRF | MVS-NeRF">
+<meta name="twitter:description" content="MVSNeRF: Fast Generalizable Radiance Field Reconstruction from Multi-View Stereo (ICCV 2021)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://ar5iv.labs.arxiv.org/html/2103.15595/assets/x2.png' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#experiments">Experiments</a></li>
+    <li><a href="#old-notes">Old Notes</a></li>
+    <li><a href="#play">Play</a>
+      <ol>
+        <li><a href="#environment">Environment</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/model/nerfs/b-note-mvsnerf/">
+                
+                    <img src="https://ar5iv.labs.arxiv.org/html/2103.15595/assets/x2.png" loading="lazy" alt="Featured image of post read: NVS - NeRF | MVS-NeRF" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                Read
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/nerfs/b-note-mvsnerf/">read: NVS - NeRF | MVS-NeRF</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            MVSNeRF: Fast Generalizable Radiance Field Reconstruction from Multi-View Stereo (ICCV 2021)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 06, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#experiments">Experiments</a></li>
+    <li><a href="#old-notes">Old Notes</a></li>
+    <li><a href="#play">Play</a>
+      <ol>
+        <li><a href="#environment">Environment</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://github.com/apchenstu/mvsnerf"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/2103.15595"  target="_blank" rel="noopener"
+    >Arxiv (2103)</a>
+| <a class="link" href="https://apchenstu.github.io/mvsnerf/"  target="_blank" rel="noopener"
+    >ProjPage</a></p>
+<hr>
+<p>(2023-08-16) Re-read</p>
+<h2 id="experiments">Experiments
+</h2><p>Train model only on (<a class="link" href="https://github.com/YoYo000/MVSNet"  target="_blank" rel="noopener"
+    >MVSNet</a>) DTU dataset,
+where the objects are partitioned the same as <a class="link" href="https://github.com/sxyu/pixel-nerf"  target="_blank" rel="noopener"
+    >PixelNeRF</a> (imgsize: 300x400).</p>
+<p>Datasets (<a class="link" href="https://github.com/apchenstu/mvsnerf#dtu-dataset"  target="_blank" rel="noopener"
+    >Download</a>):</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>Stage</th>
+          <th>Data</th>
+          <th>Contents</th>
+          <th>Resolution</th>
+          <th>N_views</th>
+          <th>Size</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Train</td>
+          <td>DTU</td>
+          <td>88 scenes</td>
+          <td>512x640</td>
+          <td></td>
+          <td>19G</td>
+      </tr>
+      <tr>
+          <td>Test</td>
+          <td>DTU</td>
+          <td>16 scenes</td>
+          <td></td>
+          <td>3/20</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Test</td>
+          <td>LLFF</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>Test</td>
+          <td>Blender</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+      </tr>
+  </tbody>
+</table></div>
+<ul>
+<li>Feature map: 32 channels</li>
+<li>Cost volume: 128 planes</li>
+<li>MLP: 6 layers</li>
+<li>Coarse-to-fine: One field and fine-tune</li>
+<li>Ray pts: 128</li>
+<li>Device: 2080Ti</li>
+<li>Batch size: 1024 rays</li>
+<li>Optimizer: Adam, lr=5e-4</li>
+</ul>
+<h2 id="old-notes">Old Notes
+</h2><details>
+<summary>Old notes on 2022-12-06</summary>
+<p><strong>Abstract</strong></p>
+<ul>
+<li>3 nearby input views</li>
+<li>plane-swept cost volumes</li>
+<li>geometry-aware scene reasoning</li>
+<li>generalize across scenes</li>
+</ul>
+<p><strong>1 Introduction</strong></p>
+<ul>
+<li>
+<p>Topic: Novel view synthesis</p>
+</li>
+<li>
+<p>Recent progress: neural rendering</p>
+</li>
+<li>
+<p>Former solutino and drawbacks:</p>
+<ol>
+<li>NeRF and its following works can produce photo-realistic novel view synthesis results. But they need a long-time per-scene optimization</li>
+</ol>
+</li>
+<li>
+<p>Own Solution:</p>
+<ul>
+<li>Goal: use &hellip; to &hellip;</li>
+<li>1 sentences introduce the name and functionality, properties.</li>
+<li>Analysis:
+<ol>
+<li>generalizability -&gt; avoid tedious per-scene optimization and regress directly novel viewpoints</li>
+<li>quantitative outcomes</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>Tech stack</p>
+<ol>
+<li>MVSNet -&gt; generalizable net of 3D reconstruction
+<ul>
+<li>Cost volume is built by warping 2D img features of src views onto sweeping planes</li>
+</ul>
+</li>
+<li>Regress geometry and appearance from a cost volume (per-voxel neural features)
+<ul>
+<li>3D cnn aggregates the cost volumes to a neural scene encoding volume</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</details>
+<hr>
+<p>(2023-08-16)</p>
+<h2 id="play">Play
+</h2><h3 id="environment">Environment
+</h3><ol>
+<li>
+<p><code>inplace-abn</code> needs to be installed from source, as <a class="link" href="https://github.com/apchenstu/mvsnerf/issues/36#issuecomment-998701389"  target="_blank" rel="noopener"
+    >issue#36</a>.
+But I cannot install it:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RuntimeError: 
+</span></span><span class="line"><span class="cl">The detected CUDA version <span class="o">(</span>10.2<span class="o">)</span> mismatches the version that was used to compile
+</span></span><span class="line"><span class="cl">PyTorch <span class="o">(</span>11.3<span class="o">)</span>. Please make sure to use the same CUDA versions.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>My cuda version is 11.3 as shown by:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">cuda</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Then I specified the version the same as the <a class="link" href="https://github.com/kwea123/pytorch-lightning-tutorial/blob/master/requirements.txt"  target="_blank" rel="noopener"
+    >pl-tutorial of AIkui</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl">- <span class="l">pip</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span>- <span class="nt">pip</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">torch==1.11.0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">torchvision==0.12.0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">pytorch_lightning==1.6.0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">inplace_abn</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>With that, <code>inplace_abn</code> has installed.</p>
+<p><strong>But</strong> the API has change since v1.5 (as <a class="link" href="https://github.com/Lightning-AI/lightning/issues/12070"  target="_blank" rel="noopener"
+    >issue</a>) and resulted in:
+<code>Exception has occurred: TypeError __init__() got an unexpected keyword argument 'distributed_backend'</code></p>
+</li>
+<li>
+<p>Try this setting:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">torch==1.10.1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">torchvision==0.11.2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">pytorch_lightning==1.3.5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">inplace_abn</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Cannot import <code>inplace_abn</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Exception has occurred: ImportError
+</span></span><span class="line"><span class="cl">/home/zichen/anaconda3/envs/mvsnerf/lib/python3.8/site-packages/inplace_abn/_backend.cpython-38-x86_64-linux-gnu.so: undefined symbol: _ZN3c1015SmallVectorBaseIjE8grow_podEPvmm
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>I checked my cuda version, which is 10.2:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>mvsnerf<span class="o">)</span> zichen@lambda-server:~/Downloads/mvsnerf-comments$ nvcc --version
+</span></span><span class="line"><span class="cl">nvcc: NVIDIA <span class="o">(</span>R<span class="o">)</span> Cuda compiler driver
+</span></span><span class="line"><span class="cl">Copyright <span class="o">(</span>c<span class="o">)</span> 2005-2019 NVIDIA Corporation
+</span></span><span class="line"><span class="cl">Built on Wed_Oct_23_19:24:38_PDT_2019
+</span></span><span class="line"><span class="cl">Cuda compilation tools, release 10.2, V10.2.89
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>According to <a class="link" href="https://pytorch.org/get-started/previous-versions/"  target="_blank" rel="noopener"
+    >Previous PyTorch Versions | PyTorch</a>,
+I install the versions compiled with cuda10.2.
+Then <code>print(torch.version.cuda)</code> returned 10.2 instead.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl">- <span class="l">pip</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span>- <span class="nt">pip</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">torch==1.10.1+cu102 </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">torchvision==0.11.2+cu102 </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">torchaudio==0.10.1 </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- -<span class="l">f https://download.pytorch.org/whl/cu102/torch_stable.html</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">pytorch_lightning==1.3.5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span>- <span class="l">inplace_abn</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Still cannot import inplace_abn with the same ImportError as above:</p>
+<p>Then Install from source, and inplace_abn can be installed:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Another Error:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Exception has occurred: ImportError
+</span></span><span class="line"><span class="cl">cannot import name <span class="s1">&#39;get_num_classes&#39;</span> from <span class="s1">&#39;torchmetrics.utilities.data&#39;</span> <span class="o">(</span>/home/zichen/anaconda3/envs/mvsnerf/lib/python3.8/site-packages/torchmetrics/utilities/data.py<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/Downloads/mvsnerf-comments/train_mvs_nerf_pl.py&#34;</span>, line 17, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    from pytorch_lightning.callbacks import ModelCheckpoint
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Change to specific versions, as <a class="link" href="https://github.com/apchenstu/mvsnerf/issues/36#issuecomment-1638311240"  target="_blank" rel="noopener"
+    >summary</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pip install <span class="nv">torchmetrics</span><span class="o">==</span>0.5.0
+</span></span><span class="line"><span class="cl">pip install <span class="nv">setuptools</span><span class="o">==</span>59.5.0
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Numpy version incompatible <a class="link" href="https://github.com/apchenstu/mvsnerf/issues/77"  target="_blank" rel="noopener"
+    >issue#77</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after <span class="m">1</span> dimensions. The detected shape was <span class="o">(</span>2,<span class="o">)</span> + inhomogeneous part.
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p>File &ldquo;/home/zichen/Downloads/mvsnerf-comments/data/dtu.py&rdquo;, line 98, in build_proj_mats
+self.proj_mats, self.intrinsics = np.stack(proj_mats), np.stack(intrinsics)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/nerf/">NeRF</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/nerfs/b-note-gnt/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://vita-group.github.io/GNT/assets/overview.png" loading="lazy" data-key="" data-hash="https://vita-group.github.io/GNT/assets/overview.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Render - NVS | GNT</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/nerfs/b-note-pixelnerf/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://ar5iv.labs.arxiv.org/html/2012.02190/assets/x2.png" loading="lazy" data-key="" data-hash="https://ar5iv.labs.arxiv.org/html/2012.02190/assets/x2.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: Render - NVS | PixelNeRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/nerfs/b-note-nerf_code_notes/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: NVS - NeRF | Code Understanding</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/nerfs/b-note-nerf_bmild/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg" loading="lazy" data-key="" data-hash="https://github.com/bmild/nerf/raw/master/imgs/pipeline.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">read: Render - NVS | NeRF</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

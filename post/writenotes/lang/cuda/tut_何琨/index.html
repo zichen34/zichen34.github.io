@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Parallel programming model - Wikipedia\nReduction 归约 (2024-03-01)\nSource video: CUDA编程模型系列八(原子操作 / 规约 / 向量元素求和) - Ken He Code The parallism design depends on the operations to be performed. For example, given a task N-number summation, the operation executed on each thread in parallel is addition.\nThreads reduce by half every time.\nAs the &ldquo;plus&rdquo; operation computes 2 numbers, the data sequence is bisected.\n1 2 3 4 5 6 7 8 9 10 11 source[8]: 0 1 2 3 4 5 6 7 step 1: thread 0: source[0] + source[4] -&gt; source[0] thread 1: source[1] + source[5] -&gt; source[1] thread 2: source[2] + source[6] -&gt; source[2] thread 3: source[3] + source[7] -&gt; source[3] step 2: thread 0: source[0] + source[2] -&gt; source[0] thread 1: source[1] + source[3] -&gt; source[1] step 3: thread 0: source[0] + source[1] As shown above, the number of inital threads allocated is a half of the total data items. And in the following steps, the number of launched threads is a half of the number of threads used last time.\n">
+<title>watch: CUDA - 何琨 | CUDA Programming Model</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lang/cuda/tut_%E4%BD%95%E7%90%A8/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: CUDA - 何琨 | CUDA Programming Model">
+<meta property='og:description' content="Parallel programming model - Wikipedia\nReduction 归约 (2024-03-01)\nSource video: CUDA编程模型系列八(原子操作 / 规约 / 向量元素求和) - Ken He Code The parallism design depends on the operations to be performed. For example, given a task N-number summation, the operation executed on each thread in parallel is addition.\nThreads reduce by half every time.\nAs the &ldquo;plus&rdquo; operation computes 2 numbers, the data sequence is bisected.\n1 2 3 4 5 6 7 8 9 10 11 source[8]: 0 1 2 3 4 5 6 7 step 1: thread 0: source[0] + source[4] -&gt; source[0] thread 1: source[1] + source[5] -&gt; source[1] thread 2: source[2] + source[6] -&gt; source[2] thread 3: source[3] + source[7] -&gt; source[3] step 2: thread 0: source[0] + source[2] -&gt; source[0] thread 1: source[1] + source[3] -&gt; source[1] step 3: thread 0: source[0] + source[1] As shown above, the number of inital threads allocated is a half of the total data items. And in the following steps, the number of launched threads is a half of the number of threads used last time.\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lang/cuda/tut_%E4%BD%95%E7%90%A8/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2024-03-01T18:20:00&#43;00:00'/><meta property='article:modified_time' content='2024-03-01T18:20:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: CUDA - 何琨 | CUDA Programming Model">
+<meta name="twitter:description" content="Parallel programming model - Wikipedia\nReduction 归约 (2024-03-01)\nSource video: CUDA编程模型系列八(原子操作 / 规约 / 向量元素求和) - Ken He Code The parallism design depends on the operations to be performed. For example, given a task N-number summation, the operation executed on each thread in parallel is addition.\nThreads reduce by half every time.\nAs the &ldquo;plus&rdquo; operation computes 2 numbers, the data sequence is bisected.\n1 2 3 4 5 6 7 8 9 10 11 source[8]: 0 1 2 3 4 5 6 7 step 1: thread 0: source[0] + source[4] -&gt; source[0] thread 1: source[1] + source[5] -&gt; source[1] thread 2: source[2] + source[6] -&gt; source[2] thread 3: source[3] + source[7] -&gt; source[3] step 2: thread 0: source[0] + source[2] -&gt; source[0] thread 1: source[1] + source[3] -&gt; source[1] step 3: thread 0: source[0] + source[1] As shown above, the number of inital threads allocated is a half of the total data items. And in the following steps, the number of launched threads is a half of the number of threads used last time.\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#reduction-归约">Reduction 归约</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lang/cuda/tut_%E4%BD%95%E7%90%A8/">watch: CUDA - 何琨 | CUDA Programming Model</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 01, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#reduction-归约">Reduction 归约</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://en.wikipedia.org/wiki/Parallel_programming_model"  target="_blank" rel="noopener"
+    >Parallel programming model - Wikipedia</a></p>
+<hr>
+<h2 id="reduction-归约">Reduction 归约
+</h2><p>(2024-03-01)</p>
+<ul>
+<li>Source video: <a class="link" href="https://www.bilibili.com/video/BV1TF411R73d/"  target="_blank" rel="noopener"
+    >CUDA编程模型系列八(原子操作 / 规约 / 向量元素求和) - Ken He</a></li>
+<li><a class="link" href="https://blog.csdn.net/kunhe0512/article/details/131494479"  target="_blank" rel="noopener"
+    >Code</a></li>
+</ul>
+<p>The <strong>parallism design</strong> depends on the operations to be performed.
+For example, given a task N-number summation, the operation executed on each thread in parallel is addition.</p>
+<ol>
+<li>
+<p>Threads <strong>reduce by half</strong> every time.</p>
+<p>As the &ldquo;plus&rdquo; operation computes 2 numbers, the data sequence is bisected.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">source<span class="o">[</span>8<span class="o">]</span>: <span class="m">0</span>  <span class="m">1</span>  <span class="m">2</span>  <span class="m">3</span>  <span class="m">4</span>  <span class="m">5</span>  <span class="m">6</span>  <span class="m">7</span>
+</span></span><span class="line"><span class="cl">step 1:
+</span></span><span class="line"><span class="cl">    thread 0: source<span class="o">[</span>0<span class="o">]</span> + source<span class="o">[</span>4<span class="o">]</span> -&gt; source<span class="o">[</span>0<span class="o">]</span>
+</span></span><span class="line"><span class="cl">    thread 1: source<span class="o">[</span>1<span class="o">]</span> + source<span class="o">[</span>5<span class="o">]</span> -&gt; source<span class="o">[</span>1<span class="o">]</span>
+</span></span><span class="line"><span class="cl">    thread 2: source<span class="o">[</span>2<span class="o">]</span> + source<span class="o">[</span>6<span class="o">]</span> -&gt; source<span class="o">[</span>2<span class="o">]</span>
+</span></span><span class="line"><span class="cl">    thread 3: source<span class="o">[</span>3<span class="o">]</span> + source<span class="o">[</span>7<span class="o">]</span> -&gt; source<span class="o">[</span>3<span class="o">]</span>
+</span></span><span class="line"><span class="cl">step 2:
+</span></span><span class="line"><span class="cl">    thread 0: source<span class="o">[</span>0<span class="o">]</span> + source<span class="o">[</span>2<span class="o">]</span> -&gt; source<span class="o">[</span>0<span class="o">]</span>
+</span></span><span class="line"><span class="cl">    thread 1: source<span class="o">[</span>1<span class="o">]</span> + source<span class="o">[</span>3<span class="o">]</span> -&gt; source<span class="o">[</span>1<span class="o">]</span>
+</span></span><span class="line"><span class="cl">step 3:
+</span></span><span class="line"><span class="cl">    thread 0: source<span class="o">[</span>0<span class="o">]</span> + source<span class="o">[</span>1<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As shown above, the number of <strong>inital threads</strong> allocated is a half of the total data items.
+And in the <strong>following steps</strong>, the number of launched threads is <strong>a half</strong> of the number of threads used last time.</p>
+<p>Specificaly, in the 1st round, 4 threads for 8 items, and the 2nd round only uses 2 threads for 4 results of the last step,
+and the final round only uses 1 thread.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 432 233"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 96,32 L 160,32' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 232,32' fill='none' stroke='currentColor'></path>
+<path d='M 160,48 L 296,48' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 128,112' fill='none' stroke='currentColor'></path>
+<path d='M 128,112 L 160,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,176 L 128,176' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,32 L 96,64' fill='none' stroke='currentColor'></path>
+<path d='M 96,96 L 96,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 96,128' fill='none' stroke='currentColor'></path>
+<path d='M 96,160 L 96,176' fill='none' stroke='currentColor'></path>
+<path d='M 96,176 L 96,192' fill='none' stroke='currentColor'></path>
+<path d='M 128,160 L 128,176' fill='none' stroke='currentColor'></path>
+<path d='M 160,16 L 160,32' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 160,48' fill='none' stroke='currentColor'></path>
+<path d='M 160,48 L 160,64' fill='none' stroke='currentColor'></path>
+<path d='M 160,96 L 160,112' fill='none' stroke='currentColor'></path>
+<path d='M 232,16 L 232,32' fill='none' stroke='currentColor'></path>
+<path d='M 296,16 L 296,48' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='0' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='0' y='148' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='0' y='180' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='0' y='212' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='8' y='212' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='16' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='16' y='180' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='16' y='212' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='24' y='84' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='24' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='24' y='180' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='24' y='212' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='32' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='32' y='180' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='32' y='212' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='40' y='148' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='40' y='180' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='40' y='212' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='48' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='48' y='180' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='48' y='212' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='56' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='56' y='180' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='64' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='64' y='180' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='72' y='116' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='84' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='148' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='212' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='128' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='160' y='84' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='192' y='84' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='232' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='296' y='4' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>7</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>If using CPU, there will be 7 plus operation, however, on GPU, there are only 3 steps.</p>
+</li>
+<li>
+<p>When the total number of operations is larger than the allocated threads, the <strong>Grid stride loop</strong> trick can be used.</p>
+<ul>
+<li>
+<p>For example, there are 32 operations need to be executed, but only 8 threads are allocated.
+Therefore, each thread has to be <strong>reused</strong> 4 times.</p>
+<p>Based on this fact, accumulate the 4 <strong>loops</strong> at first and then perform summation within a block (8 threads).</p>
+</li>
+<li>
+<p>Only consider the behavior of <strong>one thread</strong>: what values will it use?</p>
+<p>For a thread in a block, the sum of values assigned to it during 4 loops is computed as:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 504 201"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 88,16 L 104,16' fill='none' stroke='currentColor'></path>
+<path d='M 104,16 L 120,16' fill='none' stroke='currentColor'></path>
+<path d='M 184,16 L 208,16' fill='none' stroke='currentColor'></path>
+<path d='M 208,16 L 232,16' fill='none' stroke='currentColor'></path>
+<path d='M 296,16 L 328,16' fill='none' stroke='currentColor'></path>
+<path d='M 328,16 L 360,16' fill='none' stroke='currentColor'></path>
+<path d='M 416,16 L 448,16' fill='none' stroke='currentColor'></path>
+<path d='M 448,16 L 472,16' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 88,80' fill='none' stroke='currentColor'></path>
+<path d='M 88,80 L 168,80' fill='none' stroke='currentColor'></path>
+<path d='M 168,80 L 184,80' fill='none' stroke='currentColor'></path>
+<path d='M 184,80 L 280,80' fill='none' stroke='currentColor'></path>
+<path d='M 280,80 L 304,80' fill='none' stroke='currentColor'></path>
+<path d='M 304,80 L 400,80' fill='none' stroke='currentColor'></path>
+<path d='M 88,96 L 184,96' fill='none' stroke='currentColor'></path>
+<path d='M 184,96 L 304,96' fill='none' stroke='currentColor'></path>
+<path d='M 304,96 L 424,96' fill='none' stroke='currentColor'></path>
+<path d='M 88,160 L 120,160' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 72,80' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 72,112' fill='none' stroke='currentColor'></path>
+<path d='M 72,144 L 72,160' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 L 88,80' fill='none' stroke='currentColor'></path>
+<path d='M 88,80 L 88,96' fill='none' stroke='currentColor'></path>
+<path d='M 88,96 L 88,112' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 168,80' fill='none' stroke='currentColor'></path>
+<path d='M 184,64 L 184,80' fill='none' stroke='currentColor'></path>
+<path d='M 184,80 L 184,96' fill='none' stroke='currentColor'></path>
+<path d='M 280,64 L 280,80' fill='none' stroke='currentColor'></path>
+<path d='M 304,64 L 304,80' fill='none' stroke='currentColor'></path>
+<path d='M 304,80 L 304,96' fill='none' stroke='currentColor'></path>
+<path d='M 400,64 L 400,80' fill='none' stroke='currentColor'></path>
+<path d='M 424,64 L 424,96' fill='none' stroke='currentColor'></path>
+<path d='M 88,16 A 16,16 0 0,0 72,32' fill='none' stroke='currentColor'></path>
+<path d='M 120,16 A 16,16 0 0,1 136,32' fill='none' stroke='currentColor'></path>
+<path d='M 184,16 A 16,16 0 0,0 168,32' fill='none' stroke='currentColor'></path>
+<path d='M 232,16 A 16,16 0 0,1 248,32' fill='none' stroke='currentColor'></path>
+<path d='M 296,16 A 16,16 0 0,0 280,32' fill='none' stroke='currentColor'></path>
+<path d='M 360,16 A 16,16 0 0,1 376,32' fill='none' stroke='currentColor'></path>
+<path d='M 416,16 A 16,16 0 0,0 400,32' fill='none' stroke='currentColor'></path>
+<path d='M 472,16 A 16,16 0 0,1 488,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,144 A 16,16 0 0,0 88,160' fill='none' stroke='currentColor'></path>
+<path d='M 136,144 A 16,16 0 0,1 120,160' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='0' y='132' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='0' y='180' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='8' y='84' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='8' y='180' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='16' y='84' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='16' y='132' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='16' y='180' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='24' y='132' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='24' y='180' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='32' y='52' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='132' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='32' y='180' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='40' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='40' y='132' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='40' y='180' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='48' y='52' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='48' y='132' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='56' y='132' fill='currentColor' style='font-size:1em'>:</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='72' y='132' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='72' y='180' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='88' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='88' y='132' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='104' y='132' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='120' y='132' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='136' y='52' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='136' y='132' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='168' y='52' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='184' y='52' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='240' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='248' y='52' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='280' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='288' y='52' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='304' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='312' y='52' fill='currentColor' style='font-size:1em'>7</text>
+<text text-anchor='middle' x='320' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='328' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='328' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='336' y='52' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='352' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='368' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='376' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='400' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='408' y='52' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='424' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='432' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='432' y='52' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='440' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='448' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='448' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='456' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='456' y='52' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='472' y='4' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='472' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='480' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='488' y='52' fill='currentColor' style='font-size:1em'>1</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ul>
+<p>In this way, multiple steps are compressed into a single block (8 threads).</p>
+</li>
+<li>
+<p><strong>Shared memory</strong> is very fast, so it can be used for those memory that is frequently accessed.</p>
+<p>As the accumulated sums of 4 loops for each thread requires summation across the <code>BLOCK_SIZE</code> at the end,
+they can be stored in shared memory for later frequent reading.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// grid loop: accumulate loops first
+</span></span></span><span class="line"><span class="cl"><span class="c1">// allocate the same size as a block
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">__shared__</span> <span class="kt">int</span> <span class="n">acc_tmp</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">shared_tmp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// Necessary to get correct result
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Each thread adds the thread after n_thrd_cur
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">ele_id</span><span class="o">=</span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">ele_id</span><span class="o">&lt;</span><span class="n">num_items</span><span class="p">;</span> <span class="n">ele_id</span><span class="o">+=</span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">shared_tmp</span> <span class="o">+=</span> <span class="n">d_in</span><span class="p">[</span><span class="n">ele_id</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// __syncthreads(); // Sometimes lead to wrong result
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">acc_tmp</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_tmp</span><span class="p">;</span> <span class="c1">// assign shared mem
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">__syncthreads</span><span class="p">();</span>    <span class="c1">// Necessary
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Note:</p>
+<ul>
+<li>
+<p>If directly using the shared memory to do accumulation like: <code>acc_tmp[threadIdx.x] += d_in[ele_id];</code>,
+the result could be wrong because it&rsquo;s in a loop, where mutliple thread may access the same memory at the same time,
+due to shared memory is accessible for all threads in a block.</p>
+</li>
+<li>
+<p>However, the local variable (<code>shared_tmp</code>) reside in register is private for a thread,
+and other threads can&rsquo;t access it. So modifying the <code>shared_tmp</code> is safe and necessary.</p>
+</li>
+<li>
+<p>The last <code>__syncthreads();</code> cannot be put right after the <code>for</code> loop, and must be after shared memory assignment (on 1050Ti).
+Otherwise, the result could be wrong. (1080Ti is ok.)</p>
+</li>
+</ul>
+<p>So far, only the &ldquo;block&rdquo; of shared memory <code>acc_tmp</code> needs to compute the sum.</p>
+<p>The threads reduction is performed through a <code>for</code> loop to adjust the number of threads step-by-step:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// Sum numbers in the shared memory with size of BLOCK_SIZE
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Threads reduce by half each step
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Initial number of threads is a half of the total data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="p">(</span><span class="n">n_thrd_cur</span><span class="o">=</span><span class="n">BLOCK_SIZE</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span> <span class="n">n_thrd_cur</span><span class="o">&gt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">n_thrd_cur</span><span class="o">/=</span><span class="mi">2</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Let a thread to do an operations: plus
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// Temporary variable is necessary for memory safety:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">sum_tmp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Only use threads required
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">n_thrd_cur</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">      <span class="n">sum_tmp</span> <span class="o">=</span> <span class="n">acc_tmp</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> 
+</span></span><span class="line"><span class="cl">                <span class="o">+</span> <span class="n">acc_tmp</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">n_thrd_cur</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">__syncthreads</span><span class="p">();</span> <span class="c1">// Necessary 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// as write after read for the same memory
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// Can&#39;t reside in if or other brach syntax
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Write result back to memory
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">n_thrd_cur</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">      <span class="n">acc_tmp</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum_tmp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">__syncthreads</span><span class="p">();</span> <span class="c1">// Necessary for 1050Ti, 1080Ti
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Finally, the sum of a block (shared memory) is stored in <code>acc_tmp[0]</code>.</p>
+</li>
+<li>
+<p><code>__syncthreads()</code> is used when a memory is read followed by writing/modification to avoid data <a class="link" href="https://en.wikipedia.org/wiki/Hazard_%28computer_architecture%29#Data_hazards"  target="_blank" rel="noopener"
+    >Hazard-wiki</a>
+(<a class="link" href="https://en.wikipedia.org/wiki/Race_condition"  target="_blank" rel="noopener"
+    >Race condition-wiki</a>,
+<a class="link" href="https://en.wikipedia.org/wiki/Memory_safety"  target="_blank" rel="noopener"
+    >Memory safety-wiki</a>)</p>
+<p><code>__syncthreads()</code> can&rsquo;t reside in <code>if</code> because it&rsquo;s a branch.
+Otherwise, when multiple threads run in parallel,
+threads may go different branches, consequently, leading to errors.</p>
+</li>
+<li>
+<p><code>atomicAdd</code> guarantees the read/write to an address won&rsquo;t be disrupted by other threads.</p>
+<p>When adding the summation of each block <code>acc_tmp[0]</code> (shared memory) upto <code>d_out</code> (global memory),
+multiple threads access the same global memory <code>d_out</code>,
+so <code>atomicAdd</code> is applied:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// Accumulate all blocks in the grid
+</span></span></span><span class="line"><span class="cl"><span class="c1">// The sum of each block was stored in acc_tmp[0]
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Each block uses 1 thread to add its sum to the total sum of all blocks
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">num_items</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">atomicAdd</span><span class="p">(</span><span class="n">d_out</span><span class="p">,</span> <span class="n">acc_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<details><summary>Full code:</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define N 10000000  </span><span class="c1">// number of data. No = and column ;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#define BLOCK_SIZE 256  </span><span class="c1">// blockDim.x
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#define GRID_SIZE 32 </span><span class="c1">// gridDim.x, the total threads allocated: 8192
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="n">__managed__</span> <span class="kt">int</span> <span class="n">source</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>  <span class="c1">// allocate memory for input data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">__managed__</span> <span class="kt">int</span> <span class="n">result_gpu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>  <span class="c1">// output the sum of N items
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Remeber to declare types for args
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">sum_gpu</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">d_in</span><span class="p">,</span> <span class="kt">int</span> <span class="n">num_items</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span> <span class="n">d_out</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// grid loop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">__shared__</span> <span class="kt">int</span> <span class="n">acc_tmp</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">shared_tmp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ele_id</span><span class="o">=</span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl">         <span class="n">ele_id</span> <span class="o">&lt;</span> <span class="n">num_items</span><span class="p">;</span> <span class="n">ele_id</span><span class="o">+=</span><span class="n">BLOCK_SIZE</span><span class="o">*</span><span class="n">GRID_SIZE</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">shared_tmp</span> <span class="o">+=</span> <span class="n">d_in</span><span class="p">[</span><span class="n">ele_id</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">acc_tmp</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_tmp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">__syncthreads</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// threads reduction
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">sum_tmp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">thd_cur</span><span class="o">=</span><span class="n">BLOCK_SIZE</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span> <span class="n">thd_cur</span><span class="o">&gt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">thd_cur</span><span class="o">/=</span><span class="mi">2</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">thd_cur</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">sum_tmp</span> <span class="o">=</span> <span class="n">acc_tmp</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> 
+</span></span><span class="line"><span class="cl">                      <span class="o">+</span> <span class="n">acc_tmp</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">thd_cur</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">__syncthreads</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">thd_cur</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">            <span class="n">acc_tmp</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum_tmp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">__syncthreads</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// accumulate all blocks
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">num_items</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// d_out[0] += acc_tmp[0];
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">atomicAdd</span><span class="p">(</span><span class="n">d_out</span><span class="p">,</span> <span class="n">acc_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Initialize source data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// Can&#39;t use: for(int&amp; i :sourace)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">source</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span><span class="o">%</span><span class="mi">10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// record time
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cudaEvent_t</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop_gpu</span><span class="p">,</span> <span class="n">stop_cpu</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stop_gpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stop_cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventSynchronize</span><span class="p">(</span><span class="n">start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">20</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>   <span class="c1">// avg time for 20 rounds
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">result_gpu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// clear value
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">sum_gpu</span><span class="o">&lt;&lt;&lt;</span><span class="n">GRID_SIZE</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">result_gpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>    <span class="c1">// wait gpu
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">stop_gpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventSynchronize</span><span class="p">(</span><span class="n">stop_gpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// cpu execution
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">result_cpu</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">result_cpu</span> <span class="o">+=</span> <span class="n">source</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">stop_cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventSynchronize</span><span class="p">(</span><span class="n">stop_cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">float</span> <span class="n">time_gpu</span><span class="p">,</span> <span class="n">time_cpu</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventElapsedTime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">time_gpu</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop_gpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventElapsedTime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">time_cpu</span><span class="p">,</span> <span class="n">stop_gpu</span><span class="p">,</span> <span class="n">stop_cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">stop_gpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">stop_cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Time on gpu: %.2f, Time on cpu: %.2f</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">time_gpu</span><span class="o">/</span><span class="mi">20</span><span class="p">,</span> <span class="n">time_cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="n">result_gpu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">result_cpu</span><span class="p">)</span> <span class="o">?</span> <span class="s">&#34;Equal&#34;</span> <span class="o">:</span> <span class="s">&#34;Error&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Sum on gpu: %d, Sum on cpu: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="o">*</span><span class="n">result_gpu</span><span class="p">,</span> <span class="n">result_cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<p>Output:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi:~/Downloads/CUDA_Study$ nvcc Tut_KenHe/8_reduction.cu 
+</span></span><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi:~/Downloads/CUDA_Study$ ./a.out 
+</span></span><span class="line"><span class="cl">Time on gpu: 1.15, Time on cpu: 26.45
+</span></span><span class="line"><span class="cl">Equal
+</span></span><span class="line"><span class="cl">Sum on gpu: 45011704, Sum on cpu: <span class="m">45011704</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

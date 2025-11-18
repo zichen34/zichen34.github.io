@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Source video: 21. Eigenvalues and Eigenvectors - Gilbert Strang - MIT OpenCourseWare\n(2023-11-06) The 1st-time recitation note. Haven&rsquo;t re-check.\nOut direction same as in Matrix multiply vector acting like MLP, where all current dimensions are combined in different weights to produce each dimension in another space.\n$$ 𝐀 𝐗 \\\\\\ \\begin{bmatrix} y_1 \\\\\\ y_2 \\\\\\ y_3 \\end{bmatrix} = 𝐀 \\begin{bmatrix} x_1 \\\\\\ x_2 \\end{bmatrix} $$ Matrix 𝐀 is like a function that takes as input 𝐗 and output 𝐀𝐗. Typically, 𝐀𝐗 points in different direction from the input 𝐗. Eigenvectors are those 𝐗 make 𝐀𝐗 parallels to 𝐗. Parallel means scaling: 𝐀𝐗 = λ𝐗, where the multiplier λ is eigenvalue. Given a matrix 𝐀, how to solve its eigenvalues λ and eigenvectors 𝐗?\n">
+<title>watch: LA - G.S. 21 | Eigenvalues &amp; Eigenvectors</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/eigenvalues_vectors/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: LA - G.S. 21 | Eigenvalues & Eigenvectors">
+<meta property='og:description' content="Source video: 21. Eigenvalues and Eigenvectors - Gilbert Strang - MIT OpenCourseWare\n(2023-11-06) The 1st-time recitation note. Haven&rsquo;t re-check.\nOut direction same as in Matrix multiply vector acting like MLP, where all current dimensions are combined in different weights to produce each dimension in another space.\n$$ 𝐀 𝐗 \\\\\\ \\begin{bmatrix} y_1 \\\\\\ y_2 \\\\\\ y_3 \\end{bmatrix} = 𝐀 \\begin{bmatrix} x_1 \\\\\\ x_2 \\end{bmatrix} $$ Matrix 𝐀 is like a function that takes as input 𝐗 and output 𝐀𝐗. Typically, 𝐀𝐗 points in different direction from the input 𝐗. Eigenvectors are those 𝐗 make 𝐀𝐗 parallels to 𝐗. Parallel means scaling: 𝐀𝐗 = λ𝐗, where the multiplier λ is eigenvalue. Given a matrix 𝐀, how to solve its eigenvalues λ and eigenvectors 𝐗?\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/eigenvalues_vectors/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2023-11-06T13:51:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-06T13:51:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: LA - G.S. 21 | Eigenvalues & Eigenvectors">
+<meta name="twitter:description" content="Source video: 21. Eigenvalues and Eigenvectors - Gilbert Strang - MIT OpenCourseWare\n(2023-11-06) The 1st-time recitation note. Haven&rsquo;t re-check.\nOut direction same as in Matrix multiply vector acting like MLP, where all current dimensions are combined in different weights to produce each dimension in another space.\n$$ 𝐀 𝐗 \\\\\\ \\begin{bmatrix} y_1 \\\\\\ y_2 \\\\\\ y_3 \\end{bmatrix} = 𝐀 \\begin{bmatrix} x_1 \\\\\\ x_2 \\end{bmatrix} $$ Matrix 𝐀 is like a function that takes as input 𝐗 and output 𝐀𝐗. Typically, 𝐀𝐗 points in different direction from the input 𝐗. Eigenvectors are those 𝐗 make 𝐀𝐗 parallels to 𝐗. Parallel means scaling: 𝐀𝐗 = λ𝐗, where the multiplier λ is eigenvalue. Given a matrix 𝐀, how to solve its eigenvalues λ and eigenvectors 𝐗?\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#out-direction-same-as-in">Out direction same as in</a></li>
+    <li><a href="#projection-matrix">Projection matrix</a></li>
+    <li><a href="#permutation-matrix">Permutation matrix</a></li>
+    <li><a href="#how-to-solve-λ-𝐗">How to solve λ, 𝐗</a></li>
+    <li><a href="#plus-multiple-identity">Plus multiple identity</a>
+      <ol>
+        <li><a href="#cant-generalize">Can&rsquo;t generalize</a></li>
+      </ol>
+    </li>
+    <li><a href="#complex-eigenvalues">Complex eigenvalues</a></li>
+    <li><a href="#repeated-eigenvalues">Repeated eigenvalues</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/eigenvalues_vectors/">watch: LA - G.S. 21 | Eigenvalues &amp; Eigenvectors</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 06, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#out-direction-same-as-in">Out direction same as in</a></li>
+    <li><a href="#projection-matrix">Projection matrix</a></li>
+    <li><a href="#permutation-matrix">Permutation matrix</a></li>
+    <li><a href="#how-to-solve-λ-𝐗">How to solve λ, 𝐗</a></li>
+    <li><a href="#plus-multiple-identity">Plus multiple identity</a>
+      <ol>
+        <li><a href="#cant-generalize">Can&rsquo;t generalize</a></li>
+      </ol>
+    </li>
+    <li><a href="#complex-eigenvalues">Complex eigenvalues</a></li>
+    <li><a href="#repeated-eigenvalues">Repeated eigenvalues</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>Source video: <a class="link" href="https://youtu.be/cdZnhQjJu4I?si=G0vs_L9BZZA741BN"  target="_blank" rel="noopener"
+    >21. Eigenvalues and Eigenvectors - Gilbert Strang - MIT OpenCourseWare</a></p>
+<p>(2023-11-06) The 1st-time recitation note. Haven&rsquo;t re-check.</p>
+<h2 id="out-direction-same-as-in">Out direction same as in
+</h2><p>Matrix multiply vector acting like MLP, where all current dimensions are combined in different weights to produce each dimension in another space.</p>
+$$
+𝐀 𝐗  \\\
+\begin{bmatrix} y_1 \\\ y_2 \\\ y_3 \end{bmatrix} = 
+𝐀 \begin{bmatrix} x_1 \\\ x_2 \end{bmatrix}
+$$<ol>
+<li>Matrix 𝐀 is like a <strong>function</strong> that takes as input 𝐗 and output 𝐀𝐗.</li>
+<li>Typically, 𝐀𝐗 points in different direction from the input 𝐗.</li>
+<li>Eigenvectors are those 𝐗 make <strong>𝐀𝐗 parallels to 𝐗</strong>.</li>
+<li>Parallel means scaling: 𝐀𝐗 = λ𝐗, where the <strong>multiplier</strong> λ is eigenvalue.</li>
+</ol>
+<p>Given a matrix 𝐀, how to solve its eigenvalues λ and eigenvectors 𝐗?</p>
+<ul>
+<li>If λ = 0, 𝐗 solved from 𝐀𝐗 = 0 by elimination is 𝟎, which is useless.</li>
+</ul>
+<p>Some hints can be found through the following examples</p>
+<h2 id="projection-matrix">Projection matrix
+</h2><p>Given a projection matrix 𝐏, a 3D vector is projected on to a plane.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 264 201"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 24,96 L 80,96' fill='none' stroke='currentColor'></path>
+<path d='M 152,96 L 168,96' fill='none' stroke='currentColor'></path>
+<path d='M 24,16 L 24,96' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 120,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,112 L 128,80' fill='none' stroke='currentColor'></path>
+<path d='M 112,176 L 152,96' fill='none' stroke='currentColor'></path>
+<path d='M 24,96 L 48,144' fill='none' stroke='currentColor'></path>
+<path d='M 80,112 L 112,176' fill='none' stroke='currentColor'></path>
+<path d='M 80,48 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 112,112' fill='none' stroke='currentColor'></path>
+<path d='M 120,32 L 152,96' fill='none' stroke='currentColor'></path>
+<polygon points='32.000000,16.000000 20.000000,10.400000 20.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 24.000000, 16.000000)'></polygon>
+<polygon points='60.000000,144.000000 48.000000,138.399994 48.000000,149.600006' fill='currentColor' transform='rotate(60.000000, 48.000000, 144.000000)'></polygon>
+<polygon points='92.000000,48.000000 80.000000,42.400002 80.000000,53.599998' fill='currentColor' transform='rotate(240.000000, 80.000000, 48.000000)'></polygon>
+<polygon points='140.000000,80.000000 128.000000,74.400002 128.000000,85.599998' fill='currentColor' transform='rotate(300.000000, 128.000000, 80.000000)'></polygon>
+<polygon points='176.000000,96.000000 164.000000,90.400002 164.000000,101.599998' fill='currentColor' transform='rotate(0.000000, 168.000000, 96.000000)'></polygon>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='48' y='164' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='184' y='100' fill='currentColor' style='font-size:1em'>y</text>
+</g>
+
+    </svg>
+  
+</div>
+<ol>
+<li>
+<p>Eigenvectors 𝐗 should <strong>parallel</strong> to the projected vectors 𝐏𝐗.
+So the vectors located in the plane all are eigenvectors, as
+$𝐏𝐗=𝐗$, with λ=1.</p>
+</li>
+<li>
+<p>Vectors perpendicular to the plane statisfy: $𝐏𝐗=0$, i.e., λ=0.</p>
+</li>
+<li>
+<p>Those two <strong>sets</strong> of <strong>eigenvectors are perpendicular</strong>.</p>
+</li>
+</ol>
+<h2 id="permutation-matrix">Permutation matrix
+</h2><p>Given the 2D permutation matrix $𝐀=[^{0 \ 1}_{1 \ 0}]$, which vector can make 𝐀𝐗=𝐗, i.e., identical after permutation.</p>
+<ol>
+<li>
+<p>𝐗 = $[^1_1]$, with λ=1.</p>
+</li>
+<li>
+<p>As 𝐀 is a 2D matrix, there should be 2 eigenvalues.
+Which vector can statisfy λ=-1 ?</p>
+<p>𝐗 = $[^{-1}_1]$</p>
+</li>
+<li>
+<p>The 2 sets of eigenvectors 𝐗 are perpendicular as well.</p>
+</li>
+<li>
+<p>Fact: The sum of eigenvalues equals to the sum of elements on diagonal of 𝐀.</p>
+<p>Here, there is 1 + (-1) = 0 + 0.</p>
+</li>
+</ol>
+<h2 id="how-to-solve-λ-𝐗">How to solve λ, 𝐗
+</h2><p>Trick: Rearrange to 𝐀𝐗 - λ𝐗 = 0.</p>
+<p>If there is $(𝐀 - λ𝐈)𝐗 = 0$ and 𝐗, a non-zero vector, becomes 0 after multiplied by (𝐀 - λ𝐈),
+the (𝐀 - λ𝐈) must be sigular: determinant is 0.</p>
+<p>The formula $𝐀 - λ𝐈 = 0$ doesn&rsquo;t include 𝐗, so eigenvalues <strong>λ can be solved first</strong>, as in the example below.</p>
+<h2 id="plus-multiple-identity">Plus multiple identity
+</h2><p>Given a matrix 𝐀 = $[^{3 \ 1}_{1 \ 3}]$, to calculate λ, solve:</p>
+$$
+\begin{aligned}
+| 𝐀 - λ𝐈 | = 0  \\\
+\begin{bmatrix} 3-λ & 1 \\\ 1 & 3-λ \end{bmatrix} = 0 \\\
+(3-λ)^2 -1 = 0 \\\
+λ^2 - 6λ + 8 = 0 \\\
+(λ-4)(λ-2) = 0
+\end{aligned}
+$$<p>Two roots: λ₁=4, λ₂=2. Then solve the 2 sets of eigenvectors.</p>
+<ol>
+<li>
+<p>For λ₁=4,</p>
+$$
+   \begin{aligned}
+   (𝐀 - λ𝐈)𝐗 = 0   \\\
+   \begin{bmatrix} -1 & 1 \\\ 1 & -1 \end{bmatrix} 𝐗 = 0 \\\
+   \end{aligned}
+   $$<p>By letting the free variable to 1, 𝐗 can be solved as $[^1_1]$.</p>
+<p>Hence, one of eigenvectors is $[^1_1]$</p>
+</li>
+<li>
+<p>For λ₂=2,</p>
+$$
+   \begin{aligned}
+   (𝐀 - λ𝐈)𝐗 = 0   \\\
+   \begin{bmatrix} 1 & 1 \\\ 1 & 1 \end{bmatrix} 𝐗 = 0 \\\
+   \end{aligned}
+   $$<p>Hence, one of eigenvectors is $[^{-1}_1]$</p>
+</li>
+</ol>
+<p>The sum of the two eigenvalues is the trace of 𝐀, and their product is the determinant of 𝐀.</p>
+<p>Comparing the matrix $[^{3 \ 1}\_{1 \ 3}]$ and the permutation matrix $[^{0 \ 1}\_{1 \ 0}]$, there is:</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>A</th>
+          <th>$[^{3 \ 1}\_{1 \ 3}]$</th>
+          <th>$[^{0 \ 1}\_{1 \ 0}]$</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>λ</td>
+          <td>4 and 2</td>
+          <td>1 and -1</td>
+      </tr>
+      <tr>
+          <td>𝐗</td>
+          <td>$[^1\_1]$ and $[^{-1}\_1]$</td>
+          <td>$[^1\_1]$ and $[^{-1}\_1]$</td>
+      </tr>
+  </tbody>
+</table></div>
+<p>If $𝐀𝐗 =λ𝐗$, then $(𝐀+3𝐈)𝐗= 𝐀𝐗+3𝐈𝐗 = (λ+3𝐈)𝐗$</p>
+<p>That means, if 𝐀 plus 3𝐈, then eigenvalues λ will plus 3𝐈, while eigenvectors doesn&rsquo;t change.</p>
+<h3 id="cant-generalize">Can&rsquo;t generalize
+</h3><p>However, th above property (for <strong>multiple identity</strong>) can&rsquo;t be generalized to plusing an arbitrary matrix 𝐁.</p>
+<p>Matrix addition doesn&rsquo;t imply eigenvalues addition, because
+the eigenvector of 𝐁 is typically not 𝐗. Therefore,
+the following addition can&rsquo;t be performed:</p>
+$$
+𝐀𝐗 =λ𝐗  \\\
+𝐁𝐗 =α𝐗  \\\
+(𝐀+𝐁)𝐗 = (λ+α)𝐗
+$$<h2 id="complex-eigenvalues">Complex eigenvalues
+</h2><p>Considering rotation matrix:</p>
+$$
+\begin{aligned}
+\begin{bmatrix} cosθ \\\ sinθ \end{bmatrix} =
+\begin{bmatrix} cosθ & -sinθ \\\ sinθ & cosθ \end{bmatrix}
+\begin{bmatrix} 1 \\\ 0 \end{bmatrix}
+\end{aligned}
+$$<p>Let θ be 90°, the rotation matrix is $[^{0 \ -1}\_{1 \ 0}]$.</p>
+<p>However, according to the theory &ldquo;eigenvector outcomes in the direction that it went in&rdquo;, there seems to be
+no eigenvector intuitively, as any vector gets in will rotate 90 degree by this matrix.</p>
+<ol>
+<li>
+<p>Solve its eigenvalues:</p>
+$$
+   \begin{aligned}
+   | 𝐀 - λ𝐈 | = 0  \\\
+   |\begin{bmatrix} 0 & -1 \\\ 1 & 0 \end{bmatrix} - 
+   \begin{bmatrix} λ & 0 \\\ 0 & λ \end{bmatrix}| =
+   \begin{vmatrix} -λ & -1 \\\ 1 & -λ \end{vmatrix} = 0 \\\
+   λ^2 + 1 = 0
+   \end{aligned}
+   $$<p>Two roots: λ₁=i, λ₂=-i</p>
+<p><strong>Anti-symmetric matrix</strong> has imaginary eigenvalues which are always in pairs, as they&rsquo;re complex conjugate.
+While a symmetrix matrix&rsquo;s eigenvalues are all real numbers.</p>
+</li>
+<li>
+<p>Solve eigenvectors 𝐗:</p>
+<ul>
+<li>
+<p>For λ₁=i,</p>
+$$
+     \begin{aligned}
+     (𝐀 - λ𝐈) 𝐗 = 0  \\\
+     \begin{bmatrix} 0-λ₁ & -1 \\\ 1 & 0-λ₁ \end{bmatrix}
+     \begin{bmatrix} a \\\ b \end{bmatrix} = 0 \\\
+     \begin{bmatrix} -i & -1 \\\ 1 & -i \end{bmatrix}
+     \begin{bmatrix} a \\\ b \end{bmatrix} = 0 \\\
+     \end{aligned}
+     $$<p>Let the free variable b=1, then $[^a_b] = [^i_1]$</p>
+</li>
+<li>
+<p>For λ₁= -i,</p>
+$$
+     \begin{aligned}
+     \begin{bmatrix} i & -1 \\\ 1 & i \end{bmatrix}
+     \begin{bmatrix} a \\\ b \end{bmatrix} = 0 \\\
+     \end{aligned}
+     $$<p>Let the free variable b=1, then $[^a_b] = [^{-i}_1]$</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="repeated-eigenvalues">Repeated eigenvalues
+</h2><p>Eigenvalues of a triangular matrix is obvious: the diagonal, as
+the determinant is directly factorized.</p>
+<p>For example, given matrix $𝐀 = [^{3 \ 1}_{0 \ 3}]$:</p>
+<ol>
+<li>
+<p>Solve its eigenvalues:</p>
+$$
+   \begin{aligned}
+   | 𝐀 - λ𝐈 | = 0  \\\
+   \begin{vmatrix} 3-λ & 1 \\\ 0 & 3-λ \end{vmatrix} = 0 \\\
+   (3-λ)(3-λ)
+   \end{aligned}
+   $$<p>Two roots: λ₁=3, λ₂= 3</p>
+</li>
+<li>
+<p>Solve eigenvectors:</p>
+<ol>
+<li>
+<p>For λ₁=3,</p>
+$$
+      \begin{aligned}
+      (𝐀 - λ𝐈) 𝐗 = 0 \\\
+      \begin{bmatrix} 3-λ₁ & 1 \\\ 0 & 3-λ₁ \end{bmatrix} 
+      \begin{bmatrix} a \\\ b  \end{bmatrix} = 0  \\\
+      \begin{bmatrix} 0 & 1 \\\ 0 & 0 \end{bmatrix} 
+      \begin{bmatrix} a \\\ b  \end{bmatrix} = 0
+      \end{aligned}
+      $$<p>So $[^a_b]$ can be $[^1_0]$</p>
+</li>
+<li>
+<p>For λ₂= 3, same formulas appear. There <strong>isn&rsquo;t the 2nd</strong> (set of) independent eigenvectors.</p>
+<p>But there are supposed to be two eigenvalues. It&rsquo;s incomplete yet.</p>
+</li>
+</ol>
+</li>
+</ol>
+<hr>
+<p>(2024/06/22)</p>
+<ul>
+<li>
+<p>视频 | 特征向量和特征值的应用 - 遇见数学</p>
+<p><a class="link" href="https://www.youtube.com/watch?v=i8FukKfMKCI"  target="_blank" rel="noopener"
+    >Zach-Youtube</a></p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

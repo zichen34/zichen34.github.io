@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="总结之前讲过的各种模型，引出之后要讲的生成模型\n1. 定义 P1 - 【机器学习】白板推导系列(三十) ～ 生成模型综述(Generative Model Introduction)\n生成模型除了生成数据还能做什么任务？\nGAN 用来生成数据。 GMM 用来做聚类任务的。 这2个都是无监督学习（无标签）。 逻辑回归虽然与概率相关，但它不是生成模型。P(Y=1 | X) = ?, P(Y=0 | X) = ? 只是对条件概率建模，而不关注样本数据X本身的分布，\n所以（概率）生成模型关注的是样本的概率分布本身，而与它要解决的任务没有必然的联系。 既可以解决监督学习的任务（对 P(X,Y) 建模），也可以解决无监督学习的任务，对于隐变量模型，可以构造 P(X,Z) 并建模；或者不用隐变量，比如自回归模型，直接对 P(X) 建模（把P(X) 拆成各个维度之积）。\n所以关注样本的概率分布的模型就是生成模型\n2. 模型分类 P2\n按照解决的任务：监督 vs. 非监督 （自监督未介绍） 对各种模型分类\n任务：分类，回归，标记，降维，聚类，特征学习，密度估计，生成数据\n把机器学习模型分为“概率”与“非概率”一般没太大必要，但是生成模型一定是与概率相关的，所以这里以概率为分类标准\n监督学习任务\n概率模型（建模与概率相关）\n判别模型\n对”条件概率“的分布建模：逻辑回归(LR)，最大熵(MEMM)，条件随机场(CRF)，（输出为概率分布的参数的）神经网络NN\n生成模型\n简单的神经网络只能是判别模型，不是生成模型。但是NN里分步式表示可以和概率图模型结合，就变成了（深度）生成模型 具体见下文 非概率模型（建模时未考虑概率分布），若要解决分类问题，则大概率是判别模型\n感知机PLA，（硬间隔）支持向量机SVM，KNN，（输出为类别的）神经网络NN，树模型 非监督学习任务\n概率模型：必然是生成模型，因为非监督里没有标签Y无法判别，只能描述样本X的概率分布。概率图模型中的大部分是生成模型\n非概率模型：PCA降维（SVD分解），潜语义分析LSA (pLSA, LDA)，K-means，（不带标签的NN）自编码器Auto-Encoder\nPCA 从概率角度看，它就是P-PCA的一种，就是因子分析Factor Analysis LSA 的概率模式是 pLSA, 再改造就是 LDA K-means 从概率角度看，是特殊的GMM Auto-Encoder 的概率模式就是 VAE 各种生成模型 生成模型分成监督，非监督不重要\n">
+<title>watch: ML - 白板 30 | Review of Generative models</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/30-%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B%E7%BB%BC%E8%BF%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: ML - 白板 30 | Review of Generative models">
+<meta property='og:description' content="总结之前讲过的各种模型，引出之后要讲的生成模型\n1. 定义 P1 - 【机器学习】白板推导系列(三十) ～ 生成模型综述(Generative Model Introduction)\n生成模型除了生成数据还能做什么任务？\nGAN 用来生成数据。 GMM 用来做聚类任务的。 这2个都是无监督学习（无标签）。 逻辑回归虽然与概率相关，但它不是生成模型。P(Y=1 | X) = ?, P(Y=0 | X) = ? 只是对条件概率建模，而不关注样本数据X本身的分布，\n所以（概率）生成模型关注的是样本的概率分布本身，而与它要解决的任务没有必然的联系。 既可以解决监督学习的任务（对 P(X,Y) 建模），也可以解决无监督学习的任务，对于隐变量模型，可以构造 P(X,Z) 并建模；或者不用隐变量，比如自回归模型，直接对 P(X) 建模（把P(X) 拆成各个维度之积）。\n所以关注样本的概率分布的模型就是生成模型\n2. 模型分类 P2\n按照解决的任务：监督 vs. 非监督 （自监督未介绍） 对各种模型分类\n任务：分类，回归，标记，降维，聚类，特征学习，密度估计，生成数据\n把机器学习模型分为“概率”与“非概率”一般没太大必要，但是生成模型一定是与概率相关的，所以这里以概率为分类标准\n监督学习任务\n概率模型（建模与概率相关）\n判别模型\n对”条件概率“的分布建模：逻辑回归(LR)，最大熵(MEMM)，条件随机场(CRF)，（输出为概率分布的参数的）神经网络NN\n生成模型\n简单的神经网络只能是判别模型，不是生成模型。但是NN里分步式表示可以和概率图模型结合，就变成了（深度）生成模型 具体见下文 非概率模型（建模时未考虑概率分布），若要解决分类问题，则大概率是判别模型\n感知机PLA，（硬间隔）支持向量机SVM，KNN，（输出为类别的）神经网络NN，树模型 非监督学习任务\n概率模型：必然是生成模型，因为非监督里没有标签Y无法判别，只能描述样本X的概率分布。概率图模型中的大部分是生成模型\n非概率模型：PCA降维（SVD分解），潜语义分析LSA (pLSA, LDA)，K-means，（不带标签的NN）自编码器Auto-Encoder\nPCA 从概率角度看，它就是P-PCA的一种，就是因子分析Factor Analysis LSA 的概率模式是 pLSA, 再改造就是 LDA K-means 从概率角度看，是特殊的GMM Auto-Encoder 的概率模式就是 VAE 各种生成模型 生成模型分成监督，非监督不重要\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/30-%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B%E7%BB%BC%E8%BF%B0/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-12-25T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-25T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: ML - 白板 30 | Review of Generative models">
+<meta name="twitter:description" content="总结之前讲过的各种模型，引出之后要讲的生成模型\n1. 定义 P1 - 【机器学习】白板推导系列(三十) ～ 生成模型综述(Generative Model Introduction)\n生成模型除了生成数据还能做什么任务？\nGAN 用来生成数据。 GMM 用来做聚类任务的。 这2个都是无监督学习（无标签）。 逻辑回归虽然与概率相关，但它不是生成模型。P(Y=1 | X) = ?, P(Y=0 | X) = ? 只是对条件概率建模，而不关注样本数据X本身的分布，\n所以（概率）生成模型关注的是样本的概率分布本身，而与它要解决的任务没有必然的联系。 既可以解决监督学习的任务（对 P(X,Y) 建模），也可以解决无监督学习的任务，对于隐变量模型，可以构造 P(X,Z) 并建模；或者不用隐变量，比如自回归模型，直接对 P(X) 建模（把P(X) 拆成各个维度之积）。\n所以关注样本的概率分布的模型就是生成模型\n2. 模型分类 P2\n按照解决的任务：监督 vs. 非监督 （自监督未介绍） 对各种模型分类\n任务：分类，回归，标记，降维，聚类，特征学习，密度估计，生成数据\n把机器学习模型分为“概率”与“非概率”一般没太大必要，但是生成模型一定是与概率相关的，所以这里以概率为分类标准\n监督学习任务\n概率模型（建模与概率相关）\n判别模型\n对”条件概率“的分布建模：逻辑回归(LR)，最大熵(MEMM)，条件随机场(CRF)，（输出为概率分布的参数的）神经网络NN\n生成模型\n简单的神经网络只能是判别模型，不是生成模型。但是NN里分步式表示可以和概率图模型结合，就变成了（深度）生成模型 具体见下文 非概率模型（建模时未考虑概率分布），若要解决分类问题，则大概率是判别模型\n感知机PLA，（硬间隔）支持向量机SVM，KNN，（输出为类别的）神经网络NN，树模型 非监督学习任务\n概率模型：必然是生成模型，因为非监督里没有标签Y无法判别，只能描述样本X的概率分布。概率图模型中的大部分是生成模型\n非概率模型：PCA降维（SVD分解），潜语义分析LSA (pLSA, LDA)，K-means，（不带标签的NN）自编码器Auto-Encoder\nPCA 从概率角度看，它就是P-PCA的一种，就是因子分析Factor Analysis LSA 的概率模式是 pLSA, 再改造就是 LDA K-means 从概率角度看，是特殊的GMM Auto-Encoder 的概率模式就是 VAE 各种生成模型 生成模型分成监督，非监督不重要\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-定义">1. 定义</a></li>
+    <li><a href="#2-模型分类">2. 模型分类</a>
+      <ol>
+        <li><a href="#各种生成模型">各种生成模型</a></li>
+      </ol>
+    </li>
+    <li><a href="#3-模型表示推断学习">3. 模型表示&amp;推断&amp;学习</a>
+      <ol>
+        <li><a href="#模型表示">模型表示</a></li>
+        <li><a href="#推断">推断</a></li>
+        <li><a href="#学习">学习</a></li>
+      </ol>
+    </li>
+    <li><a href="#4-模型分类">4. 模型分类</a></li>
+    <li><a href="#5-概率图-vs-神经网络">5. 概率图 vs. 神经网络</a></li>
+    <li><a href="#6-重参数化技巧随机后向传播">6. 重参数化技巧（随机后向传播）</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/30-%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B%E7%BB%BC%E8%BF%B0/">watch: ML - 白板 30 | Review of Generative models</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 25, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-定义">1. 定义</a></li>
+    <li><a href="#2-模型分类">2. 模型分类</a>
+      <ol>
+        <li><a href="#各种生成模型">各种生成模型</a></li>
+      </ol>
+    </li>
+    <li><a href="#3-模型表示推断学习">3. 模型表示&amp;推断&amp;学习</a>
+      <ol>
+        <li><a href="#模型表示">模型表示</a></li>
+        <li><a href="#推断">推断</a></li>
+        <li><a href="#学习">学习</a></li>
+      </ol>
+    </li>
+    <li><a href="#4-模型分类">4. 模型分类</a></li>
+    <li><a href="#5-概率图-vs-神经网络">5. 概率图 vs. 神经网络</a></li>
+    <li><a href="#6-重参数化技巧随机后向传播">6. 重参数化技巧（随机后向传播）</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>总结之前讲过的各种模型，引出之后要讲的生成模型</p>
+<h2 id="1-定义">1. 定义
+</h2><p><a class="link" href="https://www.bilibili.com/video/BV1dE411u7TK?p=1"  target="_blank" rel="noopener"
+    >P1 - 【机器学习】白板推导系列(三十) ～ 生成模型综述(Generative Model Introduction)</a></p>
+<p>生成模型除了生成数据还能做什么任务？</p>
+<p>GAN 用来生成数据。
+GMM 用来做聚类任务的。
+这2个都是无监督学习（无标签）。
+逻辑回归虽然与概率相关，但它不是生成模型。P(Y=1 | X) = ?, P(Y=0 | X) = ?
+只是对条件概率建模，而不关注样本数据X本身的分布，</p>
+<p>所以（概率）生成模型关注的是样本的概率分布本身，而与它要解决的任务没有必然的联系。
+既可以解决监督学习的任务（对 P(X,Y) 建模），也可以解决无监督学习的任务，对于隐变量模型，可以构造 P(X,Z) 并建模；或者不用隐变量，比如自回归模型，直接对 P(X) 建模（把P(X) 拆成各个维度之积）。</p>
+<p>所以关注样本的概率分布的模型就是生成模型</p>
+<hr>
+<h2 id="2-模型分类">2. 模型分类
+</h2><p><a class="link" href="https://www.bilibili.com/video/BV1dE411u7TK?p=2"  target="_blank" rel="noopener"
+    >P2</a></p>
+<p>按照解决的任务：监督 vs. 非监督 （自监督未介绍） 对各种模型分类</p>
+<p>任务：分类，回归，标记，降维，聚类，特征学习，密度估计，生成数据</p>
+<p>把机器学习模型分为“概率”与“非概率”一般没太大必要，但是生成模型一定是与概率相关的，所以这里以概率为分类标准</p>
+<p><strong>监督学习任务</strong></p>
+<ul>
+<li>
+<p>概率模型（建模与概率相关）</p>
+<ol>
+<li>
+<p>判别模型</p>
+<p>对”条件概率“的分布建模：逻辑回归(LR)，最大熵(MEMM)，条件随机场(CRF)，（输出为概率分布的参数的）神经网络NN</p>
+</li>
+<li>
+<p>生成模型</p>
+</li>
+</ol>
+<ul>
+<li>简单的神经网络只能是判别模型，不是生成模型。但是NN里分步式表示可以和概率图模型结合，就变成了（深度）生成模型</li>
+<li>具体见下文</li>
+</ul>
+</li>
+<li>
+<p>非概率模型（建模时未考虑概率分布），若要解决分类问题，则大概率是判别模型</p>
+<ul>
+<li>感知机PLA，（硬间隔）支持向量机SVM，KNN，（输出为类别的）神经网络NN，树模型</li>
+</ul>
+</li>
+</ul>
+<p><strong>非监督学习任务</strong></p>
+<ul>
+<li>
+<p>概率模型：必然是生成模型，因为非监督里没有标签Y无法判别，只能描述样本X的概率分布。概率图模型中的大部分是生成模型</p>
+</li>
+<li>
+<p>非概率模型：PCA降维（SVD分解），潜语义分析LSA (pLSA, LDA)，K-means，（不带标签的NN）自编码器Auto-Encoder</p>
+<ul>
+<li>PCA 从概率角度看，它就是P-PCA的一种，就是因子分析Factor Analysis</li>
+<li>LSA 的概率模式是 pLSA, 再改造就是 LDA</li>
+<li>K-means 从概率角度看，是特殊的GMM</li>
+<li>Auto-Encoder 的概率模式就是 VAE</li>
+</ul>
+</li>
+</ul>
+<h3 id="各种生成模型">各种生成模型
+</h3><p>生成模型分成监督，非监督不重要</p>
+<ol>
+<li>
+<p>Naive Bayes</p>
+<p>朴素贝叶斯是最简单的生成模型，直接描述 x，假设简单：因为它是判别模型，所以它假设是在给定 y 的情况下，样本 x∈ℝᵖ 可以表示成各维度之积</p>
+<p>P(x|y) = ∏ᵢ₌₁ᵖ p(xᵢ|y)</p>
+</li>
+<li>
+<p>Mixture model</p>
+<p>GMM 认为 x 由 z 生成，在给定 z 的情况下，x服从高斯分布。</p>
+</li>
+<li>
+<p>Time-series model</p>
+<p>从时间序列角度，从有限到无限，比如 HMM，卡尔曼滤波，粒子滤波</p>
+</li>
+<li>
+<p>Non-parametric</p>
+<p>在参数空间上，从有限到无限：高斯过程 Gaussian process/ Dirichlet process，是非参贝叶斯模型，
+它的参数不再是固定的，未知的常数了。高斯分布是参数模型：通过learning把（mu,sigma）学习出来，</p>
+</li>
+<li>
+<p>Mixed Membership Model</p>
+<p>也是混合模型，比GMM那中复杂些，变量多。LDA 隐含狄利克雷分布，用来做文档聚类</p>
+</li>
+<li>
+<p>Factorial Modeel</p>
+<p>因子模型：因子分析FA，概率PCA P-PCA, ICA, 稀疏编码sparse coding</p>
+</li>
+</ol>
+<p>以上 6 种都是结构化的概率图模型，这些模型每一类都有固定的套路，思想比较底层，专家设计的处理特定问题的算法。与下面的“深度”生成模型对应，它们则是“浅层”生成模型。</p>
+<p>以下是与深度学习神经网络相结合的模型:</p>
+<ol start="7">
+<li>
+<p>Energy-based Model</p>
+<p>Boltzmann Machine玻尔兹曼机，包括 sigmoid network，deep belif network，
+都是无向图模型</p>
+</li>
+<li>
+<p>VAE</p>
+<p>自编码器与概率图结合，用变分的手段处理</p>
+</li>
+<li>
+<p>GAN</p>
+</li>
+<li>
+<p>Auto regressive model</p>
+<p>自回归网络</p>
+</li>
+<li>
+<p>Flow-based model</p>
+</li>
+</ol>
+<hr>
+<h2 id="3-模型表示推断学习">3. 模型表示&amp;推断&amp;学习
+</h2><p><a class="link" href="https://www.bilibili.com/video/BV1dE411u7TK?p=3"  target="_blank" rel="noopener"
+    >P3</a></p>
+<p>从模型表示，推断，和学习的角度去认识一个生成模型</p>
+<h3 id="模型表示">模型表示
+</h3><p>“形神”兼备</p>
+<ol>
+<li>
+<p>形</p>
+<ul>
+<li>节点可以是离散的，有可以是连续的；</li>
+<li>边可以是有向的，也可以是无向的。如果所有的边是有向的，则为有向图模型      以上写出来的11 种除了 玻尔兹曼机，其他都是有向图模型</li>
+<li>含有隐变量节点就是隐变量模型，若不使用隐变量就是“fully observed model”</li>
+<li>概率图的结构：从层次来看，shallow （前6种） 或者 deep（后5种）；
+或者从连接数量来看，就对应 sparse 和 dense 两类，
+比如玻尔兹曼机的层间的连接没有缺失,它是稠密的, 而HMM一个隐变量只有2-3条边</li>
+</ul>
+</li>
+<li>
+<p>神（概率分布本身）</p>
+<p>对于样本的概率密度函数来讲，它既可以是参数化模型，即它的参数是固定的，未知的常量，也可以是非参数化模型，即非参贝叶斯。</p>
+<ul>
+<li>参数角度 parametric vs. Non-parametric models</li>
+<li>显性与隐性密度函数 Implicit Density vs. Explicit Density。显性是直接对P(X) 建模，若是隐变量模型，就对P(X,Z)建模，若是fully observed model，就直接对P(X) 分解。
+隐性不直接对 P(X) 建模，因为它的任务不是先估计出概率密度函数，再从中生成样本。只需要确保样本是从 P(X) 中生成的即可。上述的只有 GAN 是Implicit 的，其余10种都是显式的</li>
+</ul>
+</li>
+</ol>
+<h3 id="推断">推断
+</h3><p>推断是否 tractable， (intractable)</p>
+<h3 id="学习">学习
+</h3><p>Likelihood-based model （极大似然估计) vs.
+Likelihood-free model (GAN 不关心 P(X)，也就不管样本的似然是多少，它有自己的判别器和目标函数）</p>
+<hr>
+<h2 id="4-模型分类">4. 模型分类
+</h2><p><a class="link" href="https://www.bilibili.com/video/BV1dE411u7TK?p=4"  target="_blank" rel="noopener"
+    >P4</a></p>
+<p>主要关注：无监督的，有向图的，深层结构的，参数化的，模型</p>
+<p>Likelihood-based model</p>
+<ul>
+<li>概率密度函数是显式的
+<ul>
+<li>
+<p>推断 Tractable</p>
+<ol>
+<li>Fully-observed model 它的概率/似然可直接求出，比如自回归</li>
+<li>Change of variable model 变量替换，比如 Flow-based 模型不直接求解复杂的P(X)，
+而把x与一个服从简单分布的变量z，用一个连续可逆的复杂函数联系起来，以引入非线性转换，x=g(z)，然后去学习 g(z) ，
+因为 z=g⁻¹(x)，所以 Pₓ(X) = Pz(g⁻¹(x) | ∂g⁻¹(x)/∂x)</li>
+</ol>
+</li>
+<li>
+<p>推断 Intractable 就用近似推断Approximate inference</p>
+<ol>
+<li>基于变分推断，比如VAE</li>
+<li>基于马尔科夫链，比如 Energy-based model</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<p>Likelihood-free model</p>
+<ul>
+<li>概率密度函数是隐式的，不直接关心P(X)，
+<ol>
+<li>GAN 直接用generator 生成样本，然后用 判别器 去评价样本好坏。它是直接生成样本，而不是先估计PDF，再从PDF中采样生成样本。</li>
+<li>不直接生成样本，可以用MC 采样，比如“生成随机网络” GSN，有点类似“去噪自编码器”</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="5-概率图-vs-神经网络">5. 概率图 vs. 神经网络
+</h2><p><a class="link" href="https://www.bilibili.com/video/BV1dE411u7TK?p=5"  target="_blank" rel="noopener"
+    >P5</a></p>
+<p>他俩不是非此即彼的关系，不是互斥的，是独立的，两者都有发生的可能性</p>
+<p>神经网络里有“计算图”</p>
+<p>概率图是<strong>概率分布</strong>的表示，而(前馈)神经网络是<strong>函数逼近器</strong>，只不过函数可能比较复杂，如果不给神经网络加修正，它与概率没关系。</p>
+<p>x &ndash;&gt; NN &ndash;&gt; y，y可以是离散的类别，也可以是连续的数值</p>
+<p>NN 的作用只有一个：逼近函数。输入样本，得到目标函数的值，用此值对 NN 中的参数（权重、偏置）求梯度，然后做梯度下降</p>
+<p>概率图模型可笼统的分为：有向图模型（贝叶斯网络），无向图模型（比如Boltzmann machine)</p>
+<p>玻尔兹曼机既属于无向图模型，也属于神经网络，代表“广义连结主义”。</p>
+<p>神经网络也可分为：确定性神经网络（CNN，RNN），随机性神经网络（比如 Boltzmann machine，sigmoid belief network)</p>
+<p>所以在讨论概率图与神经网络的区别时，不考虑 Boltzmann machine，
+只比较有向图模型（贝叶斯网络）与确定性神经网络</p>
+<p>从“表示”，“推断”，“学习” 3个角度对比:</p>
+<p><strong>模型表示</strong></p>
+<ul>
+<li>
+<p>贝叶斯网络：结构化的，浅层的，稀疏的（高维问题有各种条件独立性假设），节点有概率意义，具有可解释性，每个节点在建模时被赋予意义，比如LDA和HMM</p>
+</li>
+<li>
+<p>神经网络：深层的，稠密的（无条件独立性假设），节点仅用于计算σ(∑wᵢxᵢ)，没有任何概率意义/物理意义。它的解释性未知也不重要，神经网络每层的意义在建模时并未赋予。</p>
+</li>
+</ul>
+<p><strong>推断</strong></p>
+<ul>
+<li>贝叶斯网络：精确推断，近似推断，MC采样推断，变分推断，估计后验分布</li>
+<li>神经网络：它的推断很容易（前向）但没有意义，参数的分布不重要，只关注输出</li>
+</ul>
+<p><strong>学习</strong></p>
+<ul>
+<li>贝叶斯网络：Likelihood-based: EM</li>
+<li>神经网络：梯度下降（反向传播：一种高效的求导方法，就是链式求导法则+动态规划（递归+Cache））</li>
+</ul>
+<p><strong>用法</strong></p>
+<ul>
+<li>概率图描述了模型，适合高级别的推理任务 high-level reasoning</li>
+<li>神经网络（的计算图）只用来计算，适合低级别简单的推理 low-level reasoning：弱推理，只是分类图像，而没有像人类一样理解；还适合表示学习：声音、图像识别（现在的语言模型是两个的综合）</li>
+</ul>
+<hr>
+<h2 id="6-重参数化技巧随机后向传播">6. 重参数化技巧（随机后向传播）
+</h2><p><a class="link" href="https://www.bilibili.com/video/BV1dE411u7TK?p=6"  target="_blank" rel="noopener"
+    >P6</a></p>
+<p>最基础的神经网络就是一个函数逼近器。用样本 (X,Y) 去逼近函数 y=f(x;θ)。基于 y 构建目标函数，用BP求神经网络的权重和偏置的梯度，通过随机梯度下降修正</p>
+<p>用神经网络逼近概率分布（概率图），结合到一起就叫随机后向传播 Stochastic Backpropagation 或者叫重参数化技巧 Reparameterization Trick</p>
+<p>假设 y 是一个<strong>概率分布</strong>，它的概率密度函数是 P(y)。</p>
+<p>假定 P(y) = N(μ,σ²)，当对它采样时，先对中间变量 z 采样，再由 z 得到 y，其中 z 服从标准正态分布 z～N(0,1)，那么 y 与 z 的关系就是 y = μ+σ⋅z。</p>
+<p>因为对标准正态分布是很容易采样的，先采一个 z⁽ᶦ⁾～N(0,1)，那么 y⁽ᶦ⁾=μ+σ⋅z⁽ᶦ⁾</p>
+<p>给定 z，则 y 也固定，把 μ,σ 看作是未知但确定的参数，所以 y 与 z 之间就是一个线性变换。</p>
+<p>可以将 y 看作一个函数 y = f(μ,σ,z)，其中 z 是随机变量，除它之外都是确定性变换，可以用神经网络去逼近这个线性函数</p>
+<p>z &ndash;&gt; NN &ndash;&gt; y，NN 逼近 f；因为 z 是个随机变量，所以 y 也是个随机变量</p>
+<p>以上假设了 P(y) 是正态分布，所以 y 与 z 之间是线性关系，所以神经网络的参数是 μ, σ，令 θ={μ,σ²}。</p>
+<p>可以构造关于 y 的目标函数: J(y) ，因为 y 是关于μ, σ 的函数，所以求梯度∇_θ J(y)时：</p>
+<p>∂J(y)/∂θ = ∂J(y) / ∂y ⋅ ∂y/∂θ</p>
+<p>如果 目标变量 是个<strong>条件概率分布</strong>: P(y|x) = N(x; μ,σ²)，然后 z 还是服从一个标准正态分布 z～N(0,1)，那么 y 与 z 的关系是：y = μ(x) + σ(x)⋅z
+其中 x 是输入，所以 μ,σ 都是 x 的函数。</p>
+<p>仍然可用神经网络去逼近 y 与 z 之间的函数，神经网络的参数是θ：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">x ——&gt; NN ——&gt; y
+</span></span><span class="line"><span class="cl">      ▲
+</span></span><span class="line"><span class="cl">z ————┘
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>更变量之间的关系画得更详细：
+μ, σ 都从神经网络中出来，它们就是 θ 的函数，则 y = μ_θ(x) + σ_θ(x)⋅z</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">x ─&gt; NN-θ ──&gt; μ_θ(x) ──── + ──&gt; y
+</span></span><span class="line"><span class="cl">        └───&gt; σ_θ(x) ─┐   ▲
+</span></span><span class="line"><span class="cl">                      ▼   │
+</span></span><span class="line"><span class="cl">                z ──&gt; × ──┘
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>也可以用两个NN 分别逼近 μ, σ : μ(x) = f(x;θ) σ(x) = g(x;θ)</p>
+<p>然后构造关于 y 的目标函数 J_θ(y) = ∑ᵢ₌₁ᴺ ||y-yⁱ||²，然后对 θ 求梯度：</p>
+<p>∂J(y)/∂θ = ∂J(y) / ∂y ⋅ ∂y/∂μ ⋅ ∂μ/∂θ + ∂J(y) / ∂y ⋅ ∂y/∂σ ⋅ ∂σ/∂θ</p>
+<p>所以无论想求一个普通的概率分布，还是要求一个条件概率分布，都可以用神经网络逼近那个概率分布</p>
+<p>在本节的例子中，都是假设 P(y) 是高斯分布，即它是连续的，可微的，而且要求 y 本身是一个连续的随机变量，因为需要 y 对 μ,σ 求偏导。
+如果 y 是离散随机变量，就不能用这个方法。</p>
+<p>最后，可以把上面两种情况，合并起来描述： P(y|w)，如果只求 P(y)，则w 就是参数 θ；如果要求 P(y|x)，那 w 就代表 x 和 θ，w={x;θ}，x 无所谓，它是条件概率中的条件，是输入。</p>
+<p>神经网络的参数 w，用神经网络去逼近概率分布 P(y|w)</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

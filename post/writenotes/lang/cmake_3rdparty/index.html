@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Example Source video: 【cmake教程】为你的项目引入外部第三方库(以真实项目partio为例) - 只喝白开水\nPrepare: Download the code of partio.\n1 git clone https://github.com/wdas/partio.git --depth=1 Directory structure:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 (base) yi@yi:~/Downloads/partio$ tree -L 2 . ├── build_wheels.sh ├── CMakeLists.txt ├── Dockerfile ├── LICENSE ├── Makefile ├── README.md ├── setup.cfg ├── setup.py └── src ├── data ├── doc ├── lib ├── Makefile ├── py ├── tests └── tools 7 directories, 9 files Four steps for testing the introduced library:\n">
+<title>Memo: Lang - CMake | Include 3rd-Party Library</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lang/cmake_3rdparty/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Memo: Lang - CMake | Include 3rd-Party Library">
+<meta property='og:description' content="Example Source video: 【cmake教程】为你的项目引入外部第三方库(以真实项目partio为例) - 只喝白开水\nPrepare: Download the code of partio.\n1 git clone https://github.com/wdas/partio.git --depth=1 Directory structure:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 (base) yi@yi:~/Downloads/partio$ tree -L 2 . ├── build_wheels.sh ├── CMakeLists.txt ├── Dockerfile ├── LICENSE ├── Makefile ├── README.md ├── setup.cfg ├── setup.py └── src ├── data ├── doc ├── lib ├── Makefile ├── py ├── tests └── tools 7 directories, 9 files Four steps for testing the introduced library:\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lang/cmake_3rdparty/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2023-11-16T11:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-16T11:00:00&#43;00:00'/>
+<meta name="twitter:title" content="Memo: Lang - CMake | Include 3rd-Party Library">
+<meta name="twitter:description" content="Example Source video: 【cmake教程】为你的项目引入外部第三方库(以真实项目partio为例) - 只喝白开水\nPrepare: Download the code of partio.\n1 git clone https://github.com/wdas/partio.git --depth=1 Directory structure:\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 (base) yi@yi:~/Downloads/partio$ tree -L 2 . ├── build_wheels.sh ├── CMakeLists.txt ├── Dockerfile ├── LICENSE ├── Makefile ├── README.md ├── setup.cfg ├── setup.py └── src ├── data ├── doc ├── lib ├── Makefile ├── py ├── tests └── tools 7 directories, 9 files Four steps for testing the introduced library:\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#example">Example</a></li>
+    <li><a href="#test-diffrast">Test DiffRast</a></li>
+    <li><a href="#include-python">Include Python</a>
+      <ol>
+        <li><a href="#cmake">cmake</a></li>
+        <li><a href="#g-cli">g++ CLI</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lang/cmake_3rdparty/">Memo: Lang - CMake | Include 3rd-Party Library</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 16, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#example">Example</a></li>
+    <li><a href="#test-diffrast">Test DiffRast</a></li>
+    <li><a href="#include-python">Include Python</a>
+      <ol>
+        <li><a href="#cmake">cmake</a></li>
+        <li><a href="#g-cli">g++ CLI</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="example">Example
+</h2><p>Source video: <a class="link" href="https://www.bilibili.com/video/BV1o84y1v7oV/"  target="_blank" rel="noopener"
+    >【cmake教程】为你的项目引入外部第三方库(以真实项目partio为例) - 只喝白开水</a></p>
+<p>Prepare: Download the code of partio.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git clone https://github.com/wdas/partio.git --depth<span class="o">=</span><span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Directory structure:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi:~/Downloads/partio$ tree -L <span class="m">2</span>
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── build_wheels.sh
+</span></span><span class="line"><span class="cl">├── CMakeLists.txt
+</span></span><span class="line"><span class="cl">├── Dockerfile
+</span></span><span class="line"><span class="cl">├── LICENSE
+</span></span><span class="line"><span class="cl">├── Makefile
+</span></span><span class="line"><span class="cl">├── README.md
+</span></span><span class="line"><span class="cl">├── setup.cfg
+</span></span><span class="line"><span class="cl">├── setup.py
+</span></span><span class="line"><span class="cl">└── src
+</span></span><span class="line"><span class="cl">    ├── data
+</span></span><span class="line"><span class="cl">    ├── doc
+</span></span><span class="line"><span class="cl">    ├── lib
+</span></span><span class="line"><span class="cl">    ├── Makefile
+</span></span><span class="line"><span class="cl">    ├── py
+</span></span><span class="line"><span class="cl">    ├── tests
+</span></span><span class="line"><span class="cl">    └── tools
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">7</span> directories, <span class="m">9</span> files
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<p>Four steps for testing the introduced library:</p>
+<ol>
+<li>
+<p>Copy codes</p>
+<p>Only the codes <code>partio/src/lib/</code> are needed in this example.,
+so copy it to your own project, and place it under the directory <code>example_cmake/external/partio/</code> as shown below:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi:~/Downloads/example_cmake$ tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── CMakeLists.txt
+</span></span><span class="line"><span class="cl">├── external
+</span></span><span class="line"><span class="cl">│   └── partio
+</span></span><span class="line"><span class="cl">│       ├── CMakeLists.txt   <span class="c1"># partio/src/lib/CMakeLists.txt</span>
+</span></span><span class="line"><span class="cl">│       ├── core
+</span></span><span class="line"><span class="cl">│       ├── io
+</span></span><span class="line"><span class="cl">│       ├── PartioAttribute.h
+</span></span><span class="line"><span class="cl">│       ├── Partio.h
+</span></span><span class="line"><span class="cl">│       ├── PartioIterator.h
+</span></span><span class="line"><span class="cl">│       ├── PartioVec3.h
+</span></span><span class="line"><span class="cl">│       └── <span class="nb">test</span>
+</span></span><span class="line"><span class="cl">│           └── test_helloWorld.cpp
+</span></span><span class="line"><span class="cl">└── src
+</span></span><span class="line"><span class="cl">    ├── CMakeLists.txt
+</span></span><span class="line"><span class="cl">    └── main.cpp
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>Inherit</strong> (Copy) the original CMakeListst settings:</p>
+<p>Copy all contents of the <strong>top-level</strong> CMakeLists.txt of the <strong>original partio</strong> project to
+the <strong>front</strong> of the copied lib&rsquo;s <code>external/partio/CMakeLists.txt</code>, i.e., the previous <code>partio/src/lib/CMakeLists.txt</code>,
+as it&rsquo;s included first.</p>
+<p>So as to <strong>retain</strong> some macro settings and variables for compiling.
+And then delete unnecessary settings.</p>
+</li>
+<li>
+<p>The <strong>top-level</strong> <code>CMakeLists.txt</code> of your own project is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span> <span class="s">3.20</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">project</span><span class="p">(</span><span class="s">learn-cmake</span> <span class="s">LANGUAGES</span> <span class="s">CXX</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD</span> <span class="s">17</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD_REQUIRED</span> <span class="s">ON</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># each sub-directory has its own CMakeLists.txt:
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">external/partio</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">src</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>The <code>src/</code> folder stores your own code, which will be built to an executable program.
+So, the executable in the <code>src/CMakeLists.txt</code> is your own <code>main.cpp</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">add_executable</span><span class="p">(</span><span class="s">main</span> <span class="s">main.cpp</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>An example of <code>src/main.cpp</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[]){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Write an testing executable program (<code>test_helloWorld.cpp</code>) <strong>inside</strong> the <code>external/partio</code>.</p>
+<p>In this case, <code>test_helloWorld.cpp</code> calls functions in <code>external/partio</code> &ldquo;natively&rdquo;.
+However, this isn&rsquo;t the case for calling its functions from another project.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;Partio.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Partio</span><span class="o">::</span><span class="n">ParticlesDataMutable</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="n">Partio</span><span class="o">::</span><span class="n">read</span><span class="p">(</span><span class="s">&#34;bgeoFile&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Number of &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Set the <code>external/partio/CMakeLists.txt</code> to compile it as an executable application:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">add_library</span><span class="p">(</span><span class="s">partio</span> <span class="o">${</span><span class="nv">PARTIO_LIBRARY_TYPE</span><span class="o">}</span> <span class="o">${</span><span class="nv">io_cpp</span><span class="o">}</span> <span class="o">${</span><span class="nv">core_cpp</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># Setting target_include_directories ....
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">add_executable</span><span class="p">(</span><span class="s">test_helloWorld</span> <span class="o">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="o">}</span><span class="s">/test/test_helloWorld.cpp</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">test_helloWorld</span> <span class="s">PRIVATE</span> <span class="s">partio</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>After compiling, a binary file <code>test_helloWorld</code> will be generated under &ldquo;external/partio&rdquo;.</p>
+<p>This test code has nothing to do with the other subdirectories&rsquo; &ldquo;src/&rdquo;,
+where the <code>main</code> application will be build based on its own CMakeLists.txt.</p>
+<p>The CMakeLists.txt of different projects are <strong>independent</strong> to each other.</p>
+<blockquote>
+<p>The most commonly used rule is &ldquo;One CMakeLists.txt per target&rdquo;.
+<a class="link" href="https://stackoverflow.com/a/48510440/18003182"  target="_blank" rel="noopener"
+    >cmake: add_subdirectory() vs include() - SO</a></p></blockquote>
+</li>
+</ol>
+<hr>
+<h2 id="test-diffrast">Test DiffRast
+</h2><p>I want to debug the library <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization"  target="_blank" rel="noopener"
+    >diff-gaussian-rasterization</a>.</p>
+<ol>
+<li>
+<p>I can create a project, and make the diffRast as an external library to call its methods.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir debug_diff_rast <span class="o">&amp;&amp;</span> <span class="nb">cd</span> debug_diff_rast
+</span></span><span class="line"><span class="cl">git init
+</span></span><span class="line"><span class="cl">mkdir external <span class="o">&amp;&amp;</span> <span class="nb">cd</span> external
+</span></span><span class="line"><span class="cl">git submodule add https://github.com/graphdeco-inria/diff-gaussian-rasterization
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Directory structure:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi:~/Downloads/debug_diff_rast$ tree
+</span></span><span class="line"><span class="cl">.
+</span></span><span class="line"><span class="cl">├── CMakeLists.txt
+</span></span><span class="line"><span class="cl">├── main.cpp
+</span></span><span class="line"><span class="cl">├── README.md
+</span></span><span class="line"><span class="cl">└── external
+</span></span><span class="line"><span class="cl">    └── diff-gaussian-rasterization
+</span></span><span class="line"><span class="cl">        ├── CMakeLists.txt
+</span></span><span class="line"><span class="cl">        ├── cuda_rasterizer
+</span></span><span class="line"><span class="cl">        │   ├── auxiliary.h
+</span></span><span class="line"><span class="cl">        │   ├── backward.cu
+</span></span><span class="line"><span class="cl">        │   ├── backward.h
+</span></span><span class="line"><span class="cl">        │   ├── config.h
+</span></span><span class="line"><span class="cl">        │   ├── forward.cu
+</span></span><span class="line"><span class="cl">        │   ├── forward.h
+</span></span><span class="line"><span class="cl">        │   ├── rasterizer.h
+</span></span><span class="line"><span class="cl">        │   ├── rasterizer_impl.cu
+</span></span><span class="line"><span class="cl">        │   └── rasterizer_impl.h
+</span></span><span class="line"><span class="cl">        ├── diff_gaussian_rasterization
+</span></span><span class="line"><span class="cl">        │   └── __init__.py
+</span></span><span class="line"><span class="cl">        ├── ext.cpp
+</span></span><span class="line"><span class="cl">        ├── LICENSE.md
+</span></span><span class="line"><span class="cl">        ├── rasterize_points.cu
+</span></span><span class="line"><span class="cl">        ├── rasterize_points.h
+</span></span><span class="line"><span class="cl">        ├── README.md
+</span></span><span class="line"><span class="cl">        ├── setup.py
+</span></span><span class="line"><span class="cl">        └── third_party
+</span></span><span class="line"><span class="cl">            ├── glm
+</span></span><span class="line"><span class="cl">            └── stbi_image_write.h
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The original <code>diff-gaussian-rasterization/CMakeLists.txt</code> would build the project to <strong>a library</strong> (<code>CudaRasterizer</code>), not an executable application.</p>
+<p>The command <code>add_subdirectory()</code> is used to <strong>add an external project</strong>,
+which will automatically build according to its <strong>own</strong> <code>CMakeLists.txt</code>
+when the root CMakeLists.txt starts building.</p>
+<ul>
+<li>If without <code>add_subdirectory</code>, an error would occur:
+<code>CMake Error at CMakeLists.txt:17 (target_include_directories): Cannot specify include directories for target which is not built by this project.</code></li>
+</ul>
+<p>Hence, the library <code>CudaRasterizer</code> is linked as a static library through <code>target_link_libraries()</code> to an
+executable program <code>MyApp</code> based on the <code>main.cpp</code>, and debug it.</p>
+<p>In summary, the <strong>top-level</strong> (root) CMakeLists.txt needs to link 2 libraries:
+<code>libtorch</code> and <code>CudaRasterizer</code>, as follows.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span> <span class="s">3.20</span> <span class="s">FATAL_ERROR</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">project</span><span class="p">(</span><span class="s">MyApp</span><span class="p">)</span>    <span class="c"># ${PROJECT_NAME}
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">find_package</span><span class="p">(</span><span class="s">Torch</span> <span class="s">REQUIRED</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_FLAGS</span> <span class="s2">&#34;${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">external/diff-gaussian-rasterization</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">add_executable</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">main.cpp</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set_property</span><span class="p">(</span><span class="s">TARGET</span> <span class="s">MyApp</span> <span class="s">PROPERTY</span> <span class="s">CXX_STANDARD</span> <span class="s">17</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">MyApp</span> <span class="s2">&#34;${TORCH_LIBRARIES}&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">CudaRasterizer</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># rasterization_points.cu and ~.h aren&#39;t in their CMakeLists.txt, so need:
+</span></span></span><span class="line"><span class="cl"><span class="c"></span><span class="nb">target_sources</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">PUBLIC</span> <span class="o">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="o">}</span><span class="s">/external/diff-gaussian-rasterization/rasterize_points.cu</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">target_include_directories</span><span class="p">(</span><span class="s">MyApp</span> <span class="s">PUBLIC</span> <span class="o">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="o">}</span><span class="s">/external/diff-gaussian-rasterization</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>In the <code>diff-gaussian-rasterization/CMakeLists.txt</code>,
+the header files inside the folder <code>cuda_rasterizer/</code> are included and set to <code>PUBLIC</code>,
+such that when the library is linked to the target, those headers will be appended to the target&rsquo;s <code>INCLUDE_DIRECTORIES</code>.
+So they can be included via their filenames, for example <code>#include &quot;forward.h&quot;</code>, without relative path. (Not sure. 2023-11-16)</p>
+<p>However, the <code>rasterize_point.h</code> isn&rsquo;t included into the library (<code>CudaRasterizer</code>),
+so it has to be included using its relative path.</p>
+<p>Specifically, in the <code>main.cpp</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;torch/torch.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;external/diff-gaussian-rasterization/rasterize_points.h&#34;</span><span class="cp">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>With adding that header file (declaration) to executable target, the compilation of <code>main.cpp</code> can pass.
+<strong>However</strong>, if the function body <code>rasterize_points.cu</code> (function implementation) isn&rsquo;t added to the executable in CMakeLists.txt,
+there will be a <strong>linking error</strong>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/usr/bin/ld: CMakeFiles/MyApp.dir/main.cpp.o: in <span class="k">function</span> <span class="sb">`</span>main<span class="s1">&#39;:
+</span></span></span><span class="line"><span class="cl"><span class="s1">main.cpp:(.text.startup+0x383): undefined reference to `RasterizeGaussiansCUDA(at::Tensor const&amp;, ...)&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>Two modifications</strong> for source code of <code>diff-gaussian-rasterization</code>:</p>
+<ol>
+<li>
+<p><code>rasterize_point.cu</code> <strong>isn&rsquo;t included</strong> into the <code>CudaRasterizer</code> library,
+because it&rsquo;s not specified within the <code>add_library()</code> function in the
+<a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/59f5f77e3ddbac3ed9db93ec2cfe99ed6c5d121d/CMakeLists.txt#L22"  target="_blank" rel="noopener"
+    ><code>diff-gaussian-rasterization/CMakeLists.txt</code></a>.</p>
+<p>Therefore, when the project <code>diff-gaussian-rasterization</code> is built by executing <code>cmake -B ./build</code>,
+the .cu file <code>rasterize_point.cu</code> isn&rsquo;t compiled.</p>
+<p>Thus, the following error of missing <code>Python.h</code> <strong>won&rsquo;t</strong> be tiggered.</p>
+</li>
+<li>
+<p><code>rasterize_point.cu</code> includes header <code>&lt;torch/extension.h&gt;</code>, which is used for interacting with Python.
+Based on that, the library <code>CudaRasterizer</code> can be called in Python scripts as a PyTorch extension.</p>
+<p>Therefore, the Python development headers must be present to compile it.
+Otherwise, an error would occur:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">In file included from /usr/local/libtorch/include/torch/csrc/Device.h:3,
+</span></span><span class="line"><span class="cl">                 from /usr/local/libtorch/include/torch/csrc/api/include/torch/python.h:8,
+</span></span><span class="line"><span class="cl">                 from /usr/local/libtorch/include/torch/extension.h:6,
+</span></span><span class="line"><span class="cl">                 from /home/yi/Downloads/diff-gaussian-rasterization/rasterize_points.h:13,
+</span></span><span class="line"><span class="cl">                 from /home/yi/Downloads//diff-gaussian-rasterization/test_DiffRast.cpp:2:
+</span></span><span class="line"><span class="cl">/usr/local/libtorch/include/torch/csrc/python_headers.h:10:10: fatal error: Python.h: No such file or directory
+</span></span><span class="line"><span class="cl">   <span class="m">10</span> <span class="p">|</span> <span class="c1">#include &lt;Python.h&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">|</span>          ^~-~~-~~-~~-~~
+</span></span><span class="line"><span class="cl">compilation terminated.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Previously, my trivial experiments only used LibTorch tensors without interacting with python.
+Therefore, no error was reported when building without specifying the path of Python.</p>
+<p>But the Python development headers is already installed:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get install python3-dev
+</span></span><span class="line"><span class="cl">apt list python3-dev
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>A possible solution is to include python in CMakeLists.txt:
+<a class="link" href="https://github.com/pytorch/pytorch/issues/18387"  target="_blank" rel="noopener"
+    >Similar issure</a></p>
+</li>
+<li>
+<p>Since here I just want to debug it as a C++ project, instead of for python, and I have LibTorch installed.</p>
+<p>So I changed <code>#include &lt;torch/extension.h&gt;</code> to <code>#include &lt;torch/torch.h&gt;</code> in the 2 files:
+&ldquo;rasterize_points.cu&rdquo; and &ldquo;rasterize_points.h&rdquo;.</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Build the top-level</strong> project &ldquo;debug_diff_rast&rdquo;:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> ~/Downloads/debug_diff_rast
+</span></span><span class="line"><span class="cl"><span class="c1"># configure:</span>
+</span></span><span class="line"><span class="cl">cmake -B ./build -DCMAKE_PREFIX_PATH<span class="o">=</span>/usr/local/libtorch -GNinja
+</span></span><span class="line"><span class="cl"><span class="c1"># build: </span>
+</span></span><span class="line"><span class="cl">cmake --build ./build
+</span></span><span class="line"><span class="cl">./build/MyApp
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p>Ref:</p>
+<p><a class="link" href="https://www.bilibili.com/video/BV16P4y1g7MH/"  target="_blank" rel="noopener"
+    >【公开课】现代CMake高级教程（持续更新中）- 双笙子佯谬 - bilibili</a></p>
+<hr>
+<h2 id="include-python">Include Python
+</h2><h3 id="cmake">cmake
+</h3><p>(2024-01-29)</p>
+<p>The direct solution for <code>Python.h: No such file or directory</code> could be include Python in the CMakeLists.txt,</p>
+<ul>
+<li>
+<p>This is inspired by <a class="link" href="https://nadiah.org/2020/03/01/example-debug-mixed-python-c-in-visual-studio-code/"  target="_blank" rel="noopener"
+    >Example debugging mixed Python C++ in VS Code - Nadiah Pardede Kristensen</a>,
+where <code>#include &lt;Python.h&gt;</code> will be reported the error by Intellisense,
+if without specifying &ldquo;includePath&rdquo; for Python in the <code>.vscode/c_cpp_properties.json</code>.</p>
+</li>
+<li>
+<p>CMake built-in module: <a class="link" href="https://cmake.org/cmake/help/latest/module/FindPython3.html"  target="_blank" rel="noopener"
+    >FindPython3</a>
+mentioned in <a class="link" href="https://stackoverflow.com/a/73051915/18003182"  target="_blank" rel="noopener"
+    >How do I get cmake to find python3.9 instead of python3.10 on ubuntu22.04</a></p>
+</li>
+</ul>
+<h3 id="g-cli">g++ CLI
+</h3><p>(2024-01-31)</p>
+<ul>
+<li>Check if the Python Development Libraries has been installed:
+<code>dpkg -l | grep python3-dev</code>.
+<a class="link" href="https://devicetests.com/fix-python-h-not-found-by-gcc-error-c-programming-ubuntu"  target="_blank" rel="noopener"
+    >devicetests</a></li>
+</ul>
+<ol>
+<li>
+<p>Install it: <code>sudo apt-get install python3-dev</code></p>
+</li>
+<li>
+<p>Find where it is: <code>find / -type f -iname 'python.h' 2&gt;/dev/null</code>
+<a class="link" href="https://www.cyberciti.biz/faq/debian-ubuntu-linux-python-h-file-not-found-error-solution/#:~:text=Summing%20up"  target="_blank" rel="noopener"
+    >Debian / Ubuntu: Fatal error: Python.h: No such file or Directory</a></p>
+</li>
+<li>
+<p>The directory of Python is also required to be included:
+<code>g++ -I/usr/include/python3.8 main.cpp</code>.
+<a class="link" href="https://www.geeksforgeeks.org/how-to-fix-fatal-error-python-h-no-such-file-or-directory/"  target="_blank" rel="noopener"
+    >GeeksforGeeks</a></p>
+<p>A complete example command is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>AIkui<span class="o">)</span> yi@yi-Alien:~/Downloads/CppCudaExt_PT_Tut_AIkui$ g++ <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-g -std<span class="o">=</span>c++17 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-I/usr/local/libtorch/include <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-I/usr/local/libtorch/include/torch/csrc/api/include <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-I/usr/local/libtorch/include/torch <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-I/home/yi/anaconda3/envs/AIkui/include/python3.10 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-I./include  <span class="se">\ </span>       <span class="c1"># Custom functions declarations</span>
+</span></span><span class="line"><span class="cl">-L/usr/local/libtorch/lib <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-Wl,-rpath,/usr/local/libtorch/lib <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>test_None_tensor.cpp <span class="se">\ </span>   <span class="c1"># main function definition</span>
+</span></span><span class="line"><span class="cl">interpolation.cpp <span class="se">\ </span>  <span class="c1"># Custom functions definitions</span>
+</span></span><span class="line"><span class="cl">-ltorch -ltorch_cpu -lc10
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<ul>
+<li>
+<details><summary>A demo</summary>
+<p>Refer to <a class="link" href="https://sebhastian.com/fatal-error-python-h-no-such-file-or-directory/"  target="_blank" rel="noopener"
+    >Nathan Sebhastian</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include&lt;Python.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include&lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Hello World!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Compile: <code>g++ test_python.cpp</code>, an error occurs:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> yi@yi-Alienware-Aurora-R8:~/Downloads/Cpp_Study$ g++ test_python.cpp
+</span></span><span class="line"><span class="cl">test_python.cpp:1:9: fatal error: Python.h: No such file or directory
+</span></span><span class="line"><span class="cl">    <span class="m">1</span> <span class="p">|</span> <span class="c1">#include&lt;Python.h&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">|</span>         ^~~~~~~~~~
+</span></span><span class="line"><span class="cl">compilation terminated.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Locate header file:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt install mlocate
+</span></span><span class="line"><span class="cl">sudo updatedb
+</span></span><span class="line"><span class="cl">locate Python.h
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Include Python dir: <code>gcc test_python.cpp -I/usr/include/python3.8</code></p>
+</details>
+</li>
+</ul>
+<hr>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

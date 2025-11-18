@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="(Feature image from Raspberry Pi Pinout)\nHardware Resources References:\nRaspberry Pi hardware - Raspberry Pi Documentation Searched by s3 Notes:\nOverview\nSPI References:\n树莓派（主）与STM32（从）使用SPI通信 - CSDN博客 Searched by 树莓派 SPI 实验 in DDG 树莓派 wiringPi 用户手册 - 小鹏STEM Searched by 树莓派 3B SPI 实验 in DDG Raspberry Pi Pinout Guide: How to use the Raspberry Pi GPIOs? - RNT Searched by raspberry pi 3B enable gpio in DDG 树莓派3B+ SPI Flash编程器 - 佐须之男的博客 - forgotfun.org Searched by s2 DDG Searched by in DDG Notes:\n">
+<title>Memo: EE - Boards | Raspi As MCU</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/embed/b-board-raspi/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Memo: EE - Boards | Raspi As MCU">
+<meta property='og:description' content="(Feature image from Raspberry Pi Pinout)\nHardware Resources References:\nRaspberry Pi hardware - Raspberry Pi Documentation Searched by s3 Notes:\nOverview\nSPI References:\n树莓派（主）与STM32（从）使用SPI通信 - CSDN博客 Searched by 树莓派 SPI 实验 in DDG 树莓派 wiringPi 用户手册 - 小鹏STEM Searched by 树莓派 3B SPI 实验 in DDG Raspberry Pi Pinout Guide: How to use the Raspberry Pi GPIOs? - RNT Searched by raspberry pi 3B enable gpio in DDG 树莓派3B+ SPI Flash编程器 - 佐须之男的博客 - forgotfun.org Searched by s2 DDG Searched by in DDG Notes:\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/embed/b-board-raspi/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='EE' /><meta property='article:published_time' content='2024-10-31T19:13:00&#43;00:00'/><meta property='article:modified_time' content='2024-10-31T19:13:00&#43;00:00'/><meta property='og:image' content='https://raw.githubusercontent.com/pinout-xyz/Pinout.xyz/master/resources/raspberry-pi-pinout.png' />
+<meta name="twitter:title" content="Memo: EE - Boards | Raspi As MCU">
+<meta name="twitter:description" content="(Feature image from Raspberry Pi Pinout)\nHardware Resources References:\nRaspberry Pi hardware - Raspberry Pi Documentation Searched by s3 Notes:\nOverview\nSPI References:\n树莓派（主）与STM32（从）使用SPI通信 - CSDN博客 Searched by 树莓派 SPI 实验 in DDG 树莓派 wiringPi 用户手册 - 小鹏STEM Searched by 树莓派 3B SPI 实验 in DDG Raspberry Pi Pinout Guide: How to use the Raspberry Pi GPIOs? - RNT Searched by raspberry pi 3B enable gpio in DDG 树莓派3B+ SPI Flash编程器 - 佐须之男的博客 - forgotfun.org Searched by s2 DDG Searched by in DDG Notes:\n"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://raw.githubusercontent.com/pinout-xyz/Pinout.xyz/master/resources/raspberry-pi-pinout.png' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#hardware-resources">Hardware Resources</a></li>
+    <li><a href="#spi">SPI</a>
+      <ol>
+        <li><a href="#lib-spidev">Lib Spidev</a>
+          <ol>
+            <li><a href="#demo-code">Demo Code</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#pinout">Pinout</a></li>
+    <li><a href="#uart">UART</a>
+      <ol>
+        <li><a href="#comm-with-arduino">Comm With Arduino</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/embed/b-board-raspi/">
+                
+                    <img src="https://raw.githubusercontent.com/pinout-xyz/Pinout.xyz/master/resources/raspberry-pi-pinout.png" loading="lazy" alt="Featured image of post Memo: EE - Boards | Raspi As MCU" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" style="background-color: #6e57d2; color: #fff;">
+                Memo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/embed/b-board-raspi/">Memo: EE - Boards | Raspi As MCU</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 31, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#hardware-resources">Hardware Resources</a></li>
+    <li><a href="#spi">SPI</a>
+      <ol>
+        <li><a href="#lib-spidev">Lib Spidev</a>
+          <ol>
+            <li><a href="#demo-code">Demo Code</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#pinout">Pinout</a></li>
+    <li><a href="#uart">UART</a>
+      <ol>
+        <li><a href="#comm-with-arduino">Comm With Arduino</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>(Feature image from <a class="link" href="https://pinout.xyz/"  target="_blank" rel="noopener"
+    >Raspberry Pi Pinout</a>)</p>
+<hr>
+<h2 id="hardware-resources">Hardware Resources
+</h2><p><strong>References</strong>:</p>
+<ol>
+<li><a id=""></a>
+<a class="link" href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html"  target="_blank" rel="noopener"
+    >Raspberry Pi hardware - Raspberry Pi Documentation</a>
+<small>
+<ul>
+<li>Searched by <a class="link" href="#Spi-s3" >s3</a>
+</small></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<ol>
+<li>
+<p>Overview</p>
+<p><img src="https://www.raspberrypi.com/documentation/computers/images/3-model-b.jpg?hash=26b673f0b2c427e9e29fada4336a3569"
+	
+	
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+></p>
+</li>
+</ol>
+<hr>
+<h2 id="spi">SPI
+</h2><p><strong>References</strong>:</p>
+<ol>
+<li><a id="Spi-r1"></a>
+<a class="link" href="https://blog.csdn.net/FuckerGod/article/details/130563431"  target="_blank" rel="noopener"
+    >树莓派（主）与STM32（从）使用SPI通信 - CSDN博客</a>
+<small>
+<ul>
+<li>Searched by <code>树莓派 SPI 实验</code> in
+<a class="link" href="https://duckduckgo.com/?q=%E6%A0%91%E8%8E%93%E6%B4%BE&#43;SPI&#43;%E5%AE%9E%E9%AA%8C&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Spi-r2"></a>
+<a class="link" href="https://www.xpstem.com/article/10552"  target="_blank" rel="noopener"
+    >树莓派 wiringPi 用户手册 - 小鹏STEM</a>
+<small>
+<ul>
+<li>Searched by <code>树莓派 3B SPI 实验</code> in <a id="Spi-s2"></a>
+<a class="link" href="https://duckduckgo.com/?q=%E6%A0%91%E8%8E%93%E6%B4%BE&#43;3B&#43;SPI&#43;%E5%AE%9E%E9%AA%8C&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Spi-r3"></a>
+<a class="link" href="https://randomnerdtutorials.com/raspberry-pi-pinout-gpios/"  target="_blank" rel="noopener"
+    >Raspberry Pi Pinout Guide: How to use the Raspberry Pi GPIOs? - RNT</a>
+<small>
+<ul>
+<li>Searched by <code>raspberry pi 3B enable gpio</code> in <a id="Spi-s3"></a>
+<a class="link" href="https://duckduckgo.com/?q=raspberry&#43;pi&#43;3B&#43;enable&#43;gpio&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Spi-r4"></a>
+<a class="link" href="https://forgotfun.org/2019/07/raspberrypi-spiflash-programmer.html"  target="_blank" rel="noopener"
+    >树莓派3B+ SPI Flash编程器 - 佐须之男的博客 - forgotfun.org</a>
+<small>
+<ul>
+<li>Searched by <a class="link" href="#Spi-s2" >s2</a>
+<a class="link" href="" >DDG</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Spi-r"></a>
+<a class="link" href="" ></a>
+<small>
+<ul>
+<li>Searched by <code> </code> in
+<a class="link" href="" >DDG</a>
+</small></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>
+<p>System info:</p>
+<ul>
+<li>Board: Raspberry Pi 3B</li>
+<li>OS: Ubuntu Server 24.10</li>
+<li>Use ssh to connect the Raspberry Pi</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>
+<p>Enable SPI interface (<a class="link" href="#Spi-r1" >r1-CSDN</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get install raspi-config
+</span></span><span class="line"><span class="cl">sudo raspi-config
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/post/writenotes/embed/b-board-raspi/Raspi-Config-Interface_Ubun_2410-2024-10-31_191208.png"
+	width="1090"
+	height="1380"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="78"
+		data-flex-basis="189px"
+	
+></p>
+<p>Verify SPI is enabled:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">jack@Rpi:~$ ls /dev/spi*
+</span></span><span class="line"><span class="cl">/dev/spidev0.0  /dev/spidev0.1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>GPIO pinout (<a class="link" href="#Spi-r3" >r3-RNT</a>):
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th></th>
+          <th></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><img src="https://forgotfun.org/zb_users/upload/2019/07/201907151563189760656298.jpg"
+	
+	
+	
+	loading="lazy"
+	
+		alt="佐须之男"
+	
+	
+></td>
+          <td><img src="https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2023/03/Raspberry-Pi-Pinout-Random-Nerd-Tutorials.png?w=1280&amp;quality=100&amp;strip=all&amp;ssl=1"
+	
+	
+	
+	loading="lazy"
+	
+		alt="randomnerdtutorials.com"
+	
+	
+></td>
+      </tr>
+  </tbody>
+</table></div>
+</li>
+</ul>
+</li>
+<li>
+<p>SPI library on Raspberry Pi: wiringPi (<a class="link" href="#Spi-r2" >r2-小鹏</a>)</p>
+</li>
+</ol>
+<hr>
+<h3 id="lib-spidev">Lib Spidev
+</h3><p><strong>References</strong>:</p>
+<ol>
+<li>
+<p><a id="Spidev-r1"></a>
+<a class="link" href="https://www.jianshu.com/p/f4ad9f5e2e84"  target="_blank" rel="noopener"
+    >Python驱动树莓派SPI接口 - 简书 - 月见樽</a>
+<small></p>
+<ul>
+<li>Searched by <code>树莓派 3B SPI 实验</code> in
+<a class="link" href="https://duckduckgo.com/?q=%E6%A0%91%E8%8E%93%E6%B4%BE&#43;3B&#43;SPI&#43;%E5%AE%9E%E9%AA%8C&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+<li>
+<p><a id="Spidev-r2"></a>
+<a class="link" href="https://www.takaitra.com/spi-device-raspberry-pi/"  target="_blank" rel="noopener"
+    >Controlling an SPI device with the Raspberry Pi - Takaitra.com</a>
+<small></p>
+<ul>
+<li>Refered by <a class="link" href="#Spidev-r1" >r1</a>
+</small></li>
+</ul>
+</li>
+<li>
+<p><a id="Spidev-r3"></a>
+<a class="link" href="https://github.com/doceme/py-spidev"  target="_blank" rel="noopener"
+    >doceme/py-spidev - GitHub</a>
+<small></p>
+<ul>
+<li>Searched by `` in
+<a class="link" href="" >DDG</a>
+</small></li>
+</ul>
+</li>
+<li>
+<p><a id=""></a>
+<a class="link" href="" ></a>
+<small></p>
+<ul>
+<li>Searched by `` in
+<a class="link" href="" >DDG</a>
+</small></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p>(2024-10-31)</p>
+<ol>
+<li>
+<p>SPI library for Python: <code>py-spidev</code></p>
+<p>Compile py-spidev from source code (<a class="link" href="#Spidev-r2" >r2-Takaitra</a>)</p>
+<ul>
+<li>Installed <code>python3-dev</code> ahead.</li>
+<li>Use <code>python3</code> instead of <code>python</code> by setting the env <code>${PYTHON}</code>.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">jack@Rpi:~$ <span class="nb">cd</span> Programs/py-spidev/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ make
+</span></span><span class="line"><span class="cl">python setup.py build
+</span></span><span class="line"><span class="cl">make: python: No such file or directory
+</span></span><span class="line"><span class="cl">make: *** <span class="o">[</span>Makefile:4: all<span class="o">]</span> Error <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ ls
+</span></span><span class="line"><span class="cl">CHANGELOG.md  MANIFEST.in  README.md  setup.py
+</span></span><span class="line"><span class="cl">LICENSE       Makefile     setup.cfg  spidev_module.c
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ cat Makefile
+</span></span><span class="line"><span class="cl">PYTHON ?<span class="o">=</span> python
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">all:
+</span></span><span class="line"><span class="cl">        <span class="k">$(</span>PYTHON<span class="k">)</span> setup.py build
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">install:
+</span></span><span class="line"><span class="cl">        <span class="k">$(</span>PYTHON<span class="k">)</span> setup.py install
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">clean:
+</span></span><span class="line"><span class="cl">        <span class="k">$(</span>PYTHON<span class="k">)</span> setup.py clean
+</span></span><span class="line"><span class="cl">        rm -rf build dist
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cleandir distclean: clean
+</span></span><span class="line"><span class="cl">        <span class="k">$(</span>PYTHON<span class="k">)</span> setup.py clean -a
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">PYTHON</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ <span class="nb">export</span> <span class="nv">PYTHON</span><span class="o">=</span><span class="s1">&#39;python3&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">PYTHON</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">python3
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>Error: <code>gcc</code> missed</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ make
+</span></span><span class="line"><span class="cl">python3 setup.py build
+</span></span><span class="line"><span class="cl">/usr/lib/python3/dist-packages/setuptools/dist.py:452: SetuptoolsDeprecationWarning: Invalid dash-separated options
+</span></span><span class="line"><span class="cl">!!
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        ********************************************************************************
+</span></span><span class="line"><span class="cl">        Usage of dash-separated <span class="s1">&#39;description-file&#39;</span> will not be supported in future
+</span></span><span class="line"><span class="cl">        versions. Please use the underscore name <span class="s1">&#39;description_file&#39;</span> instead.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        This deprecation is overdue, please update your project and remove deprecated
+</span></span><span class="line"><span class="cl">        calls to avoid build errors in the future.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        See https://setuptools.pypa.io/en/latest/userguide/declarative_config.html <span class="k">for</span> details.
+</span></span><span class="line"><span class="cl">        ********************************************************************************
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">!!
+</span></span><span class="line"><span class="cl">  <span class="nv">opt</span> <span class="o">=</span> self.warn_dash_deprecation<span class="o">(</span>opt, section<span class="o">)</span>
+</span></span><span class="line"><span class="cl">running build
+</span></span><span class="line"><span class="cl">running build_ext
+</span></span><span class="line"><span class="cl">building <span class="s1">&#39;spidev&#39;</span> extension
+</span></span><span class="line"><span class="cl">creating build
+</span></span><span class="line"><span class="cl">creating build/temp.linux-aarch64-cpython-312
+</span></span><span class="line"><span class="cl">aarch64-linux-gnu-gcc -fno-strict-overflow -Wsign-compare -DNDEBUG -g -O2 -Wall -fPIC -I/usr/include/python3.12 -c spidev_module.c -o build/temp.linux-aarch64-cpython-312/spidev_module.o
+</span></span><span class="line"><span class="cl">error: <span class="nb">command</span> <span class="s1">&#39;aarch64-linux-gnu-gcc&#39;</span> failed: No such file or directory
+</span></span><span class="line"><span class="cl">make: *** <span class="o">[</span>Makefile:4: all<span class="o">]</span> Error <span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p>Have use <code>apt-file serach aarch64-linux-gnu-gcc</code>, which lists many packages.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ apt-file search aarch64-linux-gnu-gcc
+</span></span><span class="line"><span class="cl">gcc-11: /usr/bin/aarch64-linux-gnu-gcc-11
+</span></span><span class="line"><span class="cl">gcc-11: /usr/bin/aarch64-linux-gnu-gcc-ar-11
+</span></span><span class="line"><span class="cl">gcc-11: /usr/bin/aarch64-linux-gnu-gcc-nm-11
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Need to install <code>gcc</code>, the default version is 14</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ dpkg -l gcc
+</span></span><span class="line"><span class="cl">dpkg-query: no packages found matching gcc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ gcc -v
+</span></span><span class="line"><span class="cl">Command <span class="s1">&#39;gcc&#39;</span> not found, but can be installed with:
+</span></span><span class="line"><span class="cl">sudo apt install gcc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ sudo apt install gcc
+</span></span><span class="line"><span class="cl">Installing:
+</span></span><span class="line"><span class="cl">  gcc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Installing dependencies:
+</span></span><span class="line"><span class="cl">  cpp                       gcc-14-aarch64-linux-gnu  libhwasan0  libtsan2
+</span></span><span class="line"><span class="cl">  cpp-14                    gcc-aarch64-linux-gnu     libisl23    libubsan1
+</span></span><span class="line"><span class="cl">  cpp-14-aarch64-linux-gnu  libasan8                  libitm1
+</span></span><span class="line"><span class="cl">  cpp-aarch64-linux-gnu     libcc1-0                  liblsan0
+</span></span><span class="line"><span class="cl">  gcc-14                    libgcc-14-dev             libmpc3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Suggested packages:
+</span></span><span class="line"><span class="cl">  cpp-doc         gcc-multilib  libtool  gdb         gdb-aarch64-linux-gnu
+</span></span><span class="line"><span class="cl">  gcc-14-locales  autoconf      flex     gcc-doc
+</span></span><span class="line"><span class="cl">  cpp-14-doc      automake      bison    gcc-14-doc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Summary:
+</span></span><span class="line"><span class="cl">  Upgrading: 0, Installing: 18, Removing: 0, Not Upgrading: <span class="m">2</span>
+</span></span><span class="line"><span class="cl">  Download size: 45.1 MB
+</span></span><span class="line"><span class="cl">  Space needed: <span class="m">148</span> MB / 57.1 GB available
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Continue? <span class="o">[</span>Y/n<span class="o">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ gcc -v
+</span></span><span class="line"><span class="cl">Using built-in specs.
+</span></span><span class="line"><span class="cl"><span class="nv">COLLECT_GCC</span><span class="o">=</span>gcc
+</span></span><span class="line"><span class="cl"><span class="nv">COLLECT_LTO_WRAPPER</span><span class="o">=</span>/usr/libexec/gcc/aarch64-linux-gnu/14/lto-wrapper
+</span></span><span class="line"><span class="cl"><span class="nv">OFFLOAD_TARGET_NAMES</span><span class="o">=</span>nvptx-none
+</span></span><span class="line"><span class="cl"><span class="nv">OFFLOAD_TARGET_DEFAULT</span><span class="o">=</span><span class="m">1</span>
+</span></span><span class="line"><span class="cl">Target: aarch64-linux-gnu
+</span></span><span class="line"><span class="cl">Configured with: ../src/configure -v --with-pkgversion<span class="o">=</span><span class="s1">&#39;Ubuntu 14.2.0-4ubuntu2&#39;</span> --with-bugurl<span class="o">=</span>file:///usr/share/doc/gcc-14/README.Bugs --enable-languages<span class="o">=</span>c,ada,c++,go,d,fortran,objc,obj-c++,m2,rust --prefix<span class="o">=</span>/usr --with-gcc-major-version-only --program-suffix<span class="o">=</span>-14 --program-prefix<span class="o">=</span>aarch64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir<span class="o">=</span>/usr/libexec --without-included-gettext --enable-threads<span class="o">=</span>posix --libdir<span class="o">=</span>/usr/lib --enable-nls --enable-bootstrap --enable-clocale<span class="o">=</span>gnu --enable-libstdcxx-debug --enable-libstdcxx-time<span class="o">=</span>yes --with-default-libstdcxx-abi<span class="o">=</span>new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-libquadmath --disable-libquadmath-support --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking<span class="o">=</span>release --with-target-system-zlib<span class="o">=</span>auto --enable-objc-gc<span class="o">=</span>auto --enable-multiarch --enable-fix-cortex-a53-843419 --disable-werror --enable-offload-targets<span class="o">=</span>nvptx-none<span class="o">=</span>/build/gcc-14-T7YiXd/gcc-14-14.2.0/debian/tmp-nvptx/usr --enable-offload-defaulted --without-cuda-driver --enable-checking<span class="o">=</span>release --build<span class="o">=</span>aarch64-linux-gnu --host<span class="o">=</span>aarch64-linux-gnu --target<span class="o">=</span>aarch64-linux-gnu --with-build-config<span class="o">=</span>bootstrap-lto-lean --enable-link-serialization<span class="o">=</span><span class="m">2</span>
+</span></span><span class="line"><span class="cl">Thread model: posix
+</span></span><span class="line"><span class="cl">Supported LTO compression algorithms: zlib zstd
+</span></span><span class="line"><span class="cl">gcc version 14.2.0 <span class="o">(</span>Ubuntu 14.2.0-4ubuntu2<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+</ol>
+<ul>
+<li>
+<p>After <code>make</code> succeeded, <code>sudo make install</code> executes <code>setup.py</code> where <code>python</code> appears as well.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ sudo make install
+</span></span><span class="line"><span class="cl">python setup.py install
+</span></span><span class="line"><span class="cl">make: python: No such file or directory
+</span></span><span class="line"><span class="cl">make: *** <span class="o">[</span>Makefile:7: install<span class="o">]</span> Error <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">PYTHON</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">python3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ cat -n Makefile <span class="p">|</span> sed -n 1,7p
+</span></span><span class="line"><span class="cl">     <span class="m">1</span>  PYTHON ?<span class="o">=</span> python
+</span></span><span class="line"><span class="cl">     <span class="m">2</span>
+</span></span><span class="line"><span class="cl">     <span class="m">3</span>  all:
+</span></span><span class="line"><span class="cl">     <span class="m">4</span>          <span class="k">$(</span>PYTHON<span class="k">)</span> setup.py build
+</span></span><span class="line"><span class="cl">     <span class="m">5</span>
+</span></span><span class="line"><span class="cl">     <span class="m">6</span>  install:
+</span></span><span class="line"><span class="cl">     <span class="m">7</span>          <span class="k">$(</span>PYTHON<span class="k">)</span> setup.py install
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>I saw the fist line of <code>setup.py</code> is <code>#!/usr/bin/env python</code>, so I suspected the <code>python</code> here also needs to &ldquo;remap&rdquo; to <code>python3</code>.</p>
+<ol>
+<li>
+<p>Create an alias <code>python</code> for <code>python3</code> doesn&rsquo;t work for the ``</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ sudo apt install neovim
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ nvim ~/.bashrc
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Append a command at the end of the <code>~/.bashrc</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># (2024-10-31)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">alias</span> <span class="nv">python</span><span class="o">=</span><span class="s2">&#34;python3&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Still cannot override <code>python</code> even I have set the environment variable:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ <span class="nb">export</span> <span class="nv">PYTHON</span><span class="o">=</span><span class="s1">&#39;python3&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ sudo make install
+</span></span><span class="line"><span class="cl">python setup.py install
+</span></span><span class="line"><span class="cl">make: python: No such file or directory
+</span></span><span class="line"><span class="cl">make: *** <span class="o">[</span>Makefile:7: install<span class="o">]</span> Error <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">jack@Rpi:~/Programs/py-spidev$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">PYTHON</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">python3
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li>
+<p>However, <code>sudo make install PYTHON=python3</code> works, as suggested by ChatGPT.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Processing spidev-3.6-py3.12-linux-aarch64.egg
+</span></span><span class="line"><span class="cl">creating /usr/local/lib/python3.12/dist-packages/spidev-3.6-py3.12-linux-aarch64.egg
+</span></span><span class="line"><span class="cl">Extracting spidev-3.6-py3.12-linux-aarch64.egg to /usr/local/lib/python3.12/dist-packages
+</span></span><span class="line"><span class="cl">Adding spidev 3.6 to easy-install.pth file
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Installed /usr/local/lib/python3.12/dist-packages/spidev-3.6-py3.12-linux-aarch64.egg
+</span></span><span class="line"><span class="cl">Processing dependencies <span class="k">for</span> <span class="nv">spidev</span><span class="o">==</span>3.6
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+</li>
+</ul>
+<hr>
+<h4 id="demo-code">Demo Code
+</h4><p>(2024-11-01)</p>
+<ol>
+<li>
+<p>Code: &ldquo;spi_test.py&rdquo; (<a class="link" href="" >r2-Takaitra</a>)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">import spidev
+</span></span><span class="line"><span class="cl">import <span class="nb">time</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">spi</span> <span class="o">=</span> spidev.SpiDev<span class="o">()</span>
+</span></span><span class="line"><span class="cl">spi.open<span class="o">(</span>0, 0<span class="o">)</span>   <span class="c1"># arguments: (bus, device), i.e., (SPI0, CS0)</span>
+</span></span><span class="line"><span class="cl">spi.max_speed_hz <span class="o">=</span> <span class="m">7629</span>
+</span></span><span class="line"><span class="cl">spi.mode <span class="o">=</span> 0b01  <span class="c1"># [CPOL | CPHA]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Split an integer input into a two byte array to send via SPI</span>
+</span></span><span class="line"><span class="cl">def write_pot<span class="o">(</span>input<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">    <span class="nv">msb</span> <span class="o">=</span> input &gt;&gt; <span class="m">8</span>     <span class="c1"># Shift the higher 8 bits to the lower half</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">lsb</span> <span class="o">=</span> input <span class="p">&amp;</span> 0xFF   <span class="c1"># Only keep the lower 8 bits</span>
+</span></span><span class="line"><span class="cl">    spi.xfer<span class="o">([</span>msb, lsb<span class="o">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Repeatedly switch a MCP4151 digital pot off then on</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> True:
+</span></span><span class="line"><span class="cl">    write_pot<span class="o">(</span>0x1FF<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    time.sleep<span class="o">(</span>0.5<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    write_pot<span class="o">(</span>0x00<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    time.sleep<span class="o">(</span>0.5<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Execute this script, the program will keep running forever:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">python3 spi_test.py
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="pinout">Pinout
+</h2><p><strong>References</strong>:</p>
+<ol>
+<li><a id="Pinout-r1"></a>
+<a class="link" href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#view-a-gpio-pinout-for-your-raspberry-pi"  target="_blank" rel="noopener"
+    >Raspberry Pi hardware - Raspberry Pi Documentation</a>
+<small>
+<ul>
+<li>Searched by <code>raspberry pi 3B pinout</code> in
+<a class="link" href="https://duckduckgo.com/?q=raspberry&#43;pi&#43;3B&#43;pinout&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Pinout-r2"></a>
+<a class="link" href="https://pinout.xyz/"  target="_blank" rel="noopener"
+    >Raspberry Pi Pinout</a>
+<small>
+<ul>
+<li>Found in video: <a class="link" href="https://www.bilibili.com/video/BV164411q7Ea?t=329.7"  target="_blank" rel="noopener"
+    >Windows下通过串口连接树莓派 Raspberry Pi (USB to TTL, PuTTY) - bilibili - 老刘玩机</a></li>
+<li>Searched by <code>树莓派3D 串口 实验</code> in
+<a class="link" href="https://search.bilibili.com/all?vt=22516740&amp;keyword=%E6%A0%91%E8%8E%93%E6%B4%BE3D%20%E4%B8%B2%E5%8F%A3%20%E5%AE%9E%E9%AA%8C&amp;from_source=webtop_search&amp;spm_id_from=333.880&amp;search_source=5"  target="_blank" rel="noopener"
+    >bilibili</a>
+</small></li>
+</ul>
+</li>
+<li><a id=""></a>
+<a class="link" href="" ></a>
+<small>
+<ul>
+<li>Searched by <code> </code> in
+<a class="link" href="" >DDG</a>
+</small></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p>(2024-11-01)</p>
+<ol>
+<li>
+<p>Check pinout with command <code>pinout</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt install python3-gpiozero
+</span></span><span class="line"><span class="cl">pinout
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<p>(2024-11-29)</p>
+<ol start="2">
+<li>The serial (TX and RX) on Model 3B are turned off by default,
+because they are occupied by the Bluetooth
+<sup><a class="link" href="#Pinout-r2" >r2-bilibili</a></sup>.</li>
+</ol>
+<hr>
+<h2 id="uart">UART
+</h2><h3 id="comm-with-arduino">Comm With Arduino
+</h3><p><strong>References</strong>:</p>
+<ol>
+<li><a id="Uart-Ardu-r1"></a>
+<a class="link" href="https://forums.raspberrypi.com/viewtopic.php?t=337678"  target="_blank" rel="noopener"
+    >How to read data through UART - Raspberry Pi Forums</a>
+<small>
+<ul>
+<li>Searched by <code>raspberry pi uart receive and display on terminal</code> in
+<a class="link" href="https://tinyurl.com/3dc58zsu"  target="_blank" rel="noopener"
+    >Google</a>
+</small></li>
+</ul>
+</li>
+<li><a id=""></a>
+<a class="link" href="https://shumeipai.nxez.com/2021/08/09/raspberry-pi-4-activating-additional-uart-ports.html"  target="_blank" rel="noopener"
+    >树莓派4 UART 多串口配置通信 | 树莓派实验室</a>
+<small>
+<ul>
+<li>Searched by <code>树莓派 UART</code> in <a id="Uart-Ardu-s2"></a>
+<a class="link" href="https://www.google.com/search?q=%E6%A0%91%E8%8E%93%E6%B4%BE&#43;UART&amp;rlz=1CDGOYI_enCA1132CA1132&amp;oq=%E6%A0%91%E8%8E%93%E6%B4%BE&#43;UART&amp;gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCDc0MjNqMGo3qAIUsAIB4gMEGAEgXw&amp;hl=en-US&amp;sourceid=chrome-mobile&amp;ie=UTF-8"  target="_blank" rel="noopener"
+    >Google</a>
+</small></li>
+</ul>
+</li>
+<li><a id="Uart-Ardu-r3"></a>
+<a class="link" href="https://hackpi.fun/docs/configuration/uart/"  target="_blank" rel="noopener"
+    >UART配置- 树莓派中文文档</a>
+<small>
+<ul>
+<li>Searched by in <a class="link" href="#Uart-Ardu-s2" >s2</a>
+</small></li>
+</ul>
+</li>
+<li><a id=""></a>
+<a class="link" href="" ></a>
+<small>
+<ul>
+<li>Searched by <code> </code> in
+<a class="link" href="" >DDG</a>
+</small></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p>(2024-11-29)</p>
+<ol>
+<li>Arduino: <code>Serial.write()</code>, and Raspberry Pi print the received message in terminal
+<sup><a class="link" href="#Uart-Ardu-r1" >r1-Forum</a></sup>.</li>
+</ol>
+<p>(2024-12-05)</p>
+<ol start="2">
+<li>The pin: TX1 and RX0 both are 5V, whereas the UART on Rpi is 3.3V.
+So they cannot connect directly
+<sup><a class="link" href="#Uart-Ardu-r3" >r3-Hackpi</a></sup>.</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ee/">EE</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/embed/b-test-arduino/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://arduinogetstarted.com/images/tutorial/arduino-led-wiring-diagram.jpg" loading="lazy" data-key="" data-hash="https://arduinogetstarted.com/images/tutorial/arduino-led-wiring-diagram.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Test: EE - Boards | Arduino Beginners</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/embed/b-board-arduino/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://circuitdigest.com/sites/default/files/field/image/TYPES%20OF%20ARDUINO%20BOARDS.jpg" loading="lazy" data-key="" data-hash="https://circuitdigest.com/sites/default/files/field/image/TYPES%20OF%20ARDUINO%20BOARDS.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Memo: EE - Boards | Arduino Products Review</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/embed/c-cad-cad_tools/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Coll: EE - ECAD | Dev Tools</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/embed/b-cad-read_schematics/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Memo: EE - ECAD | Read Schematics</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/embed/b-board-gpio/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Memo: EE - Circuits | GPIO</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

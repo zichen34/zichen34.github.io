@@ -1,0 +1,2895 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="(Feature image from:\nWhat is a Pinhole Camera, How Does a Pinhole Camera Work? - smartclass4kids.com (Searched by Camera tree in DDG image Clipart) Pinhole camera - Wikipedia (Searched by pinhole camera in DDG) )) 相机旋转 (2022-05-22)\n坐标系旋转是 point 旋转的逆（点逆时针旋转θ 等效于坐标系顺时针旋转θ）\n点P在初始坐标系下的坐标为 Pₒ，在目标坐标系下的坐标为 Pₜ， 从 Pₒ 到 Pₜ 中间是 target 坐标系在 origin 坐标系下的表示（方向向量）[𝐫ₓ 𝐫ᵧ]ᵀ:\n$$ \\begin{bmatrix} xₜ \\\\\\ yₜ \\end{bmatrix} = \\begin{matrix} rₓ: \\\\\\ r_y: \\end{matrix} \\begin{bmatrix} a₁ & b₁ \\\\\\ a₂ & b₂ \\end{bmatrix} \\begin{bmatrix} xₒ \\\\\\ yₒ \\end{bmatrix} $$ 横着看：行向量 (a₁,b₁) 是 target 系的 x 轴在 origin 系下的方向向量， (a₂,b₂) 是 target 系的 y 轴在 origin 系下的方向向量。 例如，下图中 origin 系是 world，target 系是 camera:\n">
+<title>Memo: Vis - 3D | Camera Matrices</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/vis/b-note-camera_matrices/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Memo: Vis - 3D | Camera Matrices">
+<meta property='og:description' content="(Feature image from:\nWhat is a Pinhole Camera, How Does a Pinhole Camera Work? - smartclass4kids.com (Searched by Camera tree in DDG image Clipart) Pinhole camera - Wikipedia (Searched by pinhole camera in DDG) )) 相机旋转 (2022-05-22)\n坐标系旋转是 point 旋转的逆（点逆时针旋转θ 等效于坐标系顺时针旋转θ）\n点P在初始坐标系下的坐标为 Pₒ，在目标坐标系下的坐标为 Pₜ， 从 Pₒ 到 Pₜ 中间是 target 坐标系在 origin 坐标系下的表示（方向向量）[𝐫ₓ 𝐫ᵧ]ᵀ:\n$$ \\begin{bmatrix} xₜ \\\\\\ yₜ \\end{bmatrix} = \\begin{matrix} rₓ: \\\\\\ r_y: \\end{matrix} \\begin{bmatrix} a₁ & b₁ \\\\\\ a₂ & b₂ \\end{bmatrix} \\begin{bmatrix} xₒ \\\\\\ yₒ \\end{bmatrix} $$ 横着看：行向量 (a₁,b₁) 是 target 系的 x 轴在 origin 系下的方向向量， (a₂,b₂) 是 target 系的 y 轴在 origin 系下的方向向量。 例如，下图中 origin 系是 world，target 系是 camera:\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/vis/b-note-camera_matrices/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-05-22T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-05-22T00:00:00&#43;00:00'/><meta property='og:image' content='https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Pinhole-camera.svg/600px-Pinhole-camera.svg.png?20190523023446' />
+<meta name="twitter:title" content="Memo: Vis - 3D | Camera Matrices">
+<meta name="twitter:description" content="(Feature image from:\nWhat is a Pinhole Camera, How Does a Pinhole Camera Work? - smartclass4kids.com (Searched by Camera tree in DDG image Clipart) Pinhole camera - Wikipedia (Searched by pinhole camera in DDG) )) 相机旋转 (2022-05-22)\n坐标系旋转是 point 旋转的逆（点逆时针旋转θ 等效于坐标系顺时针旋转θ）\n点P在初始坐标系下的坐标为 Pₒ，在目标坐标系下的坐标为 Pₜ， 从 Pₒ 到 Pₜ 中间是 target 坐标系在 origin 坐标系下的表示（方向向量）[𝐫ₓ 𝐫ᵧ]ᵀ:\n$$ \\begin{bmatrix} xₜ \\\\\\ yₜ \\end{bmatrix} = \\begin{matrix} rₓ: \\\\\\ r_y: \\end{matrix} \\begin{bmatrix} a₁ & b₁ \\\\\\ a₂ & b₂ \\end{bmatrix} \\begin{bmatrix} xₒ \\\\\\ yₒ \\end{bmatrix} $$ 横着看：行向量 (a₁,b₁) 是 target 系的 x 轴在 origin 系下的方向向量， (a₂,b₂) 是 target 系的 y 轴在 origin 系下的方向向量。 例如，下图中 origin 系是 world，target 系是 camera:\n"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Pinhole-camera.svg/600px-Pinhole-camera.svg.png?20190523023446' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#相机旋转">相机旋转</a></li>
+    <li><a href="#透视投影">透视投影</a></li>
+    <li><a href="#投影变换">投影变换</a></li>
+    <li><a href="#ndc-空间">NDC 空间</a></li>
+    <li><a href="#相机变换矩阵">相机变换矩阵</a></li>
+    <li><a href="#3个矩阵">3个矩阵</a></li>
+    <li><a href="#uvn-模型">UVN 模型</a></li>
+    <li><a href="#cam-coords-system">Cam Coords System</a></li>
+    <li><a href="#identify-cam-axes">Identify Cam Axes</a></li>
+    <li><a href="#opencvopengl">OpenCV➡OpenGL</a></li>
+    <li><a href="#dtu-dataset">DTU dataset</a>
+      <ol>
+        <li><a href="#original">Original</a></li>
+        <li><a href="#mvsnet">MVSNet</a></li>
+        <li><a href="#mvsnet-pytorch">MVSNet-PyTorch</a></li>
+        <li><a href="#pixelnerf">PixelNeRF</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/vis/b-note-camera_matrices/">
+                
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Pinhole-camera.svg/600px-Pinhole-camera.svg.png?20190523023446" loading="lazy" alt="Featured image of post Memo: Vis - 3D | Camera Matrices" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" style="background-color: #6e57d2; color: #fff;">
+                Memo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/vis/b-note-camera_matrices/">Memo: Vis - 3D | Camera Matrices</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 22, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    26 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#相机旋转">相机旋转</a></li>
+    <li><a href="#透视投影">透视投影</a></li>
+    <li><a href="#投影变换">投影变换</a></li>
+    <li><a href="#ndc-空间">NDC 空间</a></li>
+    <li><a href="#相机变换矩阵">相机变换矩阵</a></li>
+    <li><a href="#3个矩阵">3个矩阵</a></li>
+    <li><a href="#uvn-模型">UVN 模型</a></li>
+    <li><a href="#cam-coords-system">Cam Coords System</a></li>
+    <li><a href="#identify-cam-axes">Identify Cam Axes</a></li>
+    <li><a href="#opencvopengl">OpenCV➡OpenGL</a></li>
+    <li><a href="#dtu-dataset">DTU dataset</a>
+      <ol>
+        <li><a href="#original">Original</a></li>
+        <li><a href="#mvsnet">MVSNet</a></li>
+        <li><a href="#mvsnet-pytorch">MVSNet-PyTorch</a></li>
+        <li><a href="#pixelnerf">PixelNeRF</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>(Feature image from:</p>
+<ol>
+<li><del><a class="link" href="https://smartclass4kids.com/pinhole-camera/"  target="_blank" rel="noopener"
+    >What is a Pinhole Camera, How Does a Pinhole Camera Work? - smartclass4kids.com</a></del>
+(<small>Searched by <code>Camera tree</code> in
+<a class="link" href="https://duckduckgo.com/?q=Camera&#43;tree&amp;iar=images&amp;iaf=type%3Aclipart&amp;iai=https%3A%2F%2Fsmartclass4kids.com%2Fwp-content%2Fuploads%2F2021%2F08%2Fpinhole_camera.png"  target="_blank" rel="noopener"
+    >DDG image Clipart</a></small>)</li>
+<li><a class="link" href="https://en.wikipedia.org/wiki/Pinhole_camera"  target="_blank" rel="noopener"
+    >Pinhole camera - Wikipedia</a>
+(<small>Searched by <code>pinhole camera</code> in
+<a class="link" href="https://duckduckgo.com/?q=pinhole&#43;camera&amp;ia=images&amp;iax=images&amp;iai=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F3%2F3b%2FPinhole-camera.svg%2F440px-Pinhole-camera.svg.png"  target="_blank" rel="noopener"
+    >DDG</a></small>)
+))</li>
+</ol>
+<hr>
+<h2 id="相机旋转">相机旋转
+</h2><p>(2022-05-22)</p>
+<p>坐标系旋转是 point 旋转的逆（点逆时针旋转θ 等效于坐标系顺时针旋转θ）</p>
+<p>点P在初始坐标系下的坐标为 Pₒ，在目标坐标系下的坐标为 Pₜ，
+从 Pₒ 到 Pₜ 中间是 <strong>target 坐标系在 origin 坐标系下的表示</strong>（方向向量）[𝐫ₓ 𝐫ᵧ]ᵀ:</p>
+$$
+\begin{bmatrix}  xₜ \\\ yₜ  \end{bmatrix} = 
+\begin{matrix} rₓ: \\\ r_y: \end{matrix} 
+\begin{bmatrix} a₁ & b₁ \\\ a₂ & b₂ \end{bmatrix}
+\begin{bmatrix}  xₒ \\\ yₒ  \end{bmatrix}
+$$<ul>
+<li>
+<p>横着看：行向量 (a₁,b₁) 是 target 系的 x 轴在 origin 系下的方向向量，
+(a₂,b₂) 是 target 系的 y 轴在 origin 系下的方向向量。
+例如，下图中 origin 系是 world，target 系是 camera:</p>
+<p><img src="/post/writenotes/vis/b-note-camera_matrices/coordinate_transform_uofminnesota.png"
+	width="757"
+	height="268"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="282"
+		data-flex-basis="677px"
+	
+></p>
+<ul>
+<li>Original 坐标$[^x_y]$做线性组合，变换到了 Target 坐标系$[^{x_c}_{y_c}]$。</li>
+</ul>
+</li>
+<li>
+<p>竖着看：列向量 (a₁,a₂) 是 origin 系的 x 轴在 target 系下的方向向量，
+(b₁,b₂) 是 origin 系的 y 轴在 target 系下的方向向量。</p>
+<p><img src="/post/writenotes/vis/b-note-camera_matrices/coordinate_transform_uofminnesota_2.png"
+	width="749"
+	height="265"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="282"
+		data-flex-basis="678px"
+	
+></p>
+</li>
+<li>
+<p>综上，旋转矩阵 R (in w2c) 横着看就是 camera (target) 系在 world 系下的表示，竖着看就是 world (original) 系在 camera 系下的表示。</p>
+<ul>
+<li>(2023-11-05) 所以通过转置就可以把 R in w2c 切换成 R in c2w。
+但是要把 w2c 变成 c2w，需要对 [R|t] 整体求逆。</li>
+</ul>
+</li>
+<li>
+<p>欧几里得变换 [R T]：旋转矩阵 R 加平移向量 T，把点在 origin 系的坐标变成在 target 系下的坐标，或者说把 origin 系变换成 target 系。</p>
+<p>For example, w2c as below.</p>
+<ol>
+<li>
+<p>先旋转后平移：点在 origin (world) 系下的坐标先经过 target (camera) 系在 origin 系下的方向向量 R 的线性组合，即
+<strong>投影</strong>（做内积）到了一个与 target 系坐标轴都平行的新坐标系（虚线）下，
+再加上一段平移向量 T，从而使新坐标是以 target 系的原点开始，所以 T 就是 origin 系的原点在 target 系视角下的坐标。</p>
+<p><img src="/post/writenotes/vis/b-note-camera_matrices/coordinate_transform_euclidean.png"
+	width="729"
+	height="386"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="188"
+		data-flex-basis="453px"
+	
+></p>
+<ul>
+<li>
+<p>This process is expressed by [R|t]. Conversely,
+[R|t] denotes rotation first then translation.</p>
+</li>
+<li>
+<p>(2024-01-09) 𝐭 is coordinate measured in the target space,
+because 𝐭 is simply <strong>added</strong> onto the target coordiantes without &ldquo;recombination&rdquo; of the elementary vectors in a basis.
+Therefore, 𝐭 is the original center seen from the target space.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>或者先平移后旋转：origin (world) 系下的坐标先减去 target (camera) 系原点在 origin 系下的坐标 C，
+变到了一个新坐标系下（其原点与 target 系原点重合），
+再旋转到与 target 系各轴重合；所以 C 就是 camera 光心在 world 系下的坐标。</p>
+<p><img src="/post/writenotes/vis/b-note-camera_matrices/coordinate_transform_euclidean_2.png"
+	width="897"
+	height="203"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="441"
+		data-flex-basis="1060px"
+	
+></p>
+<ul>
+<li>In this case, R and T can&rsquo;t be written as an augmented matrix, but separate matrices.</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>If the given point&rsquo;s coords are world coords, then apply [R|t].
+While if point is already in camera space, only apply [R].</li>
+</ul>
+</li>
+<li>
+<p>可借助 vanishing points (待定系数)来求旋转矩阵（This point is at infinite but finite in image.）
+<a class="link" href="https://www-users.cse.umn.edu/~hspark/CSci5980/Lec2_ProjectionMatrix.pdf"  target="_blank" rel="noopener"
+    >Camera Projection Matrix-UofMinnesota</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="透视投影">透视投影
+</h2><p>(2022-05-08)</p>
+<p>透视投影（内参矩阵K）把 camera space 下的坐标投影到焦平面上，X 除以 Z 乘以 f（即以 f/z 为系数对 x,y 做一个缩放）。
+如果焦距(焦平面距离) f 是常数，那就直接是与 z 成反比。</p>
+<ul>
+<li>(2024-01-31) 所以 &ldquo;z&rdquo; 代表的是 &ldquo;Zoom&rdquo; 缩放：近大远小.
+<a class="link" href="https://youtu.be/PGtv-dBi2wE?si=nPkrszDNt7-DCdQS&amp;t=16"  target="_blank" rel="noopener"
+    >Ray Marching for Dummies! - Ytb - The Art of Code</a></li>
+</ul>
+<p>（这里坐标都是绝对值，不考虑坐标系的选取）</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 264 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 40,64 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 176,64 L 184,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,32 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 80,96' fill='none' stroke='currentColor'></path>
+<path d='M 88,80 L 88,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,16 L 144,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,48 L 128,16' fill='none' stroke='currentColor'></path>
+<path d='M 88,72 L 88,80' fill='none' stroke='currentColor'></path>
+<polygon points='48.000000,64.000000 36.000000,58.400002 36.000000,69.599998' fill='currentColor' transform='rotate(180.000000, 40.000000, 64.000000)'></polygon>
+<polygon points='96.000000,96.000000 84.000000,90.400002 84.000000,101.599998' fill='currentColor' transform='rotate(90.000000, 88.000000, 96.000000)'></polygon>
+<polygon points='152.000000,16.000000 140.000000,10.400000 140.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 144.000000, 16.000000)'></polygon>
+<polygon points='192.000000,64.000000 180.000000,58.400002 180.000000,69.599998' fill='currentColor' transform='rotate(0.000000, 184.000000, 64.000000)'></polygon>
+<text text-anchor='middle' x='0' y='68' fill='currentColor' style='font-size:1em'>B</text>
+<text text-anchor='middle' x='8' y='68' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='24' y='68' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='56' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='88' y='52' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='96' y='84' fill='currentColor' style='font-size:1em'>/</text>
+<text text-anchor='middle' x='104' y='68' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='104' y='84' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='112' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='112' y='84' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='120' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='120' y='84' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>Z</text>
+<text text-anchor='middle' x='128' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='128' y='84' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='136' y='68' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>Y</text>
+<text text-anchor='middle' x='144' y='84' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='152' y='84' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='68' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='208' y='68' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>因为景物是 <strong>倒置</strong> 的，所以像素坐标系的 y 轴是向下的？</li>
+</ul>
+<p>若采用齐次坐标（用矩阵表达除法）, 对 [X,Y,Z] 做透视投影得到的是 [fX, fY, Z]，则 [u, v, 1] = [fX/Z, fY/Z, 1]。
+再以像素尺寸 dx,dy 缩放并加上(+)光心坐标 cx,cy，把原点从光心移到左上角（像素系的v轴是朝下的，所以还需要加负号？），就变到了像素坐标系下：</p>
+$$
+  \begin{bmatrix}  \frac{f}{dx} & 0 & cₓ \\\ 0 & \frac{f}{dy} & c_y \\\ 0 & 0 & 1 \end{bmatrix}
+  \begin{bmatrix}  X \\\ Y \\\ Z  \end{bmatrix} =
+  \begin{bmatrix}  fₓX + cₓZ \\\ f_yY + c_yZ \\\ Z  \end{bmatrix} =
+  \begin{bmatrix} \frac{fₓX}{Z}+cₓ \\\ \frac{f_yY}{Z}+c_y \\\ 1 \end{bmatrix}
+  $$<hr>
+<h2 id="投影变换">投影变换
+</h2><p>投影变换 <code>GL_PROJECTION</code> 是把 <strong>相机空间</strong> 下的点 (xₑ,yₑ,zₑ) 变换到 <strong>屏幕空间</strong> 的 clip 坐标 (xc,yc,zc,wc)：</p>
+<div class="table-wrapper"><table><tr>
+<td><figure><a href="http://www.songho.ca/opengl/gl_projectionmatrix.html"><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix01.png"></a>
+</figure>
+</td>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_frustumclip.png">
+</figure>
+</td>
+</table></div>
+<ol>
+<li>
+<p>先透视投影 (1/Z缩放) 到相机的 near plane (焦距为-n)。</p>
+<div class="table-wrapper"><table><tr>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix03.png">
+</figure>
+</td>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix04.png">
+</figure>
+</td>
+</table></div>
+透视除法需要除以 -zₑ，所以齐次坐标的 wₑ = -zₑ
+</li>
+<li>
+<p>再把 x,y 的取值范围：[top,bottom],[left,right] 线性变换到[-1,1]。</p>
+<div class="table-wrapper"><table><tr>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix05.png">
+</figure>
+</td>
+<td><figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix06.png">
+</figure>
+</td>
+</table></div>
+</li>
+<li>
+<p>令相机空间下的 [near, far] 的 NDC 坐标等于 [-1, 1]</p>
+</li>
+<li>
+<p>因为是从三维到三维，要想用矩阵表达透视缩放和平移，就需要使用齐次坐标。</p>
+<p>clip 坐标是 NDC 的齐次形式，所以这个矩阵（<a class="link" href="http://www.songho.ca/opengl/gl_projectionmatrix.html"  target="_blank" rel="noopener"
+    >Projection Matrix</a>）
+完成了 frustum culling 和 NDC 变换。</p>
+</li>
+</ol>
+$$
+\begin{bmatrix} \frac{2}{r-l}⋅n & 0 & \frac{r+l}{r-l} & 0 \\\ 
+0 & \frac{2}{t-b}⋅n & \frac{t+b}{t-b} & 0 \\\ 
+0 & 0 & -\frac{f+n}{f-n} & -\frac{2fn}{f-n} \\\ 
+0 & 0 & -1 & 0 \end{bmatrix}
+\begin{bmatrix} xₑ \\\ yₑ \\\ zₑ \\\ 1 \end{bmatrix} = 
+\begin{bmatrix}  \frac{2}{r-l}⋅nxₑ + \frac{r+l}{r-l}⋅zₑ \\\ 
+\frac{2}{t-b}⋅nyₑ + \frac{t+b}{t-b}⋅zₑ \\\ 
+-\frac{f+n}{f-n}⋅zₑ -\frac{2fn}{f-n} \\\ 
+-zₑ \end{bmatrix} =
+\begin{bmatrix}  \frac{2}{r-l}⋅n\frac{xₑ}{-zₑ} + \frac{r+l}{r-l} \\\ 
+\frac{2}{t-b}⋅n\frac{yₑ}{-zₑ} + \frac{t+b}{t-b} \\\ 
+\frac{f+n}{f-n} +\frac{2fn}{(f-n)zₑ} \\ 1 \end{bmatrix}
+$$<p><a class="link" href="https://www.cs.utexas.edu/~theshark/courses/cs354/lectures/cs354-9.pdf"  target="_blank" rel="noopener"
+    >viewing&amp;project-utexas</a></p>
+<hr>
+<h2 id="ndc-空间">NDC 空间
+</h2><ul>
+<li>
+<p>屏幕显示的世界深度范围是 near,far 两个焦平面之间的区域。
+openGL 中两焦平面间的 z interval 被映射到 [-1,1]，即 Normalized Device Coordinates，
+变换到 NDC 后就可以根据<code>z_ndc</code>把超出范围外的物体裁剪掉。</p>
+<p>屏幕窗口显示的是近焦平面。可以用 fov 控制近焦平面的边长，可以把屏幕的 t,b,l,r 映射到近焦平面的边长 [-1,1]，
+这样屏幕显示的空间就是一个 <strong>立方体</strong>。
+<a class="link" href="https://www.bilibili.com/video/BV1LS4y1b7xZ"  target="_blank" rel="noopener"
+    >探秘三维透视投影-齐次坐标的妙用 -奇乐bili</a></p>
+</li>
+</ul>
+<p>(2023-11-30)</p>
+<ul>
+<li>NDC = Perspective projection to the near plane <strong>with depths kept</strong> + Scaling.</li>
+</ul>
+<p>(2024-06-20)</p>
+<ul>
+<li>NDC is a cube.</li>
+</ul>
+<p>(2024-07-18)</p>
+<ul>
+<li>
+<p>Projection Matrix converts the camera space to the <strong>clip space</strong>:</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>Camera space</th>
+          <th>Clip space</th>
+          <th>After Clipping and Perspective division</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/HomoCoord_Miolith_5_40.jpg"
+	width="497"
+	height="380"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="130"
+		data-flex-basis="313px"
+	
+></td>
+          <td><figure><img src="https://learnopengl.com/img/getting-started/perspective_frustum.png">
+</figure>
+</td>
+          <td><figure><img src="https://assets.alexandria.raywenderlich.com/books/met/images/f1c6bc193b2c205e6cdcf0e1e9997132ad9aff54c9088b8e9fdd323d61843618/original.png" width="100">
+</figure>
+</td>
+      </tr>
+      <tr>
+          <td>Frustum</td>
+          <td>Still a frustum</td>
+          <td>Cube</td>
+      </tr>
+  </tbody>
+</table></div>
+<ul>
+<li>Images credit:
+<ul>
+<li><small><a class="link" href="https://www.youtube.com/watch?v=o-xwmTODTUI"  target="_blank" rel="noopener"
+    >Quick Understanding of Homogeneous Coordinates for Computer Graphics - Miolith</a>
+中文翻译: <a class="link" href="https://www.bilibili.com/video/BV1vi421Y7nP"  target="_blank" rel="noopener"
+    >计算机图形学快速理解：齐次坐标 - Miolith</a></small>)</li>
+<li><small><a class="link" href="https://learnopengl.com/Getting-started/Coordinate-Systems"  target="_blank" rel="noopener"
+    >LearnOpenGL -Coordinate Systems</a>(Searched by: &ldquo;Normalized device coordinates ndc&rdquo; in <a class="link" href="https://duckduckgo.com/?q=Normalized&#43;device&#43;coordinates&#43;ndc&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>24/07/21)</small></li>
+<li><small><a class="link" href="https://www.kodeco.com/books/metal-by-tutorials/v2.0/chapters/2-3d-models"  target="_blank" rel="noopener"
+    >Metal by Tutorials, Chapter 2: 3D Models | raywenderlich.com</a>. Found in <a class="link" href="https://duckduckgo.com/?q=Normalized&#43;device&#43;coordinates&#43;ndc&amp;iax=images&amp;ia=images"  target="_blank" rel="noopener"
+    >DDG image</a></small></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<p>Clip space is still a <strong>frustum</strong>: X,Y after Perspective projection (Times focal and add c)
+and scaling to $(\frac{2(f_x X + c_x Z)}{W}-Z, \frac{2(f_y Y + c_y Z)}{H} - Z)$ (No perspec div yet);
+Z [near, far] are Scaled (&ldquo;AZ+B&rdquo;) to
+$\left[\frac{far+near}{far-near} near - \frac{2far⋅near}{far-near}, \frac{far+near}{far-near} far - \frac{2far⋅near}{far-near}\right]$ (No perspec div yet)</p>
+</li>
+<li>
+<p>Although the &ldquo;perspective projection&rdquo; is actually NOT performed by the Projection Matrix,
+the Projection Matrix is built aiming to obtain a cube <strong>after clipping and perspective projection</strong>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>(2024-07-21)</p>
+<ul>
+<li>
+<p>The Projection Matrix transforms coordinates from camera space to clip space.
+Clip space is not a cube until after the clipping operaiont and the perspective division are performed
+(which are not encompassed in the projection matrix).</p>
+<ul>
+<li>
+<p>After the clipping operation, only points located whose z is <del>smaller</del> than its x and y remain,
+thereby, resulting in a cube, containing points to be rendered, which is often referred to as the &ldquo;normalized device coordinate (NDC) space.&rdquo;</p>
+</li>
+<li>
+<p>If not performing clipping operation and only perspective division for the clip space,
+the result space is not a cube, but a space where
+the range of x-y plane is [-inf, inf], and the z-axis ranges from [-1,1].</p>
+<p>A point (X,Y,Z) in camera space performed Projection Matrix and Perspective division becomes:
+$(\frac{ 2 ( \frac{f_x X}{Z} + c_x) - W}{W}, \frac{2 ( \frac{f_y Y}{Z} + c_y) - H}{H}, z_{NDC})$</p>
+<p>Because the X projected onto the <strong>image space</strong> $(\frac{f_x X}{Z}+c_x)$ can be [-inf, inf] considering all points in the camera space,
+the range of the <strong>scaled</strong> image-space coord x also is [-inf, inf].
+However, the field of view of a camera is limited.</p>
+<p>Therefore, the clipping operation filters out the points that are <strong>out of the FOV</strong>!</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<p>If a point whose ratio between X and Z is larger than FOV, it won&rsquo;t be rendered.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 320 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 48,16 L 104,16' fill='none' stroke='currentColor'></path>
+<path d='M 208,32 L 304,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,80 L 104,80' fill='none' stroke='currentColor'></path>
+<path d='M 208,96 L 304,96' fill='none' stroke='currentColor'></path>
+<path d='M 104,16 L 104,80' fill='none' stroke='currentColor'></path>
+<path d='M 104,80 L 104,128' fill='none' stroke='currentColor'></path>
+<path d='M 208,32 L 208,96' fill='none' stroke='currentColor'></path>
+<path d='M 304,32 L 304,96' fill='none' stroke='currentColor'></path>
+<path d='M 48,16 L 80,80' fill='none' stroke='currentColor'></path>
+<path d='M 80,80 L 104,128' fill='none' stroke='currentColor'></path>
+<circle cx='16' cy='16' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='48' cy='16' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='184' cy='32' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='208' cy='32' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>❌</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>X</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='48' y='148' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>Y</text>
+<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='64' y='148' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>Z</text>
+<text text-anchor='middle' x='72' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='80' y='36' fill='currentColor' style='font-size:1em'>X</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='88' y='68' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='88' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>Z</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='120' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='136' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='184' y='52' fill='currentColor' style='font-size:1em'>❌</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>ₚ</text>
+<text text-anchor='middle' x='208' y='116' fill='currentColor' style='font-size:1em'>I</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='216' y='68' fill='currentColor' style='font-size:1em'>…</text>
+<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>…</text>
+<text text-anchor='middle' x='232' y='84' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='240' y='84' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>ₚ</text>
+<text text-anchor='middle' x='248' y='68' fill='currentColor' style='font-size:1em'>…</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>ᵢ</text>
+<text text-anchor='middle' x='256' y='52' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='256' y='68' fill='currentColor' style='font-size:1em'>∙</text>
+<text text-anchor='middle' x='256' y='84' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='264' y='68' fill='currentColor' style='font-size:1em'>…</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='272' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='68' fill='currentColor' style='font-size:1em'>…</text>
+<text text-anchor='middle' x='280' y='84' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='280' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='288' y='84' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='288' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='296' y='68' fill='currentColor' style='font-size:1em'>…</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>
+<p>The fov of camera is $\frac{c_x}{f_x}$.
+The similar triangle is $\frac{c_x}{f_x} = \frac{X}{Z}$</p>
+</li>
+<li>
+<p>If a point has $\frac{c_x}{f_x} < \frac{X}{Z}$, it won&rsquo;t be seen by the camera.</p>
+</li>
+<li>
+<p>The boundary is $\frac{c_x}{f_x} = \frac{X}{Z}$.
+At this time, the range of the deviation from the camera optical axis $\frac{f_x X}{Z}$ is [-cₓ,cₓ].
+If $cₓ$ equals a half of width of the image $cₓ = \frac{W}{2}$,
+then the range of $x_{NDC}$ (i.e., $\frac{ 2 ( \frac{f_x X}{Z} + c_x) - W}{W}$) is [-1,1].</p>
+</li>
+</ul>
+</li>
+<li>
+<p>My previous understanding: the point whose X is larger than Z will be deleted is <strong>not accurate</strong>,
+as the FOV can be <strong>large</strong>:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 360 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 40,16 L 96,16' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 248,32' fill='none' stroke='currentColor'></path>
+<path d='M 248,32 L 344,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 96,80' fill='none' stroke='currentColor'></path>
+<path d='M 96,80 L 96,128' fill='none' stroke='currentColor'></path>
+<path d='M 248,32 L 248,80' fill='none' stroke='currentColor'></path>
+<path d='M 248,80 L 248,96' fill='none' stroke='currentColor'></path>
+<path d='M 40,16 L 72,80' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 96,128' fill='none' stroke='currentColor'></path>
+<circle cx='40' cy='16' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='24' y='148' fill='currentColor' style='font-size:1em'>A</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>X</text>
+<text text-anchor='middle' x='32' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='40' y='148' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>Y</text>
+<text text-anchor='middle' x='48' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>Z</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='72' y='36' fill='currentColor' style='font-size:1em'>X</text>
+<text text-anchor='middle' x='72' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='88' y='68' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='88' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='96' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>Z</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='120' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='168' y='52' fill='currentColor' style='font-size:1em'>`</text>
+<text text-anchor='middle' x='184' y='68' fill='currentColor' style='font-size:1em'>`</text>
+<text text-anchor='middle' x='192' y='148' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>X</text>
+<text text-anchor='middle' x='200' y='148' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='208' y='84' fill='currentColor' style='font-size:1em'>`</text>
+<text text-anchor='middle' x='208' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='216' y='148' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='224' y='68' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='224' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='224' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='232' y='68' fill='currentColor' style='font-size:1em'>ₓ</text>
+<text text-anchor='middle' x='232' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='232' y='100' fill='currentColor' style='font-size:1em'>`</text>
+<text text-anchor='middle' x='232' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='240' y='84' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>·</text>
+<text text-anchor='middle' x='248' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='256' y='68' fill='currentColor' style='font-size:1em'>Z</text>
+<text text-anchor='middle' x='256' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='264' y='148' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='272' y='100' fill='currentColor' style='font-size:1em'>`</text>
+<text text-anchor='middle' x='272' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='288' y='84' fill='currentColor' style='font-size:1em'>`</text>
+<text text-anchor='middle' x='288' y='148' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='296' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='304' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='312' y='68' fill='currentColor' style='font-size:1em'>`</text>
+<text text-anchor='middle' x='336' y='52' fill='currentColor' style='font-size:1em'>`</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ul>
+<hr>
+<h2 id="相机变换矩阵">相机变换矩阵
+</h2><p><a class="link" href="https://blog.csdn.net/popy007/article/details/5120158"  target="_blank" rel="noopener"
+    >推导相机变换矩阵-csdn-潘宏</a></p>
+<ul>
+<li>
+<p>(不同基底间的) 坐标转换公式: 𝐯=𝐐 𝐯&rsquo;=𝐑 𝐯&rsquo;&rsquo; ⇒ 𝐯&rsquo;&rsquo;= 𝐑⁻¹𝐐 𝐯&rsquo;，其中𝐐,𝐑 是不同的正交矩阵，代表坐标系，因为正交矩阵的逆等于转置，所以可以写为：𝐯&rsquo;&rsquo;= 𝐑ᵀ𝐐 𝐯'</p>
+</li>
+<li>
+<p>UVN相机模型用向量定义相机朝向：N 是相机观察方向的反方向，U 由辅助向量up与N叉乘确定，辅助向量用于让相机产生偏转（不歪头一般取(0,1,0)）；V=N×U，V 落在 up 与 N 形成的平面上。<br>
+例如nerf的函数<a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L128"  target="_blank" rel="noopener"
+    >viewmatrix()</a> 用于构建平均相机位姿 <code>poses_avg</code> 的UVN相机坐标系 [X|Y|Z]（世界系只有一个，而相机系有多个，取平均相机系作为&rsquo;新世界系&rsquo;）。</p>
+</li>
+<li>
+<p>View transformation: 把物体坐标从世界系变换到相机系下，也就是做一次相机运动的逆变换。变换过程：初始时相机系与世界系重合，(在世界系下)相机做旋转、再平移接近物体，然后相机与物体一起做逆平移、逆旋转，相机又回到初始位置，物体就变到了相机系下。<br>
+逆平移易求(取反)，逆旋转不易求(求逆的顺序)；但是做完逆平移后，相机系与世界系的原点重合了，只是基底不同，利用坐标转换公式就可以求出在相机系下的坐标 𝐯&rsquo;&rsquo;= 𝐑ᵀ𝐐 𝐯&rsquo;，其中𝐑是UVN系统，𝐐 是世界系(对角阵)，𝐯&rsquo;是逆平移后的向量𝐓⁻¹𝐯，故最终的坐标变换矩阵(w2c外参矩阵Extrinsic matrix)：𝐑ᵀ𝐐 𝐓⁻¹</p>
+</li>
+<li>
+<p>doubt: 旋转矩阵求逆 <a class="link" href="https://duckduckgo.com/?q=%e9%80%86%e6%97%8b%e8%bd%ac%e7%9f%a9%e9%98%b5%e4%b8%8d%e5%a5%bd%e6%b1%82&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="3个矩阵">3个矩阵
+</h2><ol>
+<li>
+<p>外参矩阵把点的 world space 坐标 Xw 变换到相机系下：Xc=R⋅Xw+T；</p>
+</li>
+<li>
+<p>内参矩阵把点的 camera space 坐标 Xc 变换到焦平面(原点在图片中央)
+（加上缩放因子fx,fy和光心坐标(cx,cy)可以变换到像素坐标系u,v，
+原点在图片左上角,v轴朝下）上：P=K⋅Xc；</p>
+</li>
+<li>
+<p>相机投影矩阵 Camera projection matrix：把世界点直接变换到图像平面上（内参矩阵K₃ₓ₃ ∗ 外参矩阵[R T]₃ₓ₄ = P₃ₓ₄）。</p>
+</li>
+</ol>
+<p>Ref:</p>
+<ul>
+<li><a class="link" href="https://www.cs.cmu.edu/~16385/s17/Slides/11.1_Camera_matrix.pdf"  target="_blank" rel="noopener"
+    >11.1 Camera matrix-CMU</a></li>
+<li><a class="link" href="https://www.cnblogs.com/wangguchangqing/p/8126333.html#autoid-0-5-0"  target="_blank" rel="noopener"
+    >SLAM入门之视觉里程计(2)：相机模型（内参数，外参数）</a></li>
+<li><a class="link" href="https://www.opencv.org.cn/opencvdoc/2.3.2/html/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html?highlight=findfun"  target="_blank" rel="noopener"
+    >Camera Calibration and 3D Reconstruction-openCV</a></li>
+</ul>
+<hr>
+<h2 id="uvn-模型">UVN 模型
+</h2><ul>
+<li>
+<p>从外参矩阵Extrinsic matrix₄ₓ₄ 提取出相机的位置和朝向: (最后一行是齐次坐标）<del>最后一列是世界系中心在相机系中的位置</del>，
+左上3x3是相机在世界系下旋转运动R的转置（列向量是世界系，行向量是相机系）。如果再知道相机的观察方向，借助一个辅助向量up，就能确定UVN系统。
+<a class="link" href="https://math.stackexchange.com/q/82602"  target="_blank" rel="noopener"
+    >StackExchange</a></p>
+</li>
+<li>
+<p>doubt: UVN 相机模型 <a class="link" href="https://www.google.com/search?q=UVN&#43;%e7%9b%b8%e6%9c%ba%e6%a8%a1%e5%9e%8b"  target="_blank" rel="noopener"
+    >Google Search</a></p>
+</li>
+</ul>
+<hr>
+<p>(2024-04-02)</p>
+<ul>
+<li>Establishing w2c from camera position and looking-at vector.
+<a class="link" href="https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/lookat-function/framing-lookat-function.html"  target="_blank" rel="noopener"
+    >Placing a Camera: the LookAt Function - Scratchapixel</a>
+<ul>
+<li>
+<p>The &ldquo;forward&rdquo; direction is defined as <code>From - To</code>, because He marked the &ldquo;out&rdquo; of the screen as &ldquo;forward&rdquo;</p>
+</li>
+<li>
+<p>After determining the &ldquo;forward&rdquo; vector, specify a temporary &ldquo;up&rdquo; vector (usually (0,1,0)), which is
+not necessary to be perpendicular to the &ldquo;forward&rdquo;,
+to produce the &ldquo;right&rdquo; vector, accroding to &ldquo;forward&rdquo;× temporary &ldquo;up&rdquo;.</p>
+<p>Once the &ldquo;right&rdquo; vector is obtained, re-construct the accurate &ldquo;up&rdquo; vector by &ldquo;forward&rdquo; cross &ldquo;right&rdquo;.
+<strong>Note</strong>: He define the Backward as &ldquo;forward&rdquo;.</p>
+</li>
+<li>
+<p>The c2w in this post is row-major format. So, he writes each row is a direction.</p>
+</li>
+<li>
+<p>z = -1 is the camera-space coordinate of the ray direction vector.</p>
+</li>
+<li>
+<p>The limitation of the looking-at method is the case that the &ldquo;forward&rdquo; direction is aligned with the temporary &ldquo;up&rdquo; (0,1,0),
+as the cross product of 2 parallel vectors is zero $\vec{0}$.
+<a class="link" href="https://math.libretexts.org/Bookshelves/Calculus/Calculus_3e_%28Apex%29/10%3A_Vectors/10.04%3A_The_Cross_Product#:~:text=Properties%20of%20the%20Cross%20Product"  target="_blank" rel="noopener"
+    >10.4: The Cross Product - Mathematics LibreTexts</a></p>
+<p>A solution is using quaternion.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>(2024-04-04)</p>
+<ul>
+<li>NeRF builds RUB matrix (i.e., the averaged c2w)：average up × back (z-axis) = right (x-axis)
+<a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L128-L134"  target="_blank" rel="noopener"
+    >Code</a></li>
+</ul>
+<hr>
+<h2 id="cam-coords-system">Cam Coords System
+</h2><p>(2024-03-21)</p>
+<ul>
+<li>
+<p>确定了相机坐标系与世界坐标系的相对关系，才能正确地把一个 3D 点的世界坐标变成相机坐标系下的坐标。</p>
+<p>假定世界坐标系是右手坐标系，相机坐标系可能不与世界系重合。</p>
+<p>相机坐标系有 3 个轴：左（右），上（下），前（后），方向不同则：点在该方向上的坐标相差 1 个负号。而且 3 个轴的排列次序也不统一。</p>
+<figure><a href="https://zhuanlan.zhihu.com/p/593204605"><img src="https://pic3.zhimg.com/80/v2-77094ec63c1d68a0401cb0f7c10d8faa_720w.jpg"
+      alt="NeRF代码解读-相机参数与坐标系变换 - 陈冠英 - 知乎"></a><figcaption>
+        <p>NeRF代码解读-相机参数与坐标系变换 - 陈冠英 - 知乎</p>
+      </figcaption>
+  </figure>
+
+<ul>
+<li>Open3D&rsquo;s camera coord. sys. is RDF. <a class="link" href="https://github.com/isl-org/Open3D/issues/1347#issuecomment-558205561"  target="_blank" rel="noopener"
+    >camera coordinate system of visualization #1347</a></li>
+</ul>
+</li>
+<li>
+<p>确定了相机在 <strong>世界</strong> 坐标系中的朝向和位置: Up vector, viewing direction and position，
+才可以操纵相机 (Camera Manipulation)：Changing roll, yaw, pitch, dollying (<a class="link" href="https://www3.cs.stonybrook.edu/~qin/courses/graphics/camera-coordinate-system.pdf"  target="_blank" rel="noopener"
+    >Slides - Hong Qin</a>).
+An interactive example in <a class="link" href="https://learnwebgl.brown37.net/07_cameras/camera_introduction.html"  target="_blank" rel="noopener"
+    >LearnWebGL</a>。
+Songho also explain camera manipulation <a class="link" href="https://www.songho.ca/opengl/gl_camera.html"  target="_blank" rel="noopener"
+    >OpenGL Camera</a>.</p>
+<p>所以坐标变换的顺序是：世界系下的坐标 ➡ 相机系下的坐标 ➡ 相机做 6 DoF 运动（等价于物体的相机系坐标做 inverse 运动）➡
+在相机运动完成后，再把 3D 点在相机系下的坐标投影到相机平面。</p>
+</li>
+<li>
+<p>对于矩阵 w2c，前 3 列的每一列是世界坐标系的每个 axis 在相机坐标系下的坐标。</p>
+<p>(2024-03-25)</p>
+<ul>
+<li>
+<p>w2c 是把一个 <strong>点</strong> 的世界坐标转换成相机坐标。一个 3D 点的坐标等于 一个数组乘以坐标系。
+所以 w2c 等于 rotation matrix 乘以世界坐标系：</p>
+$$
+    \begin{bmatrix} c_{x_1} & c_{y_1} & c_{z_1} \\\ c_{x_2} & c_{y_2} & c_{z_2} \\\ c_{x_3} & c_{y_3} & c_{z_3} \end{bmatrix} =
+    \begin{bmatrix} r₁₁ & r₁₂ & r₁₃ \\\ r₂₁ & r₂₂ & r₂₃ \\\\ r₃₁ & r₃₂ & r₃₃  \end{bmatrix}
+    \begin{bmatrix} 1 & 0 & 0 \\\ 0 & 1 & 0 \\\ 0 & 0 & 1
+    \end{bmatrix}
+    $$</li>
+<li>
+<p>因为 rotation matrix 的特性，它的一行就是目标坐标系的一个轴在 源系下的坐标。它的一列就是源系的一个轴在目标系下的坐标。</p>
+<p>(2024-06-20)</p>
+<ul>
+<li>
+<p>Is this because that a point (x,y,z) can be regarded as a inner product of a coordinate tuple and the source basis.
+Once the source basis times the rotation matrix, it becomes the target basis.</p>
+<ol>
+<li>And since the source bais is a all-1 matrix, the rotation is the target basis: each column is an axis of the <strong>target basis</strong>.</li>
+<li>And because the coordinates tuple is measured in the source space, the target basis is also <strong>being viewed</strong> in the source space.</li>
+<li>And as the rotation matrix is at left, based on the rule of matmul, each row is supposed to be an axis of the target space.</li>
+<li>After the matrix multipliation, the coordinates are transformed into the targe space.</li>
+</ol>
+$$
+      \begin{bmatrix} x_{tar} \\\ y_{tar} \\\ z_{tar} \end{bmatrix} =
+      \begin{bmatrix}
+      \text{tar axis1 in src} \\\ \text{tar axis2 in src} \\\ \text{tar axis3 in src}
+      \end{bmatrix}
+      \begin{bmatrix}
+      1 & 0 & 0 \\\ 0 & 1 & 0 \\\ 0 & 0 & 1
+      \end{bmatrix}
+      \begin{bmatrix} x_{src} \\\ y_{src} \\\ z_{src} \end{bmatrix}
+      $$</li>
+</ul>
+</li>
+<li>
+<p>Each row in rotation matrix for w2c is an axis of target camera coordinate system. This can be verified by the example below:</p>
+<p><img src="/post/writenotes/vis/b-note-camera_matrices/camSys_rot_w2c.png"
+	width="450"
+	height="370"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="121"
+		data-flex-basis="291px"
+	
+></p>
+<p>Plotting script: <a class="link" href="https://gist.github.com/zichen34/4ba6e6afb724eb294dceee5f6306ea7d"  target="_blank" rel="noopener"
+    >Test_rotation_matrix.ipynb</a></p>
+</li>
+</ul>
+<p>同样，对于矩阵 c2w，前 3 列的每 <strong>一列</strong> 是相机坐标系的每个 axis 在世界坐标系下的坐标。
+所以要 <strong>调换</strong> 相机坐标系在世界坐标系下的朝向，对 <strong>c2w</strong> 的 rot 的 <strong>某一列</strong> 乘上一个负号即可。</p>
+<p>相机坐标系的定义影响的是 3D 点在相机坐标系下的坐标：改变相机朝向，最终体现在 3D 点在相机系下的坐标的正负。
+具体来说，对于 <strong>w2c</strong> 中的旋转矩阵，要 <strong>调换</strong> 相机系的一个轴的方向，应对 rotation matrix 中对应的 <strong>一行</strong> 添加负号。</p>
+<p>因为 NeRF 使用的是 c2w，它的旋转矩阵的 <strong>每一列</strong> 是一个相机系的轴，而且次序是 <a class="link" href="https://github.com/fyusion/llff?tab=readme-ov-file#using-your-own-poses-without-running-colmap"  target="_blank" rel="noopener"
+    >DRB</a>
+所以代码中交换第 0 列(Down) 和第 1 列 (Right)，然后对 y 方向乘上 -1 变成 Up。最终变到了 OpenGL 的 RUB。
+<a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L250"  target="_blank" rel="noopener"
+    >Code</a></p>
+</li>
+</ul>
+<p>(2024-03-24)</p>
+<ul>
+<li>
+<p>&ldquo;The view matrix <strong>transforms</strong> all world coordinates to camera-space coordinates.&rdquo;
+&ndash; <a class="link" href="https://learnopengl.com/Getting-started/Camera#:~:text=Camera%2FView%20space"  target="_blank" rel="noopener"
+    >LearnOpenGL - Camera</a></p>
+<p>Therefore, the view matrix (extrinsics) transforms the X,Y,Z axes of the world coordinates system
+to X,Y,Z axes of the camera coordinates system.</p>
+<p>Let the world X-Y-Z axes be the 3 unit column vectors, as shown in the below right matrix,
+they&rsquo;re transformed to camera axes by a w2c:</p>
+$$
+  \begin{bmatrix} r₁₁ & r₁₂ & r₁₃ & t₁ \\\ r₂₁ & r₂₂ & r₂₃ & t₂ \\\\ r₃₁ & r₃₂ & r₃₃ & t₃ \\\ 0 & 0 & 0 & 1 \end{bmatrix}
+  \begin{bmatrix} 1 & 0 & 0 \\\ 0 & 1 & 0 \\\\ 0 & 0 & 1 \\\ 1 & 1 & 1 \end{bmatrix}
+  $$<ul>
+<li>The extrinsics matrix transforms a world coordinates into camera-space coordinates.
+Next, the point will be applied with the <a class="link" href="https://www.songho.ca/opengl/gl_projectionmatrix.html"  target="_blank" rel="noopener"
+    >projection matrix</a>
+(scaling axes to preserve points whose $z_{clip}$ is larger than its $x_{clip},\ y_{clip},\ z_{clip}$,
+and performing intrinsics) for frustum clipping.
+The projection matrix requires a 4D homogeneous coordinates: $[x_{cam},y_{cam},z_{cam},1]^T$.
+So, the above extrinsic matrix has a <strong>4-th row</strong>, that results in an additional $1$,
+which is reserved for storing the depth z value,
+for the final perspective division.</li>
+</ul>
+<p>After multiplied with the extrinsics (w2c), the X,Y,Z axes of the world system are still 3 <strong>columns</strong>,
+but values become their coordinates under the camera coordinate system.
+And the 3 <strong>rows in the R of w2c</strong> are the camera coordinate system.</p>
+<p>However, the camera coordinate system has many different matrix formats in different 3D applications.
+For example, OpenGL (Blender) uses RUB order.</p>
+<p>Usually, the world space is RUB as well. So, transforming world-space coordinates to OpenGL camera-space coordiantes doesn&rsquo;t need
+to reverse axes.</p>
+<figure><a href="https://zhuanlan.zhihu.com/p/593204605"><img src="https://pic1.zhimg.com/80/v2-ff5969172410c94a252b09cb8516a2f0_720w.webp"></a>
+  </figure>
+
+<p>Whereas, OpenCV uses RDF camera coord. sys. Thus, the sign of y and z coordinates require flips in the camera space.</p>
+</li>
+</ul>
+<ul>
+<li>
+<p>One of the differences between OpenCV and OpenGL is that in OpenGL, the z-axis has near and far boundary.
+Refer to <a class="link" href="https://amytabb.com/tips/tutorials/2019/06/28/OpenCV-to-OpenGL-tutorial-essentials/"  target="_blank" rel="noopener"
+    >Amy Tabb</a>.</p>
+<p>That post was found with searching &ldquo;Converting camera poses from OpenCV to OpenGL can be easy&rdquo; (<a class="link" href="https://duckduckgo.com/?q=Converting&#43;camera&#43;poses&#43;from&#43;OpenCV&#43;to&#43;OpenGL&#43;can&#43;be&#43;easy&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>),
+that is a medium blog, which is found when searching &ldquo;camera coordinates right front up&rdquo; (<a class="link" href="https://duckduckgo.com/?q=camera&#43;coordinates&#43;right&#43;front&#43;up&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>)</p>
+</li>
+</ul>
+<p>(2024-03-25)</p>
+<p>Example with a 3D point p:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 224 185"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 56,32 L 88,32' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 L 120,32' fill='none' stroke='currentColor'></path>
+<path d='M 40,64 L 56,64' fill='none' stroke='currentColor'></path>
+<path d='M 56,64 L 72,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 104,64' fill='none' stroke='currentColor'></path>
+<path d='M 56,96 L 104,96' fill='none' stroke='currentColor'></path>
+<path d='M 104,96 L 120,96' fill='none' stroke='currentColor'></path>
+<path d='M 120,96 L 136,96' fill='none' stroke='currentColor'></path>
+<path d='M 40,128 L 56,128' fill='none' stroke='currentColor'></path>
+<path d='M 56,128 L 104,128' fill='none' stroke='currentColor'></path>
+<path d='M 40,64 L 40,128' fill='none' stroke='currentColor'></path>
+<path d='M 56,0 L 56,32' fill='none' stroke='currentColor'></path>
+<path d='M 56,32 L 56,64' fill='none' stroke='currentColor'></path>
+<path d='M 56,64 L 56,96' fill='none' stroke='currentColor'></path>
+<path d='M 56,96 L 56,128' fill='none' stroke='currentColor'></path>
+<path d='M 56,128 L 56,160' fill='none' stroke='currentColor'></path>
+<path d='M 104,64 L 104,96' fill='none' stroke='currentColor'></path>
+<path d='M 104,96 L 104,128' fill='none' stroke='currentColor'></path>
+<path d='M 120,32 L 120,96' fill='none' stroke='currentColor'></path>
+<path d='M 40,64 L 56,32' fill='none' stroke='currentColor'></path>
+<path d='M 24,160 L 40,128' fill='none' stroke='currentColor'></path>
+<path d='M 40,128 L 56,96' fill='none' stroke='currentColor'></path>
+<path d='M 56,96 L 72,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 88,32' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 L 104,0' fill='none' stroke='currentColor'></path>
+<path d='M 104,64 L 120,32' fill='none' stroke='currentColor'></path>
+<path d='M 104,128 L 120,96' fill='none' stroke='currentColor'></path>
+<polygon points='36.000000,160.000000 24.000000,154.399994 24.000000,165.600006' fill='currentColor' transform='rotate(120.000000, 24.000000, 160.000000)'></polygon>
+<polygon points='64.000000,0.000000 52.000000,-5.600000 52.000000,5.600000' fill='currentColor' transform='rotate(270.000000, 56.000000, 0.000000)'></polygon>
+<polygon points='64.000000,160.000000 52.000000,154.399994 52.000000,165.600006' fill='currentColor' transform='rotate(90.000000, 56.000000, 160.000000)'></polygon>
+<polygon points='116.000000,0.000000 104.000000,-5.600000 104.000000,5.600000' fill='currentColor' transform='rotate(300.000000, 104.000000, 0.000000)'></polygon>
+<polygon points='144.000000,96.000000 132.000000,90.400002 132.000000,101.599998' fill='currentColor' transform='rotate(0.000000, 136.000000, 96.000000)'></polygon>
+<circle cx='104' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='8' y='164' fill='currentColor' style='font-size:1em'>Z</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>Y</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='72' y='164' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='80' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='88' y='164' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='96' y='164' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='152' y='100' fill='currentColor' style='font-size:1em'>X</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='160' y='100' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='168' y='4' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='176' y='100' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='184' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='192' y='100' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='200' y='100' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='208' y='100' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>
+<p>The above figure shows the <strong>right-hand</strong> world coordinate system (X-Y-Z) and a OpenCV camera coordinate system (Right-Down-Forward).</p>
+<p>Those 2 coordinate systems have a common origin $O$. And the camera has no rotation.</p>
+<p>The coordinates of a point p under the world space is $(2, 2, 1)$. However, the coordinates in the camera space is $(2, -2, -1)$.</p>
+<p>This shows that when converting the world-space coordinate to OpenCV camera-space coordinates,
+there is a &ldquo;sign matrix&rdquo;:</p>
+$$
+  \begin{bmatrix} 1 & 0 & 0 \\\ 0 & -1 & 0 \\\ 0 & 0 & -1 \end{bmatrix}
+  \begin{bmatrix} 2 \\\ 2 \\\ 1 \end{bmatrix}
+  $$<p>When the camera shifts from the world origin by rotation and translation, i.e., the extrinsics matrix,
+which transforms the <strong>axes of world</strong> system.
+So, the result coordinates is measured in a <strong>transformed</strong> world coordinate system.</p>
+<p>Thus, the &ldquo;sign matrix&rdquo; is required to convert the &ldquo;transformed world&rdquo; system to OpenCV (or other) camera coordinate system.</p>
+$$
+  \begin{bmatrix} x_{cam} \\\ y_{cam} \\\ z_{cam} \\\ 1 \end{bmatrix} = 
+  \begin{bmatrix} 1 & 0 & 0 & 0 \\\ 0 & -1 & 0 & 0 \\\ 0 & 0 & -1 & 0 \\\ 0 & 0 & 0 & 1 \end{bmatrix}
+  \begin{bmatrix} r₁₁ & r₁₂ & r₁₃ & t₁ \\\ r₂₁ & r₂₂ & r₂₃ & t₂ \\\\ r₃₁ & r₃₂ & r₃₃ & t₃ \\\ 0 & 0 & 0 & 1  \end{bmatrix}
+  \begin{bmatrix} x_{world} \\\ y_{world} \\\ z_{world} \\\ 1 \end{bmatrix}
+  $$<p>Therefore, the matrix transforming world coordinates to OpenCV camera coordiantes is:</p>
+$$
+  \begin{bmatrix} r₁₁ & r₁₂ & r₁₃ & t₁ \\\ -r₂₁ & -r₂₂ & -r₂₃ & -t₂ \\\\ -r₃₁ & -r₃₂ & -r₃₃ & -t₃ \\\ 0 & 0 & 0 & 1  \end{bmatrix}
+  $$</li>
+</ul>
+<ul>
+<li>
+<p>Since w2c transforms world axes to camera-space coordinates,
+the coordinates performed by w2c must be a world coordinates of a point, instead of a camera coordinates.</p>
+<p>So, the &ldquo;sign matrix&rdquo; must be applied after w2c. Otherwise, the world coordinate becomes a camera coordinate immediately,
+which doesn&rsquo;t match w2c.
+Specifically, the below order is <strong>incorrect</strong>:</p>
+$$
+  w2c
+  \begin{bmatrix} 1 & 0 & 0 & 0 \\\ 0 & -1 & 0 & 0 \\\ 0 & 0 & -1 & 0 \\\ 0 & 0 & 0 & 1 \end{bmatrix}
+  \begin{bmatrix} x_{world} \\\ y_{world} \\\ z_{world} \\\ 1 \end{bmatrix}
+  $$<p>In other words, the &ldquo;sign matrix&rdquo; should be applied on a camera-space coordinates.</p>
+</li>
+<li>
+<p>In NeRF, the provided matrix is <strong>c2w</strong>, where each <strong>column</strong> of the rot is a camera axis, and the columns order is DRB.
+So, the first 2 columns need to switch, thus, becoming RDB.
+Then, to align the camera coordinate system of Blender: RUB,
+the second <strong>row</strong> (the U axis) needs to be multiplied with -1.
+<a class="link" href="https://github.com/bmild/nerf/blob/18b8aebda6700ed659cb27a0c348b737a5f6ab60/load_llff.py#L250"  target="_blank" rel="noopener"
+    >Code</a></p>
+<p>(2024-03-26)</p>
+<ul>
+<li>
+<p>Note: the rotation matrix in <code>c2w</code> and <code>w2c</code> are different.
+For the rot in <code>c2w</code>, each <strong>column</strong> is an axis of camera, so reversing the direction of a camera axis requires
+multiplying <strong>a column</strong> with -1.</p>
+<p>Whereas, for the rot in <code>w2c</code>, each <strong>row</strong> is an axis of a camera.
+Thus, to reverse a camera axis, <strong>a row</strong> needs to be negated.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>(2024-03-26)</p>
+<p>Test reversing a row and a column in a rotation matrix for w2c:</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>Original Rot in w2c</th>
+          <th>Flip 0th row</th>
+          <th>Flip 0th column</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/camSys_rot_orig.png"
+	width="503"
+	height="417"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="120"
+		data-flex-basis="289px"
+	
+></td>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/camSys_flip_row0.png"
+	width="458"
+	height="429"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="106"
+		data-flex-basis="256px"
+	
+></td>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/camSys_flip_col0.png"
+	width="472"
+	height="424"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="111"
+		data-flex-basis="267px"
+	
+></td>
+      </tr>
+      <tr>
+          <td>$$\begin{bmatrix} 0.970 & 0.00747 &  0.241 \\\ -0.0147 & 0.999 & 0.028 \\\ -0.241 & -0.0309 & 0.969 \end{bmatrix}$$</td>
+          <td>$$\begin{bmatrix} -0.970 & -0.00747 & -0.241 \\\ -0.0147 & 0.999 & 0.0282 \\\ -0.241 & -0.0309 & 0.969 \end{bmatrix}$$</td>
+          <td>$$\begin{bmatrix} -0.970 & 0.00747 & 0.241 \\\ 0.0147 & 0.999 & 0.0282 \\\ 0.241 & -0.0309 & 0.969 \end{bmatrix}$$</td>
+      </tr>
+      <tr>
+          <td>$p_{cam}=[2.18994, 0.99823, 0.45571]$</td>
+          <td>$p_{cam}=[-2.18994,  0.99823,  0.45571]$</td>
+          <td>$p_{cam}=[-1.69110,  1.05720,  1.42213]$</td>
+      </tr>
+  </tbody>
+</table></div>
+<ul>
+<li>
+<p>A row of the rotation matrix in w2c is the coordinates of a camera axis in the world space.</p>
+</li>
+<li>
+<p>A column is the coordinates of a world axis in the camera space.</p>
+</li>
+</ul>
+<ol>
+<li>
+<p>The original rotation matrix transforms the world axes to a tilted coordinate system.</p>
+</li>
+<li>
+<p>Flip the 0th row of the rotation matrix: only the X axis entirely turns to the oppsite direction.</p>
+</li>
+<li>
+<p>Flip the 0th row of the rotation matrix: the x component of <strong>all</strong> the X-Y-Z axes are affected.
+Apparently, this is not desired result.
+When flipping a single axis, the other axes should be unchanged.</p>
+</li>
+</ol>
+<p>Figure plotting script: <a class="link" href="https://gist.github.com/zichen34/4a1f0b08aa7a3e76a2d6a84147b38168"  target="_blank" rel="noopener"
+    >Test_reverse_cam_axis.ipynb</a></p>
+<hr>
+<h2 id="identify-cam-axes">Identify Cam Axes
+</h2><p>只有旋转矩阵 R，但不知道相机在世界坐标系中的朝向（也不知道各轴的次序）。</p>
+<ul>
+<li>@will 在 23-11-10 8:25 AM 说：画出来看看正不正对场景。</li>
+<li>@什么办 在 22-11-21 8:50 PM 展示过他用 plt 画的相机位姿。</li>
+</ul>
+<p>(2024-03-27)</p>
+<ul>
+<li>
+<p>The pose1 does not face towards the object (MVSNet_testing/dtu/scan1/cams/00000000_cam.txt):</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>R for w2c</th>
+          <th>rect_001_0 (full)</th>
+          <th>mod signs</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/dtu_pose1.jpg"
+	width="384"
+	height="410"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="93"
+		data-flex-basis="224px"
+	
+></td>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/dtu_test_rect_001_0_r5000.jpg"
+	width="300"
+	height="225"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="133"
+		data-flex-basis="320px"
+	
+></td>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/dtu_pose1_mod.jpg"
+	width="391"
+	height="422"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="92"
+		data-flex-basis="222px"
+	
+></td>
+      </tr>
+  </tbody>
+</table></div>
+<ul>
+<li>
+<p>I have dragged the figure to make the z axis upside down.
+The camera position is $[-191.02, 3.28832, 22.5401 ]$
+And I feel the pose should be $[3, 191, 22]$</p>
+<p>(2024-03-30) Camera position was wrong, but it&rsquo;s not due to signs. The 4-th column in w2c is not the camera position in world.</p>
+</li>
+<li>
+<p>Dragging z-axis to upside down is equivalent to negating the z coordinate and switching the x and y of points coordinates.
+Specifically, given a point (x,y,z), dragging z to flip equals:
+<code>x=y; y=x; z=-z</code></p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>Drag manually</th>
+          <th>Flip z and switch x,y</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/dtu_drag_z_scan23.jpg"
+	width="391"
+	height="403"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="97"
+		data-flex-basis="232px"
+	
+></td>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/dtu_flip_z.jpg"
+	width="375"
+	height="400"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="93"
+		data-flex-basis="225px"
+	
+></td>
+      </tr>
+  </tbody>
+</table></div>
+<details> <summary>Code for modifying axes for scan23</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="o">%</span><span class="n">matplotlib</span> <span class="n">widget</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+</span></span><span class="line"><span class="cl"><span class="n">pcd</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_point_cloud</span><span class="p">(</span><span class="s2">&#34;/mnt/data2_z/SampleSet/MVS Data/Points/stl/stl023_total.ply&#34;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ply&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pcd</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">samples</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">vs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1000</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="n">samples</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>(204-03-28)</p>
+<ul>
+<li>I know DTU matches the setup of OpenCV because the function <code>cv2.decomposeProjectionMatrix</code> is used.
+But, I&rsquo;m still confused about the scene visualization with matplotlib.</li>
+</ul>
+<hr>
+<p>(2024-03-30)</p>
+<ul>
+<li>
+<p>The 4-th column of the w2c is <strong>NOT</strong> the camera center position in world space!!
+(The 4-th column of the w2c is the world center in the camera space: $\rm WorldCen_{cam} = R_{w2c} 0_{world} + T_{w2c}$.)
+The camera position in world should be the 4-th column of c2w,
+i.e., $-R_{w2c}^T t_{w2c}$.</p>
+<ul>
+<li>The <code>t</code> returned by <code>cv2.decomposeProjectionMatrix</code> is the camera position as well.</li>
+</ul>
+</li>
+<li>
+<p>After correcting the camera center position, the camera geometry is correct:</p>
+<p><img src="/post/writenotes/vis/b-note-camera_matrices/dtu_cam_geo.jpg"
+	width="369"
+	height="427"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="86"
+		data-flex-basis="207px"
+	
+></p>
+<p>Plotting script: <a class="link" href="https://gist.github.com/zichen34/9304e656396efe24455872345a2e6b88"  target="_blank" rel="noopener"
+    >gist</a></p>
+</li>
+<li>
+<p>Identifying the axes directions should be independent of camera geometry.</p>
+<p>Only drawing one camera may not easily indicate if it&rsquo;s facing the scene.</p>
+</li>
+</ul>
+<hr>
+<p>(2024-03-31)</p>
+<ul>
+<li>
+<p>Open3D can set the window (visualizer) to be the specified camera pose.</p>
+<ol>
+<li>
+<p>Change <code>set_front</code> to different row in the rotation mat:</p>
+<details><summary> Code </summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">w2c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.970263</span><span class="p">,</span> <span class="mf">0.00747983</span><span class="p">,</span> <span class="mf">0.241939</span><span class="p">,</span> <span class="o">-</span><span class="mf">191.02</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="o">-</span><span class="mf">0.0147429</span><span class="p">,</span> <span class="mf">0.999493</span><span class="p">,</span> <span class="mf">0.0282234</span><span class="p">,</span> <span class="mf">3.28832</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="o">-</span><span class="mf">0.241605</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.030951</span><span class="p">,</span> <span class="mf">0.969881</span><span class="p">,</span> <span class="mf">22.5401</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span> <span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">pcd</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_point_cloud</span><span class="p">(</span><span class="s2">&#34;/home/yi/Downloads/DTU_SampleSet/MVS Data/Points/stl/stl001_total.ply&#34;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ply&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">VisualizerWithKeyCallback</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">create_window</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">get_render_option</span><span class="p">()</span><span class="o">.</span><span class="n">background_color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">view_ctl</span> <span class="o">=</span> <span class="n">vis</span><span class="o">.</span><span class="n">get_view_control</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">add_geometry</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">view_ctl</span><span class="o">.</span><span class="n">set_front</span><span class="p">(</span><span class="n">w2c</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">3</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">destroy_window</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>set_front(w2c[2][:3])</th>
+          <th>set_front(w2c[0][:3])</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/open3d_front_row2.jpg"
+	width="841"
+	height="898"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="93"
+		data-flex-basis="224px"
+	
+></td>
+          <td><img src="/post/writenotes/vis/b-note-camera_matrices/open3d_front_row0.jpg"
+	width="673"
+	height="844"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="79"
+		data-flex-basis="191px"
+	
+></td>
+      </tr>
+  </tbody>
+</table></div>
+</li>
+<li>
+<p>Set the extrinsic to simulate a camera pose:
+<a class="link" href="https://github.com/isl-org/Open3D/issues/2338"  target="_blank" rel="noopener"
+    >Determining the Proper Camera Position #2338</a></p>
+<details><summary> Code </summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pcd</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_point_cloud</span><span class="p">(</span><span class="s2">&#34;/home/yi/Downloads/DTU_SampleSet/MVS Data/Points/stl/stl001_total.ply&#34;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ply&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">VisualizerWithKeyCallback</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">create_window</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">get_render_option</span><span class="p">()</span><span class="o">.</span><span class="n">background_color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">add_geometry</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">view_ctl</span> <span class="o">=</span> <span class="n">vis</span><span class="o">.</span><span class="n">get_view_control</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">w2c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.970263</span><span class="p">,</span> <span class="mf">0.00747983</span><span class="p">,</span> <span class="mf">0.241939</span><span class="p">,</span> <span class="o">-</span><span class="mf">191.02</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="o">-</span><span class="mf">0.0147429</span><span class="p">,</span> <span class="mf">0.999493</span><span class="p">,</span> <span class="mf">0.0282234</span><span class="p">,</span> <span class="mf">3.28832</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="o">-</span><span class="mf">0.241605</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.030951</span><span class="p">,</span> <span class="mf">0.969881</span><span class="p">,</span> <span class="mf">22.5401</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span> <span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">cam</span> <span class="o">=</span> <span class="n">view_ctl</span><span class="o">.</span><span class="n">convert_to_pinhole_camera_parameters</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">cam</span><span class="o">.</span><span class="n">extrinsic</span> <span class="o">=</span> <span class="n">w2c</span>
+</span></span><span class="line"><span class="cl"><span class="n">view_ctl</span><span class="o">.</span><span class="n">convert_from_pinhole_camera_parameters</span><span class="p">(</span><span class="n">cam</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">current_param</span> <span class="o">=</span> <span class="n">view_ctl</span><span class="o">.</span><span class="n">convert_to_pinhole_camera_parameters</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">current_param</span><span class="o">.</span><span class="n">extrinsic</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">destroy_window</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<p><img src="/post/writenotes/vis/b-note-camera_matrices/open3d_pose1.jpg"
+	width="615"
+	height="633"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="97"
+		data-flex-basis="233px"
+	
+></p>
+<ul>
+<li>
+<p>The argument <code>allow_arbitrary=True</code> is required (using 0.18.0),
+reminded by: <a class="link" href="https://github.com/isl-org/Open3D/issues/1483#issuecomment-1873081439"  target="_blank" rel="noopener"
+    >How to you position camera and look at certain location in Open3D? #1483</a></p>
+<p>This argument is added to free the limitation on pinhole camera models.
+<a class="link" href="https://github.com/isl-org/Open3D/issues/834"  target="_blank" rel="noopener"
+    >ConvertFromPinholeCameraParameters() failed #834</a></p>
+</li>
+</ul>
+<p>Similar issues:</p>
+<ul>
+<li>
+<p><a class="link" href="https://github.com/isl-org/Open3D/issues/1343"  target="_blank" rel="noopener"
+    >convert_from_pinhole_camera_parameters does not work #1343</a></p>
+</li>
+<li>
+<p><a class="link" href="https://github.com/isl-org/Open3D/issues/5816"  target="_blank" rel="noopener"
+    >convert_from_pinhole_camera_parameters allow_arbitrary=True modifies intrinsic matrix #5816</a></p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li>
+<p>&ldquo;view matrix&rdquo; means w2c. While &ldquo;world transformation matrix&rdquo; is c2w.
+<a class="link" href="https://www.3dgep.com/understanding-the-view-matrix/#transformations"  target="_blank" rel="noopener"
+    >3D GEP</a></p>
+<ul>
+<li>
+<p>Each column in c2w is a camera axis coordinates in world space.
+So, 3 columns represent directions, such as RDF, and the 4-th colmun is the camera center in world space.</p>
+</li>
+<li>
+<p>He gave a code demo to show the matrix format in column-major memory accessing.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="opencvopengl">OpenCV➡OpenGL
+</h2><p>(2024-03-29)</p>
+<ul>
+<li>
+<p>Just negate the 2nd and 3rd <strong>rows</strong> in the rotation matrix that transforms word coords to cam coords.
+Such that, RDF camera system becomes RUB.
+(And note OpenGL reads matrix by columns.)
+<a class="link" href="https://stackoverflow.com/a/59305821/18003182"  target="_blank" rel="noopener"
+    >OpenCV to OpenGL coordinate system transform - SO</a></p>
+<img src="https://i.ibb.co/2g5vdNr/coordinates.png">
+<p>This process can be done with a &ldquo;sign matrix&rdquo;:
+<code>[[1,0,0,0], [0,-1,0,0], [0,0,-1,0], [0,0,0,1]]</code>.</p>
+<ul>
+<li>
+<p>This &ldquo;sign matrix&rdquo; also appears in <a class="link" href="https://github.com/sxyu/pixel-nerf/issues/23"  target="_blank" rel="noopener"
+    >PixelNeRF</a> to process DTU.
+Yu called it as &ldquo;similarity transform&rdquo;. (<a class="link" href="https://github.com/sxyu/pixel-nerf/issues/2"  target="_blank" rel="noopener"
+    >issue#2</a>)</p>
+</li>
+<li>
+<p>Same as the function <code>T_opencv_to_opengl()</code> in <a class="link" href="https://github.com/yxlao/camtools/blob/5bf6199482577c5efcaa6064f5afcfe2f3f3fd55/camtools/convert.py#L215"  target="_blank" rel="noopener"
+    >camtools</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>(2024-04-02)</p>
+<ul>
+<li>
+<p>Mapping a coordinate system to another has <strong>two transformations</strong>: rotation+translation [R|t] and sign matrix. <br>
+<a class="link" href="https://readmedium.com/p/27ff6c413bdb"  target="_blank" rel="noopener"
+    >Converting camera poses from OpenCV to OpenGL can be easy - readmedium</a>
+(Found when searching &ldquo;opencv to opengl transformation&rdquo; <a class="link" href="https://duckduckgo.com/?q=opencv&#43;to&#43;opengl&#43;transformation&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>)</p>
+<p>Specifically, change the source basis first, and then flip axes of the source basis (world) to target basis (camera).</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 400 121"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 32,48 L 64,48' fill='none' stroke='currentColor'></path>
+<path d='M 104,48 L 120,48' fill='none' stroke='currentColor'></path>
+<path d='M 168,48 L 200,48' fill='none' stroke='currentColor'></path>
+<path d='M 256,48 L 272,48' fill='none' stroke='currentColor'></path>
+<path d='M 328,48 L 360,48' fill='none' stroke='currentColor'></path>
+<path d='M 32,16 L 32,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,80 L 32,48' fill='none' stroke='currentColor'></path>
+<path d='M 200,48 L 216,16' fill='none' stroke='currentColor'></path>
+<path d='M 328,48 L 344,16' fill='none' stroke='currentColor'></path>
+<path d='M 200,48 L 216,80' fill='none' stroke='currentColor'></path>
+<path d='M 312,16 L 328,48' fill='none' stroke='currentColor'></path>
+<polygon points='28.000000,80.000000 16.000000,74.400002 16.000000,85.599998' fill='currentColor' transform='rotate(120.000000, 16.000000, 80.000000)'></polygon>
+<polygon points='40.000000,16.000000 28.000000,10.400000 28.000000,21.600000' fill='currentColor' transform='rotate(270.000000, 32.000000, 16.000000)'></polygon>
+<polygon points='72.000000,48.000000 60.000000,42.400002 60.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 64.000000, 48.000000)'></polygon>
+<polygon points='128.000000,48.000000 116.000000,42.400002 116.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 120.000000, 48.000000)'></polygon>
+<polygon points='176.000000,48.000000 164.000000,42.400002 164.000000,53.599998' fill='currentColor' transform='rotate(180.000000, 168.000000, 48.000000)'></polygon>
+<polygon points='228.000000,16.000000 216.000000,10.400000 216.000000,21.600000' fill='currentColor' transform='rotate(300.000000, 216.000000, 16.000000)'></polygon>
+<polygon points='228.000000,80.000000 216.000000,74.400002 216.000000,85.599998' fill='currentColor' transform='rotate(60.000000, 216.000000, 80.000000)'></polygon>
+<polygon points='280.000000,48.000000 268.000000,42.400002 268.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 272.000000, 48.000000)'></polygon>
+<polygon points='324.000000,16.000000 312.000000,10.400000 312.000000,21.600000' fill='currentColor' transform='rotate(240.000000, 312.000000, 16.000000)'></polygon>
+<polygon points='356.000000,16.000000 344.000000,10.400000 344.000000,21.600000' fill='currentColor' transform='rotate(300.000000, 344.000000, 16.000000)'></polygon>
+<polygon points='368.000000,48.000000 356.000000,42.400002 356.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 360.000000, 48.000000)'></polygon>
+<text text-anchor='middle' x='0' y='84' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>W</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>|</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='144' y='100' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='152' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='160' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='168' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='176' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='184' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='192' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='200' y='84' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='208' y='100' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='216' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='224' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='224' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='232' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='240' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='280' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>z</text>
+<text text-anchor='middle' x='312' y='4' fill='currentColor' style='font-size:1em'>ᶜ</text>
+<text text-anchor='middle' x='312' y='100' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='320' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='328' y='100' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='336' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='344' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='352' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>ᶜ</text>
+<text text-anchor='middle' x='376' y='52' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='384' y='52' fill='currentColor' style='font-size:1em'>ᶜ</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>
+<p>I realized that the terminologies: w2c and c2w are siutable for the transition between world and the <strong>OpenGL</strong> camera coordinate syste,
+beacuse their axes are aligned, i.e., both RUB.</p>
+<p>Otherwise, for example, between world and <strong>OpenCV</strong> camera system,
+the world system is not directly becoming the target camera system after rotation and translation [R|t].</p>
+</li>
+<li>
+<p>That post also takes the column-major memory access into account.</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="dtu-dataset">DTU dataset
+</h2><h3 id="original">Original
+</h3><p>(2024-02-21)</p>
+<p><a class="link" href="https://roboimagedata.compute.dtu.dk/?page_id=36"  target="_blank" rel="noopener"
+    >DTU Homepage</a>
+Each object scan is taken from 49 fixed camera positions.</p>
+<p>For the SampleSet, the images dimensions are 1600x1200:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">yi@yi:~/Downloads/DTU_SampleSet$ identify MVS<span class="se">\ </span>Data/Rectified/scan1/rect_001_0_r5000.png
+</span></span><span class="line"><span class="cl">MVS Data/Rectified/scan1/rect_001_0_r5000.png PNG 1600x1200 1600x1200+0+0 8-bit sRGB 2.85068MiB 0.000u 0:00.000
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The camera projection matrix 𝐏₃ₓ₄ from world to image, i.e. K@[R|t]
+(<a class="link" href="https://github.com/kwea123/CasMVSNet_pl/blob/a09e5ba230a18be54b9f6b1d714c3dc58acd8a00/datasets/dtu.py#L70"  target="_blank" rel="noopener"
+    >Casmvsnet</a>
+and <a class="link" href="https://stackoverflow.com/a/69556782/18003182"  target="_blank" rel="noopener"
+    >SO</a>):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">yi@yi:~/Downloads/DTU_SampleSet$ cat MVS<span class="se">\ </span>Data/Calibration/cal18/pos_001.txt
+</span></span><span class="line"><span class="cl">2607.429996 -3.844898 1498.178098 -533936.661373
+</span></span><span class="line"><span class="cl">-192.076910 2862.552532 681.798177 23434.686572
+</span></span><span class="line"><span class="cl">-0.241605 -0.030951 0.969881 22.540121
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>(2024-03-27) The P is estimated by Matlab, and Matlab regards camera coordinates system as RDF (mentioned in
+<a class="link" href="https://www.mathworks.com/matlabcentral/answers/251315-multi-cameras-on-same-coordinate-system#comment_323427"  target="_blank" rel="noopener"
+    >Multi-cameras on same coordinate system - Dima</a> found by Perplexity),
+which is the same as OpenCV <a class="link" href="https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#:~:text=pinhole%20camera%20model.-,Pinhole%20camera%20model,-Real%20lenses%20usually"  target="_blank" rel="noopener"
+    >camera model</a>.</p>
+<img src="https://docs.opencv.org/3.4/pinhole_camera_model.png" width="65%">
+</li>
+</ul>
+<p>The P can be decomposed to K,R,t by <a class="link" href="https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#:~:text=%E2%97%86%C2%A0decomposeProjectionMatrix%28%29"  target="_blank" rel="noopener"
+    >decomposeProjectionMatrix()</a>: <a id="exp"></a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">P_orig</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">       <span class="p">[[</span><span class="mf">2607.429996</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.844898</span><span class="p">,</span> <span class="mf">1498.178098</span><span class="p">,</span> <span class="o">-</span><span class="mf">533936.661373</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="o">-</span><span class="mf">192.076910</span><span class="p">,</span> <span class="mf">2862.552532</span><span class="p">,</span> <span class="mf">681.798177</span><span class="p">,</span> <span class="mf">23434.686572</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="o">-</span><span class="mf">0.241605</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.030951</span><span class="p">,</span> <span class="mf">0.969881</span><span class="p">,</span> <span class="mf">22.540121</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl"><span class="n">K</span><span class="p">,</span><span class="n">R</span><span class="p">,</span><span class="n">t</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">decomposeProjectionMatrix</span><span class="p">(</span><span class="n">P_orig</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The original intrinsic matrix K (performed <a class="link" href="https://github.com/sxyu/pixel-nerf/blob/91a044bdd62aebe0ed3a5685ca37cb8a9dc8e8ee/src/data/DVRDataset.py#L164"  target="_blank" rel="noopener"
+    ><code>K/K[2][2]</code></a>) is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">array<span class="o">([[</span> 2.89233051e+03, -2.48063349e-04,  8.23205273e+02<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span> 0.00000000e+00,  2.88317528e+03,  6.19070918e+02<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span> 0.00000000e+00,  0.00000000e+00,  1.00000000e+00<span class="o">]])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>It&rsquo;s aligned with the intrinsics in mvs_training (not the cams in <code>train/</code> folder):</p>
+<details> <summary>mvs_training/dtu/Cameras/00000000_cam.txt</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">z@homepc:~/Downloads/Datasets_life/mvs_training/dtu/Cameras$ cat 00000000_cam.txt
+</span></span><span class="line"><span class="cl">extrinsic
+</span></span><span class="line"><span class="cl">0.970263 0.00747983 0.241939 -191.02
+</span></span><span class="line"><span class="cl">-0.0147429 0.999493 0.0282234 3.28832
+</span></span><span class="line"><span class="cl">-0.241605 -0.030951 0.969881 22.5401
+</span></span><span class="line"><span class="cl">0.0 0.0 0.0 1.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">intrinsic
+</span></span><span class="line"><span class="cl">2892.33 <span class="m">0</span> 823.205
+</span></span><span class="line"><span class="cl"><span class="m">0</span> 2883.18 619.071
+</span></span><span class="line"><span class="cl"><span class="m">0</span> <span class="m">0</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">425</span> 2.5
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ul>
+<p>The table lists focal length and image resolution correspondence:</p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>Scale</th>
+          <th>Resolusion</th>
+          <th>f_x</th>
+          <th>c_x</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>1</td>
+          <td>1200x1600</td>
+          <td>2892.3</td>
+          <td>823.205</td>
+      </tr>
+      <tr>
+          <td>1/2</td>
+          <td>600x800</td>
+          <td>1446.1</td>
+          <td>411.603</td>
+      </tr>
+      <tr>
+          <td>1/2</td>
+          <td>(crop) 512x640</td>
+          <td>1446.1</td>
+          <td>331.603</td>
+      </tr>
+      <tr>
+          <td>1/4</td>
+          <td>300x400</td>
+          <td>723.08</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>1/8</td>
+          <td>150x200</td>
+          <td>361.5</td>
+          <td></td>
+      </tr>
+  </tbody>
+</table></div>
+<p>(2024-03-27)</p>
+<ul>
+<li>
+<p>In Dima&rsquo;s answer, he described RDF as the world space.
+That means the extrinsics has been applied by the &ldquo;sign matrix&rdquo;, which changes the world axes to camera axes.
+So, the R decomposed from P essentially corresponds to the RDF coordinates system.</p>
+<p>In other words, the camera coordinate system is used as the world coord. sys.</p>
+<p>Whereas, the world system during visualization is usually RUB (Y-axis is Up), like OpenGL.
+So, the object is upside down when plotting the point cloud with matplotlib.</p>
+<p>And the ccs in Open3D also is RDF (relative to world space RUB),
+so its initial w2c has reverse the y-axis and z-axis of the world space:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[[</span> 1.  0.  0. -0.<span class="o">]</span>
+</span></span><span class="line"><span class="cl"> <span class="o">[</span>-0. -1. -0.  0.<span class="o">]</span>
+</span></span><span class="line"><span class="cl"> <span class="o">[</span>-0. -0. -1.  0.<span class="o">]</span>
+</span></span><span class="line"><span class="cl"> <span class="o">[</span> 0.  0.  0.  1.<span class="o">]]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><details><summary> Code: Print current cam pose </summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">VisualizerWithKeyCallback</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">create_window</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">view_ctl</span> <span class="o">=</span> <span class="n">vis</span><span class="o">.</span><span class="n">get_view_control</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">current_param</span> <span class="o">=</span> <span class="n">view_ctl</span><span class="o">.</span><span class="n">convert_to_pinhole_camera_parameters</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">current_param</span><span class="o">.</span><span class="n">extrinsic</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">vis</span><span class="o">.</span><span class="n">destroy_window</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ul>
+<hr>
+<h3 id="mvsnet">MVSNet
+</h3><p>(2024-02-22)</p>
+<ul>
+<li>
+<p><strong>Training</strong> set: <a class="link" href="https://github.com/YoYo000/MVSNet?tab=readme-ov-file#download"  target="_blank" rel="noopener"
+    >dtu_training.rar (19G)</a>
+(&ldquo;mvs_training/dtu/&rdquo;)</p>
+<p>As mentioned in the section 4.1 of the <a class="link" href="https://arxiv.org/abs/1804.02505"  target="_blank" rel="noopener"
+    >MVSNet paper</a>,
+the training images are 1/2 * (1200,1600) = (600,800), which then cropped to (512,640).</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 552 217"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,0 L 144,0' fill='none' stroke='currentColor'></path>
+<path d='M 144,0 L 288,0' fill='none' stroke='currentColor'></path>
+<path d='M 24,16 L 120,16' fill='none' stroke='currentColor'></path>
+<path d='M 344,16 L 440,16' fill='none' stroke='currentColor'></path>
+<path d='M 488,32 L 536,32' fill='none' stroke='currentColor'></path>
+<path d='M 304,48 L 320,48' fill='none' stroke='currentColor'></path>
+<path d='M 456,48 L 472,48' fill='none' stroke='currentColor'></path>
+<path d='M 488,64 L 536,64' fill='none' stroke='currentColor'></path>
+<path d='M 24,80 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 344,80 L 440,80' fill='none' stroke='currentColor'></path>
+<path d='M 0,96 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,96 L 288,96' fill='none' stroke='currentColor'></path>
+<path d='M 0,192 L 144,192' fill='none' stroke='currentColor'></path>
+<path d='M 144,192 L 288,192' fill='none' stroke='currentColor'></path>
+<path d='M 0,0 L 0,96' fill='none' stroke='currentColor'></path>
+<path d='M 0,96 L 0,192' fill='none' stroke='currentColor'></path>
+<path d='M 24,16 L 24,80' fill='none' stroke='currentColor'></path>
+<path d='M 120,16 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 144,0 L 144,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,96 L 144,192' fill='none' stroke='currentColor'></path>
+<path d='M 288,0 L 288,96' fill='none' stroke='currentColor'></path>
+<path d='M 288,96 L 288,192' fill='none' stroke='currentColor'></path>
+<path d='M 344,16 L 344,80' fill='none' stroke='currentColor'></path>
+<path d='M 440,16 L 440,80' fill='none' stroke='currentColor'></path>
+<path d='M 488,32 L 488,64' fill='none' stroke='currentColor'></path>
+<path d='M 536,32 L 536,64' fill='none' stroke='currentColor'></path>
+<polygon points='328.000000,48.000000 316.000000,42.400002 316.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 320.000000, 48.000000)'></polygon>
+<polygon points='480.000000,48.000000 468.000000,42.400002 468.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 472.000000, 48.000000)'></polygon>
+<circle cx='72' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='392' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='512' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='40' y='68' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='48' y='68' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='64' y='68' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='72' y='68' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='80' y='68' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='88' y='68' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='96' y='68' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='104' y='68' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='160' y='116' fill='currentColor' style='font-size:1em'>8</text>
+<text text-anchor='middle' x='168' y='116' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='176' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='184' y='116' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='192' y='116' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='208' y='116' fill='currentColor' style='font-size:1em'>9</text>
+<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='304' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='312' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='360' y='68' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='368' y='68' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='376' y='68' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='376' y='116' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='384' y='68' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='384' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='392' y='68' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='392' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='400' y='68' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='400' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='408' y='68' fill='currentColor' style='font-size:1em'>6</text>
+<text text-anchor='middle' x='408' y='116' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='416' y='68' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='424' y='68' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='456' y='36' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='464' y='36' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='472' y='36' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='496' y='116' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='496' y='132' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='504' y='84' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='504' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='504' y='132' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='512' y='84' fill='currentColor' style='font-size:1em'>/</text>
+<text text-anchor='middle' x='512' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='512' y='132' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='520' y='84' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='520' y='116' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>In addition, because the camera is looking at <strong>feature maps</strong>, the focal lengths should be scaled
+with the ratio of the size of feature map to the input image size.</p>
+<p>As feature map size (128,160) is 1/4 input image (512,640) mentioned in paper section 3.1,
+the focal_x should be: 2892.33 * 1/2 * 1/4 = 361.541.
+<a class="link" href="https://github.com/YoYo000/MVSNet/issues/3"  target="_blank" rel="noopener"
+    >Issue</a>
+And the <code>c_x</code> also need to be scaled by 1/4, i.e., 331.603 * 1/4 = 82.901.</p>
+<p><strong>Note</strong>: The already calculated trianing camera params are placed in &ldquo;mvs_training/dtu/Cameras/train&rdquo;.
+<a class="link" href="https://github.com/YoYo000/MVSNet/blob/3ae2cb2b72c6df58ebcb321d7d243d4efd01fbc5/mvsnet/preprocess.py#L266"  target="_blank" rel="noopener"
+    >Code</a>
+While the cameras displayed outside the &ldquo;train/&rdquo; are params corresponding to the original DTU images (1200,1600).</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">z@lambda:~/Downloads/mvs_training/dtu$ identify Rectified/scan1_train/rect_001_0_r5000.png 
+</span></span><span class="line"><span class="cl">Rectified/scan1_train/rect_001_0_r5000.png PNG 640x512 640x512+0+0 8-bit sRGB 626KB 0.000u 0:00.000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">z@lambda:~/Downloads/mvs_training/dtu$ cat Cameras/train/00000000_cam.txt 
+</span></span><span class="line"><span class="cl">extrinsic
+</span></span><span class="line"><span class="cl">0.970263 0.00747983 0.241939 -191.02 
+</span></span><span class="line"><span class="cl">-0.0147429 0.999493 0.0282234 3.28832 
+</span></span><span class="line"><span class="cl">-0.241605 -0.030951 0.969881 22.5401 
+</span></span><span class="line"><span class="cl">0.0 0.0 0.0 1.0 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">intrinsic
+</span></span><span class="line"><span class="cl">361.54125 0.0 82.900625 
+</span></span><span class="line"><span class="cl">0.0 360.3975 66.383875 
+</span></span><span class="line"><span class="cl">0.0 0.0 1.0 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">425.0 2.5
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>Testing</strong> set (dtu.zip) has the full-size images:</p>
+<p>Testing images are&rsquo;t downsized twice or cropped, so the focal lengths <strong>only times 1/4</strong>.
+<a class="link" href="https://github.com/YoYo000/MVSNet/blob/3ae2cb2b72c6df58ebcb321d7d243d4efd01fbc5/mvsnet/test.py#L135"  target="_blank" rel="noopener"
+    >Code</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">z@lambda:~/Downloads/data2/MVSNet_testing/dtu$ identify scan1/images/00000000.jpg 
+</span></span><span class="line"><span class="cl">scan1/images/00000000.jpg JPEG 1600x1200 1600x1200+0+0 8-bit sRGB 705KB 0.000u 0:00.000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">z@lambda:~/Downloads/data2/MVSNet_testing/dtu$ cat scan1/cams/00000000_cam.txt 
+</span></span><span class="line"><span class="cl">extrinsic
+</span></span><span class="line"><span class="cl">0.970263 0.00747983 0.241939 -191.02
+</span></span><span class="line"><span class="cl">-0.0147429 0.999493 0.0282234 3.28832
+</span></span><span class="line"><span class="cl">-0.241605 -0.030951 0.969881 22.5401
+</span></span><span class="line"><span class="cl">0.0 0.0 0.0 1.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">intrinsic
+</span></span><span class="line"><span class="cl">2892.33 <span class="m">0</span> 823.205
+</span></span><span class="line"><span class="cl"><span class="m">0</span> 2883.18 619.071
+</span></span><span class="line"><span class="cl"><span class="m">0</span> <span class="m">0</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">425</span> 2.5
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The factor <code>adaptive_scaling</code> is used for the requirement that image size must be evenly divisible by 32 (e.g., <a class="link" href="https://github.com/YoYo000/MVSNet?tab=readme-ov-file#testing"  target="_blank" rel="noopener"
+    >864x1152</a>)
+and reducing images for limited VRAM.
+So, this step will also change resolution, focals, and principle points:
+<a class="link" href="https://github.com/YoYo000/MVSNet/blob/3ae2cb2b72c6df58ebcb321d7d243d4efd01fbc5/mvsnet/test.py#L107"  target="_blank" rel="noopener"
+    >Code</a></p>
+</li>
+</ul>
+<hr>
+<h3 id="mvsnet-pytorch">MVSNet-PyTorch
+</h3><ul>
+<li>
+<p>Training cam: 1/8 focal of the original DTU
+<a class="link" href="https://github.com/xy-guo/MVSNet_pytorch/blob/e0f2ae3d7cb2dd13807b775f2075682eaa7f1521/datasets/dtu_yao.py#L88"  target="_blank" rel="noopener"
+    >Code</a></p>
+</li>
+<li>
+<p>Testing cam: 1/4 focal of the original DTU
+<a class="link" href="https://github.com/xy-guo/MVSNet_pytorch/blob/e0f2ae3d7cb2dd13807b775f2075682eaa7f1521/datasets/dtu_yao_eval.py#L53"  target="_blank" rel="noopener"
+    >Code</a></p>
+</li>
+</ul>
+<hr>
+<h3 id="pixelnerf">PixelNeRF
+</h3><p>(2023-08-17)</p>
+<p>&ldquo;rs_dtu_4&rdquo; follows the DVR format. Each object has 6 matrices. Take the object 0 as an example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span><span class="s1">&#39;scale_mat_0&#39;</span>,
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;scale_mat_inv_0&#39;</span>,
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;world_mat_0&#39;</span>,     <span class="c1"># Projection Matrix, 4x4</span>
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;world_mat_inv_0&#39;</span>, <span class="c1"># Inverse Projection matrix, 4x4</span>
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;camera_mat_0&#39;</span>,    <span class="c1"># ???</span>
+</span></span><span class="line"><span class="cl"> <span class="s1">&#39;camera_mat_inv_0&#39;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p>Use <a class="link" href="https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#gaaae5a7899faa1ffdf268cd9088940248"  target="_blank" rel="noopener"
+    ><code>cv2.decomposeProjectionMatrix(P)</code></a>
+to solve 𝐊,𝐑,𝐭 from 𝐏₃ₓ₄.
+Code in <a class="link" href="https://github.com/sxyu/pixel-nerf/blob/91a044bdd62aebe0ed3a5685ca37cb8a9dc8e8ee/src/data/DVRDataset.py#L157-L181"  target="_blank" rel="noopener"
+    >PixelNeRF</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">P</span> <span class="o">=</span> <span class="n">all_cam</span><span class="p">[</span><span class="s2">&#34;world_mat_0&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span> <span class="o">=</span> <span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>   <span class="c1"># (3,4), projection: Intrinsics * Extrinsics * 3Dpoint</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">K</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">decomposeProjectionMatrix</span><span class="p">(</span><span class="n">P</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>  
+</span></span><span class="line"><span class="cl"><span class="n">K</span> <span class="o">=</span> <span class="n">K</span> <span class="o">/</span> <span class="n">K</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>   <span class="c1"># Not the camera_mat, </span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Xc = extrinsics*Xw</span>
+</span></span><span class="line"><span class="cl"><span class="n">extrinsics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">extrinsics</span><span class="p">[:</span><span class="mi">3</span><span class="p">,:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># The 4th column is the rotated transVec</span>
+</span></span><span class="line"><span class="cl"><span class="n">extrinsics</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">R</span> <span class="o">@</span> <span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">]))[:,</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">extrinsics</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># c2w equals inverse extrinsics</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># The 4th column is the normalized t decomposed by cv2.</span>
+</span></span><span class="line"><span class="cl"><span class="n">c2w</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">])[:,</span> <span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">c2w</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">extrinsics</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>The <a class="link" href="https://github.com/sxyu/pixel-nerf/blob/91a044bdd62aebe0ed3a5685ca37cb8a9dc8e8ee/src/data/DVRDataset.py#L178-L179"  target="_blank" rel="noopener"
+    ><code>K</code></a>
+(focal) in pixelNeRF is about <strong>twice as large</strong> as the <code>intrinsics</code> of &ldquo;dtu_training&rdquo;,
+because the image size of pixelNeRF (300x400) is <strong>twice as small</strong> as MVSNet (or MVSNeRF) in each dimension,
+where (512x640) is cropped from (600x800).
+It&rsquo;s like when you observe the scene from far away, the image captured gets smaller.</p>
+<p>Since the projection matrix computed from K@(R|Rt) is different, the decomposed intrinsics will be different.</p>
+</li>
+</ul>
+<ul>
+<li>
+<p>(2024-02-22) The above statement may be wrong.
+Take the 1st camera as an example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">cams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&#34;pixel-nerf/data/DTU_Dataset/rs_dtu_4/DTU/scan1/cameras.npz&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span> <span class="o">=</span> <span class="n">cams</span><span class="p">[</span><span class="s1">&#39;world_mat_0&#39;</span><span class="p">][:</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">K</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">decomposeProjectionMatrix</span><span class="p">(</span><span class="n">P</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">K</span> <span class="o">/</span> <span class="n">K</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The <code>K</code> equals 1/4 the intrinsics of the original DTU dataset:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[[</span> 7.23082629e+02, -6.20158374e-05,  2.05801318e+02<span class="o">]</span>,
+</span></span><span class="line"><span class="cl"> <span class="o">[</span> 0.00000000e+00,  7.20793819e+02,  1.54767729e+02<span class="o">]</span>,
+</span></span><span class="line"><span class="cl"> <span class="o">[</span> 0.00000000e+00,  0.00000000e+00,  1.00000000e+00<span class="o">]]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Because camera is used to project 3D points ont feature maps, the focals should be scaled
+based on the ratio of the feat map to the original image (1600,1200).</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>c2w</code> (3x4) is not the Inverse Projection Matrix (4x4).</p>
+<ul>
+<li>
+<p>Inverse Projection Matrix = <code>np.linalg.inv(Projection Matrix)</code></p>
+</li>
+<li>
+<p>Projection matrix converts a 3D world coords to 2D <strong>pixel</strong> coords;</p>
+</li>
+<li>
+<p>Extrinsics ( <strong>w2c = [R|t] = (R|Rt)</strong> ) converts 3D world coords to 3D camera coords.</p>
+</li>
+<li>
+<p>Inverse Extrinsics ( <strong>c2w</strong> ) converts 3D camera coords to 3D world coords.</p>
+</li>
+<li>
+<p>Give Extrinsics and Intrinsics (of dataset &ldquo;dtu_training&rdquo; from <a class="link" href="https://github.com/YoYo000/MVSNet#camera-files"  target="_blank" rel="noopener"
+    >MVSNet</a>),
+the Projection matrix can be restored as implemented in MVSNeRF <a class="link" href="https://github.com/apchenstu/mvsnerf/blob/1fdf6487389d0872dade614b3cea61f7b099406e/data/dtu.py#L82-L96"  target="_blank" rel="noopener"
+    ><code>def build_proj_mats()</code></a></p>
+</li>
+</ul>
+</li>
+<li>
+<p>The translation vector also needs rotation. <a class="link" href="https://stackoverflow.com/q/62686618/18003182"  target="_blank" rel="noopener"
+    >OpenCV Decompose projection matrix</a></p>
+<ul>
+<li>
+<p>Projection matrix = Intrinsics@Extrinsics = K@[R|t] = K@(R|Rt) = (KR|KRt)</p>
+</li>
+<li>
+<p>Decomposed <code>t</code> needs normalization, and to be negated sometimes:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">631</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span> <span class="mi">384</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">631</span><span class="p">,</span> <span class="mi">288</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span>  <span class="mi">0</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>   <span class="mi">1</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl"><span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.30164902</span><span class="p">,</span>  <span class="mf">0.68282439</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.66540117</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span><span class="o">-</span><span class="mf">0.63417301</span><span class="p">,</span>  <span class="mf">0.37743435</span><span class="p">,</span>  <span class="mf">0.67480953</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span> <span class="mf">0.71192167</span><span class="p">,</span>  <span class="mf">0.6255351</span> <span class="p">,</span>  <span class="mf">0.3191761</span> <span class="p">]])</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">3.75082481</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.18089565</span><span class="p">,</span>  <span class="mf">1.06138781</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">K</span> <span class="o">@</span> <span class="n">R</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">K</span> <span class="o">@</span> <span class="n">R</span> <span class="o">@</span> <span class="n">t</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">K1</span><span class="p">,</span> <span class="n">R1</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">decomposeProjectionMatrix</span><span class="p">(</span><span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:])[:</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">t</span> <span class="o">==</span> <span class="o">-</span><span class="p">(</span><span class="n">t1</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="n">t1</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>The original <code>t</code> can be obtained directly from projection matrix:
+<code>np.linalg.inv(P[:3,:3]) @ P[:3,3]</code>,
+i.e., use the inverse rotation to rotate the transVec back.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>(2024-03-29)</p>
+<ol start="4">
+<li>
+<p>The <code>t</code> returned by <code>cv2.decomposeProjectionMatrix</code> is the <strong>position of a camera</strong> in the world space. (<a class="link" href="https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#:~:text=%E2%97%86%C2%A0decomposeProjectionMatrix%28%29"  target="_blank" rel="noopener"
+    >Docs</a>)
+So, it&rsquo;s actually the translation vector in <strong>c2w</strong>: $t_{c2w}$.</p>
+<p>Because <code>t</code> (denoted as $t_{cv2}$ for later) is the camera center, its corresponding camera-space coordinates is 0.
+Thus, this is the relationship:</p>
+$$t_{cv2} = R_{c2w} 0 + t_{c2w} \\\ t_{cv2} = t_{c2w}$$<p>To get the $t_{w2c}$, i.e., the 4-th column in the w2c (extrinsics), the conversion formula is $t_{w2c} = - R_{w2c} t_{c2w}$.</p>
+<p>This relationship can be derived from the transformation between camera-space coordinate X and world coordinate P:</p>
+$$
+   P = R_{c2w} X + t_{c2w} \\\
+   X = \underbrace{R_{c2w}^T}\_{R_{w2c}} P \underbrace{- R_{c2w}^T t_{c2w}}\_{t_{w2c}}
+   $$<p>Considering the <a class="link" href="#exp" >above</a> example, <code>t</code> is not the 4-th column in extrinsics, but the <code>-R @ (t/t[3])[:3]</code> is.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">&gt;&gt;&gt; t
+</span></span><span class="line"><span class="cl">array<span class="o">([[</span>-0.99198397<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span> 0.00603084<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span>-0.12611273<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span>-0.00519817<span class="o">]])</span>
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; t/t<span class="o">[</span>3<span class="o">]</span>
+</span></span><span class="line"><span class="cl">array<span class="o">([[</span>190.83346195<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span> -1.16018638<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span> 24.26100588<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span>  1.        <span class="o">]])</span>
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; -R @ <span class="o">(</span>t/t<span class="o">[</span>3<span class="o">])[</span>:3<span class="o">]</span>
+</span></span><span class="line"><span class="cl">array<span class="o">([[</span>-191.01958721<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span>   3.28830259<span class="o">]</span>,
+</span></span><span class="line"><span class="cl">       <span class="o">[</span>  22.54011993<span class="o">]])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Therefore, in PixelNeRF directly used <code>t</code> as the 4-th column of the <strong>c2w</strong>
+(named as <a class="link" href="https://github.com/sxyu/pixel-nerf/blob/91a044bdd62aebe0ed3a5685ca37cb8a9dc8e8ee/src/data/DVRDataset.py#L166-L168"  target="_blank" rel="noopener"
+    ><code>pose</code></a>)</p>
+<p>I was reminded by:</p>
+<ul>
+<li>
+<p><a class="link" href="https://github.com/sxyu/pixel-nerf/issues/10"  target="_blank" rel="noopener"
+    >One question about cv2.decomposeProjectionMatrix #10</a></p>
+</li>
+<li>
+<p><a class="link" href="https://github.com/facebookresearch/pytorch3d/issues/1371"  target="_blank" rel="noopener"
+    >Questions on how to use PyTorch3D</a></p>
+</li>
+<li>
+<p><a class="link" href="https://math.stackexchange.com/a/83578/1256848"  target="_blank" rel="noopener"
+    >How to find camera position and rotation from a 4x4 matrix? - SE</a>
+(surfaced by &ldquo;given camera extrinsics, how to determine right, up, front&rdquo; <a class="link" href="https://duckduckgo.com/?q=given&#43;camera&#43;extrinsics%2C&#43;how&#43;to&#43;determine&#43;right%2C&#43;up%2C&#43;front&amp;ia=web"  target="_blank" rel="noopener"
+    >DDG</a>)</p>
+$$0=RC+T \\\ C=−R^T T$$</li>
+</ul>
+<p>In the folllwing posts, they all mentioned the 4-th column in Extrinsics is not the camera center, but $-R_{c2w}^T C$,
+where C is the camera center in world space:</p>
+<ul>
+<li>
+<p><a class="link" href="https://ksimek.github.io/2012/08/22/extrinsic/#:~:text=Building%20the%20Extrinsic%20Matrix%20from%20Camera%20Pose"  target="_blank" rel="noopener"
+    >Dissecting the Camera Matrix, Part 2: The Extrinsic Matrix - ksimek</a></p>
+<p>He derived w2c from c2w, ie. w2c = (c2w)⁻¹, and provided an interactive demo for visualizing camera intrinsic, extrinsic.</p>
+</li>
+<li>
+<p><a class="link" href="https://miaodx.com/blogs/unrealcv_digest/camera_pose/"  target="_blank" rel="noopener"
+    >Camera Pose &amp; Pose Estimation - MiaoDX</a>
+refered by <a class="link" href="https://stackoverflow.com/q/73345418/18003182"  target="_blank" rel="noopener"
+    >Camera extrinsic matrix from camera location and rotation</a></p>
+</li>
+<li>
+<p><a class="link" href="https://stackoverflow.com/q/8178467/18003182"  target="_blank" rel="noopener"
+    >How to plot the camera and image positions from camera calibration data? - SO</a></p>
+<p>The OP cited <a class="link" href="https://en.wikipedia.org/wiki/Camera_resectioning#Extrinsic_parameters"  target="_blank" rel="noopener"
+    >wikipedia</a> $C = -R^{-1} T = -R^T T$</p>
+</li>
+<li>
+<p><a class="link" href="https://stackoverflow.com/q/42652522/18003182"  target="_blank" rel="noopener"
+    >Plot Camera Trajectory - SO</a>
+<img src="https://i.stack.imgur.com/urG1y.png" width="50%"></p>
+</li>
+<li>
+<p><a class="link" href="https://github.com/colmap/colmap/issues/1476#issuecomment-1087241468"  target="_blank" rel="noopener"
+    >Understanding COLMAP&rsquo;s Camera Poses and Depth Data #1476</a></p>
+</li>
+<li>
+<p><code>inv([R|t]) = [R'|-R'*t]</code> <a class="link" href="https://stackoverflow.com/a/18643735/18003182"  target="_blank" rel="noopener"
+    >Camera position in world coordinate from cv::solvePnP - SO</a></p>
+</li>
+</ul>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

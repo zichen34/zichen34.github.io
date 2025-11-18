@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="1 Peak signal-to-noise Ratio 两幅大小为m×n的单色图，一幅是原图I，另一幅是近似图像K。 两者之间的平均平方误差Mean Squared Error是：\n$$ MSE = \\frac{1}{mn} \\sum_{i=1}^m \\sum_{j=1}^n\\ [I(i,j) - K(i,j)]^2 $$则峰值信噪比定义为： PSNR = 10 log₁₀ (MAXᵢ² / MSE)\nMAXᵢ 是原图中可能的最大像素值，当一个像素用8 bits表示时，MAXᵢ=255\n为什么是这样子？\n常用于衡量有损压缩编解码器的重建质量。 wikipedia\nMSE越小，PSNR越大。当两图没有误差时，PSNR趋于无穷\n2 Structural SIMilarity Index 用于预测数字图像的可感知质量 perceived quality SSIM ² is used to measure the distortion degree of an image, or measure the similarity between two images from 3 aspects: Luminance, Contrast, and Structure.\nRatio of luminance l(X,Y) = 2μₓμᵧ+C₁/(μₓ²+μᵧ²+C₁), where μₓ is the mean of the intensity of all pixels in image X: μₓ = 1/N ∑ᵢ₌₁ᴺ Xᵢ. And C₁ prevents the divisor from being 0.\nBased on AM-GM inequality: (√x - √y)²≥0, if and only if μₓ=μᵧ, l(X,Y)=1.\n">
+<title>memo: Vis | Visual Metrics</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/vis/metrics/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: Vis | Visual Metrics">
+<meta property='og:description' content="1 Peak signal-to-noise Ratio 两幅大小为m×n的单色图，一幅是原图I，另一幅是近似图像K。 两者之间的平均平方误差Mean Squared Error是：\n$$ MSE = \\frac{1}{mn} \\sum_{i=1}^m \\sum_{j=1}^n\\ [I(i,j) - K(i,j)]^2 $$则峰值信噪比定义为： PSNR = 10 log₁₀ (MAXᵢ² / MSE)\nMAXᵢ 是原图中可能的最大像素值，当一个像素用8 bits表示时，MAXᵢ=255\n为什么是这样子？\n常用于衡量有损压缩编解码器的重建质量。 wikipedia\nMSE越小，PSNR越大。当两图没有误差时，PSNR趋于无穷\n2 Structural SIMilarity Index 用于预测数字图像的可感知质量 perceived quality SSIM ² is used to measure the distortion degree of an image, or measure the similarity between two images from 3 aspects: Luminance, Contrast, and Structure.\nRatio of luminance l(X,Y) = 2μₓμᵧ+C₁/(μₓ²+μᵧ²+C₁), where μₓ is the mean of the intensity of all pixels in image X: μₓ = 1/N ∑ᵢ₌₁ᴺ Xᵢ. And C₁ prevents the divisor from being 0.\nBased on AM-GM inequality: (√x - √y)²≥0, if and only if μₓ=μᵧ, l(X,Y)=1.\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/vis/metrics/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-12-08T12:59:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-08T12:59:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: Vis | Visual Metrics">
+<meta name="twitter:description" content="1 Peak signal-to-noise Ratio 两幅大小为m×n的单色图，一幅是原图I，另一幅是近似图像K。 两者之间的平均平方误差Mean Squared Error是：\n$$ MSE = \\frac{1}{mn} \\sum_{i=1}^m \\sum_{j=1}^n\\ [I(i,j) - K(i,j)]^2 $$则峰值信噪比定义为： PSNR = 10 log₁₀ (MAXᵢ² / MSE)\nMAXᵢ 是原图中可能的最大像素值，当一个像素用8 bits表示时，MAXᵢ=255\n为什么是这样子？\n常用于衡量有损压缩编解码器的重建质量。 wikipedia\nMSE越小，PSNR越大。当两图没有误差时，PSNR趋于无穷\n2 Structural SIMilarity Index 用于预测数字图像的可感知质量 perceived quality SSIM ² is used to measure the distortion degree of an image, or measure the similarity between two images from 3 aspects: Luminance, Contrast, and Structure.\nRatio of luminance l(X,Y) = 2μₓμᵧ+C₁/(μₓ²+μᵧ²+C₁), where μₓ is the mean of the intensity of all pixels in image X: μₓ = 1/N ∑ᵢ₌₁ᴺ Xᵢ. And C₁ prevents the divisor from being 0.\nBased on AM-GM inequality: (√x - √y)²≥0, if and only if μₓ=μᵧ, l(X,Y)=1.\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-peak-signal-to-noise-ratio">1 Peak signal-to-noise Ratio</a></li>
+    <li><a href="#2-structural-similarity-index">2 Structural SIMilarity Index</a>
+      <ol>
+        <li><a href="#used-as-loss">Used as loss</a></li>
+      </ol>
+    </li>
+    <li><a href="#3-lpips">3 LPIPS</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" style="background-color: #6e57d2; color: #fff;">
+                Memo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/vis/metrics/">memo: Vis | Visual Metrics</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 08, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-peak-signal-to-noise-ratio">1 Peak signal-to-noise Ratio</a></li>
+    <li><a href="#2-structural-similarity-index">2 Structural SIMilarity Index</a>
+      <ol>
+        <li><a href="#used-as-loss">Used as loss</a></li>
+      </ol>
+    </li>
+    <li><a href="#3-lpips">3 LPIPS</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="1-peak-signal-to-noise-ratio">1 Peak signal-to-noise Ratio
+</h2><ul>
+<li>
+<p>两幅大小为m×n的单色图，一幅是原图I，另一幅是近似图像K。
+两者之间的平均平方误差Mean Squared Error是：</p>
+$$
+  MSE = \frac{1}{mn} \sum_{i=1}^m \sum_{j=1}^n\ [I(i,j) - K(i,j)]^2
+  $$<p>则峰值信噪比定义为： PSNR = 10 log₁₀ (MAXᵢ² / MSE)</p>
+<p>MAXᵢ 是原图中可能的最大像素值，当一个像素用8 bits表示时，MAXᵢ=255</p>
+</li>
+<li>
+<p>为什么是这样子？</p>
+</li>
+<li>
+<p>常用于衡量有损压缩编解码器的重建质量。
+<a class="link" href="https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio"  target="_blank" rel="noopener"
+    >wikipedia</a></p>
+</li>
+<li>
+<p>MSE越小，PSNR越大。当两图没有误差时，PSNR趋于无穷</p>
+</li>
+</ul>
+<hr>
+<h2 id="2-structural-similarity-index">2 Structural SIMilarity Index
+</h2><ul>
+<li>用于预测数字图像的可感知质量 perceived quality</li>
+</ul>
+<p>SSIM <a class="link" href="#ppr2" >²</a> is used to measure the distortion degree of an image, or measure the similarity between two images from 3 aspects: Luminance, Contrast, and Structure.</p>
+<ol>
+<li>
+<p>Ratio of luminance l(X,Y) = 2μₓμᵧ+C₁/(μₓ²+μᵧ²+C₁),
+where μₓ is the <strong>mean</strong> of the intensity of all pixels in image X: μₓ = 1/N ∑ᵢ₌₁ᴺ Xᵢ.
+And C₁ prevents the divisor from being 0.<br>
+Based on AM-GM inequality: (√x - √y)²≥0, if and only if μₓ=μᵧ, l(X,Y)=1.</p>
+</li>
+<li>
+<p>Ratio of contrast c(X,Y) = 2σₓσᵧ+C₂/(σₓ²+σᵧ²+C₂),
+where σₓ is the (non-bias) <strong>standard deviation</strong> of the intensity of all pixels in the image X:
+σₓ = (1/(N-1) ∑ᵢ₌₁ᴺ (Xᵢ-μₓ)²)¹ᐟ².  <br>
+If and only if σ₁=σ₂, c(X,Y)=0.</p>
+</li>
+<li>
+<p>Structure is reflected by <strong>correlation coefficient</strong>: s(X,Y) = σₓᵧ+C₃/(σₓσᵧ+C₃),
+where σₓᵧ is the covaraiance of the intensity of 2 images: σₓᵧ= 1/(N-1) ∑ᵢ₌₁ᴺ (Xᵢ-μₓ)(Yᵢ-μᵧ).</p>
+<p>The intent of the paper may be to measure the information aside from Luminance and Contrast <a class="link" href="#bili-%e6%84%8f%e3%81%ae%e8%8c%97" >⁵</a>,
+so each pixel is reduced by the mean and devided by stddev: (Xᵢ-μₓ)/σₓ and (Yᵢ-μᵧ)/σᵧ, i.e., <strong>normalization</strong>,
+and then compute the distance between corresponding pixels in 2 images by inner product.</p>
+<p>Thus, S(X,Y) is 1/(N-1) ∑ᵢ₌₁ᴺ [(Xᵢ-μₓ)/σₓ ⋅ (Yᵢ-μᵧ)/σᵧ ] = σₓᵧ/σₓσᵧ</p>
+</li>
+</ol>
+<p>The final expression is the product of the above 3 features with specified power (weights) α β γ:</p>
+<p>S(X,Y) = l(X,Y)ᵅ ⋅ c(X,Y)ᵝ ⋅ s(X,Y)ᵞ ∈ [-1,1]</p>
+<p>where l(X,Y), c(X,Y), s(X,Y) ∈ [-1,1], and since brightness ≥0, the actural range of l and c are (0,1].
+If and only if the images X and Y are the same, the 3 items are equal to 1 at the same time.</p>
+<p>Let α, β, γ=1, the SSIM(X,Y) = $\frac{ 2(μₓμᵧ+C₁) (2σₓᵧ + C₂) }{(μₓ²+μᵧ²+C₁) (σₓ²+σᵧ²+C₂)}$,
+where C₁ = (K₁L)², C₂ = (K₂L)², C₃=C₂/2, and L is the maximum for a pixel (L=2^b).
+Based on the rule of thumb, K₁ = 0.01, K₂=0.03.</p>
+<p>In practice, SSIM is not performed on the entire image, but calculating the mean and stddev in a local sliding window (kernel, filter of 11x11 with stddev=1.5, sum=1),
+which represents a <strong>circular-symmetric Gaussian Weighting Function</strong>.</p>
+<p>Hence, the local mean and std-dev are confined within the kernel:</p>
+<ul>
+<li>μₓ = ∑ᵢ wᵢ Xᵢ</li>
+<li>σₓ = ∑ᵢ wᵢ (Xᵢ-μₓ)²)¹ᐟ²</li>
+<li>σₓᵧ= ∑ᵢ wᵢ (Xᵢ-μₓ)(Yᵢ-μᵧ)</li>
+</ul>
+<p>where wᵢ is the parameters of the Gaussian kernel smoothing the image, such that fine-details are smeared and compare mainly the general features.</p>
+<p>At the end, the average of all local SSIM is M-SSIM(X,Y) = 1/M . ∑ⱼ₌₁ᴹ SSIM(Xᵢ, Yⱼ)</p>
+<h3 id="used-as-loss">Used as loss
+</h3><p>Since the SSIM measures the similarity between 2 images, it can be used in the supervised training.
+Thus, <strong>SSIM dissimilarity</strong>, SSIMD = (1-SSIM)/2 ∈ (0,] is a kind of loss function.</p>
+<p>有损压缩Lossy compression两种基本机制：
+<a class="link" href="https://en.wikipedia.org/wiki/Lossy_compression"  target="_blank" rel="noopener"
+    >wikipedia</a></p>
+<ol>
+<li>有损变换编解码：对图像/声音采样，</li>
+<li>预测编解码：</li>
+</ol>
+<hr>
+<h2 id="3-lpips">3 LPIPS
+</h2><p>The motivation of Learned Perceptual Image Patch Similarity (LPIPS) <a class="link" href="#ppr3" >³</a> is that: <br>
+the conclusion for the similarity between 2 images from deep neural networks are aligned with humans perception.
+But the structure-based metrics usually give opposite judgement on the too-smoothed images <a class="link" href="#bili-%e6%84%8f%e3%81%ae%e8%8c%97" >⁵</a>. (2023-02-18)</p>
+<p>LPIPS compares the intermediate convolutional feature vectors at different levels.</p>
+<p><code>lpips.LPIPS(net=&quot;alex&quot;)</code> 把两幅图输入神经网络 (VGG, Alexnet) 进行多层级特征间的对比。
+每层输出的 feature mapᴴˣᵂˣᶜ 激活后归一化，再相减，将各层差异按像素加权求和，并(除以像素个数)做spatial 平均，再把各层差异加起来 <a class="link" href="#csdn-Crys" >⁴</a></p>
+<h2 id="ref">Ref
+</h2><ol start="2">
+<li>
+<div id="ppr2"><a href="Image quality assessment: from error visibility to structural similarity">Image quality assessment: from error visibility to structural similarity</a></div>
+</li>
+<li>
+<div id="ppr3"><a href="https://arxiv.org/abs/1801.03924">The Unreasonable Effectiveness of Deep Features as a Perceptual Metric</a></div>
+</li>
+<li>
+<div id="csdn-Crys"><a href="https://blog.csdn.net/Crystal_remember/article/details/119959954">LPIPS图像相似性度量标准_Alocus_的博客-CSDN博客_lpips度量</a></div>
+</li>
+<li>
+<div id="bili-意の茗"><a href="https://www.bilibili.com/video/BV1eG4y1D73A">NeRF常用评价指标都是什么意思？PSNR、SSIM、LPIPS详解 - 意の茗 - bilibili</a> 
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

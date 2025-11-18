@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Video 14 Overfitting 2021-11-17\nOutline:\nWhat is overfitting? The role of noise Deterministic noise Dealing with overfitting An Illustration of Overfitting on a Simple Example\n蓝色曲线是 unknowen target function。从这未知函数中生成5个样本点，因为有噪声，所以它们偏离了曲线。 根据这5个点去近似未知函数。因为噪声的存在，在用4阶的多项式（有5个参数）拟合这生成的5个点时，出现了过拟合：$E_{in}=0;\\ E_{out} \\gg 0$。（如果没有噪声，有可能使用相同阶数的模型就能完美拟合。为了拟合带噪声的数据，就使用了超过样本所表达信息的高阶模型，造成Eout 很大）\nWhat is Overfitting? 随着VC 维的增加，$E_{in}$ 不断下降，$E_{out}$反而上升。\n拟合数据的程度超过了样本数据应有(支持)的程度 (Fitting the data more than is warranted)\n随着 VC 维的增加，假设集$\\mathcal H$中的模型复杂度增加，对未知函数的近似能力增强，虽然generalization error在增加，但一开始，$E_{in}$ 和 $E_{out}$ 都在下降。超过某一点后，$E_{in}$继续减小，$E_{out}$反而上升，Generalization error 变更大:\n实验两种情况：一个10阶的函数有噪声采样15个样本，一个50阶的函数无噪声采样15个样本：\n分别用2阶和10阶的多项式去拟合：\n从2阶模型转到10阶模型，穿过了更多的样本点，Ein更小了，但Eout变大了，说明出现了过拟合。简单模型甚至好于无噪声的复杂目标函数。noise 的阶数可能很高，所以简单模型的Ein 比较差。但是没有噪声的高阶目标函数样本也存在某种“噪声”：determinstic noise.\n假设集$\\mathcal H$ should match to the quantity and quality of the data, than the complexity of unknown target function.\n">
+<title>watch: AML 11 | Overfitting</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/aml/lec11_overfitting/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: AML 11 | Overfitting">
+<meta property='og:description' content="Video 14 Overfitting 2021-11-17\nOutline:\nWhat is overfitting? The role of noise Deterministic noise Dealing with overfitting An Illustration of Overfitting on a Simple Example\n蓝色曲线是 unknowen target function。从这未知函数中生成5个样本点，因为有噪声，所以它们偏离了曲线。 根据这5个点去近似未知函数。因为噪声的存在，在用4阶的多项式（有5个参数）拟合这生成的5个点时，出现了过拟合：$E_{in}=0;\\ E_{out} \\gg 0$。（如果没有噪声，有可能使用相同阶数的模型就能完美拟合。为了拟合带噪声的数据，就使用了超过样本所表达信息的高阶模型，造成Eout 很大）\nWhat is Overfitting? 随着VC 维的增加，$E_{in}$ 不断下降，$E_{out}$反而上升。\n拟合数据的程度超过了样本数据应有(支持)的程度 (Fitting the data more than is warranted)\n随着 VC 维的增加，假设集$\\mathcal H$中的模型复杂度增加，对未知函数的近似能力增强，虽然generalization error在增加，但一开始，$E_{in}$ 和 $E_{out}$ 都在下降。超过某一点后，$E_{in}$继续减小，$E_{out}$反而上升，Generalization error 变更大:\n实验两种情况：一个10阶的函数有噪声采样15个样本，一个50阶的函数无噪声采样15个样本：\n分别用2阶和10阶的多项式去拟合：\n从2阶模型转到10阶模型，穿过了更多的样本点，Ein更小了，但Eout变大了，说明出现了过拟合。简单模型甚至好于无噪声的复杂目标函数。noise 的阶数可能很高，所以简单模型的Ein 比较差。但是没有噪声的高阶目标函数样本也存在某种“噪声”：determinstic noise.\n假设集$\\mathcal H$ should match to the quantity and quality of the data, than the complexity of unknown target function.\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/aml/lec11_overfitting/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-12-13T13:55:00&#43;00:00'/><meta property='article:modified_time' content='2021-12-13T13:55:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: AML 11 | Overfitting">
+<meta name="twitter:description" content="Video 14 Overfitting 2021-11-17\nOutline:\nWhat is overfitting? The role of noise Deterministic noise Dealing with overfitting An Illustration of Overfitting on a Simple Example\n蓝色曲线是 unknowen target function。从这未知函数中生成5个样本点，因为有噪声，所以它们偏离了曲线。 根据这5个点去近似未知函数。因为噪声的存在，在用4阶的多项式（有5个参数）拟合这生成的5个点时，出现了过拟合：$E_{in}=0;\\ E_{out} \\gg 0$。（如果没有噪声，有可能使用相同阶数的模型就能完美拟合。为了拟合带噪声的数据，就使用了超过样本所表达信息的高阶模型，造成Eout 很大）\nWhat is Overfitting? 随着VC 维的增加，$E_{in}$ 不断下降，$E_{out}$反而上升。\n拟合数据的程度超过了样本数据应有(支持)的程度 (Fitting the data more than is warranted)\n随着 VC 维的增加，假设集$\\mathcal H$中的模型复杂度增加，对未知函数的近似能力增强，虽然generalization error在增加，但一开始，$E_{in}$ 和 $E_{out}$ 都在下降。超过某一点后，$E_{in}$继续减小，$E_{out}$反而上升，Generalization error 变更大:\n实验两种情况：一个10阶的函数有噪声采样15个样本，一个50阶的函数无噪声采样15个样本：\n分别用2阶和10阶的多项式去拟合：\n从2阶模型转到10阶模型，穿过了更多的样本点，Ein更小了，但Eout变大了，说明出现了过拟合。简单模型甚至好于无噪声的复杂目标函数。noise 的阶数可能很高，所以简单模型的Ein 比较差。但是没有噪声的高阶目标函数样本也存在某种“噪声”：determinstic noise.\n假设集$\\mathcal H$ should match to the quantity and quality of the data, than the complexity of unknown target function.\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#what-is-overfitting">What is Overfitting?</a></li>
+        <li><a href="#deterministic-noise">Deterministic noise</a></li>
+        <li><a href="#impact-on-overfitting">Impact on overfitting</a></li>
+        <li><a href="#noise-and-bias-variance">Noise and bias-variance</a></li>
+        <li><a href="#two-cures">Two cures</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/aml/lec11_overfitting/">watch: AML 11 | Overfitting</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 13, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#what-is-overfitting">What is Overfitting?</a></li>
+        <li><a href="#deterministic-noise">Deterministic noise</a></li>
+        <li><a href="#impact-on-overfitting">Impact on overfitting</a></li>
+        <li><a href="#noise-and-bias-variance">Noise and bias-variance</a></li>
+        <li><a href="#two-cures">Two cures</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>Video 14 Overfitting 2021-11-17</p>
+<p>Outline:</p>
+<ol>
+<li>What is overfitting?</li>
+<li>The role of noise</li>
+<li>Deterministic noise</li>
+<li>Dealing with overfitting</li>
+</ol>
+<p><strong>An Illustration of Overfitting on a Simple Example</strong></p>
+<div align="center"><img src="./img/Lec11_s03.png"style="zoom:50%"></div>
+<p>蓝色曲线是 unknowen target function。从这未知函数中生成5个样本点，因为有噪声，所以它们偏离了曲线。
+根据这5个点去近似未知函数。因为噪声的存在，在用4阶的多项式（有5个参数）拟合这生成的5个点时，出现了过拟合：$E_{in}=0;\ E_{out} \gg 0$。（如果没有噪声，有可能使用相同阶数的模型就能完美拟合。为了拟合带噪声的数据，就使用了超过样本所表达信息的高阶模型，造成Eout 很大）</p>
+<h3 id="what-is-overfitting">What is Overfitting?
+</h3><ul>
+<li>
+<p>随着VC 维的增加，$E_{in}$ 不断下降，$E_{out}$反而上升。</p>
+<p>拟合数据的程度超过了样本数据应有(支持)的程度 (Fitting the data more than is warranted)</p>
+</li>
+<li>
+<p>随着 VC 维的增加，假设集$\mathcal H$中的模型复杂度增加，对未知函数的近似能力增强，虽然generalization error在增加，但一开始，$E_{in}$ 和 $E_{out}$ 都在下降。超过某一点后，$E_{in}$继续减小，$E_{out}$反而上升，Generalization error 变更大:</p>
+<div align="center"><img src="./img/Lec11_m09.png"style="zoom:60%"></div>
+</li>
+<li>
+<p>实验两种情况：一个10阶的函数有噪声采样15个样本，一个50阶的函数无噪声采样15个样本：</p>
+<div align="center"><img src="./img/Lec11_m10.png"style="zoom:60%"></div>
+<p>分别用2阶和10阶的多项式去拟合：</p>
+<div align="center"><img src="./img/Lec11_m12.png"style="zoom:70%"></div>
+<p>从2阶模型转到10阶模型，穿过了更多的样本点，Ein更小了，但Eout变大了，说明出现了过拟合。简单模型甚至好于无噪声的复杂目标函数。noise 的阶数可能很高，所以简单模型的Ein 比较差。但是没有噪声的高阶目标函数样本也存在某种“噪声”：determinstic noise.</p>
+<p>假设集$\mathcal H$ should match to the quantity and quality of the data, than the complexity of unknown target function.</p>
+<p>两个学习器：O (overfitting) 和 R (restricted)</p>
+<p>&hellip;&hellip;.</p>
+<p>结果:</p>
+<div align="center"><img src="./img/Lec11_s13.png"style="zoom:50%"></div>
+<p>左图，固定目比函数的复杂度为20th 阶多项式，随着增加噪声能量，样本的数量越来越不足以表达出目标函数的复杂度，这时希望不断减小Ein，非要拟合出超出数据表达范围的部分来减小Eout 会事与愿违，适得其反，南辕北辙，导致错误的形式，Eout反而越来越大，所以过拟合越来越严重。增加样本数量，可以减小过拟合。</p>
+<p>右图，无噪声的高阶目标函数样本，固定噪声能量 $\sigma^2=0.1$。随着增加目标函数的复杂度，过拟合也越来越严重。所以这里存在另一种不同于左图随机噪声的“确定性噪音”。</p>
+</li>
+</ul>
+<h3 id="deterministic-noise">Deterministic noise
+</h3><ul>
+<li>
+<p>是假设集$\mathcal H$ 无法捕捉到的 f 的部分。(The part of f that H cannot capture)</p>
+<div align="center"><img src="./img/Lec11_s16.png"style="zoom:50%"></div>
+<p>因为模型复杂度有限，所以假设集中的最佳假设无法拟合目标函数的某些部分，$h^\star$ 与目标函数 f 之间的面积就是确定性噪音: $f(\mathbf x) - h^\star(\mathbf x)$。假设集太简单，无法表达出目标函数的复杂度，它无法理解的部分会给它带来困扰，当它尝试拟合这些能力范围之外的东西，就会导致错误的形式。那些无法理解的东西对它来说就是噪音。当使用更复杂的假设集，确定性噪声就会减小，因为它可以捕捉到更多</p>
+</li>
+<li>
+<p>确定性噪声与随机噪声的主要区别:</p>
+<ol>
+<li>确定性噪音取决于假设集$\mathcal H$，而随机噪声对所有的假设集都一样，Nothing can capture it, therefore it&rsquo;s noise.</li>
+<li>对于一个给定的样本$\mathbf x$，确定性噪声的量是固定的，就是 $f(\mathbf x) - h^\star(\mathbf x)$。而随机噪声，两个相同的x，产生的噪声大小是随机的。
+但是它们两者对机器学习造成的影响是相同的，因为数据集是给定的（一次使用），假设集一旦确定它的确定性噪声也固定了。So in a given learning situation, they behave the same.</li>
+</ol>
+</li>
+</ul>
+<h3 id="impact-on-overfitting">Impact on overfitting
+</h3><ol>
+<li>确定性噪声造成的过拟合在10阶以上的target complexity 才出现，因为这里的假设集是10阶的，超出10阶的部分它才无法近似。</li>
+<li>噪声造成过拟合是因为有限的样本，让你误以为你可以完美拟合。但其实随机噪声是捕捉不到的，而且当目标函数复杂度高于假设集的时候，确定性噪声也是捕捉（学）不到的。你以为你学到了，但其实造成了过拟合。</li>
+</ol>
+<h3 id="noise-and-bias-variance">Noise and bias-variance
+</h3>$$
+\mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right]
+= \underbrace{ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right] }_{\rm var(\mathbf x)}
+    + \underbrace{ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 }_{\rm bias(\mathbf x)}
+$$<p>Eout 被分成了两部分，其中的 f 是没有噪声的，如果给样本数据加入噪声，上式会如何变化？</p>
+<p>给定actual output：$y = f(\mathbf x) + \varepsilon(\mathbf x)$，假设噪声期望是0：$\mathbb E[\varepsilon(\mathbf x)] = 0$</p>
+<p>$$
+\begin{aligned}
+&amp; \mathbb E_{\mathcal D,\varepsilon} \left[ \left( g^{(\mathcal D)}(\mathbf x) - y \right)^2 \right] &amp; \text{$\varepsilon$影响了y，也要对ε求期望}\</p>
+<p>&amp;= \mathbb E_{\mathcal D,\varepsilon} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) -\varepsilon(\mathbf x) \right)^2 \right] &amp; \text{加一个减一个} \</p>
+<p>&amp;= \mathbb E_{\mathcal D,\varepsilon} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar g(\mathbf x) +\bar g(\mathbf x) - f(\mathbf x) -\varepsilon(\mathbf x) \right)^2 \right] \</p>
+<p>&amp;= \mathbb E_{\mathcal D,\varepsilon} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar g(\mathbf x) \right)^2</p>
+<ul>
+<li>\left( \bar g(\mathbf x) - f(\mathbf x) \right)^2</li>
+<li>\left( \varepsilon(\mathbf x) \right)^2 + \text{cross term} \right]
+\end{aligned}
+$$</li>
+</ul>
+<p>求期望之后 cross term 都变成0了，因为它们包含ε，ε 的期望为0。前面两项只与数据集有关，而与训练样本的噪声ε无关，所以原来（没加噪声）等于0的项现在还等于0。Eout 只剩三项：</p>
+<p>$$
+E_{out} =
+\underbrace{ \mathbb E_{\mathcal D,\mathbf x} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar g(\mathbf x) \right)^2 \right] }_{var}</p>
+<ul>
+<li>\underbrace{ \mathbb E_{\mathbf x} \left[ \left( \bar g(\mathbf x) - f(\mathbf x) \right)^2 \right] }_{\substack{bias \↑ \ \text{deterministic noise}}}</li>
+<li>\underbrace{ \mathbb E_{ε, \mathbf x} \left[ \left( \varepsilon(\mathbf x) \right)^2 \right] }_{\substack{\sigma^2 \ ↑ \ \text{stochastic noise}}}
+$$</li>
+</ul>
+<p>第三项是 target 与 actual output之间的差距，就是随机噪声，第二项是&quot;平均假设&quot;（最佳假设the best thing you can do）与target 之间的差距，它无法拟合的部分就是确定性噪声。</p>
+<p>两个噪声是平等的，因为增加样本数量，方差缩小，但两个噪声不可避免的（假设集给定，数据集给定，整体的近似就确定了）。当假设尝试拟合噪声时，就产生了方差（和过拟合）。</p>
+<h3 id="two-cures">Two cures
+</h3><p>Regularization: putting the brakes 踩刹车（增加一点限制; 提前停止）</p>
+<p>Validation: Checking the bottom line 找到底线（找到比Ein 更好的反映拟合质量的误差$E_{CV}$）</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

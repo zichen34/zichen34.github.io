@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Note GL_PROJECTION matrix: camera space point(xe,ye,-ze) -&gt; perspective projection to near plane -&gt; homo:(xp,yp,1) -&gt; scale -&gt; homo:(xn,yn,zn,1) -&gt; (x_clip,y_clip,z_clip, w_clip) , where &lsquo;xn,yn,zn&rsquo; are variables raning from -1 to 1.\nRefer to OpenGL Projection Matrix - songho\nNormalized Device Coordinates (NDC) is used to determine whether a 3D point can appear on the computer monitor, which is a cube with length 1. The transformation from eye coordinates to NDC is mapping the truncated pyramid frustum to a cube.\n">
+<title>Memo: Vis | NDC</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/vis/ndc/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Memo: Vis | NDC">
+<meta property='og:description' content="Note GL_PROJECTION matrix: camera space point(xe,ye,-ze) -&gt; perspective projection to near plane -&gt; homo:(xp,yp,1) -&gt; scale -&gt; homo:(xn,yn,zn,1) -&gt; (x_clip,y_clip,z_clip, w_clip) , where &lsquo;xn,yn,zn&rsquo; are variables raning from -1 to 1.\nRefer to OpenGL Projection Matrix - songho\nNormalized Device Coordinates (NDC) is used to determine whether a 3D point can appear on the computer monitor, which is a cube with length 1. The transformation from eye coordinates to NDC is mapping the truncated pyramid frustum to a cube.\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/vis/ndc/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-09-02T11:39:00&#43;00:00'/><meta property='article:modified_time' content='2022-09-02T11:39:00&#43;00:00'/>
+<meta name="twitter:title" content="Memo: Vis | NDC">
+<meta name="twitter:description" content="Note GL_PROJECTION matrix: camera space point(xe,ye,-ze) -&gt; perspective projection to near plane -&gt; homo:(xp,yp,1) -&gt; scale -&gt; homo:(xn,yn,zn,1) -&gt; (x_clip,y_clip,z_clip, w_clip) , where &lsquo;xn,yn,zn&rsquo; are variables raning from -1 to 1.\nRefer to OpenGL Projection Matrix - songho\nNormalized Device Coordinates (NDC) is used to determine whether a 3D point can appear on the computer monitor, which is a cube with length 1. The transformation from eye coordinates to NDC is mapping the truncated pyramid frustum to a cube.\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#note">Note</a>
+      <ol>
+        <li><a href="#songhos-idea">Songho&rsquo;s Idea</a></li>
+      </ol>
+    </li>
+    <li><a href="#code">Code</a>
+      <ol>
+        <li><a href="#near-far--01">near-far = [0,1]</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" style="background-color: #6e57d2; color: #fff;">
+                Memo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/vis/ndc/">Memo: Vis | NDC</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 02, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#note">Note</a>
+      <ol>
+        <li><a href="#songhos-idea">Songho&rsquo;s Idea</a></li>
+      </ol>
+    </li>
+    <li><a href="#code">Code</a>
+      <ol>
+        <li><a href="#near-far--01">near-far = [0,1]</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="note">Note
+</h2><p><code>GL_PROJECTION</code> matrix:
+camera space point(xe,ye,-ze) -&gt; perspective projection to near plane -&gt; homo:(xp,yp,1) -&gt; scale -&gt; homo:(xn,yn,zn,1) -&gt; (x_clip,y_clip,z_clip, w_clip)
+, where &lsquo;xn,yn,zn&rsquo; are variables raning from -1 to 1.</p>
+<p>Refer to <a class="link" href="http://www.songho.ca/opengl/gl_projectionmatrix.html"  target="_blank" rel="noopener"
+    >OpenGL Projection Matrix - songho</a></p>
+<p>Normalized Device Coordinates (NDC) is used to determine whether a 3D point can appear on the computer monitor, which is a cube with length 1.
+The transformation from eye coordinates to NDC is mapping the truncated pyramid frustum to a cube.</p>
+<figure><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix03.png"
+    alt="Perspective Projection - songho" width="400"><figcaption>
+      <p>Perspective Projection - songho</p>
+    </figcaption>
+</figure>
+
+<p>According to the perspective projection, the projection point of a world point (xₑ,yₑ,zₑ) on the near plane is</p>
+$$
+\begin{cases}
+x_p = \frac{n}{-z_e} x_e \\\
+y_p = \frac{n}{-z_e} y_e
+\end{cases}
+$$<p>(Camera coordinates is right-hand system looking in the -z direction, while NDC is looking in the z direction under left-hand coordinates)</p>
+<p>In order to use a matrix to represent NDC transformation, the homogeneous coordinates are used to enable division, so the transformation can be represented as:</p>
+$$
+\begin{pmatrix}
+x_{clip} \\\ y_{clip} \\\ z_{clip} \\\ w_{clip}
+\end{pmatrix}
+= M_{projection} \cdot
+\begin{pmatrix}
+x_e \\\ y_e \\\ z_e \\\ w_e
+\end{pmatrix}
+$$<ul>
+<li>
+<p>(2024-02-15)
+wₑ is the homogeneous coordinate for storing the original depth value of the camera point after the multiplication with the projection matrix, where the 4-th row is [0 0 -1 0], so wₑ = 1.
+And the depth will be divided at the very end step: the perspective division, so as to make the intermediate processes linear operations.</p>
+<p>Comparing merely projecting a 3D point onto plane with a <code>w2c</code>, the projection matrix specifies specific behavior
+for the z-axis of the <strong>ND space</strong> (not the source camera space any more).</p>
+</li>
+</ul>
+<p>Therefore, the NDC is:</p>
+$$
+\begin{pmatrix}
+x_{ndc} \\\ y_{ndc} \\\ z_{ndc}
+\end{pmatrix}
+= \begin{pmatrix}
+x_{clip} / w_{clip} \\\ y_{clip}/w_{clip} \\\ z_{clip}/w_{clip}
+\end{pmatrix}
+$$<p>Because $w_{clip}$ is the denominator, it should equal to -zₑ; Hence, the forth row of matrix should be
+$[0\ 0\ -1\ 0]$</p>
+<p>Mapping [l, r] and [b, t] to [-1, 1] with <strong>linear realtionship</strong>:
+Two points (l,-1),(r,1) can be used to determine the line:</p>
+$$
+x_{NDC} = \frac{1-(-1)}{r-l} \cdot x_p + β
+$$<p>and then substitute (r,1) for $(x_p,x_{NDC})$ to solve β = -(r+l)/(r-l).</p>
+<p>Therefore, $x_{NDC} = \frac{2}{r-l}x_p - \frac{r+l}{r-l}$.</p>
+<p>Similarly, $y_{NDC} = \frac{2}{t-b} y_p- \frac{t+b}{t-b}$</p>
+<p>Substitute xp, yp with the form of xₑ, yₑ:</p>
+$$
+x_{NDC} = (\frac{2n}{r-l} \cdot x_e + \frac{r+l}{r-l} \cdot z_e) / -z_e \\\
+y_{NDC} = (\frac{2n}{t-b} \cdot y_e + \frac{t+b}{t-b} \cdot z_e) / -z_e
+$$<p>Therefore, the first two row elements of the matrix can be determined.</p>
+<p>Suppose the third row is $[0\ 0\ A\ B]$ (z value is independent to x and y), so:</p>
+$$
+z_{NDC} = \frac{A z_e + B w_e}{-z_e}
+$$<p>Substitute the correspondence between (-n, -f) and (-1, 1) into the above equation:</p>
+$$
+\begin{cases}
+\frac{-A n + B}{n} = -1 \newline
+\frac{-A f + B}{f} = 1
+\end{cases}
+$$<p>Therefore, A = -(f+n)/(f-n), and B = -2fn / (f-n)</p>
+<p>Finally, the matrix $M_{projection}$ is</p>
+$$
+\begin{pmatrix}
+\frac{2n}{r-l}  & 0 & \frac{r+l}{r-l} & 0 \\\
+0 & \frac{2n}{t-b} & \frac{t+b}{t-b} & 0 \\\
+0 & 0 & \frac{-(f+n)}{f-n} & \frac{-2fn}{f-n} \\\
+0 & 0 & -1 & 0
+\end{pmatrix}
+$$<hr>
+<h3 id="songhos-idea">Songho&rsquo;s Idea
+</h3><p><strong>References</strong>:</p>
+<ol>
+<li><a id="Deriv-r1"></a>
+<a class="link" href="https://kaolin.readthedocs.io/en/stable/modules/kaolin.render.camera.pinhole_intrinsics.html"  target="_blank" rel="noopener"
+    >kaolin.render.camera.PinholeIntrinsics — NVIDIA Kaolin Library documentation</a>
+<small>
+<ul>
+<li>Mentioned in QQ chat by &ldquo;Ligo、&rdquo; at 1:48 AM, Dec 24, 2024
+</small></li>
+</ul>
+</li>
+</ol>
+<p><strong>Notes</strong>:</p>
+<p>(2024-11-30)</p>
+<ol>
+<li>
+<p>Songho&rsquo;s derivation starts with the film coordinates.
+Specifically, x on the camera film rangers $[l, r]$.</p>
+<p>He first scaled the film Coordinates to $[-1, 1]$,
+obtaining the final ND coordinates.</p>
+<p>However, the Projection matrix should transform the camera-space coordinates to the <strong>clipping-space coordinates</strong>.</p>
+<p>So, he <strong>substituted</strong> the camera-space Coordinates that have performed perspective division,
+and <strong>multiplied</strong> the <code>z</code> values with the obtained ND coordinates to get clippling-space coordinates.</p>
+<p>Finally, he identified the coefficients in the matrix according to the <strong>corresponding items</strong>.</p>
+</li>
+<li>
+<p>In my opinion, I believe the derivation of Projection matrix could be logical by
+<strong>splitting</strong> the transformation into 2 steps: <strong>perspective projection and range scaling</strong>.</p>
+<p>In other words, regarding the Projection Matrix as a product of 2 matrix: intrinsics matrix and a scaling matrix.</p>
+<p>Anyway, the main idea for Projection Matrix (or even any <strong>projection</strong> operation) is <strong>range scaling</strong>.
+Specifically, Projection Matrix is <strong>used in</strong> the process of scaling the camera coordinates to [-1, 1].</p>
+</li>
+<li>
+<p>Illustration of scaling the x range on the camera film to [-1, 1]:</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 192 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 24,48 L 152,48' fill='none' stroke='currentColor'></path>
+<path d='M 24,96 L 32,96' fill='none' stroke='currentColor'></path>
+<path d='M 88,96 L 112,96' fill='none' stroke='currentColor'></path>
+<path d='M 144,96 L 152,96' fill='none' stroke='currentColor'></path>
+<path d='M 24,48 L 24,96' fill='none' stroke='currentColor'></path>
+<path d='M 88,80 L 88,96' fill='none' stroke='currentColor'></path>
+<path d='M 88,96 L 88,144' fill='none' stroke='currentColor'></path>
+<path d='M 152,48 L 152,96' fill='none' stroke='currentColor'></path>
+<circle cx='88' cy='144' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='0' y='52' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='16' y='68' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>↑</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='32' y='84' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='40' y='84' fill='currentColor' style='font-size:1em'>┄</text>
+<text text-anchor='middle' x='40' y='100' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='48' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='48' y='68' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='48' y='84' fill='currentColor' style='font-size:1em'>┄</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='56' y='84' fill='currentColor' style='font-size:1em'>┄</text>
+<text text-anchor='middle' x='56' y='100' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='64' y='84' fill='currentColor' style='font-size:1em'>┄</text>
+<text text-anchor='middle' x='64' y='100' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='64' y='116' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='72' y='84' fill='currentColor' style='font-size:1em'>┄</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='84' fill='currentColor' style='font-size:1em'>┄</text>
+<text text-anchor='middle' x='80' y='100' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='80' y='132' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='96' y='132' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='120' y='148' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='136' y='100' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='136' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='144' y='84' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='144' y='116' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='144' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>↑</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='152' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='148' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='160' y='68' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='160' y='116' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='160' y='148' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='168' y='36' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='168' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='168' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>⋰</text>
+<text text-anchor='middle' x='176' y='148' fill='currentColor' style='font-size:1em'>r</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+</ol>
+<p>(2024-12-29)</p>
+<ol start="4">
+<li>
+<p>Kaolin <sup><a class="link" href="#Deriv-r1" >r1-Docs</a></sup> applies the similar derivation by decomposing the ProjectMatrix to 3 steps:</p>
+<p>$\rm FullProjectionMatrix = Ortho \times Depth Scale \times Perspective$</p>
+</li>
+</ol>
+<hr>
+<h2 id="code">Code
+</h2><p>(2023-10-02)</p>
+<ol>
+<li>3D world coords multiplied with Inverse intrinsics matrix,</li>
+<li>Scale the [near, far] to [0,1]</li>
+</ol>
+<p>Code credits <a class="link" href="https://github.com/donydchen/matchnerf/blob/08c0943454c57c84f60083722fd1e6594528bc0e/misc/camera.py#L351C1-L379C31"  target="_blank" rel="noopener"
+    >MatchNeRF</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_coord_ref_ndc</span><span class="p">(</span><span class="n">extr_ref</span><span class="p">,</span> <span class="n">intr_ref</span><span class="p">,</span> <span class="n">pts_3D</span><span class="p">,</span> <span class="n">inv_scale</span><span class="p">,</span> <span class="n">near_far</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lindisp</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="s1">&#39;&#39;&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">  Warp the provided position to the reference coordinate, and normalize to NDC coordinate.
+</span></span></span><span class="line"><span class="cl"><span class="s1">  pts_3D [batch, N_rays N_sample 3]
+</span></span></span><span class="line"><span class="cl"><span class="s1">  &#39;&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">bs</span><span class="p">,</span> <span class="n">N_rays</span><span class="p">,</span> <span class="n">N_samples</span><span class="p">,</span> <span class="n">N_dim</span> <span class="o">=</span> <span class="n">pts_3D</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># (bs=1, n_rays=1024, n_pts=128, n_dim=3)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">pts_3D</span> <span class="o">=</span> <span class="n">pts_3D</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_dim</span><span class="p">)</span>  <span class="c1"># (bs, n_rays*n_pts, n_dim)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">near</span><span class="p">,</span> <span class="n">far</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">near_far</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># (1,2) -&gt; both are (1,1)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># wrap to ref view</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="n">extr_ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 3D pts in world space -&gt; camera space of a src view</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pts_ref_world</span> <span class="o">=</span> <span class="n">world2cam</span><span class="p">(</span><span class="n">pts_3D</span><span class="p">,</span> <span class="n">extr_ref</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="n">intr_ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># using projection</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># pts in camera space -&gt; image plane coords with z</span>
+</span></span><span class="line"><span class="cl">    <span class="n">point_samples_pixel</span> <span class="o">=</span> <span class="n">pts_ref_world</span> <span class="o">@</span> <span class="n">intr_ref</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>    
+</span></span><span class="line"><span class="cl">    <span class="c1"># normalize to 0~1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">point_samples_pixel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">point_samples_pixel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">point_samples_pixel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">inv_scale</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">lindisp</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">point_samples_pixel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">point_samples_pixel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">near</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">far</span> <span class="o">-</span> <span class="n">near</span><span class="p">)</span>  <span class="c1"># normalize to 0~1</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">point_samples_pixel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">point_samples_pixel</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="mf">1.0</span><span class="o">/</span><span class="n">near</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">far</span> <span class="o">-</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">near</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># using bounding box</span>
+</span></span><span class="line"><span class="cl">    <span class="n">near</span><span class="p">,</span> <span class="n">far</span> <span class="o">=</span> <span class="n">near</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">far</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">point_samples_pixel</span> <span class="o">=</span> <span class="p">(</span><span class="n">pts_ref_world</span> <span class="o">-</span> <span class="n">near</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">far</span> <span class="o">-</span> <span class="n">near</span><span class="p">)</span>  <span class="c1"># normalize to 0~1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">point_samples_pixel</span> <span class="o">=</span> <span class="n">point_samples_pixel</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">N_rays</span><span class="p">,</span> <span class="n">N_samples</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>    <span class="c1"># (bs, n_rays*n_pts, 3) -&gt; (bs, n_rays, n_pts, 3)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">point_samples_pixel</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h3 id="near-far--01">near-far = [0,1]
+</h3><p>(2024-01-16)</p>
+<p><a class="link" href="https://zhuanlan.zhihu.com/p/618620569"  target="_blank" rel="noopener"
+    >Projection Matrix 详解 - 贰芍的文章 - 知乎</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

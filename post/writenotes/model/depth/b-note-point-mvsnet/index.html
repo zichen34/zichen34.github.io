@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Point-based Multi-view Stereo Network (ICCV 2019)">
+<title>Read: Depth - MVG | Point-MVSNet</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/depth/b-note-point-mvsnet/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Read: Depth - MVG | Point-MVSNet">
+<meta property='og:description' content="Point-based Multi-view Stereo Network (ICCV 2019)">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/depth/b-note-point-mvsnet/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Points' /><meta property='article:tag' content='MVG' /><meta property='article:published_time' content='2023-12-16T21:30:00&#43;00:00'/><meta property='article:modified_time' content='2023-12-16T21:30:00&#43;00:00'/><meta property='og:image' content='https://pic2.zhimg.com/v2-557251caddb35bac39401c9440615105_r.jpg' />
+<meta name="twitter:title" content="Read: Depth - MVG | Point-MVSNet">
+<meta name="twitter:description" content="Point-based Multi-view Stereo Network (ICCV 2019)"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://pic2.zhimg.com/v2-557251caddb35bac39401c9440615105_r.jpg' />
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#notes">Notes</a>
+      <ol>
+        <li><a href="#abs--intro">Abs &amp; Intro</a></li>
+        <li><a href="#pipeline">Pipeline</a></li>
+        <li><a href="#method">Method</a></li>
+      </ol>
+    </li>
+    <li><a href="#play">Play</a>
+      <ol>
+        <li><a href="#environment">Environment</a></li>
+        <li><a href="#train--eval">Train &amp; Eval</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/post/writenotes/model/depth/b-note-point-mvsnet/">
+                
+                    <img src="https://pic2.zhimg.com/v2-557251caddb35bac39401c9440615105_r.jpg" loading="lazy" alt="Featured image of post Read: Depth - MVG | Point-MVSNet" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                Read
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/depth/b-note-point-mvsnet/">Read: Depth - MVG | Point-MVSNet</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Point-based Multi-view Stereo Network (ICCV 2019)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 16, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#notes">Notes</a>
+      <ol>
+        <li><a href="#abs--intro">Abs &amp; Intro</a></li>
+        <li><a href="#pipeline">Pipeline</a></li>
+        <li><a href="#method">Method</a></li>
+      </ol>
+    </li>
+    <li><a href="#play">Play</a>
+      <ol>
+        <li><a href="#environment">Environment</a></li>
+        <li><a href="#train--eval">Train &amp; Eval</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://github.com/callmeray/PointMVSNet"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://arxiv.org/abs/1908.04422"  target="_blank" rel="noopener"
+    >Arxiv</a>
+| <a class="link" href="https://www.bilibili.com/video/BV1JJ41147s1/"  target="_blank" rel="noopener"
+    >Oral</a>
+| <a class="link" href="https://scholar.google.ca/scholar?hl=en&amp;as_sdt=2005&amp;sciodt=0%2C5&amp;cites=1560596774641397177&amp;scipsc=&amp;q=Point-based&#43;multi-view&#43;stereo&#43;network&amp;btnG="  target="_blank" rel="noopener"
+    >GScholar</a>
+| Rui Chen, <a class="link" href="https://cseweb.ucsd.edu/~haosu/"  target="_blank" rel="noopener"
+    >Hao Su</a></p>
+<h2 id="notes">Notes
+</h2><p>(2023-12-24)</p>
+<h3 id="abs--intro">Abs &amp; Intro
+</h3><p>Use point cloud to refine depth map rather than regularizing (&ldquo;squashing&rdquo;) cost volumes.</p>
+<ul>
+<li>The points move along the ray corresponding to each pixel.</li>
+<li>The step size is determined by neighbors.</li>
+</ul>
+<p>Refine the coarse point cloud by iteratively estimating the <strong>residual</strong> from the current depth to the target depth.</p>
+<ul>
+<li>The target depth is obtained from the ground-truth piont cloud.</li>
+</ul>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 528 57"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 72,32 L 104,32' fill='none' stroke='currentColor'></path>
+<path d='M 272,32 L 296,32' fill='none' stroke='currentColor'></path>
+<path d='M 384,32 L 408,32' fill='none' stroke='currentColor'></path>
+<polygon points='112.000000,32.000000 100.000000,26.400000 100.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 104.000000, 32.000000)'></polygon>
+<polygon points='304.000000,32.000000 292.000000,26.400000 292.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 296.000000, 32.000000)'></polygon>
+<polygon points='416.000000,32.000000 404.000000,26.400000 404.000000,37.599998' fill='currentColor' transform='rotate(0.000000, 408.000000, 32.000000)'></polygon>
+<text text-anchor='middle' x='0' y='20' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='0' y='36' fill='currentColor' style='font-size:1em'>V</text>
+<text text-anchor='middle' x='8' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='8' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='16' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='24' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='24' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='32' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='32' y='36' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='40' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='40' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='48' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='80' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>j</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='192' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='200' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='208' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='216' y='20' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='224' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='232' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='240' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='248' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='280' y='20' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='312' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='312' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='320' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='320' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='328' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='328' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='336' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='336' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='344' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='360' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='424' y='20' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='424' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='432' y='20' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='432' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='440' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='440' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='448' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='448' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='456' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='456' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='464' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='472' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='480' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='488' y='36' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='496' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='504' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='512' y='36' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Output: a <strong>dense</strong> point cloud, as opposed to sparse point cloud from SfM (COLMAP) used by 3DGS.</p>
+<p>Depth map yielded from point cloud representation doesn&rsquo;t suffer from the problem of resolution limitation.</p>
+<p>Optimization objective: minimize the distance from point to the surface,
+with the supervision of depth map</p>
+<ul>
+<li>Depth estimation doesn&rsquo;t involve opacity for rendering,
+so can the RGB appearance be used as loss function?</li>
+</ul>
+<p>PointFlow: Move point towards the surface.
+In contrast, 3DGS split or clone a Gaussian along the position&rsquo;s gradient with some hyper-parameters setting.</p>
+<p>How is the generalizability of this method?</p>
+<h3 id="pipeline">Pipeline
+</h3><figure><img src="http://hansf.me/projects/PMVSNet/images/network.png">
+</figure>
+
+<ol>
+<li>
+<p>Point cloud initialization from a <strong>small</strong> coarse depth map for reference image.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 424 137"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,0 L 24,0' fill='none' stroke='currentColor'></path>
+<path d='M 24,0 L 48,0' fill='none' stroke='currentColor'></path>
+<path d='M 48,0 L 72,0' fill='none' stroke='currentColor'></path>
+<path d='M 72,0 L 96,0' fill='none' stroke='currentColor'></path>
+<path d='M 144,48 L 168,48' fill='none' stroke='currentColor'></path>
+<path d='M 256,48 L 280,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,80 L 40,80' fill='none' stroke='currentColor'></path>
+<path d='M 40,80 L 64,80' fill='none' stroke='currentColor'></path>
+<path d='M 64,80 L 88,80' fill='none' stroke='currentColor'></path>
+<path d='M 88,80 L 112,80' fill='none' stroke='currentColor'></path>
+<path d='M 0,0 L 0,48' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 16,80' fill='none' stroke='currentColor'></path>
+<path d='M 40,32 L 40,80' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 64,80' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 L 88,80' fill='none' stroke='currentColor'></path>
+<path d='M 112,32 L 112,80' fill='none' stroke='currentColor'></path>
+<path d='M 208,0 L 208,48' fill='none' stroke='currentColor'></path>
+<path d='M 224,32 L 224,80' fill='none' stroke='currentColor'></path>
+<path d='M 0,48 L 16,80' fill='none' stroke='currentColor'></path>
+<path d='M 0,0 L 16,32' fill='none' stroke='currentColor'></path>
+<path d='M 24,0 L 40,32' fill='none' stroke='currentColor'></path>
+<path d='M 48,0 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,0 L 88,32' fill='none' stroke='currentColor'></path>
+<path d='M 96,0 L 112,32' fill='none' stroke='currentColor'></path>
+<path d='M 208,48 L 224,80' fill='none' stroke='currentColor'></path>
+<path d='M 208,0 L 224,32' fill='none' stroke='currentColor'></path>
+<polygon points='176.000000,48.000000 164.000000,42.400002 164.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 168.000000, 48.000000)'></polygon>
+<polygon points='288.000000,48.000000 276.000000,42.400002 276.000000,53.599998' fill='currentColor' transform='rotate(0.000000, 280.000000, 48.000000)'></polygon>
+<circle cx='336' cy='32' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='344' cy='0' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='344' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='360' cy='32' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='376' cy='16' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='376' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='0' y='100' fill='currentColor' style='font-size:1em'>S</text>
+<text text-anchor='middle' x='8' y='100' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='16' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='116' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='24' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='24' y='116' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='32' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='40' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='48' y='100' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='48' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='56' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='56' y='116' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='64' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='72' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='72' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='80' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='88' y='100' fill='currentColor' style='font-size:1em'>V</text>
+<text text-anchor='middle' x='88' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='96' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='96' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='104' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='112' y='100' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='112' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='120' y='100' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='136' y='36' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='144' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='152' y='36' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>U</text>
+<text text-anchor='middle' x='160' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='168' y='36' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='176' y='20' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='176' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='184' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='184' y='36' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='192' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='200' y='100' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='200' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='208' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='208' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='216' y='100' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='216' y='116' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='224' y='100' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='224' y='116' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='232' y='100' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='240' y='100' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='256' y='36' fill='currentColor' style='font-size:1em'>U</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='280' y='36' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='288' y='36' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='296' y='36' fill='currentColor' style='font-size:1em'>j</text>
+<text text-anchor='middle' x='328' y='100' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='328' y='116' fill='currentColor' style='font-size:1em'>w</text>
+<text text-anchor='middle' x='336' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='336' y='116' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='344' y='100' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='344' y='116' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='352' y='100' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='352' y='116' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='360' y='100' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='360' y='116' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='376' y='100' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='376' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='384' y='100' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='384' y='116' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='392' y='100' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='392' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='400' y='100' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='400' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='408' y='100' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='408' y='116' fill='currentColor' style='font-size:1em'>e</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>48 homographies (depths) for warping a source feature map with the 1/8 size of the original image.</li>
+</ul>
+</li>
+<li>
+<p>Assign 2D and 3D context feature to each point</p>
+<ul>
+<li>
+<p>2D feature: projecting each point onto 3-level feature maps of each view with camera focals and cx,cy scaled.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 368 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 48,0 L 80,0' fill='none' stroke='currentColor'></path>
+<path d='M 32,32 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 24,64 L 24,96' fill='none' stroke='currentColor'></path>
+<path d='M 40,96 L 40,128' fill='none' stroke='currentColor'></path>
+<path d='M 152,96 L 152,128' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 168,96' fill='none' stroke='currentColor'></path>
+<path d='M 184,96 L 184,128' fill='none' stroke='currentColor'></path>
+<path d='M 200,64 L 200,96' fill='none' stroke='currentColor'></path>
+<path d='M 208,96 L 208,128' fill='none' stroke='currentColor'></path>
+<path d='M 224,64 L 224,96' fill='none' stroke='currentColor'></path>
+<path d='M 32,32 L 48,0' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 80,0' fill='none' stroke='currentColor'></path>
+<path d='M 120,48 L 128,32' fill='none' stroke='currentColor'></path>
+<path d='M 152,96 L 168,64' fill='none' stroke='currentColor'></path>
+<path d='M 176,64 L 184,48' fill='none' stroke='currentColor'></path>
+<path d='M 152,128 L 168,96' fill='none' stroke='currentColor'></path>
+<path d='M 184,96 L 200,64' fill='none' stroke='currentColor'></path>
+<path d='M 184,128 L 200,96' fill='none' stroke='currentColor'></path>
+<path d='M 208,96 L 224,64' fill='none' stroke='currentColor'></path>
+<path d='M 208,128 L 224,96' fill='none' stroke='currentColor'></path>
+<path d='M 24,96 L 40,128' fill='none' stroke='currentColor'></path>
+<path d='M 24,64 L 40,96' fill='none' stroke='currentColor'></path>
+<polygon points='132.000000,48.000000 120.000000,42.400002 120.000000,53.599998' fill='currentColor' transform='rotate(120.000000, 120.000000, 48.000000)'></polygon>
+<polygon points='188.000000,64.000000 176.000000,58.400002 176.000000,69.599998' fill='currentColor' transform='rotate(120.000000, 176.000000, 64.000000)'></polygon>
+<circle cx='72' cy='80' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='80' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='80' cy='96' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='96' cy='80' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='112' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='120' cy='112' r='6' stroke='currentColor' fill='currentColor'></circle>
+<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>W</text>
+<text text-anchor='middle' x='64' y='148' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='72' y='148' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='80' y='148' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='88' y='148' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>U</text>
+<text text-anchor='middle' x='112' y='148' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>P</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='120' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='128' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='128' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='136' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='168' y='20' fill='currentColor' style='font-size:1em'>g</text>
+<text text-anchor='middle' x='192' y='36' fill='currentColor' style='font-size:1em'>F</text>
+<text text-anchor='middle' x='200' y='36' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='208' y='36' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='216' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='224' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='232' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='232' y='116' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='232' y='132' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='240' y='52' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='240' y='116' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='240' y='132' fill='currentColor' style='font-size:1em'>y</text>
+<text text-anchor='middle' x='248' y='52' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='248' y='116' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='248' y='132' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='256' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='256' y='116' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='256' y='132' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='264' y='116' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='264' y='132' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='272' y='52' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='272' y='116' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='272' y='132' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='280' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='116' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='280' y='132' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='288' y='52' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='296' y='52' fill='currentColor' style='font-size:1em'>s</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>The retrieved feature vectors of N views are merged into a <strong>variance</strong> for a certain level j of the feature maps:</p>
+$$𝐂ʲ = \frac{\sum (𝐅ʲ - \bar{𝐅ʲ}) }{N}$$<ul>
+<li>Only the feature vectors at the projection locations are taken, rather than processing the entire feature map,
+thereby improving efficiency.</li>
+</ul>
+</li>
+<li>
+<p>3D feature: normalized point coordinates $𝐗ₚ$</p>
+</li>
+<li>
+<p>Concatenate features: $Cₚ = 𝐂¹ ⊕ 𝐂² ⊕ 𝐂³ ⊕ 𝐗ₚ$</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Define displacement steps with point hypotheses.</p>
+<p>The unprojected 3D point cloud from 2D depth map is determined.
+The displacement direction has a lot of freedom.
+Thus, each point is confined to move along the <strong>ray</strong> emitted from the reference camera.
+Such that the per-pixel depth can be refined.</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 200 169"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 80,0 L 80,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,96 L 80,112' fill='none' stroke='currentColor'></path>
+<path d='M 96,112 L 120,64' fill='none' stroke='currentColor'></path>
+<path d='M 136,32 L 152,0' fill='none' stroke='currentColor'></path>
+<path d='M 8,0 L 24,32' fill='none' stroke='currentColor'></path>
+<path d='M 24,32 L 40,64' fill='none' stroke='currentColor'></path>
+<path d='M 40,64 L 64,112' fill='none' stroke='currentColor'></path>
+<circle cx='8' cy='0' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='24' cy='32' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='40' cy='64' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='80' cy='32' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='80' cy='64' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='80' cy='96' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='120' cy='64' r='6' stroke='currentColor' fill='#fff'></circle>
+<circle cx='128' cy='48' r='6' stroke='currentColor' fill='currentColor'></circle>
+<circle cx='136' cy='32' r='6' stroke='currentColor' fill='#fff'></circle>
+<text text-anchor='middle' x='56' y='68' fill='currentColor' style='font-size:1em'>→</text>
+<text text-anchor='middle' x='56' y='148' fill='currentColor' style='font-size:1em'>R</text>
+<text text-anchor='middle' x='64' y='132' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='64' y='148' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='72' y='132' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='72' y='148' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='80' y='52' fill='currentColor' style='font-size:1em'>↓</text>
+<text text-anchor='middle' x='80' y='84' fill='currentColor' style='font-size:1em'>↑</text>
+<text text-anchor='middle' x='80' y='132' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='88' y='132' fill='currentColor' style='font-size:1em'>□</text>
+<text text-anchor='middle' x='88' y='148' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='96' y='132' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='96' y='148' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='68' fill='currentColor' style='font-size:1em'>←</text>
+<text text-anchor='middle' x='104' y='148' fill='currentColor' style='font-size:1em'>m</text>
+</g>
+
+    </svg>
+  
+</div>
+<ul>
+<li>
+<p>In the above figure, • is a real point, and o is a point hypothesis, denoted as $\tilde{𝐩ₖ}$,
+which is associated with a read point $𝐩ₖ$:</p>
+$$\tilde{𝐩ₖ} = 𝐩ₖ + k s 𝐭, \quad k = -m, …, m$$<p>where k is the number of steps, s is the step size along the ray direction 𝐭.</p>
+</li>
+</ul>
+<p>m = 1, so</p>
+</li>
+<li>
+<p>Aggregate features of the n nearest neighbors</p>
+<p>Use Dynamic Graph CNN to aggregate neighboring points</p>
+</li>
+<li>
+<p>Use an MLP to map the aggregated feature to probabilities of point hypotheses.</p>
+<p>The PointFlow module requires iterations to approach the surface iteratively.</p>
+<p>The predicted depth residual against the target depth is a probabilistic weighted sum (expectation) of all predefined hypothetical steps.</p>
+$$Δdₚ = 𝐄(ks) = ∑_{k=-m}^m ks × Prob( \tilde{𝐩ₖ} )$$</li>
+<li>
+<p>Upsampling the refined depth map and shrink the interval between point hypotheses.</p>
+</li>
+<li>
+<p>Loss: Accumulated absolute error between refined depth map and the ground-truth depth map over all previous iterations.</p>
+$$L = ∑_{i=0}^l \Big( \frac{1}{s^{(i)}} ∑_{p∈𝐏_{valid}} \\| 𝐃_{GT}(p) - 𝐃^{(i)}(p) \\|₁ \Big)$$</li>
+</ol>
+<hr>
+<h3 id="method">Method
+</h3><p>Feature concatenation is similar to PixelNeRF: point ocoordinates + feature vectors.
+But here the points position isn&rsquo;t consistent, resulting in that different feature vectors that are sampled on the feature pyrimid.</p>
+<p>Because the 2D CNN also needs to be trained, the feature pyrimid is changing as well.</p>
+<hr>
+<h2 id="play">Play
+</h2><h3 id="environment">Environment
+</h3><p>(2023-12-26)</p>
+<p>Installation on Lambda server (Ubuntu 18.04.6 LTS, <code>nvcc -V</code> return 10.2, Driver Version: 470.103.01):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">bash install_dependencies.sh
+</span></span><span class="line"><span class="cl">bash compile.sh
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Error: <code>No CUDA runtime is found, using CUDA_HOME='/usr/local/cuda'</code></p>
+<ul>
+<li>
+<details><summary>Traceback</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">No CUDA runtime is found, using <span class="nv">CUDA_HOME</span><span class="o">=</span><span class="s1">&#39;/usr/local/cuda&#39;</span>
+</span></span><span class="line"><span class="cl">running build_ext
+</span></span><span class="line"><span class="cl">Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;setup.py&#34;</span>, line 20, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;build_ext&#39;</span>: BuildExtension
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/.local/lib/python3.6/site-packages/setuptools/__init__.py&#34;</span>, line 153, in setup
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> distutils.core.setup<span class="o">(</span>**attrs<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.6/distutils/core.py&#34;</span>, line 148, in setup
+</span></span><span class="line"><span class="cl">    dist.run_commands<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.6/distutils/dist.py&#34;</span>, line 955, in run_commands
+</span></span><span class="line"><span class="cl">    self.run_command<span class="o">(</span>cmd<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.6/distutils/dist.py&#34;</span>, line 974, in run_command
+</span></span><span class="line"><span class="cl">    cmd_obj.run<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/.local/lib/python3.6/site-packages/setuptools/command/build_ext.py&#34;</span>, line 79, in run
+</span></span><span class="line"><span class="cl">    _build_ext.run<span class="o">(</span>self<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.6/distutils/command/build_ext.py&#34;</span>, line 339, in run
+</span></span><span class="line"><span class="cl">    self.build_extensions<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.6/site-packages/torch/utils/cpp_extension.py&#34;</span>, line 404, in build_extensions
+</span></span><span class="line"><span class="cl">    self._check_cuda_version<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.6/site-packages/torch/utils/cpp_extension.py&#34;</span>, line 777, in _check_cuda_version
+</span></span><span class="line"><span class="cl">    <span class="nv">torch_cuda_version</span> <span class="o">=</span> packaging.version.parse<span class="o">(</span>torch.version.cuda<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/.local/lib/python3.6/site-packages/pkg_resources/_vendor/packaging/version.py&#34;</span>, line 49, in parse
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> Version<span class="o">(</span>version<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/zichen/.local/lib/python3.6/site-packages/pkg_resources/_vendor/packaging/version.py&#34;</span>, line 264, in __init__
+</span></span><span class="line"><span class="cl">    <span class="nv">match</span> <span class="o">=</span> self._regex.search<span class="o">(</span>version<span class="o">)</span>
+</span></span><span class="line"><span class="cl">TypeError: expected string or bytes-like object
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ul>
+<ol>
+<li>
+<p>Search the error with DDG.</p>
+<ul>
+<li>
+<p><code>torch.cuda.is_available()</code> returns False.
+<a class="link" href="https://forums.developer.nvidia.com/t/no-cuda-runtime-is-found-using-cuda-home-usr-local-cuda/170143"  target="_blank" rel="noopener"
+    >NV forums</a></p>
+</li>
+<li>
+<p>pytorch is of cpu version. <a class="link" href="https://github.com/open-mmlab/mmdetection/issues/281#issuecomment-668486013"  target="_blank" rel="noopener"
+    >issue</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">&gt;&gt;&gt; conda list
+</span></span><span class="line"><span class="cl">cpuonly          2.0         <span class="m">0</span>    pytorch
+</span></span><span class="line"><span class="cl">pytorch          1.10.2      py3.6_cpu_0    pytorch
+</span></span><span class="line"><span class="cl">pytorch-mutex    1.0         cpu    pytorch
+</span></span><span class="line"><span class="cl">torchvision      0.11.3      py36_cpu  <span class="o">[</span>cpuonly<span class="o">]</span>  pytorch
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li>
+<p>Reinstall with newer packages:</p>
+<p>&ldquo;install_dependencies.sh&rdquo;:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"> <span class="c1">#!/usr/bin/env bash</span>
+</span></span><span class="line"><span class="cl"> conda create -n PointMVSNet <span class="nv">python</span><span class="o">=</span>3.10
+</span></span><span class="line"><span class="cl"> <span class="nb">source</span> activate PointMVSNet
+</span></span><span class="line"><span class="cl"> conda install <span class="nv">pytorch</span><span class="o">==</span>1.12.1 <span class="nv">torchvision</span><span class="o">==</span>0.13.1 <span class="nv">cudatoolkit</span><span class="o">=</span>10.2 -c pytorch
+</span></span><span class="line"><span class="cl"> conda install -c anaconda pillow
+</span></span><span class="line"><span class="cl"> pip install -r requirements.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Error: <code>identifier &quot;AT_CHECK&quot; is undefined</code>.</p>
+<details><summary> Full message </summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">building <span class="s1">&#39;dgcnn_ext&#39;</span> extension
+</span></span><span class="line"><span class="cl">creating build
+</span></span><span class="line"><span class="cl">creating build/temp.linux-x86_64-cpython-310
+</span></span><span class="line"><span class="cl">creating build/temp.linux-x86_64-cpython-310/csrc
+</span></span><span class="line"><span class="cl">/usr/local/cuda/bin/nvcc -I/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.10/site-packages/torch/include 
+</span></span><span class="line"><span class="cl">-I/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.10/site-packages/torch/include/torch/csrc/api/include 
+</span></span><span class="line"><span class="cl">-I/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.10/site-packages/torch/include/TH 
+</span></span><span class="line"><span class="cl">-I/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.10/site-packages/torch/include/THC 
+</span></span><span class="line"><span class="cl">-I/usr/local/cuda/include -I/home/zichen/anaconda3/envs/PointMVSNet/include/python3.10 
+</span></span><span class="line"><span class="cl">-c csrc/gather_knn_kernel.cu 
+</span></span><span class="line"><span class="cl">-o build/temp.linux-x86_64-cpython-310/csrc/gather_knn_kernel.o 
+</span></span><span class="line"><span class="cl">-D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ 
+</span></span><span class="line"><span class="cl">--expt-relaxed-constexpr --compiler-options <span class="s1">&#39;-fPIC&#39;</span> 
+</span></span><span class="line"><span class="cl">-O2 -DTORCH_API_INCLUDE_EXTENSION_H 
+</span></span><span class="line"><span class="cl">-DPYBIND11_COMPILER_TYPE<span class="o">=</span><span class="se">\&#34;</span>_gcc<span class="se">\&#34;</span> -DPYBIND11_STDLIB<span class="o">=</span><span class="se">\&#34;</span>_libstdcpp<span class="se">\&#34;</span> -DPYBIND11_BUILD_ABI<span class="o">=</span><span class="se">\&#34;</span>_cxxabi1011<span class="se">\&#34;</span> 
+</span></span><span class="line"><span class="cl">-DTORCH_EXTENSION_NAME<span class="o">=</span>dgcnn_ext 
+</span></span><span class="line"><span class="cl">-D_GLIBCXX_USE_CXX11_ABI<span class="o">=</span><span class="m">0</span> -gencode<span class="o">=</span><span class="nv">arch</span><span class="o">=</span>compute_61,code<span class="o">=</span>compute_61 -gencode<span class="o">=</span><span class="nv">arch</span><span class="o">=</span>compute_61,code<span class="o">=</span>sm_61 -std<span class="o">=</span>c++14
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.10/site-packages/torch/include/c10/core/SymInt.h<span class="o">(</span>84<span class="o">)</span>: warning: integer conversion resulted in a change of sign
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/home/zichen/anaconda3/envs/PointMVSNet/lib/python3.10/site-packages/torch/include/ATen/Context.h<span class="o">(</span>25<span class="o">)</span>: warning: attribute <span class="s2">&#34;__visibility__&#34;</span> does not apply here
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">csrc/gather_knn_kernel.cu<span class="o">(</span>34<span class="o">)</span>: error: identifier <span class="s2">&#34;AT_CHECK&#34;</span> is undefined
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">csrc/gather_knn_kernel.cu<span class="o">(</span>106<span class="o">)</span>: error: identifier <span class="s2">&#34;AT_CHECK&#34;</span> is undefined
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">csrc/gather_knn_kernel.cu<span class="o">(</span>125<span class="o">)</span>: error: identifier <span class="s2">&#34;THArgCheck&#34;</span> is undefined
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">csrc/gather_knn_kernel.cu<span class="o">(</span>145<span class="o">)</span>: error: identifier <span class="s2">&#34;THCudaCheck&#34;</span> is undefined
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">csrc/gather_knn_kernel.cu<span class="o">(</span>84<span class="o">)</span>: error: identifier <span class="s2">&#34;TH_INDEX_BASE&#34;</span> is undefined
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="m">5</span> errors detected in the compilation of <span class="s2">&#34;/tmp/tmpxft_00002cb5_00000000-6_gather_knn_kernel.cpp1.ii&#34;</span>.
+</span></span><span class="line"><span class="cl">error: <span class="nb">command</span> <span class="s1">&#39;/usr/local/cuda/bin/nvcc&#39;</span> failed with <span class="nb">exit</span> code <span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<p>Perplexity (GPT4):  Identifiers have been deprecated after PyTorch 1.0.</p>
+<blockquote>
+<p>In PyTorch 1.5.0 and later, AT_CHECK has been replaced with TORCH_CHECK.
+Similarly, THArgCheck and THCudaCheck are no longer used in newer versions of PyTorch.
+The identifier TH_INDEX_BASE is also undefined because it&rsquo;s no longer used in PyTorch 1.0 and later.</p></blockquote>
+</li>
+<li>
+<p>Downgrade pytorch:</p>
+<p>AI葵 used torch 1.4. <a class="link" href="https://github.com/callmeray/PointMVSNet/issues/1"  target="_blank" rel="noopener"
+    >Issue: &ldquo;TH_INDEX_BASE&rdquo; is undefined #1</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"> <span class="c1">#!/usr/bin/env bash</span>
+</span></span><span class="line"><span class="cl"> conda create -n PointMVSNet <span class="nv">python</span><span class="o">=</span>3.8
+</span></span><span class="line"><span class="cl"> <span class="nb">source</span> activate PointMVSNet
+</span></span><span class="line"><span class="cl"> conda install <span class="nv">pytorch</span><span class="o">==</span>1.4.0 <span class="nv">torchvision</span><span class="o">==</span>0.5.0 <span class="nv">cudatoolkit</span><span class="o">=</span>10.1 -c pytorch
+</span></span><span class="line"><span class="cl"> conda install -c anaconda pillow
+</span></span><span class="line"><span class="cl"> pip install -r requirements.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>torchvision older than v0.6.1 doesn&rsquo;t exist in conda:</p>
+<details><summary>Full message</summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Solving environment: failed with initial frozen solve. Retrying with flexible solve.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PackagesNotFoundError: The following packages are not available from current channels:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  - <span class="nv">torchvision</span><span class="o">==</span>0.5.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Current channels:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  - https://conda.anaconda.org/pytorch/linux-64
+</span></span><span class="line"><span class="cl">  - https://conda.anaconda.org/pytorch/noarch
+</span></span><span class="line"><span class="cl">  - https://conda.anaconda.org/conda-forge/linux-64
+</span></span><span class="line"><span class="cl">  - https://conda.anaconda.org/conda-forge/noarch
+</span></span><span class="line"><span class="cl">  - https://repo.anaconda.com/pkgs/main/linux-64
+</span></span><span class="line"><span class="cl">  - https://repo.anaconda.com/pkgs/main/noarch
+</span></span><span class="line"><span class="cl">  - https://repo.anaconda.com/pkgs/r/linux-64
+</span></span><span class="line"><span class="cl">  - https://repo.anaconda.com/pkgs/r/noarch
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">To search <span class="k">for</span> alternate channels that may provide the conda package you<span class="err">&#39;</span>re
+</span></span><span class="line"><span class="cl">looking <span class="k">for</span>, navigate to
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    https://anaconda.org
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">and use the search bar at the top of the page.
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+<li>
+<p>Use pip to install <a class="link" href="https://pytorch.org/get-started/previous-versions/#linux-and-windows-43"  target="_blank" rel="noopener"
+    >torch 1.4</a>. (perplexity)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">conda create -n PointMVSNet <span class="nv">python</span><span class="o">=</span>3.8
+</span></span><span class="line"><span class="cl"><span class="nb">source</span> activate PointMVSNet
+</span></span><span class="line"><span class="cl">conda install -c anaconda pillow
+</span></span><span class="line"><span class="cl">pip install <span class="nv">torch</span><span class="o">==</span>1.4.0 <span class="nv">torchvision</span><span class="o">==</span>0.5.0
+</span></span><span class="line"><span class="cl">pip install -r requirements.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And modify <code>TH_INDEX_BASE</code> -&gt; <code>0</code> in &ldquo;gather_knn_kernel.cu&rdquo;.</p>
+<p>It can be compiled successfully.</p>
+<p>P.S.:</p>
+<ul>
+<li>3DGS also has knn code: <a class="link" href="https://gitlab.inria.fr/bkerbl/simple-knn"  target="_blank" rel="noopener"
+    >simple-knn</a></li>
+<li>Open3D also can find the nearest neighbors.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="train--eval">Train &amp; Eval
+</h3><ul>
+<li>
+<p>Place the dataset (DTU) in the specified directory:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir data
+</span></span><span class="line"><span class="cl">ln -s /home/zichen/Downloads/mvs_training/dtu/ ./data
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Training for 16 epochs cost 3 days approximately:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span>4,5,6,7
+</span></span><span class="line"><span class="cl">python pointmvsnet/train.py --cfg configs/dtu_wde3.yaml
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Evaluate</p>
+<p>The &ldquo;Recified&rdquo; dataset can&rsquo;t be download from the <a class="link" href="https://roboimagedata.compute.dtu.dk/?page_id=36"  target="_blank" rel="noopener"
+    >official website</a>
+by clicking the hyperlink.
+It may be due to broswer limitations as the zip file is 123 GB (analyzed by Perplexity).</p>
+<p>Wget works:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">wget http://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<details><summary> Download message </summary>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">(</span>base<span class="o">)</span> zichen@lambda-server:/data/zichen$ wget http://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip
+</span></span><span class="line"><span class="cl">wget: /home/zichen/anaconda3/envs/GNT/lib/libuuid.so.1: no version information available <span class="o">(</span>required by wget<span class="o">)</span>
+</span></span><span class="line"><span class="cl">--2023-12-30 19:30:31--  http://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip
+</span></span><span class="line"><span class="cl">Resolving roboimagedata2.compute.dtu.dk <span class="o">(</span>roboimagedata2.compute.dtu.dk<span class="o">)</span>... 130.225.69.128
+</span></span><span class="line"><span class="cl">Connecting to roboimagedata2.compute.dtu.dk <span class="o">(</span>roboimagedata2.compute.dtu.dk<span class="o">)</span><span class="p">|</span>130.225.69.128<span class="p">|</span>:80... connected.
+</span></span><span class="line"><span class="cl">HTTP request sent, awaiting response... <span class="m">301</span> Moved Permanently
+</span></span><span class="line"><span class="cl">Location: https://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip <span class="o">[</span>following<span class="o">]</span>
+</span></span><span class="line"><span class="cl">--2023-12-30 19:30:32--  https://roboimagedata2.compute.dtu.dk/data/MVS/Rectified.zip
+</span></span><span class="line"><span class="cl">Connecting to roboimagedata2.compute.dtu.dk <span class="o">(</span>roboimagedata2.compute.dtu.dk<span class="o">)</span><span class="p">|</span>130.225.69.128<span class="p">|</span>:443... connected.
+</span></span><span class="line"><span class="cl">HTTP request sent, awaiting response... <span class="m">200</span> OK
+</span></span><span class="line"><span class="cl">Length: <span class="m">129593443783</span> <span class="o">(</span>121G<span class="o">)</span> <span class="o">[</span>application/zip<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Saving to: ‘Rectified.zip’
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Rectified.zip                           100%<span class="o">[===========================</span>&gt;<span class="o">]</span> 120.69G  3.48MB/s    in 14h 18m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2023-12-31 09:48:33 <span class="o">(</span>2.40 MB/s<span class="o">)</span> - ‘Rectified.zip’ saved <span class="o">[</span>129593443783/129593443783<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+</li>
+</ul>
+<p>Unzip it</p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/points/">Points</a>
+        
+            <a href="/tags/mvg/">MVG</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/depth/b-note-mvsnet/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://ar5iv.labs.arxiv.org/html/1804.02505/assets/x1.png" loading="lazy" data-key="" data-hash="https://ar5iv.labs.arxiv.org/html/1804.02505/assets/x1.png"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Depth - MVG | MVSNet</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/post/writenotes/model/splats/b-note-ewa_splatting/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://pic2.zhimg.com/80/v2-7cbe3b0c3b67ce80593fad0d73a814b5_720w.webp" loading="lazy" data-key="" data-hash="https://pic2.zhimg.com/80/v2-7cbe3b0c3b67ce80593fad0d73a814b5_720w.webp"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Render - Points | EWA Splatting</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

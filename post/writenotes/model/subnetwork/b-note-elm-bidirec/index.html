@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Bidirectional Extreme Learning Machine for Regression Problem (TNNLS 2012)">
+<title>Read: Optim - SLFN | B-ELM</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/model/subnetwork/b-note-elm-bidirec/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="Read: Optim - SLFN | B-ELM">
+<meta property='og:description' content="Bidirectional Extreme Learning Machine for Regression Problem (TNNLS 2012)">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/model/subnetwork/b-note-elm-bidirec/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='SLFN' /><meta property='article:published_time' content='2023-02-10T19:29:00-05:00'/><meta property='article:modified_time' content='2023-02-10T19:29:00-05:00'/>
+<meta name="twitter:title" content="Read: Optim - SLFN | B-ELM">
+<meta name="twitter:description" content="Bidirectional Extreme Learning Machine for Regression Problem (TNNLS 2012)">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#-introduction">Ⅰ. Introduction</a></li>
+    <li><a href="#-preliminaries-and-notation">Ⅱ. Preliminaries and Notation</a>
+      <ol>
+        <li><a href="#a-notations-and-definitions">A. Notations and Definitions</a></li>
+        <li><a href="#b-i-elm">B. I-ELM</a></li>
+      </ol>
+    </li>
+    <li><a href="#-proposed-bidirectional-elm-method">Ⅲ. Proposed Bidirectional ELM Method</a></li>
+    <li><a href="#a-structure-of-the-proposed-bidirectional-elm-method">A. Structure of the Proposed Bidirectional ELM Method</a>
+      <ol>
+        <li><a href="#b-bidirectional-elm-method">B. Bidirectional ELM method</a></li>
+      </ol>
+    </li>
+    <li><a href="#code">Code</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/read/" style="background-color: #2a9d8f; color: #fff;">
+                Read
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/model/subnetwork/b-note-elm-bidirec/">Read: Optim - SLFN | B-ELM</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Bidirectional Extreme Learning Machine for Regression Problem (TNNLS 2012)
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 10, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    6 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#-introduction">Ⅰ. Introduction</a></li>
+    <li><a href="#-preliminaries-and-notation">Ⅱ. Preliminaries and Notation</a>
+      <ol>
+        <li><a href="#a-notations-and-definitions">A. Notations and Definitions</a></li>
+        <li><a href="#b-i-elm">B. I-ELM</a></li>
+      </ol>
+    </li>
+    <li><a href="#-proposed-bidirectional-elm-method">Ⅲ. Proposed Bidirectional ELM Method</a></li>
+    <li><a href="#a-structure-of-the-proposed-bidirectional-elm-method">A. Structure of the Proposed Bidirectional ELM Method</a>
+      <ol>
+        <li><a href="#b-bidirectional-elm-method">B. Bidirectional ELM method</a></li>
+      </ol>
+    </li>
+    <li><a href="#code">Code</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>Authors: Yimin Yang; Yaonan Wang; Xiaofang Yuan</p>
+<p><a class="link" href="http://www.yiminyang.com/code.html"  target="_blank" rel="noopener"
+    >Code</a>
+| <a class="link" href="https://ieeexplore.ieee.org/document/6222007"  target="_blank" rel="noopener"
+    >TNNLS (2012-06-20)</a></p>
+<p>Try to summary: <br>
+(2023-02-15) B-ELM is a variant of I-ELM by dividing the hidden nodes into 2 types: odd and even,
+which differ in wehther the input parameters (𝐚,b) is <strong>randomly</strong> generated or <strong>calculated</strong> by twice inverse operations.</p>
+<p>Specifically, the first node is solved from the target 𝐭. Then for subsequent nodes, the even node is solved based on the residual error of its previous odd node.</p>
+<ul>
+<li>The output weights of the odd nodes are calculated as: 𝐇₂ₙ₋₁ʳ + e₂ₙ₋₂ (or 𝐭) ➔ 𝛃₂ₙ₋₁ (➔e₂ₙ₋₁)</li>
+<li>The input weights 𝐚 and bias b of even nodes are solved based on the residual error: e₂ₙ₋₁ ➔ 𝐇₂ₙᵉ ➔ 𝐚,b (➔ ^𝐇₂ₙᵉ ➔ 𝛃₂ₙ ➔ e₂ₙ)</li>
+<li>Note: the superscript r and e stand for &ldquo;random&rdquo; and &ldquo;error&rdquo; marking the source of H.</li>
+</ul>
+<h2 id="abstract">Abstract
+</h2><blockquote>
+<p>This algorithm tends to reduce network output error to 0</p></blockquote>
+<p>by solving the input weights 𝐚 and bias b based on the network residual error.
+(In other words, the residual error is represented by a, b of subsequent nodes.
+Or the error is absorbed by others parameters besides 𝛃.)</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /post/writenotes/model/subnetwork/img/B-ELM_goal.png width=ZgotmplZ>
+  
+  
+
+
+<h2 id="-introduction">Ⅰ. Introduction
+</h2><p>For ELM with a fixed structure, the best number of hidden nodes need to ffound by trial-and-error,
+because the residual error is not always decreasing when there are more hidden nodes in an ELM.</p>
+<p>For incremental ELM, the hidden node is added one by one, so the residual error keeps decreasing.
+But the model training has to do multiple iterations, i.e., calculating inverse matrix is needed after adding each node.</p>
+<p>Compared with other incremental ELM, this method is</p>
+<ol>
+<li>Faster and with fewer hidden nodes</li>
+<li>showing the relationship between the network output residual error 𝐞 and output weights 𝛃, which is named &ldquo;error-output weights ellipse&rdquo;</li>
+<li>The hidden layer (input weights) with determined parameters instead of random numbers would make the error reduce, or improve the accuracy.</li>
+</ol>
+<h2 id="-preliminaries-and-notation">Ⅱ. Preliminaries and Notation
+</h2><h3 id="a-notations-and-definitions">A. Notations and Definitions
+</h3><p>⟨u,v⟩ = ∫ₓu(𝐱)v‾(𝐱)d𝐱 is the <a class="link" href="https://en.wikipedia.org/wiki/Frobenius_inner_product"  target="_blank" rel="noopener"
+    >Frobenius inner product</a> of two matrices u,v,
+where the overline denotes the complex conjugate.</p>
+<h3 id="b-i-elm">B. I-ELM
+</h3><p><strong>Lemma 1</strong>(proved by Huang<a class="link" href="#univrsl" >⁸</a>): indicated that (For the incremental ELM,) the target function can be approximated with more nodes added into the network by reducing the residual error to 0,
+as the 𝛃 of each new node is calculated based on the error of the network last status eₙ₋₁ as:</p>
+<p>𝛃 = $\frac{⟨eₙ₋₁, 𝐇ₙʳ⟩}{‖𝐇ₙʳ‖²}$</p>
+<p>The numerator is the inner product measuring the distance from the nth (random) hidden node 𝐇ₙʳ to be added and the error of the network with n-1 hidden nodes.</p>
+<p>So the output of the newly added hidden nodes 𝐇ₙʳ are getting smaller and smaller, because they are learning something from the residual error.</p>
+<h2 id="-proposed-bidirectional-elm-method">Ⅲ. Proposed Bidirectional ELM Method
+</h2><figure><a href="https://www.semanticscholar.org/paper/Bidirectional-Extreme-Learning-Machine-for-Problem-Yang-Wang/cfea40bf4e4131aab2727e3aaedcf02c1dd594ac?utm_source=direct_link"><img src="https://d3i71xaburhd42.cloudfront.net/cfea40bf4e4131aab2727e3aaedcf02c1dd594ac/2-Figure2-1.png"></a>
+</figure>
+
+<h2 id="a-structure-of-the-proposed-bidirectional-elm-method">A. Structure of the Proposed Bidirectional ELM Method
+</h2><p>Two types of node, the node with <strong>odd index</strong> {2n-1} has random 𝐚,b,
+while the 𝐚,b of the node with <strong>even index</strong> {2n} are calculated based on the residual error of the network with an odd number of nodes at the last moment.</p>
+<p>Their output weights both are calculated based on Lemma 1. The 𝐇 of the even node is from residual error, not from the random a,b.</p>
+<ul>
+<li>
+<p><del>The odd node aims to approximate the target through 𝐇₂ₙ₋₁ʳβ₂ₙ₋₁, where 𝐇₂ₙ₋₁ is yield based on random a,b;</del></p>
+</li>
+<li>
+<p>The odd node 2n-1 approximates the previous residual error with random generated a,b;</p>
+</li>
+<li>
+<p>But the even node approximates the residual error 𝐞₂ₙ₋₁ through 𝐇₂ₙᵉβ₂ₙ with calculated a,b,
+where 𝐇₂ₙᵉ is yield with the weights a,b solved based on the residual error 𝐞₂ₙ₋₁ from the target (the job hasn&rsquo;t done by all the previous nodes)</p>
+</li>
+</ul>
+<p><del><strong>Bi-direction</strong> means the approximation is learned from both the target and the error,
+where the odd node (β₂ₙ₋₁) solved by the target, while the even node (β₂ₙ) calculated by the error.
+So a pair of odd node and even node is a complete step toward to the target.</del></p>
+<p><strong>Bi-directional</strong> means H₂ₙᵉ is calculated first from eq.(6); Then it is calculated again using the ^a,^b, which are solved based on H₂ₙᵉ, to get the updated ^H₂ₙᵉ, which is used to calculate the output weight for the next random odd node based on the Lemma 1.</p>
+<div class="mermaid">flowchart LR
+subgraph in[inputs]
+x1 & xe["⋮"] & xn
+end
+
+rand(("random\n 𝐚,b")) 
+calculated(("solved\n 𝐚,b"))
+
+subgraph hid[hidden]
+H1 & he["⋮"] & h2n-1 & h2n
+end
+
+x1 & xe & xn --> rand --> h2n-1["𝐇₂ₙ₋₁ʳ"] ---|Lemma 1| β2n-1(("β₂ₙ₋₁"))--> e2n-1["e₂ₙ₋₁"]
+x1 & xe & xn --> calculated --> h2n["𝐇₂ₙᵉ"] ---|Lemma 1| β2n(("β₂ₙ"))--> e2n["e₂ₙ"]
+
+h2n -.- |"⬅ inv of\n β₂ₙ₋₁"| e2n-1
+
+calculated -.-|"⬅ inv of\n 𝐱"| h2n
+</div>
+
+<p>The dot lines represent the inverse calculation. <br>
+β₂ₙ₋₁ is derived from the network residual error of the last status.</p>
+<hr>
+<p><strong>Block diagram</strong>:</p>
+<div class="mermaid">flowchart TB
+init[Initialization: \n Given training set,\n expect accracy η and \n let #hidden nodes L=0] -->
+incre[L = L+1] --> OdEv{"Is L \n odd or even?"}
+OdEv -->|L=2n+1| I-ELM --> calcE[Calculate \n residual error E]
+OdEv -->|L=2n| Theorem2 --> update["Update ^H_L = ^𝐚_L 𝐱 + ^b)\n and calculate the output weight \n β_L based on eq.(7)"] --> calcE
+
+subgraph Theorem2
+direction TB
+calcH["Calculate output matrix \n H_L basd on eq.(6)"] 
+--> calcab["Calculate hidden-node parameters \n (^𝐚_L,^b_L) based on eq.(14)"]
+end
+
+subgraph I-ELM
+direction TB
+rand["Randomly assign hidden-node\n parameters (𝐚_L,b_L) \n and obtain\n output matrix H_L"] 
+--> |Lemma 1| outW["Calculate the output weight \n βL according to eq.(8)"]
+end
+
+calcE --> thres{"‖E‖<η"} --> |Yes| END
+%%thres ---->|No| incre  %% mess up the chart
+incre o---o|No| thres
+</div>
+
+<h3 id="b-bidirectional-elm-method">B. Bidirectional ELM method
+</h3><p><strong>Theorem 1</strong> states the target function 𝑓 is approximated by the existing network 𝑓₂ₙ₋₂ plus the last two nodes: 𝐇₂ₙ₋₁ʳβ₂ₙ₋₁ and 𝐇₂ₙᵉβ₂ₙ, when n→∞. On the other hand, the residual error the network is 0:</p>
+<p>$lim\_{n→∞}‖𝑓-(𝑓₂ₙ₋₂ + 𝐇₂ₙ₋₁ʳβ₂ₙ₋₁ + 𝐇₂ₙᵉβ₂ₙ)‖ = 0$</p>
+<p>where the sequence of the 𝐇₂ₙᵉ (the output of the even node calculated from the feedback error) is determined by the inverse of last output weight β₂ₙ₋₁:</p>
+<p>$𝐇₂ₙᵉ = e₂ₙ₋₁ ⋅(β₂ₙ₋₁)⁻¹$    (6)</p>
+<p>That means $𝐇₂ₙᵉ ⋅ β₂ₙ₋₁ = e₂ₙ₋₁$, this even node is approaching the last residual error based on the known output weight β₂ₙ₋₁.</p>
+<p>Then its output weight can be calculated based on the Lemma 1 as:</p>
+<p>$β₂ₙ = \frac{⟨e₂ₙ₋₁, 𝐇₂ₙᵉ⟩}{‖𝐇₂ₙᵉ‖²}$   (7)</p>
+<p>Once this even node is determined, the corresponding residual error e₂ₙcan be generated,
+and also the output weight of the next odd node (with 𝐇₂ₙ₊₁ʳ from random weights) can be calculated based on Lemma 1:</p>
+<p>$β₂ₙ₊₁ = \frac{⟨e₂ₙ, 𝐇₂ₙ₊₁ʳ⟩}{‖𝐇₂ₙ₊₁ʳ‖²}$   (8)</p>
+<p><strong>Theorem 2</strong> further states the updated ^𝐇₂ₙᵉ calculated with the optimal ^a, ^b solved based on 𝐇₂ₙᵉ by the least-square (pseudo inverse) can also let the residual error converge to 0.</p>
+<p><strong>Remark 1</strong> clarifies the differences between this method and I-ELM, that is the input weights and bias of even nodes are calculated, not randomly generated. And the output weights are set similarly based on Lemma 1.</p>
+<p>Based on the eq. 6, the Δ = ‖e₂ₙ₋₁‖² + ‖e₂ₙ‖² can be reformalized to an ellipse curve.</p>
+<h2 id="code">Code
+</h2><script src="https://gist.github.com/Raspberrycai1/e3b4fd08c08c2c4820fa11d3cce04fef.js"></script>
+
+<p>Training needs to store parameters for each node. And testing needs to query each node sequentially.</p>
+<h2 id="reference">Reference
+</h2><ol start="8">
+<li>
+<div id="univrsl"><a href="http://extreme-learning-machines.org/pdf/I-ELM.pdf">G. B. Huang, L. Chen, and C. K. Siew, “Universal approximation using incremental constructive feedforward networks with random hidden nodes,” IEEE Trans. Neural Netw., Jul.2006.</a></div>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/slfn/">SLFN</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script>
+        mermaid.initialize({ startOnLoad: true });
+      </script>
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/subnetwork/c-sum-elm/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">sum: ELM</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/subnetwork/d-vid-%E6%9D%A8%E6%98%93%E6%97%BB221020/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Watch: SNN - 杨易旻 | WeChat Live</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/subnetwork/b-note-elm-subnet/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Optim - SLFN | ELM with SNN</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/writenotes/model/subnetwork/b-note-elm-mltlyr/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Read: Optim - SLFN | Multilayer SNN</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

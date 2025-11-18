@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="From C to CUDA Source article: CUDA 01 | 第一个程序 - Master KangKang的文章 - 知乎\nCUDA extends Cpp to GPU.\nC lang: &ldquo;add.c&rdquo;\n1 2 3 4 5 6 7 8 9 10 11 12 #include&lt;stdio.h&gt; int add(int a, int b){ int c = a + b; return c; } int main(){ int c = add(2, 3); printf(&#34;c = %d\\n&#34;, c); return 0; } CUDA: &ldquo;add.cu&rdquo;\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 #include&lt;stdio.h&gt; __global__ void add(int a, int b, int *c){ *c = a + b; } int main(){ int c; // Allocate Unified Memory - accessible from CPU or GPU int* c_cuda; // a memory for a int data cudaMalloc((void**)&amp;c_cuda, 1*sizeof(int)); //return pointer // Launch kernel on 1 block containing 1 thread add&lt;&lt;&lt;1,1&gt;&gt;&gt;(2, 3, c_cuda); // Transfer data between GPU VRAM and CPU RAM cudaMemcpy(&amp;c, c_cuda, sizeof(int), cudaMemcpyDeviceToHost); printf(&#34;c=%d\\n&#34;, c); // Free the allocated unified memory cudaFree(c_cuda); return 0; } Adapt C to CUDA (kernel function):\n">
+<title>memo: CUDA | Basics</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/lang/cuda/basic/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: CUDA | Basics">
+<meta property='og:description' content="From C to CUDA Source article: CUDA 01 | 第一个程序 - Master KangKang的文章 - 知乎\nCUDA extends Cpp to GPU.\nC lang: &ldquo;add.c&rdquo;\n1 2 3 4 5 6 7 8 9 10 11 12 #include&lt;stdio.h&gt; int add(int a, int b){ int c = a + b; return c; } int main(){ int c = add(2, 3); printf(&#34;c = %d\\n&#34;, c); return 0; } CUDA: &ldquo;add.cu&rdquo;\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 #include&lt;stdio.h&gt; __global__ void add(int a, int b, int *c){ *c = a + b; } int main(){ int c; // Allocate Unified Memory - accessible from CPU or GPU int* c_cuda; // a memory for a int data cudaMalloc((void**)&amp;c_cuda, 1*sizeof(int)); //return pointer // Launch kernel on 1 block containing 1 thread add&lt;&lt;&lt;1,1&gt;&gt;&gt;(2, 3, c_cuda); // Transfer data between GPU VRAM and CPU RAM cudaMemcpy(&amp;c, c_cuda, sizeof(int), cudaMemcpyDeviceToHost); printf(&#34;c=%d\\n&#34;, c); // Free the allocated unified memory cudaFree(c_cuda); return 0; } Adapt C to CUDA (kernel function):\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/lang/cuda/basic/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2023-11-03T12:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-11-03T12:00:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: CUDA | Basics">
+<meta name="twitter:description" content="From C to CUDA Source article: CUDA 01 | 第一个程序 - Master KangKang的文章 - 知乎\nCUDA extends Cpp to GPU.\nC lang: &ldquo;add.c&rdquo;\n1 2 3 4 5 6 7 8 9 10 11 12 #include&lt;stdio.h&gt; int add(int a, int b){ int c = a + b; return c; } int main(){ int c = add(2, 3); printf(&#34;c = %d\\n&#34;, c); return 0; } CUDA: &ldquo;add.cu&rdquo;\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 #include&lt;stdio.h&gt; __global__ void add(int a, int b, int *c){ *c = a + b; } int main(){ int c; // Allocate Unified Memory - accessible from CPU or GPU int* c_cuda; // a memory for a int data cudaMalloc((void**)&amp;c_cuda, 1*sizeof(int)); //return pointer // Launch kernel on 1 block containing 1 thread add&lt;&lt;&lt;1,1&gt;&gt;&gt;(2, 3, c_cuda); // Transfer data between GPU VRAM and CPU RAM cudaMemcpy(&amp;c, c_cuda, sizeof(int), cudaMemcpyDeviceToHost); printf(&#34;c=%d\\n&#34;, c); // Free the allocated unified memory cudaFree(c_cuda); return 0; } Adapt C to CUDA (kernel function):\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#from-c-to-cuda">From C to CUDA</a></li>
+    <li><a href="#blocks--threads">Blocks &amp; Threads</a></li>
+    <li><a href="#example">Example</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+    <li><a href="#cudamemcpy">cudaMemcpy</a></li>
+    <li><a href="#shared-memory">Shared Memory</a></li>
+    <li><a href="#synchronization">Synchronization</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/lang/cuda/basic/">memo: CUDA | Basics</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 03, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#from-c-to-cuda">From C to CUDA</a></li>
+    <li><a href="#blocks--threads">Blocks &amp; Threads</a></li>
+    <li><a href="#example">Example</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+    <li><a href="#cudamemcpy">cudaMemcpy</a></li>
+    <li><a href="#shared-memory">Shared Memory</a></li>
+    <li><a href="#synchronization">Synchronization</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="from-c-to-cuda">From C to CUDA
+</h2><p>Source article: <a class="link" href="https://zhuanlan.zhihu.com/p/482238286"  target="_blank" rel="noopener"
+    >CUDA 01 | 第一个程序 - Master KangKang的文章 - 知乎</a></p>
+<p>CUDA extends Cpp to GPU.</p>
+<ol>
+<li>
+<p>C lang: &ldquo;add.c&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">c</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="nf">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;c = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>CUDA: &ldquo;add.cu&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="n">__global__</span> <span class="kt">void</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">c</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">c</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Allocate Unified Memory - accessible from CPU or GPU
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span><span class="o">*</span> <span class="n">c_cuda</span><span class="p">;</span>    <span class="c1">// a memory for a int data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">c_cuda</span><span class="p">,</span> <span class="mi">1</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span> <span class="c1">//return pointer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Launch kernel on 1 block containing 1 thread
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">add</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">c_cuda</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Transfer data between GPU VRAM and CPU RAM
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">cudaMemcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="n">c_cuda</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;c=%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Free the allocated unified memory
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">cudaFree</span><span class="p">(</span><span class="n">c_cuda</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>Adapt C to CUDA (kernel function):</p>
+<ol>
+<li>
+<p>The function <code>add</code> is declared as a <code>__global__</code> function, and then it becomes a <strong>kernel</strong>,
+which is called from CPU and executed on GPU.</p>
+</li>
+<li>
+<p>Kernels have <strong>no return value</strong>, as results are left in memory.</p>
+<ul>
+<li>Thus, the GPU memory for <strong>output</strong> data must be allocated (by <code>cudamalloc</code>) and passed into the kernel.</li>
+<li>And <strong>free</strong> it (with <code>cudaFree</code>) at the end.</li>
+</ul>
+</li>
+<li>
+<p>A kernel needs <strong>execution configuration</strong>:
+<code>&lt;&lt;&lt;blocks, threads, shared_mem, stream&gt;&gt;&gt;</code> to sequentialize the host code before host compilation.
+<a class="link" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#offline-compilation"  target="_blank" rel="noopener"
+    >Docs</a></p>
+</li>
+</ol>
+</li>
+<li>
+<p>Compile</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># For C project</span>
+</span></span><span class="line"><span class="cl">gcc add.c -o add_c
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># For CUDA project</span>
+</span></span><span class="line"><span class="cl">nvcc add.cu -o add_cuda
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Profiler</span>
+</span></span><span class="line"><span class="cl">nvprof ./add_cuda
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<hr>
+<h2 id="blocks--threads">Blocks &amp; Threads
+</h2><p><strong>References</strong>:</p>
+<ol start="2">
+<li>
+<p><a class="link" href="https://cuda-tutorial.readthedocs.io/en/latest/tutorials/tutorial01/"  target="_blank" rel="noopener"
+    >Tutorial 01: Say Hello to CUDA - CUDA Tutorial - Read the Docs</a></p>
+</li>
+<li>
+<p>Triple chevrons: <a class="link" href="https://stackoverflow.com/a/51271283"  target="_blank" rel="noopener"
+    >How is the CUDA&laquo;&lt;&hellip;&raquo;&gt;() kernel launch syntax implemented - SO</a></p>
+</li>
+</ol>
+<hr>
+<p><strong>Notes</strong>:</p>
+<p>(2025-02-21)</p>
+<ul>
+<li>并行编程就是管理线程运行哪些 kernel，如何索引到一个线程：三级：grid 》 block〉 thread</li>
+</ul>
+<hr>
+<p>(2023-11-03)</p>
+<ul>
+<li>
+<p>CUDA locates a thread via blocks.</p>
+</li>
+<li>
+<p>Number of <strong>threads</strong> in a block is a multiple of 32, e.g., 256 threads.
+<a class="link" href="https://developer.nvidia.com/blog/even-easier-introduction-cuda/#picking-up-the-threads"  target="_blank" rel="noopener"
+    >An Even Easier Introduction to CUDA - Nvidia Blog - Mark Harris, Jan25, 2017</a></p>
+</li>
+<li>
+<p>Total threads can be reshaped to 2D or 3D, and accordingly the kernel needs to modify the threads indexing.</p>
+</li>
+<li>
+<p>Number of <strong>blocks</strong> must be larger than the total elements.</p>
+<p>Given N elements, there needs n = (N + blkDim.x - 1)/blkDim.x</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 408 137"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 48,16 L 56,16' fill='none' stroke='currentColor'></path>
+<path d='M 104,16 L 112,16' fill='none' stroke='currentColor'></path>
+<path d='M 120,16 L 128,16' fill='none' stroke='currentColor'></path>
+<path d='M 176,16 L 184,16' fill='none' stroke='currentColor'></path>
+<path d='M 328,16 L 336,16' fill='none' stroke='currentColor'></path>
+<path d='M 40,32 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 88,32' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 L 112,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,32 L 136,32' fill='none' stroke='currentColor'></path>
+<path d='M 136,32 L 160,32' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 184,32' fill='none' stroke='currentColor'></path>
+<path d='M 248,32 L 272,32' fill='none' stroke='currentColor'></path>
+<path d='M 272,32 L 296,32' fill='none' stroke='currentColor'></path>
+<path d='M 296,32 L 320,32' fill='none' stroke='currentColor'></path>
+<path d='M 320,32 L 344,32' fill='none' stroke='currentColor'></path>
+<path d='M 40,64 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 L 112,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,64 L 136,64' fill='none' stroke='currentColor'></path>
+<path d='M 136,64 L 160,64' fill='none' stroke='currentColor'></path>
+<path d='M 160,64 L 184,64' fill='none' stroke='currentColor'></path>
+<path d='M 248,64 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 272,64 L 296,64' fill='none' stroke='currentColor'></path>
+<path d='M 296,64 L 320,64' fill='none' stroke='currentColor'></path>
+<path d='M 320,64 L 344,64' fill='none' stroke='currentColor'></path>
+<path d='M 40,0 L 40,32' fill='none' stroke='currentColor'></path>
+<path d='M 40,32 L 40,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 88,32 L 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,0 L 112,32' fill='none' stroke='currentColor'></path>
+<path d='M 112,32 L 112,64' fill='none' stroke='currentColor'></path>
+<path d='M 136,32 L 136,64' fill='none' stroke='currentColor'></path>
+<path d='M 160,32 L 160,64' fill='none' stroke='currentColor'></path>
+<path d='M 184,0 L 184,32' fill='none' stroke='currentColor'></path>
+<path d='M 184,32 L 184,64' fill='none' stroke='currentColor'></path>
+<path d='M 248,0 L 248,32' fill='none' stroke='currentColor'></path>
+<path d='M 248,32 L 248,64' fill='none' stroke='currentColor'></path>
+<path d='M 272,32 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 296,32 L 296,64' fill='none' stroke='currentColor'></path>
+<path d='M 320,0 L 320,32' fill='none' stroke='currentColor'></path>
+<path d='M 320,32 L 320,64' fill='none' stroke='currentColor'></path>
+<path d='M 336,80 L 336,96' fill='none' stroke='currentColor'></path>
+<path d='M 344,32 L 344,64' fill='none' stroke='currentColor'></path>
+<path d='M 392,0 L 392,32' fill='none' stroke='currentColor'></path>
+<path d='M 336,72 L 336,80' fill='none' stroke='currentColor'></path>
+<polygon points='352.000000,80.000000 340.000000,74.400002 340.000000,85.599998' fill='currentColor' transform='rotate(270.000000, 336.000000, 80.000000)'></polygon>
+<text text-anchor='middle' x='0' y='52' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='8' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='24' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='48' y='52' fill='currentColor' style='font-size:1em'>0</text>
+<text text-anchor='middle' x='64' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='72' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='72' y='52' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='80' y='20' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='88' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='96' y='52' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='120' y='52' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='136' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='144' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='144' y='52' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='152' y='20' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='160' y='20' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='168' y='52' fill='currentColor' style='font-size:1em'>5</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='232' y='52' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='256' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='264' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='272' y='20' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='288' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='296' y='20' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='304' y='20' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='328' y='52' fill='currentColor' style='font-size:1em'>N</text>
+<text text-anchor='middle' x='328' y='116' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='336' y='116' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='344' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='352' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='352' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='352' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='360' y='20' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='360' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='360' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='368' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='368' y='52' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='368' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='376' y='20' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='376' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='376' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='384' y='20' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='384' y='36' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='384' y='68' fill='currentColor' style='font-size:1em'>⋯</text>
+<text text-anchor='middle' x='392' y='52' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='392' y='68' fill='currentColor' style='font-size:1em'>'</text>
+</g>
+
+    </svg>
+  
+</div>
+</li>
+<li>
+<p>Index of a thread is <code>blockIdx.x * blockDim.x + threadIdx.x</code>.</p>
+<p>And a <strong>grid</strong> includes all the threads = <code>gridDim.x * blockDim.x</code>. (grdiDim in the following figure may be wrong.)</p>
+<figure><a href="https://developer.nvidia.com/blog/even-easier-introduction-cuda"><img src="https://developer-blogs.nvidia.com/wp-content/uploads/2017/01/cuda_indexing.png" width="80%"></a>
+  </figure>
+
+</li>
+</ul>
+<hr>
+<h2 id="example">Example
+</h2><p>Source article: <a class="link" href="https://developer.nvidia.com/blog/easy-introduction-cuda-c-and-c/"  target="_blank" rel="noopener"
+    >An Easy Introduction to CUDA C and C++ - Nvidia Blog - Mark Harris, Oct31, 2012</a></p>
+<ul>
+<li>Each thread handles a single <strong>element</strong> in an array.</li>
+</ul>
+<hr>
+<h2 id="glossary">Glossary
+</h2><ul>
+<li>
+<p><strong>SM</strong>: Streaming Multiprocessor <a class="link" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#hardware-implementation"  target="_blank" rel="noopener"
+    >Docs</a></p>
+</li>
+<li>
+<p><strong>dim3</strong>: An integer vector based on uint3. <a class="link" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#dim3"  target="_blank" rel="noopener"
+    >Programming Guide</a></p>
+</li>
+</ul>
+<hr>
+<p>To do</p>
+<p><a class="link" href="https://youtu.be/nOxKexn3iBo?si=i9iYzbJn9-PPORvy"  target="_blank" rel="noopener"
+    >Getting Started With CUDA for Python Programmers</a></p>
+<hr>
+<h2 id="cudamemcpy">cudaMemcpy
+</h2><p>(2024-02-02)</p>
+<p>Doc: <a class="link" href="https://developer.download.nvidia.com/compute/DevZone/docs/html/C/doc/html/group__CUDART__MEMORY_g48efa06b81cc031b2aa6fdc2e9930741.html"  target="_blank" rel="noopener"
+    >NVIDIA CUDA Library</a>
+| Example from <a class="link" href="https://github.com/graphdeco-inria/diff-gaussian-rasterization/blob/957bb97582554f2198a07ab01166211a1b79dccf/cuda_rasterizer/rasterizer_impl.cu#L281"  target="_blank" rel="noopener"
+    >3DGS</a></p>
+<p>Specify dest and src pointers, number of bytes to be transferred, and direction of copy.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">num_rendered</span><span class="p">;</span>   <span class="c1">// Declare and Allocate memory on the host
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">num_rendered</span><span class="p">,</span>   <span class="c1">// points to destination area
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>           <span class="n">geomState</span><span class="p">.</span><span class="n">point_offsets</span> <span class="o">+</span> <span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="c1">// points to source area
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>           <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span>     <span class="c1">// copy an signed int (4 bytes)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>           <span class="n">cudaMemcpyDeviceToHost</span><span class="p">)</span>  <span class="c1">// direction
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="shared-memory">Shared Memory
+</h2><p><a class="link" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory"  target="_blank" rel="noopener"
+    >Docs</a></p>
+<p>(2024-02-05)</p>
+<ul>
+<li>Shared by threads within a thread block.</li>
+</ul>
+<hr>
+<h2 id="synchronization">Synchronization
+</h2><p><a class="link" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#synchronization-functions"  target="_blank" rel="noopener"
+    >Docs-#7.6</a></p>
+<ul>
+<li>
+<p><code>__syncthreads</code> is a &ldquo;checkpoint&rdquo; to wait all thread arrive at this point.</p>
+<p><a class="link" href="https://youtu.be/upGoZ00MlfI?si=KsEAQ_KHBJeSOTH3"  target="_blank" rel="noopener"
+    >NVIDIA CUDA Tutorial 8: Intro to Shared Memory -Ytb - Creel</a></p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

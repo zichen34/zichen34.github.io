@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Gaussian Mixture Model 高斯混合模型\n1. 模型介绍 Source video: P1\n根据中心极限定理，假设数据服从高斯分布是合理的\n一维数据:\n横轴是数据点，服从两个高斯分布的叠加，纵轴是概率密度函数值(PDF)，点越密代表该区域出现样本的概率越大。\n可以认为这些样本点服从一个高斯分布，但并不合理，用两个高斯比较精确，红色曲线是2个分布的叠加（混合）。\n(1) 从几何角度来看 GMM 的概率密度函数是多个高斯分布的加权平均，并不是直接相加，否则概率密度函数的积分可能大于1。权重是取到各种高斯分布的概率\n每个高斯有自己的均值 μ 和方差 Σ （如果是多维的，就是协方差矩阵），它们的参数是要学习出来的。\nGMM 中一个样本 x 的概率密度函数是K个高斯分布的加权平均： p(x) = ∑ₖ₌₁ᴷ αₖ N(x|μₖ,Σₖ), where ∑ₖ₌₁ᴷ αₖ = 1，α 是权重\n(2) 从混合模型（或概率生成）角度来看 GMM 用离散的随机变量 z 代表样本 x 分别属于 K 个高斯分布 概率。N 个样本是重复 N 次生成过程：先从K个高斯分布中选一个，再在这个高斯分布中采样生成一个样本。\n两维数据的 PDF 是3维的（曲面）:\n小x 是观测变量observed variable，两维的: x=(x1,x2) 引入隐变量latent variable 小z，一个 z 表明了一个样本 x 可能属于哪一个高斯分布，所以 z 是一个离散型的随机变量， 一个样本 x 属于各个高斯分布的概率分别为： z C₁ C₂ &hellip; Cₖ 概率密度 p₁ p₂ &hellip; pₖ z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1\n">
+<title>watch: ML - 白板 11 | GMM</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/11-gmm/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="watch: ML - 白板 11 | GMM">
+<meta property='og:description' content="Gaussian Mixture Model 高斯混合模型\n1. 模型介绍 Source video: P1\n根据中心极限定理，假设数据服从高斯分布是合理的\n一维数据:\n横轴是数据点，服从两个高斯分布的叠加，纵轴是概率密度函数值(PDF)，点越密代表该区域出现样本的概率越大。\n可以认为这些样本点服从一个高斯分布，但并不合理，用两个高斯比较精确，红色曲线是2个分布的叠加（混合）。\n(1) 从几何角度来看 GMM 的概率密度函数是多个高斯分布的加权平均，并不是直接相加，否则概率密度函数的积分可能大于1。权重是取到各种高斯分布的概率\n每个高斯有自己的均值 μ 和方差 Σ （如果是多维的，就是协方差矩阵），它们的参数是要学习出来的。\nGMM 中一个样本 x 的概率密度函数是K个高斯分布的加权平均： p(x) = ∑ₖ₌₁ᴷ αₖ N(x|μₖ,Σₖ), where ∑ₖ₌₁ᴷ αₖ = 1，α 是权重\n(2) 从混合模型（或概率生成）角度来看 GMM 用离散的随机变量 z 代表样本 x 分别属于 K 个高斯分布 概率。N 个样本是重复 N 次生成过程：先从K个高斯分布中选一个，再在这个高斯分布中采样生成一个样本。\n两维数据的 PDF 是3维的（曲面）:\n小x 是观测变量observed variable，两维的: x=(x1,x2) 引入隐变量latent variable 小z，一个 z 表明了一个样本 x 可能属于哪一个高斯分布，所以 z 是一个离散型的随机变量， 一个样本 x 属于各个高斯分布的概率分别为： z C₁ C₂ &hellip; Cₖ 概率密度 p₁ p₂ &hellip; pₖ z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/11-gmm/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-12-19T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-19T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="watch: ML - 白板 11 | GMM">
+<meta name="twitter:description" content="Gaussian Mixture Model 高斯混合模型\n1. 模型介绍 Source video: P1\n根据中心极限定理，假设数据服从高斯分布是合理的\n一维数据:\n横轴是数据点，服从两个高斯分布的叠加，纵轴是概率密度函数值(PDF)，点越密代表该区域出现样本的概率越大。\n可以认为这些样本点服从一个高斯分布，但并不合理，用两个高斯比较精确，红色曲线是2个分布的叠加（混合）。\n(1) 从几何角度来看 GMM 的概率密度函数是多个高斯分布的加权平均，并不是直接相加，否则概率密度函数的积分可能大于1。权重是取到各种高斯分布的概率\n每个高斯有自己的均值 μ 和方差 Σ （如果是多维的，就是协方差矩阵），它们的参数是要学习出来的。\nGMM 中一个样本 x 的概率密度函数是K个高斯分布的加权平均： p(x) = ∑ₖ₌₁ᴷ αₖ N(x|μₖ,Σₖ), where ∑ₖ₌₁ᴷ αₖ = 1，α 是权重\n(2) 从混合模型（或概率生成）角度来看 GMM 用离散的随机变量 z 代表样本 x 分别属于 K 个高斯分布 概率。N 个样本是重复 N 次生成过程：先从K个高斯分布中选一个，再在这个高斯分布中采样生成一个样本。\n两维数据的 PDF 是3维的（曲面）:\n小x 是观测变量observed variable，两维的: x=(x1,x2) 引入隐变量latent variable 小z，一个 z 表明了一个样本 x 可能属于哪一个高斯分布，所以 z 是一个离散型的随机变量， 一个样本 x 属于各个高斯分布的概率分别为： z C₁ C₂ &hellip; Cₖ 概率密度 p₁ p₂ &hellip; pₖ z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-模型介绍">1. 模型介绍</a>
+      <ol>
+        <li><a href="#1-从几何角度来看">(1) 从几何角度来看</a></li>
+        <li><a href="#2-从混合模型或概率生成角度来看">(2) 从混合模型（或概率生成）角度来看</a></li>
+      </ol>
+    </li>
+    <li><a href="#2-极大似然">2. 极大似然</a></li>
+    <li><a href="#3-em求解-e-step">3. EM求解-E-step</a></li>
+    <li><a href="#4-em求解-m-step">4. EM求解-M-step</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/11-gmm/">watch: ML - 白板 11 | GMM</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 19, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#1-模型介绍">1. 模型介绍</a>
+      <ol>
+        <li><a href="#1-从几何角度来看">(1) 从几何角度来看</a></li>
+        <li><a href="#2-从混合模型或概率生成角度来看">(2) 从混合模型（或概率生成）角度来看</a></li>
+      </ol>
+    </li>
+    <li><a href="#2-极大似然">2. 极大似然</a></li>
+    <li><a href="#3-em求解-e-step">3. EM求解-E-step</a></li>
+    <li><a href="#4-em求解-m-step">4. EM求解-M-step</a></li>
+    <li><a href="#ref">Ref</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p>Gaussian Mixture Model 高斯混合模型</p>
+<h2 id="1-模型介绍">1. 模型介绍
+</h2><p>Source video: <a class="link" href="https://www.bilibili.com/video/BV13b411w7Xj?p=1"  target="_blank" rel="noopener"
+    >P1</a></p>
+<p>根据中心极限定理，假设数据服从高斯分布是合理的</p>
+<p>一维数据:</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/11_%E4%B8%80%E7%BB%B4%E6%95%B0%E6%8D%AE.png width=ZgotmplZ>
+  
+  
+
+
+<p>横轴是数据点，服从两个高斯分布的叠加，纵轴是概率密度函数值(PDF)，点越密代表该区域出现样本的概率越大。</p>
+<p>可以认为这些样本点服从一个高斯分布，但并不合理，用两个高斯比较精确，红色曲线是2个分布的叠加（混合）。</p>
+<h3 id="1-从几何角度来看">(1) 从几何角度来看
+</h3><p>GMM 的概率密度函数是多个高斯分布的<strong>加权平均</strong>，并不是直接相加，否则概率密度函数的积分可能大于1。权重是取到各种高斯分布的概率</p>
+<p>每个高斯有自己的均值 μ 和方差 Σ （如果是多维的，就是协方差矩阵），它们的参数是要学习出来的。</p>
+<p>GMM 中一个样本 x 的概率密度函数是K个高斯分布的加权平均：
+p(x) = ∑ₖ₌₁ᴷ αₖ N(x|μₖ,Σₖ), where ∑ₖ₌₁ᴷ αₖ = 1，α 是权重</p>
+<h3 id="2-从混合模型或概率生成角度来看">(2) 从混合模型（或概率生成）角度来看
+</h3><p>GMM 用<strong>离散的随机变量</strong> z 代表样本 x 分别属于 K 个高斯分布 概率。N 个样本是重复 N 次生成过程：先从K个高斯分布中选一个，再在这个高斯分布中采样生成一个样本。</p>
+<p>两维数据的 PDF 是3维的（曲面）:</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/11_%E4%BA%8C%E7%BB%B4%E6%95%B0%E6%8D%AE.png width=ZgotmplZ>
+  
+  
+
+
+<ul>
+<li>小x 是观测变量observed variable，两维的: x=(x1,x2)</li>
+<li>引入隐变量latent variable 小z，一个 z 表明了一个样本 x 可能属于哪一个高斯分布，所以 z 是一个离散型的随机变量，
+一个样本 x 属于各个高斯分布的概率分别为：</li>
+</ul>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th>z</th>
+          <th>C₁</th>
+          <th>C₂</th>
+          <th>&hellip;</th>
+          <th>Cₖ</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>概率密度</td>
+          <td>p₁</td>
+          <td>p₂</td>
+          <td>&hellip;</td>
+          <td>pₖ</td>
+      </tr>
+  </tbody>
+</table></div>
+<p>z 代表不同的类别categories（不同的高斯分布），其中概率密度求和等于1：∑ₖ₌₁ᴷ pₖ = 1</p>
+<p>一个样本既可属于C1，也可属于C2&hellip;, 只不过概率不同，所以用一个随机变量表达。
+用隐变量 z 代表一个样本 x 所属的高斯分布比较方便: x ～ z，z是一个离散分布，可以是 C₁，也可以是 C₂,C₃,&hellip;Cₖ,</p>
+<p>GMM 是一个生成模型（混合模型一般都是生成模型），每个样本都是按照生成过程逐一生成的：
+假设有一个骰子有 K 个面，而且重量分布不均匀，所以各面的概率不同（越重越大）</p>
+<ol>
+<li>掷一次得到了第 k 面(概率是pₖ)，对应于第 k 个高斯分布</li>
+<li>在这第 k 个高斯分布中去采样，就生成了一个样本</li>
+</ol>
+<p>GMM 是最简单的生成模型，它的概率图：</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/11_GMM%E6%A6%82%E7%8E%87%E5%9B%BE.png width=ZgotmplZ>
+  
+  
+
+
+<p>N 表示生成 N 个样本，小 x 是观测变量，用阴影来表示，小 z 是随机变量，用空心的圈表示，它服从的分布是以 p 为参数: p=(p1,p2,&hellip;,pₖ) 是一个向量，所以用实心点表示参数 p；而 X 服从高斯分布，其参数为 (μ,Σ)</p>
+<h2 id="2-极大似然">2. 极大似然
+</h2><p>Source video: <a class="link" href="https://www.bilibili.com/video/BV13b411w7Xj?p=2"  target="_blank" rel="noopener"
+    >P2</a></p>
+<p>从混合模型角度，写出 GMM 的概率密度函数 p(x): 既然引入了隐变量 𝐳，也是一个随机变量，把它的概率积掉就行了，又因为 𝐳 是离散型的随机变量，所以是把各个可能的取值求和。</p>
+<p>一个样本 x 的概率密度函数：<br>
+P(x) = ∑_z P(x,z)
+= ∑_ₖ₌₁ᴷ P(x,z=Cₖ)，分别从 K 个高斯分布中采出 x 的概率: P(x,zₖ) 累加 <br>
+= ∑ₖ₌₁ᴷ P(z=Cₖ) P(x|z=Cₖ)，联合概率拆成两项积 <br>
+= ∑ₖ₌₁ᴷ pₖ ⋅ N(x | μₖ,Σₖ)，第k个高斯分布出现的概率 乘以 在第k个高斯分布中采出x的概率</p>
+<p>所以混合模型的概率密度函数与加权平均是一样的，只不过“权重” aₖ 变成了这里的概率值 pₖ</p>
+<p>做 N 次随机试验，每次做试验时(扔骰子)，(假设)隐变量 𝐳 是不同的（即K个正态分布出现的概率不同），
+每次生成样本时，依据 𝐳 从 K 个高斯分布中选一个分布，再从被选中的高斯分布中采一个 x，所以每个 x 和一个 𝐳 对应: (xᵢ,𝐳ᵢ)。
+要求 xᵢ 的似然，就把这次试验中的 𝐳ᵢ 从联合概率P(xᵢ,𝐳ᵢ)中积掉。</p>
+<p>N个样本就是 N 次试验同时发生，发生的概率（似然）就是多次试验的连乘 P(X,Z)=p(x₁,z₁)p(x₂,z₂)&hellip;p(xN,zN))，所以求 P(X)=∫z P(X,Z) dZ 就是多重积分: 先对 z1 积，再对 z2 积，&hellip;.</p>
+<ul>
+<li>x observed variable, 观测随机变量</li>
+<li>z latent variable, 隐变量，服从离散分布: K个类别（高斯分布）C₁,C₂,&hellip;,Cₖ 分别对应概率 p₁,p₂,&hellip;,pK；</li>
+<li>X observed data, N个观测数据 x1,x2,&hellip;xN, 样本之间相互独立</li>
+<li>Z &ldquo;latent data&rdquo;,  z1,z2,&hellip;zN, N 个样本 x 对应的生成它的隐变量</li>
+<li>(X,Z): complete data, “完整数据” (x1,z1),(x2,z2),&hellip;(xN,zN)，每个样本 x 对应一个隐变量</li>
+<li>为了叙述方便，用 θ 代表参数 = {p₁,p₂,&hellip;,pK, μ₁,Σ₁, μ₂,Σ₂,&hellip;, μK,ΣK}，隐变量中 K 个高斯分布出现的概率 + K 个高斯的均值和方差</li>
+</ul>
+<p>用极大似然估计参数 θ: θ^ = arg max_θ log P(X)</p>
+<p>GMM 是没有解析解的，所以直接用 MLE 是做不出来的，只能用数值方法得到近似解。而且 GMM （混合模型）中含有隐变量，所以用 EM 算法（迭代）会更有效率。</p>
+<p>θ^ = arg max_θ log P(X)
+= arg max_θ log ∏ᵢ₌₁ᴺ P(xᵢ) ，N个样本iid <br>
+= arg max_θ ∑ᵢ₌₁ᴺ log P(xᵢ) ，连乘变连加 <br>
+= arg max_θ ∑ᵢ₌₁ᴺ log ( ∑ₖ₌₁ᴷ pₖ ⋅ N(xᵢ | μₖ,Σₖ) )，将P(xᵢ)代入</p>
+<p>要求极大值对应的参数，可以对上式中的参数（pk,μₖ,Σₖ）求偏导=0，但是因为 log 里面是多项连加，而且高斯分布可能是高维的（表达式很复杂），无法求出解析解</p>
+<p>对于单个高斯分布，它的μ,σ² 都可以直接用 MLE 求出来。因为单一个正态分布的表达式简单，log可以把两项之积拆开，也可以把exp去掉，简化之后，对似然求导，可得到解析解。</p>
+<h2 id="3-em求解-e-step">3. EM求解-E-step
+</h2><p>Source video: <a class="link" href="https://www.bilibili.com/video/BV13b411w7Xj?p=3"  target="_blank" rel="noopener"
+    >P3</a></p>
+<p>用 EM 算法通过 MLE 求出 GMM 的参数 θ。</p>
+<p>EM 是要最大化似然的下界，即似然的期望：θ⁽ᵗ⁺¹⁾ = arg max_θ ∫_Z q(Z) ⋅ log P(X,Z|θ) dZ，
+这个积分的本意是对（每个样本的）似然值 log P(x,z|θ) 按照隐变量 z 的分布 q(z) 求期望。
+因为 z 的分布是离散的，包括 K 个（高斯分布出现的）概率值，所以 logP(x,z|θ) 和 q(z) 也都是离散的，二者相乘的积分就是<strong>加权和</strong> ∑ q(z)⋅log P(x,z|θ)，就是一个样本的期望。</p>
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  <img src= /post/writenotes/calc/ml-%E7%99%BD%E6%9D%BF%E6%8E%A8%E5%AF%BC%E7%B3%BB%E5%88%97/img/11_GMM_%E9%9A%90%E5%8F%98%E9%87%8F.png width=ZgotmplZ>
+  
+  
+
+
+<p>因为大 Z 是多个小 z 的联合，是多个”事件“同时发生的联合概率，又因为样本之间独立同分布，大Z的概率就是单个 z 的概率连乘：q(Z)=q(z₁)⋅q(z₂)&hellip;q(zN)，
+所以对大 Z 的积分就是<strong>多重积分</strong>，即对每个小 z 积分: ∫z₁∫z₂&hellip;∫zN；
+而只做有限 N 次试验的话，就是把 N 次实验的加权和连乘起来：</p>
+<p>E = ∫_Z q(Z) ⋅ log P(X,Z|θ) dZ ，X和Z都是大写, N个样本集合. (<code>|</code>也可写成<code>;</code>: θ是随机变量vs固定值 <a class="link" href="CSDN-%e6%9f%9a%e5%ad%90%e7%9a%ae" >¹</a>)<br>
+= ∫_z₁ ∫_z₂&hellip;∫_zN q(Z) ⋅ log P(X,Z|θ) dz₁ dz₂ dzN，把q(Z)写开<br>
+= ∑_z₁ ∑_z₂&hellip;∑_z$\_N$ ∏ᵢ₌₁ᴺ q(zᵢ) ⋅ log ∏ᵢ₌₁ᴺ P(xᵢ,zᵢ|θ)，zᵢ都是离散分布<br>
+= ∑_z₁ ∑_z₂&hellip;∑_z$\_N$ ∏ᵢ₌₁ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ⋅ log ∏ᵢ₌₁ᴺ P(xᵢ,zᵢ|θ) ，当 q(zᵢ) 等于Z的后验分布时，KL散度=0，&ldquo;积分&rdquo;（似然的期望）取到最大。 <br>
+= ∑_z₁ ∑_z₂&hellip;∑_z$\_N$ [ ∏ᵢ₌₁ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ⋅ ∑ᵢ₌₁ᴺ log P(xᵢ,zᵢ|θ) ]，log连乘变连加</p>
+<p>把这个期望 E 记为 Q(θ,θ⁽ᵗ⁾)，是关于 θ 的一个函数（log 中的 θ 是变量，而θ⁽ᵗ⁾是常数）。</p>
+<p>先把 log 的连加展开：</p>
+<p>Q(θ,θ⁽ᵗ⁾) = ∑_z₁ ∑_z₂&hellip;∑_z$\_N$
+∏ᵢ₌₁ᴺP(zᵢ|xᵢ,θ⁽ᵗ⁾) ⋅ [ log P(x₁,z₁|θ) + log P(x₂,z₂|θ) + &hellip; + log P($x\_N,z\_N$|θ)]</p>
+<p>多重&quot;积分&quot;，先对 z₁ 积分：先只取出第 1 项 logP(x₁,z₁|θ)，并且只把 z₁ 从联合概率中取出来：</p>
+<p>∑_z₁ ∑_z₂&hellip;∑_z$\_N$ [ log P(x₁,z₁|θ) ⋅ ∏ᵢ₌₁ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ]</p>
+<p>= ∑_z₁ ∑_z₂&hellip;∑_zN [ log P(x₁,z₁|θ) ⋅ P(z₁|x₁,θ⁽ᵗ⁾) ⋅ ∏ᵢ₌₂ᴺP(zᵢ|xᵢ,θ⁽ᵗ⁾) ] ，把只与 z₁ 相关的项分出来 <br>
+= ∑_z₁ logP(x₁,z₁|θ) ⋅ P(z₁|x₁,θ⁽ᵗ⁾) ⋅ ∑_z₂&hellip;∑_zN [ ∏ᵢ₌₂ᴺP(zᵢ|xᵢ,θ⁽ᵗ⁾) ]</p>
+<p>对于后半部分的从 2 到 N 的联合概率：</p>
+<p>∑_z₂&hellip;∑_zN [ ∏ᵢ₌₂ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ] <br>
+= ∑_z₂&hellip;∑_zN [ P(z₂|x₂,θ⁽ᵗ⁾) ⋅ P(z₃|x₃,θ⁽ᵗ⁾) &hellip; ⋅ P(zN|xN,θ⁽ᵗ⁾)] <br></p>
+<p>因为每一个累加号都只与一个 z 相关，也就是把每个 z 对应的离散概率分布（p₂,&hellip;,pK）求和，并且概率密度函数积分等于 1: <br>
+= ∑_z₂ P(z₂|x₂,θ⁽ᵗ⁾) ∑_z₃ P(z₃|x₃,θ⁽ᵗ⁾) &hellip; ∑_zN P(zN|xN,θ⁽ᵗ⁾) <br>
+= 1⋅1⋅&hellip;⋅1 = 1</p>
+<p>所以对 z₁ 积分的结果，除了只与 z1 相关的项: ∑_z₁ logP(x₁,z₁|θ) ⋅ P(z₁|x₁,θ⁽ᵗ⁾)，其余都是1。同理之后对 z2, z3,&hellip;zN积分时，也只保留与自己相关的项</p>
+<p>Q(θ,θ⁽ᵗ⁾) = ∑_z₁∑_z₂&hellip;∑_zN ∏ᵢ₌₁ᴺ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ⋅ [logP(x1,z1|θ) + logP(x2,z2|θ) +&hellip; + logP(x_N,zN|θ)]</p>
+<p>= ∑_z₁ log P(x₁,z₁|θ) ⋅ P(z₁|x₁,θ⁽ᵗ⁾) +
+∑_z₂ log P(x₂,z₂|θ) ⋅ P(z₂|x₂,θ⁽ᵗ⁾) +
+&hellip; + ∑_zN log P(xN,zN|θ) ⋅ P(zN|xN,θ⁽ᵗ⁾)  <br>
+= ∑ᵢ₌₁ᴺ ∑_zᵢ log P(xᵢ,zᵢ|θ) ⋅ P(zᵢ|xᵢ,θ⁽ᵗ⁾) ，这里xᵢ,zᵢ都是小写，单个样本</p>
+<p>综上，似然P(X)的期望等于 N 个样本的似然期望的和。</p>
+<p>其中，单个样本的联合概率（或者说似然）: P(x,z|θ) = P(z|θ) P(x|z,θ) = p_z ⋅ N(x | μ_z,Σ_z)，这里下标 z 表示该样本的隐变量。
+因为 P(x) = ∑ₖ₌₁ᴷ pₖ ⋅ N(x | μₖ,Σₖ)，
+所以单个样本的后验概率：P(z|x,θ) = P(x,z)/P(x) = p_z ⋅ N(x | μ_z,Σ_z) / ∑ₖ₌₁ᴷ pₖ ⋅ N(x | μₖ,Σₖ)</p>
+<p>把似然和后验代入 Q:</p>
+<p>Q(θ,θ⁽ᵗ⁾) = ∑ᵢ₌₁ᴺ ∑_zᵢ log (p_zᵢ ⋅ N(xᵢ | μ_zᵢ,Σ_zᵢ)) ⋅ [ p_zᵢ ⋅ N(xᵢ | μ_zᵢ,Σ_zᵢ) / ∑ₖ₌₁ᴷ pₖ ⋅ N(xᵢ | μₖ,Σₖ) ] ，zᵢ是1⋯K中的任意一个</p>
+<p>以上就是 EM 中的 E-step：把（N个样本的）似然的期望表示出来。M-step 要关于参数 θ 求 Q 的最大值。</p>
+<h2 id="4-em求解-m-step">4. EM求解-M-step
+</h2><p>Source video: <a class="link" href="https://www.bilibili.com/video/BV13b411w7Xj?p=4"  target="_blank" rel="noopener"
+    >P4</a></p>
+<p>上面得到了 Q 的表达式，对每个样本的似然按照后验求期望，然后N个样本累加。
+M-step 要解一个最优化问题。</p>
+<p>后验展开是：p_zᵢ ⋅ N(xᵢ | μ_zᵢ⁽ᵗ⁾,Σ_zᵢ⁽ᵗ⁾) / ∑ₖ₌₁ᴷ pₖ⁽ᵗ⁾ ⋅ N(xᵢ | μₖ⁽ᵗ⁾,Σₖ⁽ᵗ⁾)</p>
+<p>在后续推导中，仍然把一个样本z 的后验简记为： P(zᵢ|xᵢ,θ⁽ᵗ⁾)，因为 θ⁽ᵗ⁾是上一时刻的参数：θ⁽ᵗ⁾={p₁⁽ᵗ⁾,p₂⁽ᵗ⁾,&hellip;,pK⁽ᵗ⁾, μ₁⁽ᵗ⁾,Σ₁⁽ᵗ⁾, μ₂⁽ᵗ⁾,Σ₂⁽ᵗ⁾,&hellip;, μ_K⁽ᵗ⁾,Σ_K⁽ᵗ⁾}，是常数，所以就简单写。
+而似然 logP(xᵢ,zᵢ|θ) 中的θ 是变量，所以似然的期望的累加就表示为：</p>
+<p>Q(θ,θ⁽ᵗ⁾) = ∑ᵢ₌₁ᴺ ∑_zᵢ log (p_zᵢ ⋅ N(xᵢ | μ_zᵢ, Σ_zᵢ)) ⋅ P(zᵢ|xᵢ, θ⁽ᵗ⁾)</p>
+<p>交换两个累加符号顺序：</p>
+<p>Q(θ,θ⁽ᵗ⁾) = ∑_zᵢ ∑ᵢ₌₁ᴺ log (p_zᵢ ⋅ N(xᵢ | μ_zᵢ, Σ_zᵢ)) ⋅ P(zᵢ|xᵢ, θ⁽ᵗ⁾)</p>
+<p>zᵢ 是一个样本上，K个高斯分布可能的概率，z 在最外面，可以把 zᵢ 替换成小 k（从1到K），∑_zᵢ 替换为 ∑ₖ₌₁ᴷ：</p>
+<p>Q(θ,θ⁽ᵗ⁾) = ∑ₖ₌₁ᴷ ∑ᵢ₌₁ᴺ log (pₖ ⋅ N(xᵢ | μₖ, Σₖ)) ⋅ P(zᵢ=Cₖ|xᵢ, θ⁽ᵗ⁾) <br>
+= ∑ₖ₌₁ᴷ ∑ᵢ₌₁ᴺ [ log pₖ + log N(xᵢ | μₖ, Σₖ) ] ⋅ P(zᵢ=Cₖ|xᵢ, θ⁽ᵗ⁾)</p>
+<p>目标函数就为：
+θ⁽ᵗ⁺¹⁾ = arg max_θ Q(θ,θ⁽ᵗ⁾)</p>
+<p>θ⁽ᵗ⁺¹⁾ 包括 pₖ⁽ᵗ⁺¹⁾={p₁⁽ᵗ⁺¹⁾,p₂⁽ᵗ⁺¹⁾,&hellip;,p_K⁽ᵗ⁺¹⁾},
+μₖ⁽ᵗ⁺¹⁾={μ₁⁽ᵗ⁺¹⁾,μ₂⁽ᵗ⁺¹⁾,&hellip;,μ_K⁽ᵗ⁺¹⁾},
+Σₖ⁽ᵗ⁺¹⁾={Σ₁⁽ᵗ⁺¹⁾,Σ₂⁽ᵗ⁺¹⁾,Σ_K⁽ᵗ⁺¹⁾}，</p>
+<p>下面只介绍 pₖ 的求法：</p>
+<p>在 Q(θ,θ⁽ᵗ⁾) 中，只有 log pₖ 与 pₖ 相关：</p>
+<p>p⁽ᵗ⁺¹⁾ = arg max_pₖ ∑ₖ₌₁ᴷ ∑ᵢ₌₁ᴺ log pₖ ⋅ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾), s.t. ∑ₖ₌₁ᴷpₖ=1</p>
+<p>求这个带约束的最优化问题，用拉格朗日乘子法求解:</p>
+<p>写出拉格朗日函数：</p>
+<p>L(pₖ,λ) = ∑ₖ₌₁ᴷ ∑ᵢ₌₁ᴺ log pₖ ⋅ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + λ(∑ₖ₌₁ᴷpₖ - 1)</p>
+<p>对 pₖ 求偏导时，后面的z的后验分布是常量，求导后是系数。pₖ 的 k 是从1到K的任一数，只对 pₖ 求导，所以带有 p₁,p₂,&hellip;, pₖ₋₁ 的项都是0，即最外层的累加号没了。</p>
+<p>∂L/∂pₖ = ∑ᵢ₌₁ᴺ 1/pₖ ⋅ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + λ ≜ 0 ，令其等于0</p>
+<p>两边同时乘以 pₖ:</p>
+<p>∑ᵢ₌₁ᴺ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + pₖ ⋅ λ = 0</p>
+<p>为了利用约束条件，把 k=1,2,&hellip;,K 的式子都加起来：</p>
+<p>∑ᵢ₌₁ᴺ ∑ₖ₌₁ᴷ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + ∑ₖ₌₁ᴷpₖ ⋅ λ = 0</p>
+<p>其中 ∑ₖ₌₁ᴷ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) 是对隐变量 zᵢ 的概率密度函数“积分”，为1，所以</p>
+<p>∑ᵢ₌₁ᴺ 1 + λ = 0 <br>
+λ = -N</p>
+<p>把 λ=-N 代入上式：</p>
+<p>∑ᵢ₌₁ᴺ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾) + pₖ ⋅ (-N) = 0 <br></p>
+<p>pₖ⁽ᵗ⁺¹⁾ = 1/N ⋅ ∑ᵢ₌₁ᴺ P(zᵢ=Cₖ|xᵢ,θ⁽ᵗ⁾)</p>
+<p>上式是通项，把 k=1,2,..K，代入就可得到每个 p。</p>
+<p>求 μₖ 和 Σₖ 的方法类似，只关心 log N(xᵢ | μₖ,Σₖ)，log 可以把高斯分布的概率密度函数简化（两项积拆成两项和，exp也可去掉），而且是无约束，直接（关于矩阵）求导，令其=0就行</p>
+<hr>
+<h2 id="ref">Ref
+</h2><div id="CSDN-柚子皮"><a href="https://blog.csdn.net/pipisorry/article/details/42715245">概率论：p(x|theta)和p(x;theta)的区别 - -柚子皮- - CSDN </a></div>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

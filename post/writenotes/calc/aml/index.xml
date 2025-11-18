@@ -1,0 +1,2181 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Applied Machine Learning - 2021 on Zichen Wang</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/</link>
+        <description>Recent content in Applied Machine Learning - 2021 on Zichen Wang</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Tue, 14 Dec 2021 14:47:00 +0000</lastBuildDate><atom:link href="http://blog.zichen.uk/post/writenotes/calc/aml/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>watch: AML | Feature Selection</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/aml_feature-selection/</link>
+        <pubDate>Tue, 14 Dec 2021 14:47:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/aml_feature-selection/</guid>
+        <description>&lt;p&gt;Video 7 2021-10-04&lt;/p&gt;
+&lt;p&gt;[toc]&lt;/p&gt;
+&lt;h2 id=&#34;dimensionality-reduction&#34;&gt;Dimensionality Reduction
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;Avoids the curse of Dimensionality&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;October 6, 2021&lt;/p&gt;
+&lt;h3 id=&#34;curse-of-dimensionality&#34;&gt;Curse of Dimensionality
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;When dimensionality increases, data becomes increasingly &lt;strong&gt;sparse&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Concepts&lt;/strong&gt; become less meaningful: density and distance&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Subspace combinations&lt;/strong&gt; grow very fast&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;dimentionality-reduction&#34;&gt;Dimentionality Reduction
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Eliminate irrelevant features and reduces noise&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$X$ is a set of $N$ features: $X=\{X_1, X_2, \cdots X_N\}$，a reduced set $X&#39;$ is a transformation of $X$ and consists of $d$ features so that $d&lt;N$:&lt;/p&gt;
+$$
+  X&#39; = T(X) = \{ X_1&#39;,\ X_2&#39;,\ \cdots,\ X_d&#39;\} \\
+  T: \R^N \rightarrow \R^d,\ d&lt;N
+  $$&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/FS_selection_extraction.png&#34; style=&#34;zoom:80%&#34;&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Avoids the curse of dimensionality. Reduces time and space required for computations.&amp;gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Two ways:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Feature Extraction:&lt;/strong&gt; transformation to a lower dimension
+&lt;ul&gt;
+&lt;li&gt;Wavelet transforms and PCA&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Feature Selection:&lt;/strong&gt; transformation is limited to &lt;strong&gt;only selection&lt;/strong&gt; from original features
+&lt;ul&gt;
+&lt;li&gt;Filters, Wrappers, Embedded.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;3-features&#34;&gt;3 Features
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Relevant feature&lt;/strong&gt; is &lt;strong&gt;neither&lt;/strong&gt; irrelevant nor redundant to the target concept.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Irrelevant feature&lt;/strong&gt; is &lt;strong&gt;useless&lt;/strong&gt; information for the learning task, and may causes greater computational cost and overfitting&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Redundant feature&lt;/strong&gt; is &lt;strong&gt;duplication&lt;/strong&gt; of information that has contained in other features.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;feature-selection&#34;&gt;Feature Selection
+&lt;/h3&gt;&lt;p&gt;Assume a binary classification model, X → Model → Y ∈ {0, 1}, where X consists of
+N different features, e.g., age, weight, temperature, blood pressure, etc.
+X = {X1, X2, X3 , . . . , XN }
+N could be small, or relatively large value, e.g., an image of size of 300 × 300.&lt;/p&gt;
+&lt;h3 id=&#34;class-separation-criterion&#34;&gt;Class Separation Criterion
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Evaluation of data separation result based on selected features.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+$$
+  \begin{aligned}
+  变换    \quad &amp; T: \R^N → \R^d, \quad d&lt;N &amp; \text{(把数据从N维降到d维)} \\
+  分离结果\quad &amp; X&#39;= T(X) \\
+  分离评价\quad &amp; J(X&#39;,Y) = 1-ε^* (X&#39;,Y) &amp; \text{(Y: class distribution; ε是X&#39;与Y的误差)}
+  \end{aligned}
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;根据最大化 J 或者最小化ε来设计h，实现更好的样本分离&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;feature-selection-1&#34;&gt;Feature Selection
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Find the optimal subset of d features $S^*$ from N features, according to $S^* = \underset{|S|=d}{\operatorname{arg\,max}}J(S)$&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/FS_peaking_phenomenon.png&#34; style=&#34;zoom:150%&#34;&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Optimal number of features bring lowest error of model&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;FS包括两部分：
+搜索策略 &lt;a href=&#34;#SS&#34;&gt;Search Strategy&lt;/a&gt; 和 目标函数 &lt;a href=&#34;#OF&#34;&gt;Objective Function&lt;/a&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Search Strategy: 若 d 固定会有$C_d^N$次评价；若 d 也需优化，就有$2^N$次评价比较，为了在所有的特征组合之中搜索，需要一个搜索策略来&lt;strong&gt;引导&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;Objective Function: &lt;strong&gt;量化&lt;/strong&gt;特征子集的好坏，以供search strategy 判断&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Importance:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Reduce computational complexity, run-time, required storage.&lt;/li&gt;
+&lt;li&gt;FS can get meaningful and explainable rules from model based on raw data with real meaning.&lt;/li&gt;
+&lt;li&gt;Building better generalizable model. FS can be applied for non-numerical features, which cannot be transformed easily.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;类分离评价标准：$J(X^S,Y) = J(S)$越大越好，由Bayes error, classifier error或Mahalanobis distance定义。误差越小，J越大。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;search-strategies&#34;&gt;&lt;a id=&#34;SS&#34;&gt;Search Strategies&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Search sequence of N features&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;Find the subset of d features from all possible combination of features quickly&lt;/li&gt;
+&lt;li&gt;Three major categories：
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Sequential algorithms:&lt;/strong&gt; Add or remove features sequentially&lt;/p&gt;
+&lt;p&gt;Shortcoming: a tendency to become trapped in local minima&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#SFS&#34;&gt;Sequential Forward Selection&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#SBS&#34;&gt;Sequential Backward Selection&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#PLMR&#34;&gt;Plus-L Minus-R Selection&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Bidirectional Search&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#SFloatS&#34;&gt;Sequential Floating Selection&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Exponential algorithms:&lt;/strong&gt; Used to evaluate a number of subsets that grows exponentially with the dimensionality of the search space.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Exhaustive Search&lt;/li&gt;
+&lt;li&gt;Branch and Bound&lt;/li&gt;
+&lt;li&gt;Approximate Monotonicity with a Branch and Bound&lt;/li&gt;
+&lt;li&gt;Beam Search&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Randomized algorithms&lt;/strong&gt;: Incorporate randomness into search procedure to escape from local minima&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Random Generation plus Sequential Selection&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;objective-function&#34;&gt;&lt;a id=&#34;OF&#34;&gt;Objective Function&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Evaluation of subset goodness&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;三大类：
+&lt;ol&gt;
+&lt;li&gt;Filter Methods: statistical analysis without using predictive model
+statistical dependence, information gain, Chi square, log likelihood ratio, interclass distance or information-theoretic measures&lt;/li&gt;
+&lt;li&gt;Wrapper Methods: pre-determined predictive models or classifiers&lt;/li&gt;
+&lt;li&gt;Hybrid Methods: complement of wrapper and filter approaches&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;filters-approaches&#34;&gt;Filters Approaches
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;select d features greedy which are used for training a predictive model $h_M$ with M samples&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://blog.zichen.uk/img/FS_filters_vs_wrappers.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+$$
+  X^N \overset{FS}{\longrightarrow} X^d \overset{h_m}{\longrightarrow}Y
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Why is it?&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Evaluation is &lt;strong&gt;independent&lt;/strong&gt; of the predictive models or classifiers.&lt;/li&gt;
+&lt;li&gt;Objective function evaluate the &lt;strong&gt;information content and statistical measures&lt;/strong&gt; of feature subsets&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Role: evaluate each feature individually or a batch of features&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Major steps:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Evaluating and ranking features&lt;/li&gt;
+&lt;li&gt;Choosing the features with the highest ranks to induce models&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Advantages:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Fast Execution: non-iterative computation is faster than training session of predictive models&lt;/li&gt;
+&lt;li&gt;Generality: evaluate intrinsic properties of the data, rather than their interactions with a particular predictive model. So the final subset is general for any subsequent predictive models&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Disadvantages:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Tendency to select large subsets: more features will make the monotonic objective functions larger&lt;/li&gt;
+&lt;li&gt;Independence: ignore the performance on predictive models&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;wrapper-approches&#34;&gt;Wrapper Approches
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;a predictive model $h_M$ is trained to find the best subset $S^*$&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://blog.zichen.uk/img/FS_wrapper_approache.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;*&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;一个预测模型被包在了“选择系统”里面&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Maximize the separation criterion J or minimize the estimiated error$\epsilon$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;不采取穷尽搜索，而是搜索较少的特征空间，找到 sub-optimal 解。Evaluation 标准与 predictive models 和 classifiers 相关。通过在测试数据上验证准确性来评选特征子集。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Advantages:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Accuracy: 因为更关注特定 predictive model 与数据之间的交互，所以要比 filter approaches 在预测结果上更准确。&lt;/li&gt;
+&lt;li&gt;Generalization ability: 因为通常采取 cross-validation，所以可以避免过拟合&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Disadvantages:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Slow execution: 训练predictive model 花时间&lt;/li&gt;
+&lt;li&gt;Lack of generality: 仅使用一个特定的predictive model&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;best-individual-features&#34;&gt;&lt;a href=&#34;#BIF&#34;&gt;Best Individual Features&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;最佳个体特征：一个特征的单独分类效果好于其他特征单独作用的效果&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+$$
+  J_{i*} = \underset{i \in N}{\operatorname{arg\ max}} J(X_i, Y)
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;并不能保证组合起来的效果还是最好的&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sequential-forward-search&#34;&gt;&lt;a id=&#34;SFS&#34;&gt;Sequential Forward Search&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;顺序前向搜素：第一个特征选最佳单体特征&lt;a id=&#34;BIF&#34;&gt;BIF&lt;/a&gt;，然后每次都取当前的最佳组合，选够d个特征，或者 J 出现下降，就是输出&lt;/p&gt;
+&lt;img src=&#34;./img/FS_SFS.png&#34;&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;最简单的贪心搜索算法 (the simplest greedy search algorithm)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;适合挑选小容量的特征子集&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Feature freeze: Once a feature added to the selection list can not be deleted. 所以不能保证最终结果是最好的&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sequential-backward-search&#34;&gt;&lt;a id=&#34;SBS&#34;&gt;Sequential Backward Search&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;顺序后向搜索：从特征全集开始，顺序移除那个使$J(X_i,Y)$下降最小的特征，
+&lt;img src=&#34;./img/FS_SBS.png&#34;&gt;&lt;/li&gt;
+&lt;li&gt;适合挑选大容量的特征子集&lt;/li&gt;
+&lt;li&gt;Limitation: 无法评价已经被移除特征的作用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;general-sfs-and-general-sbs&#34;&gt;General SFS and General SBS
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;广义顺序前向搜索：允许每次选中多个（r）特征，进行评估，添加或删除&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;减少判断次数&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GSFS:&lt;/p&gt;
+&lt;img src=&#34;./img/FS_GSFS.png&#34;&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;plus-l-take-r&#34;&gt;&lt;a id=&#34;PLTR&#34;&gt;PLUS-L TAKE-R&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;加 L 减 R。In Plus-L Take away-R&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;If L&amp;gt;R:
+从空集开始，先按SFS加入L个特征，再按SBS移除R个特征。&lt;/p&gt;
+&lt;p&gt;If L&amp;lt;R:
+从全集开始，先按SBS移除R个特征，再按SFS加入L个特征&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;作用：attemps to compensate for the weaknesses of SFS and SBS with some backtracking capabilities (回溯能力)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Limitation: Lack of theory to help predict the optimal values of L and R.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;例：从10个特征中选3个，L=3，R=2&lt;/p&gt;
+&lt;p&gt;3&amp;gt;2，所以从空集开始，先加3个特征，再移除2个特征&lt;/p&gt;
+&lt;img src=&#34;./img/FS_PLTR_example.png&#34;&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sequential-floating-selection&#34;&gt;&lt;a id=&#34;SFloatS&#34;&gt;Sequential Floating Selection&lt;/a&gt;
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;顺序浮动选择：每次迭代时，可以调整 L 和 R&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在PLTS的基础上，不固定L 和 R。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;优化L和R&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Two floating methods:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Sequential Floating Forward Selection (SFFS)&lt;/strong&gt; 顺序浮动前向选择&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Starts from the empty set. After each forward step, SFFS performs backward steps as long as the objective function increases.&lt;/p&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;&lt;strong&gt;Sequential Floating Backward Selection (SFBS)&lt;/strong&gt; 顺序浮动后向选择&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Starts from the full set. SFBS performs forward steps as long as the objective function increases&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 13 | Validation</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec13_validation/</link>
+        <pubDate>Tue, 14 Dec 2021 01:00:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec13_validation/</guid>
+        <description>&lt;p&gt;Video 17 Validation 2021-12-08&lt;/p&gt;
+&lt;p&gt;Outline:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;The validation set&lt;/li&gt;
+&lt;li&gt;Model selection&lt;/li&gt;
+&lt;li&gt;Cross validation&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Review of Lec12&lt;/strong&gt; (期末不涉及12)&lt;/p&gt;
+&lt;p&gt;Regularization: add a overfit or complexity penalty term，与模型复杂度有关，使用这个&amp;quot;惩罚项&amp;quot;估计out-of-sample error&lt;/p&gt;
+&lt;p&gt;两种正则化方法：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;constrained regularization: select some type of hypotheses&lt;/li&gt;
+&lt;li&gt;unconstrained regularization: 不是最小化$E_{out}$，而是最小化 $E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) + \underbrace{\frac{\lambda}{N} \mathbf w^T \bf w}_{\text{penalty term}}$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;选择一个 regularizer 去估计penalty项:
+$E_{\rm augment}(\mathbf w) = E_{in}(\mathbf w) + \frac{\lambda}{N} \Omega(h)$&lt;/p&gt;
+&lt;p&gt;其中 $\Omega(h)$ 是regularizer，$\lambda$ 是正则化参数(regularization parameter)&lt;/p&gt;
+&lt;p&gt;$\Omega(h)$: 启发式地选择 heuristic，通常使用weight decay，找到一个 smooth, simple $h$&lt;/p&gt;
+&lt;p&gt;$\lambda$ 决定了正则化被引入的程度。如果选了正确的$\lambda$，可以很好的估计未知目标函数。Validation 也要找到一个合适的$\lambda$&lt;/p&gt;
+&lt;h3 id=&#34;validation-vs-regularization&#34;&gt;Validation vs Regularization
+&lt;/h3&gt;&lt;p&gt;在learning 过程中，$E_{out}(h)$ 未知（因为目标函数未知），但是它等于 $E_{in}(h)+$ overfit penalty，Ein 是已知的（预测值与训练样本真实值的误差），还需要知道overfit penalty。
+所以为了计算 Eout 有两种方法：Regularization 是先估计出 overfit penalty。而Validation 是直接估计 Eout。
+&lt;/p&gt;
+$$
+\begin{aligned}
+\rm Regularization: E_{out}(h) = E_{in}(h) + \underbrace{\text{overfit penalty}}_{\mathclap{\text{regularization estimates this quantity}}} \\
+\\
+\rm Validation: \underbrace{E_{out}(h)}_{\mathclap{\text{validation estimates this quantity}}} = E_{in}(h) + \text{overfit penalty}
+\end{aligned}
+$$&lt;h3 id=&#34;analyzing-the-estimate&#34;&gt;Analyzing the estimate
+&lt;/h3&gt;&lt;p&gt;Out-of-sample point 是没有在训练阶段中使用的点，&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;在一个out-of-sample 点 $(\mathbf X,y)$ 上的误差是 $\mathbf e(h(\mathbf x),y)$。根据要解决问题的不同，误差函数有不同的形式：&lt;/p&gt;
+$$
+  \begin{aligned}
+  \text{回归, Squared error:} &amp; (h(\mathbf x)-y)^2 \\
+  \text{分类, Binary error:} &amp; [\![ h(\mathbf x)\neq y]\!]
+  \end{aligned}
+  $$&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;$h$ 在 out-of-sample分布 上的误差的期望是$E_{out}(h)$： $\mathbb E[\mathbf e(h(\mathbf x),y)] = E_{out}(h)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$h$ 在 out-of-sample分布 上的误差的方差是$\sigma^2$： $\operatorname{var}[\mathbf e(h(\mathbf x),y)] = \sigma^2$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;从1个点到1组点：&lt;/strong&gt; 从training set 中独立地选出K个点组成一个验证集(validation set) $(\mathbf x_1,y_1), \cdots, (\mathbf x_K, y_K)$，验证集上的误差是 $E_{\text{val}}(h) = \frac{1}{K} \sum_{k=1}^K \mathbf e(h(\mathbf x_k), y_k)$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;不同验证集误差的期望：$\mathbb E[E_{\text{val}}(h)] = \frac{1}{K} \sum_{k=1}^K \mathbb E[\mathbf e(h(\mathbf x_k), y_k)] = E_{out}(h)$ (期望放里面，就是$E_{out}$)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;不同验证集误差的方差：$\operatorname{var} [E_{\text{val}}(h)] = \frac{1}{K^2} \sum_{k=1}^K \operatorname{var}[\mathbf e(h(\mathbf x_k), y_k)] = \frac{\sigma^2}{K}$ (因为各点互相独立，所以协方差矩阵除了对角线其他位置都是零)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;验证集的误差等于Eout 加一个 $\frac{1}{\sqrt{K}}$ 阶（标准差）的偏置项：&lt;/p&gt;
+$$
+  E_{\text{val}}(h) = E_{\text{out}}(h) \pm O(\frac{1}{\sqrt{K}})
+  $$&lt;p&gt;如果增加验证集样本数量 K，偏置项变小，验证集误差就越接近Eout。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于数据集 $\mathcal D = (\mathbf x_1, y_1), \cdots, (\mathbf x_N, y_N)$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;选K个点作为验证集：$\mathcal D_{\rm val}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;剩下 N-K 个点是训练集：$\mathcal D_{\rm train}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于偏置项：$O(\frac{1}{\sqrt{K}})$，小K让Eval 与 Eout 差的远，而大K让Ein 与 Eout 差得远。所以K需要tradeoff&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt; &lt;img src=&#34;./img/Lec13_s06.png&#34; style=&#34;zoom:60%&#34;&gt; &lt;/div&gt;
+&lt;p&gt;以前通常用全部的数据集来训练，得到g，现在只用了一部分数据 (reduced dataset) 来训练，得到$g^-$，所以它的 Ein和Eout 都比g大。然后计算 $g^-$ 在验证集上的误差 $E_{val}(g^-)$，作为Eout 的近似，如果K很大，近似效果会差。经验法则：$K= \frac{N}{5}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Validation set 不是 test set&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$E_{val}(g^-)$ 也不是 $E_{out}$。测试集与训练无关 (unbiased)，而验证集会在训练阶段帮助我们选择超参数，从而影响了学习过程 (optimistic bias)。&lt;/p&gt;
+&lt;p&gt;比如，有两个假设 $h_1$ 和 $h_2$，其实它们真正的Eout都是0.5：$E_{out}(h_1) = E_{out}(h_2) = 0.5$  ，但是未知。它们分别在验证集上的误差为 $\mathbf e_1,\ \mathbf e_2$，然后我们会选择留下误差小的那个：$\mathbf e = min(\mathbf{e_1,e_2})$, 它的 Eout $\mathbb E(\mathbf e)$  要小于真实值0.5，因为它用的训练数据少于全部数据集，所以validataion 给出的误差是偏向“乐观的”&lt;/p&gt;
+&lt;h2 id=&#34;model-selection&#34;&gt;Model selection
+&lt;/h2&gt;&lt;p&gt;比如要解决一个分类问题，有M个假设空间：$\mathcal H_1,\cdots, \mathcal H_M$ （比如svm的核可以为linear, polynomial, rbf，选哪种好呢？）。&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt; &lt;img src=&#34;./img/Lec13_s11.png&#34; style=&#34;zoom:80%&#34;&gt; &lt;/div&gt;
+&lt;p&gt;根据 (有缩减的reduced) 训练集，从每个假设空间选出“最佳假设”(finalists model 决赛选手)。然后分别在验证集上计算Eval。根据这 M 个Eval，选出最佳 $E_{val}$ 和最佳假设空间 $\mathcal H_{m^*}$。然后再使用整个数据集在最佳假设空间中找出最佳假设 $g_{m^*}$&lt;/p&gt;
+&lt;p&gt;使用$\mathcal D_{\rm val}$ 和 $E_{\rm val}(g_{m^*}^-)$ 选择的最佳假设空间 $\mathcal H_{m^*}$ 是 $E_{out}(g_{m^*}^-)$ 的一个 biased estimate，因为没有使用全部的数据集，所以叫biased。&lt;/p&gt;
+&lt;p&gt;不同容量的验证集与预期偏差的关系如下图：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt; &lt;img src=&#34;./img/Lec13_s12.png&#34; style=&#34;zoom:80%&#34;&gt; &lt;/div&gt;
+&lt;p&gt;验证集中数据 K 越多，用于训练的样本越少，Eout越差，但是同时 $O(\frac{1}{\sqrt{K}})$ 减小，$E_{\rm val}$ 会越接近 $E_{\rm out}$。&lt;/p&gt;
+&lt;h3 id=&#34;how-much-bias&#34;&gt;How much bias
+&lt;/h3&gt;&lt;p&gt;对于 M 个假设空间：$\mathcal H_1, \cdots ,\mathcal H_M$，从中选出了 M 个 finalists model $H_{\rm val} = \{ g_1^-, g_2^-,\cdots, g_M^- \}$，然后用验证集 $\mathcal D_{\rm val}$ 去“训练”它们，也就是再找出它们中的最佳 minus 假设 $g_{m^\star}^-$（$E_{\rm val}$最小）。&lt;/p&gt;
+&lt;p&gt;对于一个&amp;quot;训练&amp;quot;过程，对于假设 $g_{m^\star}^-$ 有Hoeffding不等式成立：&lt;/p&gt;
+$$
+E_{out} (g_{m^\star}^-) \leq E_{val}(g_{m^\star}^-) + O \left( \sqrt{\frac{ln M}{K}} \right)
+$$&lt;p&gt;如果有无穷多个假设集（无穷多个正则化参数，$\lambda$ 是连续值），所以 $O \left( \sqrt{\frac{ln M}{K}} \right)$ 就变得不再有效&lt;/p&gt;
+&lt;p&gt;为了约束 M，就像之前那样，引入 VC 维。比如，我们不关心正则化参数 $\lambda$ 能取多少值，而是关心我们有几个参数（自由度），我们只有1个参数 $\lambda$，所以VC维是1。&lt;/p&gt;
+&lt;h3 id=&#34;data-contamination&#34;&gt;Data contamination
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;在训练阶段用了多少数据样本&lt;/li&gt;
+&lt;li&gt;$E_{in}，E_{out}(E_{test})，E_{\rm val}$&lt;/li&gt;
+&lt;li&gt;Contamination: Optimistic (deceptive) bias in estimating Eout
+&lt;ul&gt;
+&lt;li&gt;Training set: totally contaminated&lt;/li&gt;
+&lt;li&gt;Validation set: slightly contaminated (起到了“测试”的效果，但也被用于训练了)&lt;/li&gt;
+&lt;li&gt;Test set: totally &amp;lsquo;clean&amp;rsquo; (完全用于测试)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;cross-validation&#34;&gt;Cross validation
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;把train set 分成n折，每次取n-1折做训练，计算在剩下那折上的准确率，n个准确率求平均就是该组超参数的表现。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;不使用test set，却可以估计在test set上的表现。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;目的是选最佳的超参数；不能根据在train set上的准确率判断好坏。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;选用不同超参数时，CV准确率的变化趋势与在test set上的变化趋势近似一致。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;K 进退两难: $g^-$是用 reduced训练集找出的最佳，K越小，用于训练的数据越多，越接近真实的Eout，而根据Hoeffding不等式，$E_{\rm val}(g^-)$需要很大的K，才能近似$E_{out}(g^-)$&lt;/p&gt;
+$$
+  E_{\rm out}(g) \underset{\mathclap{\substack{\\ \text{小K才近似}}}}{\approx} 
+  E_{\rm out}(g^-) \underset{\mathclap{\substack{\\ \text{大K才近似}}}}{\approx} E_{\rm val}(g^-)
+  $$&lt;p&gt;$E_{out}$ 是最终目标，但是只知道验证误差 $E_{\rm val}(g^-)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;have K both small and large&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;两种交叉验证方法：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Leave One Out&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;K=1，每次迭代选1个样本做验证，剩下N-1个样本做训练。去除第n个样本的训练集$\mathcal D_n:$&lt;/p&gt;
+$$
+     \mathcal D_n = (\mathbf x_1,y_1),\cdots,(\mathbf x_{n-1},y_{n-1}),\sout{(\mathbf x_n, y_n)},(\mathbf x_{n+1},y_{n+1}),\cdots,(\mathbf x_N, y_N)
+     $$&lt;p&gt;从 $\mathcal D_n$ 中学到的假设是 $g_n^-$，验证误差 $\mathbf e_n = E_{\rm val}(g_n^-) = \mathbf e(g_n^- (\mathbf x_n),y_n)$&lt;/p&gt;
+&lt;p&gt;对每个留出的样本点，计算验证误差，然后取平均，就是交叉验证误差 (cross validation error):
+&lt;/p&gt;
+$$
+     E_{CV} = \frac{1}{N} \sum_{n=1}^N \mathbf e_n
+     $$&lt;p&gt;
+对于3个点，每次取出一个做验证集，剩下两个做训练集，线性回归问题，对于两个样本，误差最小的Linear假设，就是过两点的一条直线。&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt; &lt;img src=&#34;./img/Lec13_s18.png&#34; style=&#34;zoom:50%&#34;&gt; &lt;/div&gt;
+&lt;p&gt;对于 Constant 假设：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt; &lt;img src=&#34;./img/Lec13_s19.png&#34; style=&#34;zoom:70%&#34;&gt; &lt;/div&gt;
+&lt;p&gt;对比 $E_{CV}$，constant 模型的交叉验证误差较小，所以最终选择constant模型&lt;/p&gt;
+&lt;p&gt;N个样本的数据集要迭代 N 次，每次在 N-1 个样本上训练，如果有1千个样本就要迭代1千次，计算复杂度太高。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Leave More Out&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;把数据集划分成多份，划分成10份的话：$K = \frac{N}{10}$，只需迭代10 ($\frac{N}{K}$)次，每次在N-K个点上训练。&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec13_s22.png&#34; style=&#34;zoom:70%&#34;&gt; &lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;cross-validation-in-action&#34;&gt;Cross validation in action
+&lt;/h3&gt;&lt;p&gt;数字分类任务，把2个特征（symmetry和Average intensity）非线性变换到20维空间，最高幂次为5的多项式&lt;/p&gt;
+$$
+\left(1, x_{1}, x_{2}\right) \rightarrow\left(1, x_{1}, x_{2}, x_{1}^{2}, x_{1} x_{2}, x_{2}^{2}, x_{1}^{3}, x_{1}^{2} x_{2}, \ldots, x_{1}^{5}, x_{1}^{4} x_{2}, x_{1}^{3} x_{2}^{2}, x_{1}^{2} x_{2}^{3}, x_{1} x_{2}^{4}, x_2^{5}\right)
+$$&lt;div align=&#34;center&#34;&gt; &lt;img src=&#34;./img/Lec13_s20.png&#34; style=&#34;zoom:50%&#34;&gt; &lt;/div&gt;
+&lt;p&gt;使用特征数量越多，模型越复杂，$E_{in}$ 越小（迭代了很多次），$E_{out}$先减小后增大，出现Overfitting，而$E_{CV}$的趋势与$E_{out}$相同，因为$E_{out}$未知，$E_{CV}$是 $E_{out}$ 的近似，所以可以根据 $E_{CV}$ 来决定该选用几个特征。Ecv 的最小值出现在5 和7，所以可以选用6个特征的模型。&lt;/p&gt;
+&lt;p&gt;没用validation时，直接使用20个特征的模型很复杂，而且过拟合（噪音），Ein为零；使用validation后，决定只用6个特征，模型相对简单，Eout较小。&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt; &lt;img src=&#34;./img/Lec13_s21.png&#34; style=&#34;zoom:40%&#34;&gt; &lt;/div&gt;
+&lt;h2 id=&#34;例题&#34;&gt;例题
+&lt;/h2&gt;&lt;p&gt;Given three two-dimensional data examples $x_1 = (-1,1)，x_2=(0,2)$, and $x_3=(1,1)$, perform the leave-one-out cross validation for a &lt;u&gt;linear fit&lt;/u&gt; using these data examples. What is $E_{CV}$?&lt;/p&gt;
+$$
+E_{CV} = \frac{1}{N} \sum_{n=1}^N \varepsilon_n
+$$&lt;p&gt;where $\varepsilon_n = (y_n - g(x_n))^2$&lt;/p&gt;
+&lt;p&gt;Note: The line passing through two-dimensional data points $(x_1, y_1)$ and $(x_2,y_2)$ can be obtained as follows: $y-y_1 = \frac{y_2 - y_1}{x_2-x_1} \times (x-x_1)$&lt;/p&gt;
+&lt;p&gt;GA answer:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Keep $x_1$ as for the validation, while $x_2, x_3$ as for training:&lt;/p&gt;
+&lt;p&gt;$g:\ y-2 = \frac{1-2}{1-0}(x-0) \Rightarrow y=-x+2$&lt;/p&gt;
+&lt;p&gt;$\varepsilon_1 = (1-g(-1))^2 = (1-3)^2 = 4$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Keep $x_2$ as for the validation:&lt;/p&gt;
+&lt;p&gt;$g:\ y-1 = \frac{1-1}{1+1}(x+1) \Rightarrow y=1$&lt;/p&gt;
+&lt;p&gt;$\varepsilon_2 = (2-g(0))^2 = (2-1)^2 = 1$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Keep $x_3$ as for the validation:&lt;/p&gt;
+&lt;p&gt;$g:\ y-1 = \frac{2-1}{0+1}(x+1) \Rightarrow y=x+2$&lt;/p&gt;
+&lt;p&gt;$\varepsilon_3 = (1-g(1))^2 = (1-3)^2 = 4$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;$E_{CV} = \frac{1}{3}(4+1+4) = 3$&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 10 | Neural Networks</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec10_neural_networks/</link>
+        <pubDate>Tue, 14 Dec 2021 00:53:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec10_neural_networks/</guid>
+        <description>&lt;p&gt;Video 13 Neural Network 2021-11-10&lt;/p&gt;
+&lt;p&gt;Outline:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Stochastic gradient descent&lt;/li&gt;
+&lt;li&gt;Neural network model&lt;/li&gt;
+&lt;li&gt;Backpropagation algorithm&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;gradient-descent&#34;&gt;Gradient Descent
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;沿着误差函数 $\mathbf e$ 的负梯度方向，一步一步最小化 in-sample error。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Ein 是（线性/非线性）模型的权重 $\mathbf w$ 的函数：&lt;/p&gt;
+$$
+  E_{in}(\mathbf w) = \frac{1}{N} \sum_{n=1}^N \mathbf e(h(\mathbf x_n), y_n)
+  $$&lt;p&gt;$\mathbf e$ 是误差函数，计算假设值与样本真实值之间的误差。复杂的误差函数越难优化。有时不能向 linear regression 那样 one-shot 求出最佳w。可以用梯度下降，一步一步地使误差下降。移动的方向是负梯度方向$-\nabla$，每次移动的大小与 $-\nabla E_{in}$ (Gradient error) 成比例（$\eta$是学习率）：&lt;/p&gt;
+$$
+  \Delta \mathbf w = - \eta \nabla E_{in}(\mathbf w)
+  $$&lt;p&gt;这里$\nabla$ Ein 是基于所有的样本点($\mathbf x_n, y_n$)，叫做&amp;quot;batch GD&amp;quot;，也就是使用所有点做了一次梯度下降。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;stochastic-gradient-descent&#34;&gt;Stochastic gradient descent
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;一次随机选一个点做梯度下降。&lt;/p&gt;
+&lt;p&gt;Pick one ($\mathbf x_n, y_n$) at a time. Apply GD to $\mathbf e(h(\mathbf x_n),y_n)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;N 次梯度下降的“平均方向”(Average direction)还是等于$-\nabla E_{in}$:&lt;/p&gt;
+$$
+  \mathbb E_n [-\nabla \mathbf e(h(\mathbf x_n), y_n)]
+  = \frac{1}{N} \sum_{n=1}^N -\nabla \mathbf e(h(\mathbf x_n),y_{n})
+  = -\nabla E_{in}
+  $$&lt;p&gt;随机梯度下降是梯度下降的 randomized version&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;SGD 的好处：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;简化计算 (Cheaper computation): 每次只看一个样本点&lt;/li&gt;
+&lt;li&gt;随机化 (Randomization): 避免陷入局部最小或鞍点，无法继续优化。如果使用“batch GD”，那么初始位置最关键，因为只走一步，所以容易陷入附近的局部最优。&lt;/li&gt;
+&lt;li&gt;简单 (Simple)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Rule of thumb (经验法则): $\eta = 0.1$ works&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;例子：电影评分&lt;/p&gt;
+&lt;p&gt;User $u_i$ 的喜好有K个属性，Movie $v_j$ 的也有对应的K个属性。根据这个用户他之前评价过的电影 $r_{ij}$ (rating)，调整用户的各属性权重，最小化误差。&lt;/p&gt;
+$$
+  \mathbf e_{ij} = \left( \underbrace{ r_{ij}}_{\text{actual}} - \underbrace{\sum_{k=1}^K u_{ik}v_{jk}}_{\text{predict}} \right)^2
+  $$&lt;p&gt;反过来，把用户属性输入模型就可以估计某电影的评分&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;p&gt;2D perceptron 的break point=4，也就是感知机无法解决异或问题。&lt;/p&gt;
+&lt;p&gt;&amp;hellip;&lt;/p&gt;
+&lt;h2 id=&#34;neural-network-model&#34;&gt;Neural Network model
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec10_s13.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;对于从神经元 $i$ 出发，指向第 $l$ 层的神经元 $j$ 的权重 $w_{ij}^{(l)}$&lt;/p&gt;
+$$
+  \begin{cases}
+  1 \leq l \leq L &amp; \text{隐藏层/输出层序号, 输入层是0} \\
+  0 \leq i \leq d^{(l-1)}   &amp; \text{w出发的神经元: 0代表从bias出发}\\
+  1 \leq j \leq d^{(l)}   &amp; \text{w指向的神经元: 至少有一个,最多有$d^{l}$}\\
+  \end{cases}
+  $$&lt;p&gt;第 $l$ 层的某神经元，接受了来自上一层所有神经元的输入（内积）：&lt;/p&gt;
+$$
+  x_j^{(l)} = \theta(s_j^{(l)}) = \theta
+  \left(
+  \sum_{i=0}^{d^{(l-1)}} w_{ij}^{(l)} x_i^{(l-1)}
+  \right)
+  $$&lt;p&gt;从bias term 开始加到第 $d^{(l-1)}$ 个，把信号 $s_j^{(i)}$ 传入 $\theta$ 非线性激活函数&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec10_s14.png&#34; style=&#34;zoom:60%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;一个样本 $\mathbf x$ 有$d^{(0)}$ 个维度，所以输入层对应有：$x_1^{(0)} \cdots x_{d^{(0)}}^{(0)}$，经过一层一层传递，直到最终输出一个值：$x_1^{(L)} = h(\mathbf x)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;backpropagation-algorithm&#34;&gt;Backpropagation algorithm
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;应用随机梯度下降，调节神经网络的权重，使误差函数最小&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;网络全部的权重 $\mathbf w = {w_{ij}^{(l)}}$ 决定了一个假设 $h(\mathbf x)$ (输入到输出的映射)&lt;/p&gt;
+&lt;p&gt;对于一个样本 $(\mathbf x_n,\ y_n)$ 上的误差：$\mathbf e(h(\mathbf X_n),\ y_n) = \mathbf e(\mathbf w)$，使用SGD，调整权重，减小误差&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;误差函数对每个权重求梯度：&lt;/p&gt;
+$$
+  \nabla \mathbf e(\mathbf w): \frac{\partial \mathbf e(\mathbf w)}{\partial w_{ij}^{(l)}}, \quad \text{for all } i,j,l
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;计算误差函数 $\mathbf e$ 对各权重 w 的梯度 $\frac{\partial \mathbf e(\mathbf w)}{\partial w_{ij}^{(l)}}$&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec10_s17.png&#34; style=&#34;zoom:70%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;误差 $\mathbf e$ 是实际输出 $\theta(s)$ 减去真实值 $y$，所以误差函数首先是 $s_{j}^{(l)}$ 的函数，第 $l$ 层的第 $j$ 个神经元的输入信号$s_{j}^{(l)}$ 是来自上一层所有神经元的输出贡献之和，所以 $s_{j}^{(l)}$ 是 $w_{ij}^{(l)}$ 的函数，根据链式求导法则：&lt;/p&gt;
+$$
+  \frac{\partial \mathbf e(\mathbf w)}{\partial w_{ij}^{(l)}} =
+  \frac{\partial \mathbf e(\mathbf w)}{\partial s_{j}^{(l)}}
+  \times
+  \frac{\partial s_{j}^{(l)}}{\partial w_{ij}^{(l)}}
+  $$&lt;p&gt;其中：$\frac{\partial s_{j}^{(l)}}{\partial w_{ij}^{(l)}} = x_i^{(l-1)}$，也就是前一层的神经元的输出。
+把误差对输入信号的导数称为：$\delta_j^{(l)} = \frac{\partial \mathbf e(\mathbf w)}{\partial s_{j}^{(l)}}$。&lt;/p&gt;
+&lt;p&gt;所以（某神经元上的）误差对各权重 w 的梯度等于：$\frac{\partial \mathbf e(\mathbf w)}{\partial w_{ij}^{(l)}}= \delta_j^{(l)} x_i^{(l-1)}$。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;计算$\delta$:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;从最后一层（输出层$l=L,\ j=1$）的 $\delta_1^{(L)}$ 开始计算，输出神经元的输入信号是 $s_1^{(L)}$:&lt;/p&gt;
+$$
+  \begin{aligned}
+  \delta_1^{(L)} &amp;= \frac{\partial \mathbf e(\mathbf w)}{\partial s_1^{(L)}}\\
+  \mathbf e(\mathbf w) &amp;= \left ( x_1^{(L)}- y_n \right)^2    &amp; \text{预测值-实际值} \\
+  x_1^{(L)} &amp;= \theta(s_1^{(L)}) &amp; \text{神经元的输出是$\theta$的输出} \\
+  \theta&#39;(s) &amp;= 1 - \theta^2(s) &amp; \text{for the tanh}
+  \end{aligned}
+  $$&lt;p&gt;之前层 ($l-1$层) 神经元上的误差对其输入信号的导数：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec10_s19.png&#34; style=&#34;zoom:70%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;因为第 $l-1$ 层的某个神经元会对第 $l$ 层的全部神经元都有贡献，所以它的误差来自第 $l$ 层的全部神经元 $\delta_j^{(l)}$，所以需要求和。根据链式法则，误差$\mathbf e$ 从上一层 ($l$层) 过来，所以首先是 $s^{(l)}$ 的函数，然后$s^{(l)}$ 是第 $(l-1)$ 层神经元 $x^{(l-1)}$ 的函数，最后 $x^{(l-1)}$ 才是它输入信号 $s^{(l-1)}$ 的函数：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\delta_i^{(l-1)} &amp;amp;= \frac{\partial \mathbf e(\mathbf w)}{\partial s_i^{(l-1)}} \
+&amp;amp;=\sum_{j=1}^{d^{(l)}} \frac{\partial \mathbf{e}(\mathbf{w})}{\partial s_{j}^{(l)}} \times \frac{\partial s_{j}^{(l)}}{\partial x_{i}^{(l-1)}} \times \frac{\partial x_{i}^{(l-1)}}{\partial s_{i}^{(l-1)}} &amp;amp; \text{第$l$层所有神经元误差求和}\&lt;/p&gt;
+&lt;p&gt;&amp;amp;=\sum_{j=1}^{d^{(l)}} \delta_{j}^{(l)} \times w_{i j}^{(l)} \times \theta^{\prime}\left(s_{i}^{(l-1)}\right) \&lt;/p&gt;
+&lt;p&gt;\delta_{i}^{(l-1)} &amp;amp;=\left(1-\left(x_{i}^{(l-1)}\right)^{2}\right) \sum_{j=1}^{d^{(l)}} w_{i j}^{(l)} \delta_j^{(l)} &amp;amp; \text{$\theta$与j无关,求导放前面; $x_i^{l-1}$也就是$\theta(s)$}
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;所以最后一层之前层的神经元的 $\delta$ 等于 1 减去这个神经元输出的平方，再乘上从它出发的各权重与下一层的$\delta$ 的内积之和。最后一层的$\delta^{(L)}$算出来了，才能算倒数第2层的$\delta^{(L-1)}$，从而可以反向地一层一层求出误差$\mathbf e$ 对各个权重 w 的梯度。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Backpropagation algorithm:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Initialize all weights $w_{ij}^{(l)}$ &lt;strong&gt;at random&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;for t=0,1,2, &amp;hellip;, do   //循环
+&lt;ol&gt;
+&lt;li&gt;Pick $n \in \{ 1,2,\cdots,N \}$ //从N个样本中挑一个&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Forward&lt;/strong&gt;: Compute all $x_j^{(l)}$ //计算每个神经元的输出，从而得出预测值&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Backward&lt;/strong&gt;: Compute all $\delta_j^{l}$ //计算每个神经元的误差(贡献)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Update&lt;/strong&gt; the weights: $w_{ij}^{(i)} \leftarrow w_{ij}^{l} - \eta x_i^{(l-1)} \delta_j^{(l)}$ //迭代直到收敛&lt;/li&gt;
+&lt;li&gt;Iterate to the next step until it is time to stop&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;Return the final weights $w_{ij}^{l}$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Final remark: hidden layers&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;隐藏层是在“模仿”非线性变换：把高维样本（线性不可分）变换到新的维度空间，叫做“learned nonlinear transform”。隐藏层的每个神经元是 &amp;ldquo;learned feature&amp;rdquo;。&lt;/p&gt;
+&lt;p&gt;神经元数量越多，自由度越多（有效参数越多），VC维越高，模型复杂度越高，需要更多的样本，才能保证可以从 $E_{in}$ 泛化到Eout.&lt;/p&gt;
+&lt;h3 id=&#34;example&#34;&gt;Example：
+&lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://zhuanlan.zhihu.com/p/40378224&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Back Propagation（梯度反向传播）实例讲解&lt;/a&gt;&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Example_梯度下降.png&#34; style=&#34;zoom:90%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;令 $x_1=1, x_2=0.5$ ，然后我们令 $w_1, w_2, w_3, w_4$ 的真实值分别是 1,2,3,4 ，令 $w_5, w_6$ 的真实值是 $0.5, 0.6$ 。这样我们可以算出 $y$ 的真实目标值是 $t=4$ 。&lt;/p&gt;
+&lt;p&gt;那么为了模拟一个Back Propagation的过程，我们假设我们只知道 $x_1=1, x_2=0.5$ ，以及对应的目标 $t=4$ 。我们不知道 $w_1,w_2,w_3,w_4,w_5,w_6$ 的真实值，现在我们需要随机为他们初始化值，假设我们的随机化结果是 $w_1=0.5, w_2=1.5, w_3=2.3, w_4=3, w_5=1, w_6=1$。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Forward: 计算 $h_1, h_2, y$ 的预测值和误差项 E，其中 $E=\frac{1}{2}(t-y)^2$&lt;/p&gt;
+$$
+   \begin{aligned}
+   h_1 &amp;= w_1 \cdot x_1 + w_2 \cdot x_2 = 0.5 \cdot 1 + 1.5 \cdot 0.5 = 1.25 \\
+   h_2 &amp;= w_3 \cdot x_1 + w_4 \cdot x_2 = 2.3 \cdot 1 + 3 \cdot 0.5 = 3.8 \\
+   y &amp;= w_5 \cdot h_1 + w_6 \cdot h_2 = 1 \cdot 1.25 + 1 \cdot 3.8 = 5.05 \\
+   E &amp;= \frac{1}{2} (y-t)^2 = 0.55125
+   \end{aligned}
+   $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Backward&lt;/p&gt;
+&lt;p&gt;updata $w_5$:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\frac{\partial E}{\partial w_5} &amp;amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial w_5} = (y-t)\cdot h_1 = 1.05 \cdot 1.25 =1.3125 \&lt;/p&gt;
+&lt;p&gt;\frac{\partial E}{\partial y} &amp;amp;= (t-y)\cdot -1 = y-t \
+\frac{\partial y}{\partial w_5} &amp;amp;= \frac{\partial (w_5 h_1 + w_6 h_2)}{\partial w_5} = h_1 \
+w_5^+ &amp;amp;= w_5 - \eta \cdot \frac{\partial E}{\partial w_5} = 1-0.1\cdot 1.3125 = 0.86875
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;updata $w_6$:&lt;/p&gt;
+$$
+   \begin{aligned}
+   \frac{\partial E}{\partial w_6} &amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial w_6} = (y-t)\cdot h_2 = 1.05 \cdot 3.8 = 3.99 \\
+   w_6^+ &amp;= w_6 -\eta \cdot \frac{\partial E}{\partial w_6} = 1-0.1\cdot 3.99 = 0.601
+   \end{aligned}
+   $$&lt;p&gt;下面我们再来看 $w_1, w_2, w_3, w_4$ ，由于这四个参数在同一层，所以求梯度的方法是相同的&lt;/p&gt;
+&lt;p&gt;updata $w_1$:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\frac{\partial E}{\partial w_1} &amp;amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial h_1} \cdot \frac{\partial h_1}{\partial w_1} = (y-t) \cdot w_5 \cdot x_1 = 1.05 \cdot 1 \cdot 1 = 1.05 \&lt;/p&gt;
+&lt;p&gt;w_1^+ &amp;amp;= w_1 - \eta \cdot \frac{\partial E}{\partial w_1} = 0.5 - 0.1 \cdot 1.05 = 0 .395
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;updata $w_2$:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\frac{\partial E}{\partial w_2} &amp;amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial h_1} \cdot \frac{\partial h_1}{\partial w_2} = (y-t) \cdot w_5 \cdot x_2 = 1.05 \cdot 1 \cdot 0.5 = 0.525 \&lt;/p&gt;
+&lt;p&gt;w_2^+ &amp;amp;= w_2 - \eta \cdot \frac{\partial E}{\partial w_2} = 1.5 - 0.1 \cdot 0.525 = 1.4475
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;updata $w_3$:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\frac{\partial E}{\partial w_3} &amp;amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial h_2} \cdot \frac{\partial h_2}{\partial w_3} = (y-t) \cdot w_6 \cdot x_1 = 1.05 \cdot 1 \cdot 1 = 1.05 \&lt;/p&gt;
+&lt;p&gt;w_3^+ &amp;amp;= w_3 - \eta \cdot \frac{\partial E}{\partial w_3} = 2.3 - 0.1 \cdot 1.05 = 2.195
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;updata $w_4$:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\frac{\partial E}{\partial w_4} &amp;amp;= \frac{\partial E}{\partial y} \cdot \frac{\partial y}{\partial h_2} \cdot \frac{\partial h_2}{\partial w_4} = (y-t) \cdot w_6 \cdot x_2 = 1.05 \cdot 1 \cdot 0.5 = 0.525 \&lt;/p&gt;
+&lt;p&gt;w_4^+ &amp;amp;= w_4 - \eta \cdot \frac{\partial E}{\partial w_4} = 3 - 0.1 \cdot 0.525 = 2.9475
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Forward:&lt;/p&gt;
+$$
+   \begin{aligned}
+   h_1 &amp;= w_1 \cdot x_1 + w_2 \cdot x_2 = 0.395 \cdot 1 + 1.4475 \cdot 0.5 = 1.11875 \\
+   h_2 &amp;= w_3 \cdot x_1 + w_4 \cdot x_2 = 2.195 \cdot 1 + 2.9475 \cdot 0.5 = 3.66875 \\
+   y &amp;= w_5 \cdot h_1 + w_6 \cdot h_2 = 0.97191 + 2.204918 = 3.17683 \\
+   E &amp;= \frac{1}{2} (y-t)^2 = 0.338802
+   \end{aligned}
+   $$&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 08 | Bias-Variance Tradeoff</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec8_bias_variance/</link>
+        <pubDate>Mon, 13 Dec 2021 15:53:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec8_bias_variance/</guid>
+        <description>&lt;p&gt;Video 12 Bias-Variance Tradeoff 11-01-2021&lt;/p&gt;
+&lt;p&gt;Outline:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Bias and Variance&lt;/li&gt;
+&lt;li&gt;Learning Curves&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Review of Lec 7&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$d_{VC}(\mathcal H)$: the most number of points $\mathcal H$ can shatter&lt;/li&gt;
+&lt;li&gt;$d_{VC}$是有限值，让 g 近似 $f$ 成为可能。VC维仅由假设集决定。&lt;/li&gt;
+&lt;li&gt;为了降低到某一概率，$d_{VC}$越大，所需样本点数N越多。$N\geq 10 d_{VC}$&lt;/li&gt;
+&lt;li&gt;$E_{out} \leq E_{in}+\Omega$&lt;/li&gt;
+&lt;li&gt;Generalization bound $\Omega(N,\mathcal H, \delta))$:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;bias-and-variance&#34;&gt;Bias and Variance
+&lt;/h2&gt;&lt;h3 id=&#34;approximation-generalization-tradeoff&#34;&gt;Approximation-generalization tradeoff
+&lt;/h3&gt;&lt;p&gt;近似与泛化的权衡&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;小的Eout 意味着g在 out-of-sample 上也是f的一个好的近似（样本外误差也很小）。&lt;/li&gt;
+&lt;li&gt;越复杂的假设集 $\mathcal H$（M越大），有更好的机会近似 $f$（更可能包含最佳假设g）&lt;/li&gt;
+&lt;li&gt;越简单的假设集 $\mathcal H$，有更好的机会在out-of-sample上泛化。&lt;/li&gt;
+&lt;li&gt;最理想情况：假设集中只包含一个正在寻找的“未知的目标函数” $\mathcal H=\{f\}$，g 也就是f。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;quantifying-the-tradeoff&#34;&gt;Quantifying the tradeoff
+&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;之前的 VC analysis 是一种评估方法：$E_{out} \leq E_{in}+\Omega$&lt;/li&gt;
+&lt;li&gt;与之相似，Bias-variance analysis 是另一种评估方法：把 Eout 分解成两项：
+&lt;ol&gt;
+&lt;li&gt;假设集$\mathcal H$ 能有多近似 $f$ （Bias）&lt;/li&gt;
+&lt;li&gt;能在多大程度上确定$\mathcal H$中的好的假设 （Variance）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;这里分析的目标函数是实值的 real-valued, 并且使用平方误差 squared error&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;start-with&#34;&gt;Start with $E_{out}$
+&lt;/h3&gt;&lt;p&gt;Eout 是假设集中的最佳假设 $g$ 与 未知目标函数 $f$ 在输入空间 $\mathcal X$ 的各个点上的差距的期望；g 是样本集 $\mathcal D$ 的函数，样本集不同，选出来的最佳假设 g 也不同：&lt;/p&gt;
+$$
+E_{out}(g^{(D)}) = \mathbb E_{\mathbf x}
+\left[ \left(
+g^{(\mathcal D)}(\mathbf x) - f(\mathbf x)
+\right)^2 \right]
+$$&lt;p&gt;因为每次从输入空间抽出的样本集 $\mathcal D$ 不一样，g就不一样，Eout 也就不一样，所以把各个Eout求个期望，作为最终的Eout：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\mathbb E_{\mathcal D} \left[ E_{out} \left( g^{(\mathcal D)} \right) \right]
+= \mathbb E_{\mathcal D} \left[ \mathbb E_{\mathbf x} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right] \right] \&lt;/p&gt;
+&lt;p&gt;= \mathbb E_{\mathbf x} \left[ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right] \right] &amp;amp; \text{(交换位置)} \
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;只关注其中 &amp;ldquo;1个点上的平均误差期望&amp;rdquo;：$\mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right]$&lt;/p&gt;
+&lt;p&gt;定义平均假设 (average hypothesis)：$\bar{g}(\mathbf x) = \mathbb E_{\mathcal D} \left[ g^{(\mathcal D)}(\mathbf x) \right]$ (the best thing you can do)，从各不同训练集上得出的最佳假设的平均值。&lt;/p&gt;
+&lt;p&gt;比如有 K 个训练集：$\mathcal D_1, \mathcal D_2, \cdots, \mathcal D_K$，那么平均假设就是：$\bar{g}(\mathbf x) \approx \frac{1}{K} \sum_{k=1}^K g^{\mathcal D_k}(\mathbf x)$&lt;/p&gt;
+&lt;p&gt;把平均假设代入&amp;quot;1个点上的平均误差期望&amp;quot;：&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp; \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right] \
+&amp;amp; = \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) -\bar{g}(\mathbf x) + \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 \right] \quad \text{(减一个加一个)} \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2
++ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2
++ 2 \left( g^{(D)}(\mathbf x)-\bar{g}(\mathbf x) \right) \left( \bar{g}(\mathbf x) -f(\mathbf x) \right) \right] \quad \text{(代入括号)} \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right]
++ \underbrace{\mathbb E_{\mathcal D} \left[ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 \right]}&lt;em&gt;{与D无关,期望还是自己}
++ 2 \left( \underbrace{ \mathbb E&lt;/em&gt;{\mathcal D} \left[ g^{(D)}(\mathbf x) \right] -\bar{g}(\mathbf x) }_{相等, =0} \right)  \left( \bar{g}(\mathbf x) - f(\mathbf x) \right) \&lt;/p&gt;
+&lt;p&gt;&amp;amp; = \underbrace{ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right] }&lt;em&gt;{\rm var(\mathbf x)}
++ \underbrace{ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 }&lt;/em&gt;{\rm bias(\mathbf x)}
+\end{aligned}
+$$&lt;/p&gt;
+&lt;p&gt;$\bar{g}(\mathbf x)$ 是&amp;quot;最佳假设&amp;quot;，它与目标未知函数的差是常数 bias (与D无关)，而 $g^{\mathcal D}(\mathbf x)$ 随训练集不同，会上下波动，与&amp;quot;平均值&amp;quot;的差的平方，再取平均就是方差。
+各个最佳假设与目标未知函数的平方误差的期望，被拆成了两部分：各最佳假设与平均假设的方差，加上平均假设与目标未知函数的平方误差。&lt;/p&gt;
+&lt;p&gt;所以 Eout 等于：&lt;/p&gt;
+$$
+\begin{aligned}
+&amp; \mathbb E_{\mathcal D} \left[ E_{out} (g^{(\mathcal D)}) \right] \\
+&amp; = \mathbb E_{\mathbf x} \left[ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right] \right] \\
+&amp; = \mathbb E_{\mathbf x} \left[ \rm bias(\mathbf x) + var(\mathbf x) \right] \\
+&amp; = \rm bias + var
+\end{aligned}
+$$&lt;h3 id=&#34;the-trade-off-between-bias-and-var&#34;&gt;The trade off between bias and var
+&lt;/h3&gt;&lt;p&gt;bias = $\mathbb E_{\mathbf x} \left[ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 \right]$&lt;/p&gt;
+&lt;p&gt;variance = $\mathbb E_{\mathbf x} \left[ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right] \right]$&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s09.png&#34; style=&#34;zoom:70%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;如果假设集中只有一个假设 h，它与 $f$ 的距离就是 bias（方差为0）。如果是一个复杂的假设集，其中包含很多假设，更有可能囊括了 f，在它附近的都是“最佳假设”（红色），因为平均假设$\bar g(\mathbf x)$就在 f 附近所以bias较小，而方差比较大（很多小值加起来也会大）。&lt;/p&gt;
+&lt;h3 id=&#34;example-sine-target&#34;&gt;Example: sine target
+&lt;/h3&gt;&lt;p&gt;近似正弦曲线，未知目标函数 $f(x) = sin(\pi x)$，把 f 从输入空间从 [-1,1] 扩展到实数域 $f:[-1,1] \rightarrow \mathbb R$。只有两个样本点 N=2。&lt;/p&gt;
+&lt;p&gt;有两个假设集，自由度不同：&lt;/p&gt;
+$$
+\begin{aligned}
+&amp; \mathcal H_0 : h(x) = b &amp;{\text{各假设只有一个参数b (常数)}} \\
+&amp; \mathcal H_1 : h(x) = ax+b &amp;{\text{各假设有两个参数a,b (直线)}}
+\end{aligned}
+$$&lt;p&gt;&lt;strong&gt;Approximation:&lt;/strong&gt; 上帝视角可以看出两个假设集中的最佳假设(bias最小)分别应该为：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s11.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;黄色区域是 bias (或者说就是 Eout, 因为单个假设的方差为0)。所以在近似[-1,1]区间上的正弦函数时，$\mathcal H_1$ 比 $\mathcal H_0$ 的 bias 更小。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Learning:&lt;/strong&gt; 两个样本点的位置是随机的&lt;/p&gt;
+&lt;p&gt;如果一开始两个样本点位置如图：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s12.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;为了使 bias 最小，$\mathcal H_0$中的“最佳假设”应该在两样本点中间，$\mathcal H_1$ 中的“最佳假设”应该穿过两个样本点。&lt;/p&gt;
+&lt;p&gt;两个样本点（训练集）每次从输入空间中取的都不一样，对应的“最佳假设”也有很多种可能：&lt;/p&gt;
+&lt;p&gt;对于假设集 $\mathcal H_0$，最佳假设的分布如图：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s13.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;对各个“最佳假设”取平均，平均假设位于”平衡位置“，灰色区域是 variation.&lt;/p&gt;
+&lt;p&gt;对于假设集 $\mathcal H_1$，最佳假设（过两样本点的直线）的分布如图：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s14.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;平均假设是红色直线，灰色区域是variation。&lt;/p&gt;
+&lt;p&gt;对比两个假设集：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s15.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;只有一个参数的，最简单的（常数）假设集 $\mathcal H_0$ 的(平均假设) bias大，方差小。而比较复杂的（直线）假设集 $\mathcal H_1$ 的 bias 小，方差大。&lt;/p&gt;
+&lt;p&gt;最终，$\mathcal H_0$ 的 Eout= 0.50+0.25 = 0.75，$\mathcal H_1$ 的 Eout=0.21+1.69 = 1.9。根据 Eout，简单的假设集 $\mathcal H_0$ 好于复杂的假设集 $\mathcal H_1$。因为我们是从 Ein &amp;ldquo;泛化&amp;rdquo; 到 out，如果Eout 太大，Generalization bound 太大，Ein 与 Eout 相差太大，二者不follow，就不能通过Ein 学习到 Eout.&lt;/p&gt;
+&lt;p&gt;复杂的（自由度多的）假设集有很好近似能力，但是学习能力很差，因为方差太大，不一定能学到最佳假设。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Lesson learned:&lt;/strong&gt; 模型的复杂度应该匹配 数据（样本决定了最终找出的假设），而不应该匹配目标函数的复杂度。比如只有15个样本，假设已知目标函数是10阶的。你可以选1阶，2阶的模型，它们对应的参数有2个，3个，按照经验法则 $N&gt;10 d_{VC}$，它们至少需要20个，30个样本。但现在只有15个，如果你觉得1阶（直线）不太可能的话，可以用2阶（二次函数）。如果用10阶模型，就出现过拟合了。&lt;/p&gt;
+&lt;h2 id=&#34;learning-curves&#34;&gt;Learning Curves
+&lt;/h2&gt;&lt;p&gt;Ein 与 Eout 的曲线。&lt;/p&gt;
+&lt;p&gt;对于任意有N个(训练)样本数据集 $\mathcal D$。&lt;/p&gt;
+&lt;p&gt;Expected Eout = $\mathbb E_{\mathcal D} \left[ E_{out} \left( g^{(\mathcal D)} \right) \right]$ (不同测试集上的最佳假设 g 的平均)&lt;/p&gt;
+&lt;p&gt;Expected Ein = $\mathbb E_{\mathcal D} \left[ E_{in} \left( g^{(\mathcal D)} \right) \right]$ (不同(训练)数据集上的最佳假设 g 的平均)&lt;/p&gt;
+&lt;p&gt;它们随 N 如何变化？(How do they vary with N?)&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s19.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;对于Simple Model（的假设集），随着样本数不断增加，Eout越来越小，越来越近似 f，而 Ein越来越大，因为每个样本都有误差，样本越多加起来越大。N越大，Ein与Eout越接近，Generalized bound越小，收敛于 “平均假设” (黑色水平线)。&lt;/p&gt;
+&lt;p&gt;对于Complex Model，“平均假设”更靠近 f，bias较小，所以黑色水平线它更低，同样随着N增大，Eout与Ein 不断趋近于 “平均假设”。但是当N很小的时候，Eout很大（方差很大）。Eout 与Ein 差距很大，复杂模型相较于简单模型的 Generalization bound 更大。复杂模型的 Ein 在样本很少的时候是零，因为在样本数小于VC维或者假设集的effective参数自由度时，模型可以把所有点全部分开 (shatter all the points)。在超过VC维之后，Ein开始增加。&lt;/p&gt;
+&lt;h3 id=&#34;vc-vs-bias-variance&#34;&gt;VC vs Bias-variance
+&lt;/h3&gt;&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s20.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;在 VC 分析中，$E_{out} = E_{in} + \text{Generalization error}$&lt;/p&gt;
+&lt;p&gt;在 Bias-variance 中，不再关注$E_{in}$，因为
+$E_{out}=\text{var + bias} = \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right] +\mathbb E_{\mathcal D} \left[ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 \right]$，Eout 等于“粗黑线”(average hypothesis, bias)加上variance。bias取决与假设集而与N无关，所以bias是直线。&lt;/p&gt;
+&lt;p&gt;随着N增大，它们都趋近于平均假设。所以都需要tradeoff：简单的模型近似能力差，但它 Generalization error小；复杂的模型近似能力强，但它需要更多的样本，才能减小 Generalization bound。对于复杂的模型，样本数越少，Eout越大。样本少的时候，简单模型的Eout 可能比复杂模型的 Eout 还要小。所以样本少选简单模型，样本多选复杂模型。&lt;/p&gt;
+&lt;h3 id=&#34;linear-regression-case&#34;&gt;Linear Regression case
+&lt;/h3&gt;&lt;p&gt;Noisy target $y = \mathbf w^{*T} \mathbf x$ + noise （用线性模型, 从有噪声的样本中，学习一个线性目标函数）&lt;/p&gt;
+&lt;p&gt;Data set $\mathcal D = \{ (\mathbf x_1, y_1), \cdots, (\mathbf x_N, y_N) \}$&lt;/p&gt;
+&lt;p&gt;Linear regression solution: $\mathbf w = (\mathbf X^T \mathbf X)^{-1} \mathbf X^T \mathbf y$&lt;/p&gt;
+&lt;p&gt;In-sample error vector = $\bf X w - y$&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;Out-of-sample&amp;rdquo; error vector = $\bf X w - y&#39;$ （使用相同的x, noise不同，得到测试集）&lt;/p&gt;
+&lt;p&gt;有了上面非常特殊的情况，才能得到下面的公式：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec8_s22.png&#34; style=&#34;zoom:70%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;$\sigma^2$ 是 energy of the noise。一个 zero-mean noise的energy 与variance 成正比，&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 11 | Overfitting</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec11_overfitting/</link>
+        <pubDate>Mon, 13 Dec 2021 13:55:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec11_overfitting/</guid>
+        <description>&lt;p&gt;Video 14 Overfitting 2021-11-17&lt;/p&gt;
+&lt;p&gt;Outline:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;What is overfitting?&lt;/li&gt;
+&lt;li&gt;The role of noise&lt;/li&gt;
+&lt;li&gt;Deterministic noise&lt;/li&gt;
+&lt;li&gt;Dealing with overfitting&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;An Illustration of Overfitting on a Simple Example&lt;/strong&gt;&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec11_s03.png&#34;style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;蓝色曲线是 unknowen target function。从这未知函数中生成5个样本点，因为有噪声，所以它们偏离了曲线。
+根据这5个点去近似未知函数。因为噪声的存在，在用4阶的多项式（有5个参数）拟合这生成的5个点时，出现了过拟合：$E_{in}=0;\ E_{out} \gg 0$。（如果没有噪声，有可能使用相同阶数的模型就能完美拟合。为了拟合带噪声的数据，就使用了超过样本所表达信息的高阶模型，造成Eout 很大）&lt;/p&gt;
+&lt;h3 id=&#34;what-is-overfitting&#34;&gt;What is Overfitting?
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;随着VC 维的增加，$E_{in}$ 不断下降，$E_{out}$反而上升。&lt;/p&gt;
+&lt;p&gt;拟合数据的程度超过了样本数据应有(支持)的程度 (Fitting the data more than is warranted)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;随着 VC 维的增加，假设集$\mathcal H$中的模型复杂度增加，对未知函数的近似能力增强，虽然generalization error在增加，但一开始，$E_{in}$ 和 $E_{out}$ 都在下降。超过某一点后，$E_{in}$继续减小，$E_{out}$反而上升，Generalization error 变更大:&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec11_m09.png&#34;style=&#34;zoom:60%&#34;&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;实验两种情况：一个10阶的函数有噪声采样15个样本，一个50阶的函数无噪声采样15个样本：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec11_m10.png&#34;style=&#34;zoom:60%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;分别用2阶和10阶的多项式去拟合：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec11_m12.png&#34;style=&#34;zoom:70%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;从2阶模型转到10阶模型，穿过了更多的样本点，Ein更小了，但Eout变大了，说明出现了过拟合。简单模型甚至好于无噪声的复杂目标函数。noise 的阶数可能很高，所以简单模型的Ein 比较差。但是没有噪声的高阶目标函数样本也存在某种“噪声”：determinstic noise.&lt;/p&gt;
+&lt;p&gt;假设集$\mathcal H$ should match to the quantity and quality of the data, than the complexity of unknown target function.&lt;/p&gt;
+&lt;p&gt;两个学习器：O (overfitting) 和 R (restricted)&lt;/p&gt;
+&lt;p&gt;&amp;hellip;&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;结果:&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec11_s13.png&#34;style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;左图，固定目比函数的复杂度为20th 阶多项式，随着增加噪声能量，样本的数量越来越不足以表达出目标函数的复杂度，这时希望不断减小Ein，非要拟合出超出数据表达范围的部分来减小Eout 会事与愿违，适得其反，南辕北辙，导致错误的形式，Eout反而越来越大，所以过拟合越来越严重。增加样本数量，可以减小过拟合。&lt;/p&gt;
+&lt;p&gt;右图，无噪声的高阶目标函数样本，固定噪声能量 $\sigma^2=0.1$。随着增加目标函数的复杂度，过拟合也越来越严重。所以这里存在另一种不同于左图随机噪声的“确定性噪音”。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;deterministic-noise&#34;&gt;Deterministic noise
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;是假设集$\mathcal H$ 无法捕捉到的 f 的部分。(The part of f that H cannot capture)&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec11_s16.png&#34;style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;因为模型复杂度有限，所以假设集中的最佳假设无法拟合目标函数的某些部分，$h^\star$ 与目标函数 f 之间的面积就是确定性噪音: $f(\mathbf x) - h^\star(\mathbf x)$。假设集太简单，无法表达出目标函数的复杂度，它无法理解的部分会给它带来困扰，当它尝试拟合这些能力范围之外的东西，就会导致错误的形式。那些无法理解的东西对它来说就是噪音。当使用更复杂的假设集，确定性噪声就会减小，因为它可以捕捉到更多&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;确定性噪声与随机噪声的主要区别:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;确定性噪音取决于假设集$\mathcal H$，而随机噪声对所有的假设集都一样，Nothing can capture it, therefore it&amp;rsquo;s noise.&lt;/li&gt;
+&lt;li&gt;对于一个给定的样本$\mathbf x$，确定性噪声的量是固定的，就是 $f(\mathbf x) - h^\star(\mathbf x)$。而随机噪声，两个相同的x，产生的噪声大小是随机的。
+但是它们两者对机器学习造成的影响是相同的，因为数据集是给定的（一次使用），假设集一旦确定它的确定性噪声也固定了。So in a given learning situation, they behave the same.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;impact-on-overfitting&#34;&gt;Impact on overfitting
+&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;确定性噪声造成的过拟合在10阶以上的target complexity 才出现，因为这里的假设集是10阶的，超出10阶的部分它才无法近似。&lt;/li&gt;
+&lt;li&gt;噪声造成过拟合是因为有限的样本，让你误以为你可以完美拟合。但其实随机噪声是捕捉不到的，而且当目标函数复杂度高于假设集的时候，确定性噪声也是捕捉（学）不到的。你以为你学到了，但其实造成了过拟合。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;noise-and-bias-variance&#34;&gt;Noise and bias-variance
+&lt;/h3&gt;$$
+\mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) \right)^2 \right]
+= \underbrace{ \mathbb E_{\mathcal D} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar{g}(\mathbf x) \right)^2 \right] }_{\rm var(\mathbf x)}
+    + \underbrace{ \left( \bar{g}(\mathbf x) - f(\mathbf x) \right)^2 }_{\rm bias(\mathbf x)}
+$$&lt;p&gt;Eout 被分成了两部分，其中的 f 是没有噪声的，如果给样本数据加入噪声，上式会如何变化？&lt;/p&gt;
+&lt;p&gt;给定actual output：$y = f(\mathbf x) + \varepsilon(\mathbf x)$，假设噪声期望是0：$\mathbb E[\varepsilon(\mathbf x)] = 0$&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+&amp;amp; \mathbb E_{\mathcal D,\varepsilon} \left[ \left( g^{(\mathcal D)}(\mathbf x) - y \right)^2 \right] &amp;amp; \text{$\varepsilon$影响了y，也要对ε求期望}\&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \mathbb E_{\mathcal D,\varepsilon} \left[ \left( g^{(\mathcal D)}(\mathbf x) - f(\mathbf x) -\varepsilon(\mathbf x) \right)^2 \right] &amp;amp; \text{加一个减一个} \&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \mathbb E_{\mathcal D,\varepsilon} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar g(\mathbf x) +\bar g(\mathbf x) - f(\mathbf x) -\varepsilon(\mathbf x) \right)^2 \right] \&lt;/p&gt;
+&lt;p&gt;&amp;amp;= \mathbb E_{\mathcal D,\varepsilon} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar g(\mathbf x) \right)^2&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;\left( \bar g(\mathbf x) - f(\mathbf x) \right)^2&lt;/li&gt;
+&lt;li&gt;\left( \varepsilon(\mathbf x) \right)^2 + \text{cross term} \right]
+\end{aligned}
+$$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;求期望之后 cross term 都变成0了，因为它们包含ε，ε 的期望为0。前面两项只与数据集有关，而与训练样本的噪声ε无关，所以原来（没加噪声）等于0的项现在还等于0。Eout 只剩三项：&lt;/p&gt;
+&lt;p&gt;$$
+E_{out} =
+\underbrace{ \mathbb E_{\mathcal D,\mathbf x} \left[ \left( g^{(\mathcal D)}(\mathbf x) - \bar g(\mathbf x) \right)^2 \right] }_{var}&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;\underbrace{ \mathbb E_{\mathbf x} \left[ \left( \bar g(\mathbf x) - f(\mathbf x) \right)^2 \right] }_{\substack{bias \↑ \ \text{deterministic noise}}}&lt;/li&gt;
+&lt;li&gt;\underbrace{ \mathbb E_{ε, \mathbf x} \left[ \left( \varepsilon(\mathbf x) \right)^2 \right] }_{\substack{\sigma^2 \ ↑ \ \text{stochastic noise}}}
+$$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;第三项是 target 与 actual output之间的差距，就是随机噪声，第二项是&amp;quot;平均假设&amp;quot;（最佳假设the best thing you can do）与target 之间的差距，它无法拟合的部分就是确定性噪声。&lt;/p&gt;
+&lt;p&gt;两个噪声是平等的，因为增加样本数量，方差缩小，但两个噪声不可避免的（假设集给定，数据集给定，整体的近似就确定了）。当假设尝试拟合噪声时，就产生了方差（和过拟合）。&lt;/p&gt;
+&lt;h3 id=&#34;two-cures&#34;&gt;Two cures
+&lt;/h3&gt;&lt;p&gt;Regularization: putting the brakes 踩刹车（增加一点限制; 提前停止）&lt;/p&gt;
+&lt;p&gt;Validation: Checking the bottom line 找到底线（找到比Ein 更好的反映拟合质量的误差$E_{CV}$）&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 05 | Training vs Testing</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec5_traning_vs_testing/</link>
+        <pubDate>Sun, 12 Dec 2021 23:23:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec5_traning_vs_testing/</guid>
+        <description>&lt;p&gt;Video 10 Training and testing 10-20-2021&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Outline&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;From training to testing&lt;/li&gt;
+&lt;li&gt;Illustrative examples&lt;/li&gt;
+&lt;li&gt;Break point&lt;/li&gt;
+&lt;li&gt;Puzzle&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Train multiple&lt;/strong&gt; model / hypotheses:
+&lt;/p&gt;
+$$
+\mathbb P[|E_{in} - E_{out}| &gt; \varepsilon] \leq \underbrace{2 \ M \ e^{-2\varepsilon^2 N}}_{\text{union bound}}
+$$&lt;p&gt;&lt;strong&gt;Test one&lt;/strong&gt; model / hypothesis:  (Hoeffding Inequality)
+&lt;/p&gt;
+$$
+\mathbb P[|E_{in} - E_{out}| &gt; \varepsilon] \leq 2 e^{-2\varepsilon^2 N}
+$$&lt;p&gt;&lt;font color=&#34;red&#34;&gt;M&lt;/font&gt;: 假设集中所有可能假设的个数, 可以是无穷，所以概率可以是无穷，就不能保证 $E_{out}\approx E_{in}$&lt;/p&gt;
+&lt;p&gt;Learning is to find the best hypothesis g which make the probability of &amp;quot;&amp;quot; ($\mathcal B$ad event) minimum.&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;Learning&amp;rdquo; 是找到假设集中的最佳假设 g（让 $\mathcal B$ad event: $|E_{in}(h_m) - E_{out}(h_m)|&gt;\varepsilon$ 发生的概率最小），g 可以是假设1，或者假设2，&amp;hellip;，或者假设M，就对应概率相加，就是union bound：
+&lt;/p&gt;
+$$
+\mathbb P [\rm \mathcal B_1 or \mathcal B_2 or \cdots \mathcal B_M] \leq
+\underbrace{
+\mathbb P [\mathcal B_1] + \mathbb P [\mathcal B_2] + \cdots +\mathbb P [\mathcal B_M]}_{\text{no overlaps: M terms}}
+$$&lt;p&gt;“等于” 发生在它们互不重叠的情况，如果各假设间有重叠，它们的和就变小。&lt;/p&gt;
+&lt;p&gt;事实上，Bad Events are very overlapping.&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec5_s05.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;白色与灰色分界线是 unknown target function。 蓝线和绿线是两个 hypothesis。 假设 h 与真实界线所差的面积（红色阴影）是$E_{out}$，黄色面积是 $\Delta E_{out}$。$E_{in}$未在图中体现，需要对整个面积空间采样，样本点落在 $E_{out}$ 中的个数是$E_{in}$，样本点落在黄色区域内的个数是$\Delta E_{in}$。
+$h_1$ 与 $h_2$ 有很大的重叠，$|E_{in}(h_1) - E_{out}(h_1)| \approx |E_{in}(h_2)-E_{out}(h_2)|$&lt;/p&gt;
+&lt;p&gt;改变h，$E_{out}$ 有显著变化，但$E_{in}$不会有显著变化，因为训练集样本点的个数很有限。所以很多假设的分类效果是一样的。&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec5_s06.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;Replace M with the number of dichotomies (把样本点成功二分类的斜线的条数).&lt;/p&gt;
+&lt;h3 id=&#34;a-hypothesis--a-dichotomy&#34;&gt;A hypothesis $\rightarrow$ A dichotomy
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;A dichotomy is a mini hypothesis&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对比:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Input space:
+&lt;ol&gt;
+&lt;li&gt;A hypothesis, 全输入空间都是输入 $h: \mathcal X \rightarrow\{-1, +1\}$&lt;/li&gt;
+&lt;li&gt;A dichotomy, 只有 N 个训练点 $h: \{\mathbf{x_1,x_2,\cdots,x_N}\}\rightarrow \{-1, +1\}$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;Number of hypotheses
+&lt;ol&gt;
+&lt;li&gt;$|\mathcal H|$ = M: 可以是无穷个&lt;/li&gt;
+&lt;li&gt;$|\mathcal H(\mathbf{x_1,x_2,\cdots,x_N}\})|$ = $m_{\mathcal H}(N)$ 最多 $2^N$ 个 （N个$\pm 1$组合)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;用 growth function $m_{\mathcal H}(N)$ &lt;strong&gt;替代&lt;/strong&gt; M&lt;/p&gt;
+&lt;p&gt;$m_{\mathcal H}(N)$ 必须是polynomial in N，这样e的负指数可以起作用抵消 $m_{\mathcal H}(N)$，让union bound变得小。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;growth-function&#34;&gt;Growth function $m_{\mathcal H} (N)$
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;由 N 个样本点组成任意的，能成功被假设集 $\mathcal H$ 二分的 dichotomies 最多的个数 (不限位置):
+$m_{\mathcal H}(N) = \underset{x_1,\cdots,x_N \in \mathcal X}{max}\ |\mathcal H(x_1, \cdots, x_N)|$. （&amp;ldquo;most dichotomies on any N points&amp;rdquo;）
+&lt;/p&gt;
+$$
+  m_{\mathcal H}(N) \leq 2^N
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;有些 config 的 dichotomies 达不到 $2^N$ 种：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;对于 &lt;strong&gt;2D perceptron hypothesis / dichotomies&lt;/strong&gt;：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;3个点，最多能分8种（若限定点的位置可能更少）&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/IMG_0962.JPG&#34; style=&#34;zoom:15%&#34;&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;4个点，最多能分14种（有2种情况 (异或)，2D perceptron分不开）&lt;/p&gt;
+&lt;p&gt;(2行2列摆放最多）按照4个o，3个o (1个x)，2个o，1个o，0个o 排列组合。&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/IMG_0966.JPG&#34; style=&#34;zoom:15%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;如果4点共线，只能分8种。&lt;/p&gt;
+&lt;p&gt;如果3点共线，余1个单独在一行，只能分12种。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于 &lt;strong&gt;Positive rays hypothesis&lt;/strong&gt;：&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec5_s11.png&#34; style=&#34;zoom:40%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;位置摆放是固定的：共线。对于N个点，正射线只能处理 N+1 种配置，也就是圆圈全在右侧，可以是0个圈，1个圈，2个圈，&amp;hellip;，N个圈。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于 &lt;strong&gt;Positive Intervals hypothesis&lt;/strong&gt;&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec5_s12.png&#34; style=&#34;zoom:40%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;正区间只能处理中间有一段是+1，两侧是-1的配置。需要用两个边界 (threshold) 来确定一个区间：一共有N个点，形成N+1个空，在这N+1个空里选两个，就形成了一个区间，所以是 $C_{N+1}^2$，再加上两个边界在同一个空的情况。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于 &lt;strong&gt;Convex sets hypothesis&lt;/strong&gt;&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec5_s13.png&#34; style=&#34;zoom:40%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;凸集可以把任意颜色配置的N个点完全分开，凸集里面是+1，外面是-1。所以它的growth function 是 $2^N$，凸集模型没有break point。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;break-point-k&#34;&gt;Break point k
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;无法用假设集 $\mathcal H$ 完全把两类点分开的点的个数 k。也就是开始出现 $m_{\mathcal H}(k) &lt; 2^k$ 这种情况时的点数。&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec5_s18.jpg&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;例如没有任何一种 4 个点的配置，能用2D perceptron 将其完全分开，所以 2D perceptron 的 break point 是 4：$m_{\text{2D percep}}(4) = 14 &lt; 2^4$。大于4个的点集也不能被完全分开。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;如果没有 break point, growth function is $2^N$.&lt;/p&gt;
+&lt;p&gt;如果存在 break point, growth function is a &lt;strong&gt;polynomial&lt;/strong&gt; function in N : $\sum_{i=0}^{k-1} C_N^i$, whose maximum power is $N^{k-1}$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 06 | Genearalization-dVC</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec6_7_generalization_dvc/</link>
+        <pubDate>Sun, 12 Dec 2021 20:01:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec6_7_generalization_dvc/</guid>
+        <description>&lt;p&gt;Video 11 Theory of Generalization 10-25-2021&lt;/p&gt;
+&lt;p&gt;Outline&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Proof that the growth function is polynomial&lt;/li&gt;
+&lt;li&gt;Proof that $m_{\mathcal H}(N)$ can replace M&lt;/li&gt;
+&lt;li&gt;VC dimension&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;examples-of-polynomial&#34;&gt;Examples of polynomial $m_{\mathcal H}(N)$
+&lt;/h3&gt;&lt;p&gt;Proof see the book&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Key quantity&lt;/strong&gt; $B(N,k)$: Maximum number of dichotomies on N points, with break point $k$.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Theorem:&lt;/strong&gt; $B(N,k) \leq \sum_{i=0}^{k-1} \left( \begin{aligned} N\\ i \end{aligned} \right)$&lt;/p&gt;
+&lt;p&gt;For a given $\mathcal H$, the break point $k$ is fixed:&lt;/p&gt;
+$$
+m_{\mathcal H}(N) \leq  \underbrace{
+\sum_{i=0}^{k-1} \left( 
+\begin{aligned} 
+N\\ i 
+\end{aligned} \right)
+}_{\text{maximum power is} N^{k-1}}
+$$&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Positive ray (break point k=2):&lt;/p&gt;
+$$
+    m_{\mathcal H}(N) =  C_{N+1}^1 \leq (=) \sum_{i=0}^{k-1} C_N^i = N+1
+    $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Positive intervals (break point k=3):&lt;/p&gt;
+$$
+    m_{\mathcal H}(N) = C_{N+1}^2 + 1 \leq (=) \sum_{i=0}^{k-1} C_{N}^i = \frac{1}{2}N^2 + \frac{1}{2}N + 1
+    $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;2D perceptrons (break point k=4):
+&lt;/p&gt;
+$$
+    m_{\mathcal H}(N)=? \leq \sum_{i=0}^{k-1} C_{N}^i = \frac{1}{6}N^3 + \frac{5}{6}N + 1
+    $$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如果存在 break point, growth function is &lt;strong&gt;polynomial&lt;/strong&gt; function in N : $\sum_{i=0}^{k-1} C_N^i$, whose maximum power is $N^{k-1}$ ($d_{VC}$).&lt;/p&gt;
+&lt;p&gt;如果没有break point, growth function is $2^N$，就不能保证它是关于N的多项式（最高次幂是 $d_{VC}$，能被e的负幂次抵消），也就不能保证 Bad events 的概率上界足够小，那样就不能通过 Ein 学到Eout。&lt;/p&gt;
+&lt;h3 id=&#34;proof-that--can-replace&#34;&gt;Proof that $m_{\mathcal H}(N)$ can replace $M$
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Replace $M$ with $m_{\mathcal H}(N)$ to narrow the upper bound. If M hypotheses are not overlapping, the probability upper bound is very lose.&lt;/p&gt;
+$$
+  \begin{aligned}
+  \mathbb P [ |E_{in}(g) - E_{out}(g)| &amp; &gt; \varepsilon] \leq 2\ M\ e^{-2\varepsilon^2 N} \quad \text{(Union bound)} \\
+  &amp; \Downarrow \text{(Not quite)} \\
+  \mathbb P [ |E_{in}(g) - E_{out}(g)| &amp; &gt; \varepsilon] \leq 2\ m_{\mathcal H}(N)\ e^{-2\varepsilon^2 N} \\
+  \end{aligned}
+  $$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;../img/Lec6_s16.jpg&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;长方形中的每个点代表一个样本数据集。 The &amp;ldquo;flower&amp;rdquo; represents &amp;ldquo;bad events&amp;rdquo; probability (Ein 和 Eout 相差超过$\varepsilon$ 的概率).&lt;/p&gt;
+&lt;p&gt;Fig (a) 表示的是一个假设的“验证”。While &lt;strong&gt;Learning&lt;/strong&gt; needs to pick the best hypothesis from M hypotheses based on &amp;ldquo;bad events&amp;rdquo; probability.&lt;/p&gt;
+&lt;p&gt;In Fig (b), every hypothesis is not overlapping each other. So their bad events probabilities are taking the whole space, resulting the upper bound maybe very large. 所以不可能通过 $E_{in}$ 学到 $E_{out}$，因为大部分情况下，坏事件发生，它们相差超过了$\varepsilon$。&lt;/p&gt;
+&lt;p&gt;In Fig （c）, many hypotheses overlap together in &lt;strong&gt;training data&lt;/strong&gt;. VC bound 比较小，Ein与Eout 相差超过 $\varepsilon$ 的概率不大。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;What to do about $E_{out}$?&lt;/strong&gt;&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec6_s17.jpg&#34; style=&#34;zoom:60%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;Take another set of samples, called $E_{in}&#39;(h)$. $E_{in}$ 与 $E_{in}&#39;$ 独立同分布，所以 Ein and Ein&amp;rsquo; are both following Eout, Ein and Ein&amp;rsquo; are following each other.&lt;/p&gt;
+$$
+\begin{aligned}
+\mathbb P [ |E_{in}(g) - E_{out}(g)| &amp; &gt; \varepsilon] \leq 2\ m_{\mathcal H}(N)\ e^{-2\varepsilon^2 N} \\
+&amp; \Downarrow \text{(but rather)} \\
+\mathbb P [ |E_{in}(g) - E_{out}(g)| &amp; &gt; \varepsilon] \leq 4\ m_{\mathcal H}(2N)\ e^{-\frac{1}{8} \varepsilon^2 N} 
+\quad \text{(VC bound)}\\
+\end{aligned}
+$$&lt;p&gt;(Lec7)&lt;/p&gt;
+&lt;h3 id=&#34;the-vapnik-chervonenkis-inequality&#34;&gt;The Vapnik-Chervonenkis Inequality:
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+$$
+  \mathbb P [ |E_{in}(g) - E_{out}(g)| &gt; \varepsilon] 
+  \leq 4 m_{\mathcal H} (2N) e^{-\frac{1}{8} \varepsilon^2 N}
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Vapnik-Chervonenkis Inequality 对任何有break point的 hypothesis 都成立。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;相较于直接用$m_{\mathcal H}(N)$替换M，VC维其实 make the bound worser, larger: $2 m_{\mathcal H}(N) e^{-2\varepsilon^2 N} &lt; 4 m_{\mathcal H} (2N) e^{-\frac{1}{8} \varepsilon^2 N}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;vc-dimension&#34;&gt;VC dimension
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;VC维 $d_{VC}$ 是某假设集 $\mathcal H$ 最多能完全（二分）分开的点的个数。&lt;/p&gt;
+$$
+  d_{VC}(\mathcal H) = k-1
+  $$&lt;p&gt;完全分开意味着，假设集$\mathcal H$能分割开由N个点组成的任意的颜色配置：$m_{\mathcal H}(N) = 2^N$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;有了 $d_{VC}$ 之后：&lt;/p&gt;
+&lt;p&gt;$N \leq d_{VC}(\mathcal H) \Rightarrow \mathcal H$ can shatter N points&lt;/p&gt;
+&lt;p&gt;$k \geq d_{VC}(\mathcal H) \Rightarrow k$ is a break point for $\mathcal H$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$m_{\mathcal H}(N)$ 的最高维度是 $d_{VC}$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Growth function 用 break point k 表示：$m_{\mathcal H}(N) \leq \sum_{i=0}^{k-1} \begin{pmatrix} N \\ i  \end{pmatrix}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Growth function 用 VC dimension $d_{VC}$ 表示：$m_{\mathcal H}(N) \leq
+    \underbrace{
+    \sum_{i=0}^{d_{VC}}
+    \begin{pmatrix}
+    N \\ i
+    \end{pmatrix}
+    }_{\text{minimum power is} N^{d_{VC}}}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于不同类型的 hypothesis set:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;$\mathcal H$ is positive rays: $d_{VC}=1$&lt;/li&gt;
+&lt;li&gt;$\mathcal H$ is 2D perceptrons: $d_{VC}=3$&lt;/li&gt;
+&lt;li&gt;$\mathcal H$ is convex sets: $d_{VC}=\infin$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;vc-dimension-and-learning&#34;&gt;VC dimension and learning
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;因为 $d_{VC}(\mathcal H)$ 是有限的, 就可以从假设集 $\mathcal H$ 中学习到足够接近未知目标函数 $f$ 的假设g。（保证了Ein与Eout相差很多的概率不大）&lt;/li&gt;
+&lt;li&gt;$d_{VC}$ 独立于 learing algorithm, input distribution, target function. 不管它们是什么样，$d_{VC}$只由假设集决定。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;vc-dimension-of-perceptrons&#34;&gt;VC dimension of perceptrons
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;$d_{VC} = d+1$, d is the working dimension of perceptrons  (证明见书)&lt;/li&gt;
+&lt;li&gt;例如：2D perceptron 位于 2D plane，所以$d_{VC}=3$; 而 3D perceptron位于3D space，所以$d_{VC}=4$&lt;/li&gt;
+&lt;li&gt;$d_{VC} \ (d+1)$ 是权重参数的个数 ($w_0, w_1, \cdots, w_d$)。1 代表bias项，d代表每个样本点的维度数。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;interpreting-the-vc-dimension&#34;&gt;Interpreting the VC dimension
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;VC维是自由度 (Degrees of freedom)&lt;/p&gt;
+&lt;p&gt;不同的weights就是不同的 hypothesis。Every dimension of $d_{VC}$ is a tunable parameter, and parameters create degrees of freedom.&lt;/p&gt;
+&lt;p&gt;Number of parameters &lt;strong&gt;analog&lt;/strong&gt; degrees of freedom; $d_{VC}$ equivalent &amp;ldquo;&lt;strong&gt;binary&lt;/strong&gt;&amp;rdquo; degrees of freedom.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The usual suspects&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;positive ray: $d_{VC}=1$，一个参数对应一个边界&lt;/li&gt;
+&lt;li&gt;positive interval: $d_{VC}=2$，两个参数对应两个边界，确定一个hypothesis&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Not just parameters&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Parameters 在实际情况中可能不是自由度。&lt;/li&gt;
+&lt;li&gt;每个 perceptron 有 2 个 parameters ($w_0, w_1$ 对应 $b$ 和$x$). So 4 perceptron have 8 parameters those have an impact on a hypothesis, but the $d_{VC}$ maybe not 8.&lt;/li&gt;
+&lt;li&gt;$d_{VC}$ measures the &lt;strong&gt;effective&lt;/strong&gt; number of parameters&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;number-of-data-points-needed&#34;&gt;Number of data points needed
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;经验法则： $N \geq 10 d_{VC}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;VC维的两个量化参数: $\varepsilon, \delta$:&lt;/p&gt;
+$$
+  \mathbb P [ |E_{in}(g) - E_{out}(g)| &gt; \varepsilon] \leq
+  \underbrace{
+  4 m_{\mathcal H} (2N) e^{-\frac{1}{8} \varepsilon^2 N}
+  }_\delta
+  $$&lt;p&gt;$\delta$是 N 的函数：$N^{d_{VC}} e^{-N}$ （$m_{\mathcal H}(2N)$是N的多项式）&lt;/p&gt;
+&lt;p&gt;横坐标是 N，纵坐标是概率上界 $\delta$，每条曲线代表不同的VC维:&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec7_s21.jpg&#34; style=&#34;zoom:60%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;$d_{VC}$越大，概率会先上升得越高，之后负指数take the control，突然急剧减小。因为这是概率，所以只考虑小于1 ($10^0$ 以下)的部分，概率越小越好。&lt;/p&gt;
+&lt;p&gt;在同一概率下，增加VC维，N的值也呈线性增加。更大的VC维（要调节更多的参数）需要更多的样本点。为了达到很小的 Bad events概率，就需要更多的样本点。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Rule of thumb:&lt;/strong&gt;(经验) $N \geq 10 d_{VC}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;rearranging-things&#34;&gt;Rearranging things
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;For VC inequality，把 Bad events 发生的概率称为 $\delta$&lt;/p&gt;
+$$
+  \mathbb P [ |E_{out}(g) - E_{in}(g)| &gt; \varepsilon] \leq
+  \underbrace{
+  4 m_{\mathcal H} (2N) e^{-\frac{1}{8} \varepsilon^2 N}
+  }_\delta
+  $$&lt;p&gt;从 $\delta$ 中推出 ε :&lt;/p&gt;
+$$
+  \varepsilon = \underbrace{
+      \sqrt{\frac{8}{N} ln \frac{4 m_{\mathcal H} (2N)}{\delta}}
+   }_\Omega
+  $$&lt;p&gt;$\Omega$是$N, \mathcal H, \delta$ 的函数。&lt;/p&gt;
+&lt;p&gt;Good events 表示为：$|E_{out} - E_{in}|\leq \Omega(N,\mathcal H, \delta)$，它的概率是 $P(good) \geq 1-\delta$。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;generalization-bound&#34;&gt;Generalization bound
+&lt;/h3&gt;&lt;p&gt;通常 Eout 比 Ein 大，所以可以去掉绝对值，那么 Good events 就是: $E_{out}-E_{in} \leq \Omega(N,\mathcal H, \delta)$，称为 Generalization error。&lt;/p&gt;
+&lt;p&gt;然后移项得到 $E_{out}$:&lt;/p&gt;
+$$
+E_{out} \leq \underbrace{ E_{in} + \underbrace{\Omega(N,\mathcal H, \delta)}_{\text{Generalization error}} }_{\text{Generalization bound}}
+$$&lt;p&gt;$E_{in}$ 从训练样本中得知，再根据以上关系，就可得知Eout。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 03 | Linear Model</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec3_linear_model/</link>
+        <pubDate>Sun, 12 Dec 2021 20:00:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec3_linear_model/</guid>
+        <description>&lt;p&gt;Video 6 Linear Models 9-29-2021&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Outline&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Input representation&lt;/li&gt;
+&lt;li&gt;Linear Classificatin&lt;/li&gt;
+&lt;li&gt;Linear Regression&lt;/li&gt;
+&lt;li&gt;Nonlinear Transformation&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Review of Lecture 2&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Learning is feasible in a probabilistic sense.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Red marble frequence $\nu$ in the bin is unknow
+→ $E_{out}$ is unknown
+→ $E_{in}$: red marble frequence in the sample $\mu$
+→ 最佳假设 g 使 $E_{in}$ 和 $E_{out}$ 最接近，这时Bad events 的概率为: Ein 和 Eout 相差超过 $\epsilon$ 的概率 $|E_{in}(g) - E_{out}(g)| &gt; \epsilon$&lt;/p&gt;
+&lt;p&gt;因为 g 肯定是假设集 H 中 M 个假设的其中之一，每个都有可能:&lt;/p&gt;
+$$
+  |E_{in}(h_2) - E_{out}(h_2)| &gt; \epsilon\ \textbf{  or  } 
+  |E_{in}(h_2) - E_{out}(h_2)| &gt; \epsilon\ \textbf{  or  }\ 
+  \cdots
+  |E_{in}(h_M) - E_{out}(h_M)| &gt; \epsilon
+  $$&lt;p&gt;也就是 M 个假设对应的Bad events发生概率之和（各假设之间无overlapping，也就是最坏的情况，但通常各假设间有相关性），把M加到Hoeffding Inequality右侧，称为Union Bound：&lt;/p&gt;
+$$
+  P[ |E_{in}(g)-E_{out}(g)|&gt; \epsilon ] \leq 2M e^{-2 \epsilon^2 N}
+  $$&lt;p&gt;如果样本数量N足够大，Bad event 的概率就会变小.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;linear-model&#34;&gt;Linear model
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Weights are linear related.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Digits pictures:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;raw input: $\mathbf{x} = (x_0, x_1, \cdots, x_{256})$ (x0是bias)&lt;/p&gt;
+&lt;p&gt;linear model: $(w_0, w_1, \cdots, w_{256})$ (inputs constribution,w0=1)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Features:&lt;/strong&gt; Extracted useful information （257维太高,线性模型不太行）&lt;/p&gt;
+&lt;p&gt;Intensity and symmetry $\mathbf x=(x_0, x_1, x_2)$， $x_0=$bias&lt;/p&gt;
+&lt;p&gt;linear model: $(w_0, w_1, w_2)$, $w_0=1$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;PLA&lt;/strong&gt; is not so smart. It focus on one misclassified point and update the weight, then the in-sample error maybe better or worse. There are a lot of flactration during iterations. 错过了最小误差，就回不去了。&lt;/p&gt;
+&lt;p&gt;$E_{out}$ 是验证集上的误差，error of out-of-sample follows $E_{in}$&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/PLA_linear_model.png&#34;&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Pocket:&lt;/strong&gt; Keep the best weights (in pocket). Replace it when finding better in the future.&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Pocket_linear_model.png&#34;&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;linear-classification&#34;&gt;Linear Classification
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Outputs of a linear model are binary&lt;/p&gt;
+$$
+  h(\mathbf x) = \operatorname{sign} \left( \sum_{i=0}^d w_i x_i \right) : \{ +1,-1\} 
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;+1 or -1 (Approve or Deny)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;linear-regression&#34;&gt;Linear Regression
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Outputs of a linear model are real-valued&lt;/p&gt;
+$$
+  h(\mathbf x) = \sum_{i=0}^d w_i x_i = \mathbf{w}^T \mathbf{x} \quad 
+  \text{(w0 for bias x0)}
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;不再传给sign函数，判断$\pm 1$分类&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;data set: $\rm (\pmb x_1, y_1), (\pmb x_2, y_2),\cdots (\pmb x_N, y_N)$&lt;/p&gt;
+&lt;p&gt;用线性回归去复制 data set，然后预测未来x的y。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;用假设 $h(\mathbf x) = \mathbf w^T \mathbf x$ 近似未知目标函数 $f(\mathbf x)$:&lt;/p&gt;
+$$
+  \left(h(\mathbf x) - f(\mathbf x) \right)^2
+  $$&lt;p&gt;(Square error will make solving linear regression problem easily one-shot.)&lt;/p&gt;
+&lt;p&gt;In-sample error:&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Lec3_s13_linear_regression.png&#34; style=&#34;zoom:40%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;一个特征是点到直线距离，两个特征是点到超平面距离。&lt;/p&gt;
+$$
+  E_{in}(h) = \frac{1}{N} \sum_{n=1}^N (h(\mathbf x_n) - y_n)^2
+  $$&lt;p&gt;In-sample error 是权重 $\mathbf w$ 的函数 （$\mathbf x$和y都是固定的训练样本,只有$\mathbf w$是变量），线性回归的目标是找到使 In-sample error 最小的$\mathbf w$:&lt;/p&gt;
+$$
+  \begin{aligned}
+  E_{in}(\mathbf w) &amp;= \frac{1}{N} \sum_{n=1}^N (\mathbf w^T \mathbf x_n - y_n)^2 \\\
+  &amp;= \frac{1}{N} \| \mathbf{Xw} - \mathbf y \|^2
+  \end{aligned}
+  $$&lt;p&gt;（把求和变成矩阵，方便求导找最值）其中：&lt;/p&gt;
+$$
+  \mathbf X=
+  \begin{bmatrix}
+  \mathbf x_1^T \\\ \mathbf x_2^T \\\ \vdots \\\ \mathbf x_N^T
+  \end{bmatrix},
+  \mathbf y=
+  \begin{bmatrix}
+  y_1^T \\\ y_2^T \\\ \vdots \\\ y_N^T
+  \end{bmatrix}
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;求 $E_{in}$ 的最小值：对 $\mathbf w$ 求导，并令其等于0:&lt;/p&gt;
+$$
+  \begin{aligned}
+  E_{in}&#39;(\mathbf w) &amp;= 0 \\\
+  \frac{2}{N} \mathbf X^T (\mathbf {Xw} -y) &amp;= 0 \\\
+  \mathbf X^T \mathbf {Xw} &amp;= \mathbf X^T y \\\
+  \mathbf w &amp;= \mathbf X^{\dagger} y &amp; \text{where  }
+  \mathbf X^\dagger = (\bf X^T X)^{-1} X^T
+  \end{aligned}
+  $$&lt;p&gt;Perceptron is more similar to the learning process that you&amp;rsquo;re just trying to learn something from one iteration to the other iteration. Here it&amp;rsquo;s not iterative. Linear regression is a kind of one-shot learner that learns one iteration.&lt;/p&gt;
+&lt;p&gt;$\mathbf X^\dagger$ is the &lt;strong&gt;pseudo-inverse&lt;/strong&gt; of $\mathbf X$:&lt;/p&gt;
+&lt;p&gt;$$
+\underbrace{
+\begin{pmatrix}
+\underbrace{
+\begin{bmatrix}
+x_{00} &amp;amp; x_{10} &amp;amp; \cdots x_{N0} \
+x_{01} &amp;amp; x_{11} &amp;amp; \cdots x_{N1} \
+\vdots \
+x_{0d} &amp;amp; x_{1d} &amp;amp; \cdots x_{Nd}
+\end{bmatrix}
+}_{(d+1)\times N}&lt;/p&gt;
+&lt;p&gt;\underbrace{
+\begin{bmatrix}
+x_{00} &amp;amp; x_{01} &amp;amp; \cdots x_{0d} \
+x_{10} &amp;amp; x_{11} &amp;amp; \cdots x_{1d} \
+\vdots \
+x_{N0} &amp;amp; x_{N1} &amp;amp; \cdots x_{Nd}
+\end{bmatrix}
+}_{N\times (d+1)}&lt;/p&gt;
+&lt;p&gt;\end{pmatrix}^{-1}&lt;/p&gt;
+&lt;p&gt;\underbrace{
+\begin{bmatrix}
+x_{00} &amp;amp; x_{10} &amp;amp; \cdots x_{N0} \
+x_{01} &amp;amp; x_{11} &amp;amp; \cdots x_{N1} \
+\vdots \
+x_{0d} &amp;amp; x_{1d} &amp;amp; \cdots x_{Nd}
+\end{bmatrix}
+}&lt;em&gt;{(d+1)\times N}
+}&lt;/em&gt;{(d+1)\times N}
+$$&lt;/p&gt;
+&lt;p&gt;$\mathbf w = \mathbf X^\dagger y = \underbrace{[w_0\ w_1\ \cdots w_{d}]}_{(d+1)\times 1}$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;linear-regression-algorithm&#34;&gt;Linear regression algorithm
+&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;构建 the data matrix $\mathbf X$ and the vector y from the data set $(\mathbf X_1, y_1), \cdots, (\mathbf X_N, y_N)$&lt;/p&gt;
+$$
+   \mathbf X = 
+   \begin{bmatrix}
+   \cdots \mathbf x_1^T \cdots \\
+   \cdots \mathbf x_2^T \cdots \\
+   \vdots   \\
+   \cdots \mathbf x_N^T \cdots \\
+   \end{bmatrix} ,
+   y=
+   \begin{bmatrix}
+   y_1^T \\ y_2^T \\ \vdots \\ y_N^T
+   \end{bmatrix}
+   $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;计算伪逆矩阵 $\mathbf X^\dagger = (\bf X^T X)^{-1} X^T$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;返回 $\mathbf w = \mathbf X^\dagger y$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;linear-regression-for-classification&#34;&gt;Linear regression for classification
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;利用线性回归一次性解出 $\mathbf w$，将其作为perception的初值，再迭代。&lt;/li&gt;
+&lt;li&gt;
+&lt;ol&gt;
+&lt;li&gt;Linear regression 学习一个实值函数 $y=f(x)$&lt;/li&gt;
+&lt;li&gt;二分类函数的 $\pm 1$ 也是实数&lt;/li&gt;
+&lt;li&gt;使用linear regression “训练”（学习）到最佳$\mathbf w$（使$E_{in}$(平方误差)最小）$\mathbf w^T \mathbf x_n \approx y_n = \pm 1$&lt;/li&gt;
+&lt;li&gt;将这个$\mathbf w$ 作为perceptron的初始值开始训练，随机初始化w可能迭代很多次也不会收敛。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;linear-regression-boundary&#34;&gt;Linear regression boundary
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;线性回归 one-shot 解出的w 对应一条直线.&lt;/li&gt;
+&lt;li&gt;回归是为了使整体的 $E_{in}$ (点到超平面的距离) 最小，当两类数据分布不均匀时，超平面会偏移“分类边界”。in-smaple Error (平方误差)不是Classification error。再用 perception 优化分类结果。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Video 9&lt;/p&gt;
+&lt;h3 id=&#34;nonlinear-transformation&#34;&gt;Nonlinear transformation
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Use $\Phi$ to transform the non-linear input space $\mathcal X$ to a linear space $\mathcal Z$ (where there is linear relation between $\mathbf w$s)&lt;/p&gt;
+&lt;p&gt;Any point $\mathbf x \overset{\Phi}{\rightarrow} \mathbf z$ preserves the linearity, so that points are linearly separable.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;$g(\mathbf x) = \tilde g(\Phi(\mathbf x)) = \rm sign(\tilde \mathbf{w}^T \Phi(\mathbf x))$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Transformation:&lt;/p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\mathbf x = (x_0, x_1, \cdots, x_d)\ &amp;amp;\overset{\Phi}{\rightarrow}
+\mathbf z = (z_0, z_1, \cdots, z_{\tilde d}) &amp;amp; \text{维度可以不同,$x_0$是bias} \&lt;/p&gt;
+&lt;p&gt;\mathbf{x_1, x_2, \cdots, x_N}\ &amp;amp;\overset{\Phi}{\rightarrow}
+\mathbf{z_1, z_2, \cdots, z_N} &amp;amp; \text{n个点都做变换}\&lt;/p&gt;
+&lt;p&gt;y_1, y_2, \cdots, y_N \ &amp;amp;\overset{\Phi}{\rightarrow}
+y_1, y_2, \cdots, y_N &amp;amp; \text{标签不变} \&lt;/p&gt;
+&lt;p&gt;\text{No weights in } \mathcal X &amp;amp; \qquad
+\widetilde \mathbf w =(w_0, w_1,\cdots, w_{\tilde d}) &amp;amp; \text{z空间中建立线性模型} \&lt;/p&gt;
+&lt;p&gt;g(\mathbf x) &amp;amp;= \rm sign (\tilde \mathbf w^T \Phi(\mathbf x))
+\end{aligned}
+$$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML | Classification</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/aml_classification/</link>
+        <pubDate>Sun, 12 Dec 2021 19:58:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/aml_classification/</guid>
+        <description>&lt;p&gt;Video 16 Classification 2021-12-06&lt;/p&gt;
+&lt;p&gt;supervised learning practical diagram&lt;/p&gt;
+
+
+
+
+
+  
+  
+  
+  
+   
+  
+  
+   
+  
+  &lt;img src= /post/writenotes/calc/aml/img/supervised_learning_practical_diagram.png width=ZgotmplZ&gt;
+  
+  
+
+
+&lt;p&gt;K-means 对三螺线数据训练，分类结果不好，因为它是用于聚类的&lt;/p&gt;
+&lt;p&gt;Fuzzy C Means 是另一种改进的聚类算法，分类效果也不好&lt;/p&gt;
+&lt;p&gt;Decision Tree 分类器对三螺线的训练样本分类效果很好&lt;/p&gt;
+&lt;p&gt;K nearest neighbor 是非常强大的 lazy learner&lt;/p&gt;
+&lt;p&gt;Multilayer neural network 强大&lt;/p&gt;
+&lt;h3 id=&#34;performance-evaluation&#34;&gt;Performance evaluation
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;分类器预测类别标签有多准确？选择哪个分类器（模型）更合适？&lt;/li&gt;
+&lt;li&gt;Remember:
+&lt;ol&gt;
+&lt;li&gt;The data have to be used both for training and testing.&lt;/li&gt;
+&lt;li&gt;More training data → better generalization.&lt;/li&gt;
+&lt;li&gt;More test data → better estimation for the classification error probability.&lt;/li&gt;
+&lt;li&gt;Do not evaluate performance on training data → the conclusion would be optimistically biased. (否则会偏向训练集)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;Methods for estimating a classifier&amp;rsquo;s accuracy:
+&lt;ol&gt;
+&lt;li&gt;Holdout method (reserve 2/3 for training and 1/3 for testing)&lt;/li&gt;
+&lt;li&gt;random subsampling (iterative holdout)&lt;/li&gt;
+&lt;li&gt;Cross-validation (partition the data into k folders&lt;/li&gt;
+&lt;li&gt;Stratified oversampling and undersampling (保持类别比例)&lt;/li&gt;
+&lt;li&gt;Bootstrap (sampling with replacement)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;Comparing classifiers:
+&lt;ol&gt;
+&lt;li&gt;Confidence intervals&lt;/li&gt;
+&lt;li&gt;Cost-benefit analysis and ROC Curves&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;Once evaluation is finished, all the available data can be used to train the final classifier. (知道了最佳参数后，再用全部的数据训练最佳假设)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;hold-out-method&#34;&gt;Hold out method
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Given data is randomly partitioned into two independent sets&lt;/li&gt;
+&lt;li&gt;比如：2/3 作为Training set 去构建模型，1/3作为Test set 去估计准确率&lt;/li&gt;
+&lt;li&gt;Random sampling: &lt;br&gt;
+It is a variation of holdout method.&lt;br&gt;
+Repeat the method k times, accuracy is estimated as average of obtained accuracies.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;confusion-matrix&#34;&gt;Confusion matrix
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Represents the number of correct and incorrect predictions made by the classification model in comparison with the real outcomes (actual class).&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Confusion_matrix.png&#34; style=&#34;zoom:60%&#34;&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;TP or True positive: &lt;br&gt;
+# of tuples in class positive that were labeled by the classifier as class positive.&lt;/li&gt;
+&lt;li&gt;FN or False negative: &lt;br&gt;
+# of tuples in class positive that were labeled by the classifier as class negative&lt;/li&gt;
+&lt;li&gt;FP or False positive: &lt;br&gt;
+# of tuples in class negative that were labeled by the classifier as class positive.&lt;/li&gt;
+&lt;li&gt;TN or True negative &lt;br&gt;
+# of tuples in class negative that were labeled by the classifier as class negative.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Evaluation measures&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Measure&lt;/th&gt;
+          &lt;th&gt;Formula&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Accuracy, recognition rate&lt;/td&gt;
+          &lt;td&gt;(TP+TN)/all&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Error rate, misclassification rate&lt;/td&gt;
+          &lt;td&gt;(FP+FN)/all&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Sensitivity, true positive rate, recall&lt;/td&gt;
+          &lt;td&gt;TP/(TP+FN)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Specificity, true negative rate&lt;/td&gt;
+          &lt;td&gt;TN/(TN+FP)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Precision&lt;/td&gt;
+          &lt;td&gt;TP/(TP+FP)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;F, F1,F-score, &lt;br&gt; Harmonic mean of precision and recall&lt;/td&gt;
+          &lt;td&gt;$\frac{2 \times \rm Precision \times recall}{\rm Precision + recall}$&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$F_\beta$ where $\beta$ is a none negative real number&lt;/td&gt;
+          &lt;td&gt;$\frac{(1+\beta)^2 \times \rm Precision \times recall}{\beta^2 \times \rm Precision +recall}$&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;Accuracy/recognition rate: the proportion of the total number of predictions that were correct.&lt;/li&gt;
+&lt;li&gt;Error rate: 1- accuracy&lt;/li&gt;
+&lt;li&gt;Precision: what % of tuples that the classifier labeled as positive are actually positive (查准率)&lt;/li&gt;
+&lt;li&gt;Recall: what % of positive tuples did the classifier label as positive? (查全率)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;当数据几乎是均匀分布时：准确性可以成为一个很好的评估指标&lt;br&gt;
+比如100个人，99个没患癌，1个是癌症患者，但是模型结果是100个人都是健康，准确率99%，但它并不是可靠的模型。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Imbalanced data:
+&lt;ul&gt;
+&lt;li&gt;There is an important class which is rare. e.g. cancerous patient&lt;/li&gt;
+&lt;li&gt;Classifier may ignore the small class!&lt;/li&gt;
+&lt;li&gt;Accuracy is not a good measurement as it does not consider FN rate that is so important in imbalanced data.&lt;/li&gt;
+&lt;li&gt;In this case, classifier evaluation measures such sensitivity (or recall), specificity, precision, F-measure are better suited.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Evaluation 也可以关注其他的指标：&lt;br&gt;
+Speed, Robustness, Scalability, Interpretability&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;receiving-operating-characteristic-roc&#34;&gt;Receiving Operating Characteristic (ROC)
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Represent a relation between &lt;strong&gt;sensitivity&lt;/strong&gt; and &lt;strong&gt;specificity&lt;/strong&gt; for a given classifier.&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/ROC_curve.png&#34; style=&#34;zoom:100%&#34;&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;The area under the curve is the measure of the accuracy of the classifier.&lt;/li&gt;
+&lt;li&gt;The perfect accuracy is equal to one.&lt;/li&gt;
+&lt;li&gt;The closer to red line, the less accurate model&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如果模型的准确率显著低于红线，是不能接受的(有错)。ROC 曲线上升越快，越接近1，越好 (Learner 1最好)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;It can be used for visual comparison of classification models.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;ROC space: &lt;br&gt;
+Two dimensional: &lt;br&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;FP rate on X axis → FPR=FP/(TN+FP)&lt;/li&gt;
+&lt;li&gt;TP rate on Y axis → TPR=TP/(TP+FN) （灵敏度）&lt;/li&gt;
+&lt;li&gt;FPR=1-SPC （= 1- 特异度）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;model-selection-criteria&#34;&gt;Model Selection Criteria
+&lt;/h3&gt;&lt;p&gt;Model selection criteria is always based on a compromise between the &lt;strong&gt;complexity&lt;/strong&gt; of the model and its prediction &lt;strong&gt;accuracy&lt;/strong&gt; on the training data&lt;/p&gt;
+&lt;p&gt;Given a dataset, basically we are looking for the simplest model that attains highest accuracy.&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/Model_comparison.png&#34; style=&#34;zoom:70%&#34;&gt;&lt;/div&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;&lt;/th&gt;
+          &lt;th&gt;Model 1&lt;/th&gt;
+          &lt;th&gt;Model 2&lt;/th&gt;
+          &lt;th&gt;Model 3&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Complexity&lt;/td&gt;
+          &lt;td&gt;✓✓&lt;/td&gt;
+          &lt;td&gt;✓&lt;/td&gt;
+          &lt;td&gt;x (overfit)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Training error&lt;/td&gt;
+          &lt;td&gt;xx&lt;/td&gt;
+          &lt;td&gt;✓&lt;/td&gt;
+          &lt;td&gt;✓✓&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Overall&lt;/td&gt;
+          &lt;td&gt;-&lt;/td&gt;
+          &lt;td&gt;✓&lt;/td&gt;
+          &lt;td&gt;-&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;ensemble-system---strategies--components&#34;&gt;Ensemble system - Strategies &amp;amp; components
+&lt;/h3&gt;&lt;p&gt;合奏系统&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/ensemble_system.png&#34;&gt;&lt;/div&gt;
+&lt;p&gt;每次抽取不同的样本(子集)，训练多个模型，然后聚合（aggregation）起来，误差可能更小&lt;/p&gt;
+&lt;p&gt;也可以训练不同种类的分类器：感知机，DT,kNN,SVM&amp;hellip;&lt;/p&gt;
+&lt;p&gt;Ensemble 系统有两Key Component: 分类算法（注意训练集样本的多样性）和融合方法（简单：多数票）&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/ensemble_system_2.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;p&gt;Ensemble 适合用于很大容量数据，也可以用于很小容量数据。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Large volume data:&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/ensemble_large_volume_data.png&#34; style=&#34;zoom:60%&#34;&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Small size data:&lt;/p&gt;
+&lt;p&gt;数据很少，用复杂的模型可能导致过拟合，所以第一次使用比较弱的感知机，有3个点分错了，增加它们的权重，使它们更可能被抽取到作为下一次的训练样本。第二次分类后，再强调分错的2个蓝点。第三次分类，就只有1个红点分错了。Ensemble 使得模型不复杂，更准确&lt;/p&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;./img/ensemble_small_size_data.png&#34; style=&#34;zoom:50%&#34;&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;其他优势：处理复杂的决策边界，非线性情况，实时&amp;hellip;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 01 | Learning Problem</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec1_learning_problem/</link>
+        <pubDate>Sun, 12 Dec 2021 19:30:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec1_learning_problem/</guid>
+        <description>&lt;p&gt;Outline&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Example of machine Learning&lt;/li&gt;
+&lt;li&gt;Components of Learning&lt;/li&gt;
+&lt;li&gt;Perceptron&lt;/li&gt;
+&lt;li&gt;Types of learning&lt;/li&gt;
+&lt;li&gt;Puzzle&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;machine-learning&#34;&gt;Machine Learning
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Essence
+&lt;ol&gt;
+&lt;li&gt;A pattern exists&lt;/li&gt;
+&lt;li&gt;We cannot pin it down mathematically&lt;/li&gt;
+&lt;li&gt;we have data on it.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;perceptron&#34;&gt;Perceptron
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;$h(\mathbf x) = \operatorname{sign} \left( \sum_{i=0}^d w_i x_i \right) = \operatorname{sign} (\mathbf w^T \mathbf x)$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pla&#34;&gt;PLA
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;steps:
+&lt;ol&gt;
+&lt;li&gt;Given the training set: $(\mathbf x_1, \mathbf y_1),(\mathbf x_2, \mathbf y_2), \cdots, (\mathbf x_N, \mathbf y_N)$&lt;/li&gt;
+&lt;li&gt;pick a misclassified point: $sign (\mathbf w^T \mathbf x_n) \neq y$&lt;/li&gt;
+&lt;li&gt;update the weight vector: $\mathbf w \leftarrow \mathbf w + y_n \mathbf x_n$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;types-of-learning&#34;&gt;Types of learning
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Supervised learning: input &amp;ldquo;correct output&amp;rdquo;.&lt;/li&gt;
+&lt;li&gt;Unsupervised learning: no &amp;ldquo;correct output&amp;rdquo; input.&lt;/li&gt;
+&lt;li&gt;Reinforcement learning: introduce the grade of output.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这门课在证明一件事：通过fit数据，就可以”learn“到未知目标函数。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML | Clustering</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/aml_clustering/</link>
+        <pubDate>Sat, 11 Dec 2021 14:44:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/aml_clustering/</guid>
+        <description>&lt;p&gt;Video 15 Clustering 2021-11-22&lt;/p&gt;
+&lt;p&gt;Outline:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Clustering&lt;/li&gt;
+&lt;li&gt;K-means&lt;/li&gt;
+&lt;li&gt;K nearest neighbor&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;cluster&#34;&gt;Cluster
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Cluster is a set of data objects that
+&lt;ul&gt;
+&lt;li&gt;similar to one another within the same group&lt;/li&gt;
+&lt;li&gt;dissimilar to the objects in other groups&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;High quality clusters:
+&lt;ul&gt;
+&lt;li&gt;High intra-class similarity;&lt;/li&gt;
+&lt;li&gt;Low inter-class similarity&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;cluster-analysis&#34;&gt;Cluster analysis
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;an unsupervised learning (unlabeled)&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;
+&lt;li&gt;给定一组数据对象&lt;/li&gt;
+&lt;li&gt;找到数据对象之间的相似性&lt;/li&gt;
+&lt;li&gt;把相似的数据对象归到 clusters&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;典型应用:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;As a stand-alone tool to get insight into data distribution&lt;/li&gt;
+&lt;li&gt;As a preprocessing step for other algorithms (classifier, regressor)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;聚类方法的质量的相关因素：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;the similarity measure used by the method&lt;/li&gt;
+&lt;li&gt;its implementation&lt;/li&gt;
+&lt;li&gt;its ability to discover some or all of the hidden patterns&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;聚类分析的考虑因素&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Partitioning criteria &lt;/br&gt;
+Single level vs. hierarchical partitioning (often, multi-level hierarchical partitioning is desirable)&lt;/li&gt;
+&lt;li&gt;Separation of clusters &lt;/br&gt;
+Exclusive (e.g., one customer belongs to only one region) vs. non-exclusive (e.g., one document may belong to more than one class) 是否专属于1类&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Similarity measure&lt;/strong&gt; &lt;/br&gt;
+Distance-based (e.g., Euclidian, road network, vector) vs. connectivity-based (e.g., density or contiguity)&lt;/li&gt;
+&lt;li&gt;Clustering space &lt;/br&gt;
+Full space (often when low dimensional) vs. subspaces (often in high-dimensional clustering)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;聚类的挑战和要求&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Quality
+&lt;ul&gt;
+&lt;li&gt;Ability to deal with different type of attributes (不同属性)&lt;/li&gt;
+&lt;li&gt;Discovery of clusters with arbitrary shape (任意形状)&lt;/li&gt;
+&lt;li&gt;Ability to deal with noisy data (噪声)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Interpretability and usability&lt;/li&gt;
+&lt;li&gt;Constraint based clustering&lt;/li&gt;
+&lt;li&gt;Scalability
+&lt;ul&gt;
+&lt;li&gt;Constraint based clustering&lt;/li&gt;
+&lt;li&gt;High dimensionality&lt;/li&gt;
+&lt;li&gt;Incremental clustering and insensitivity to input order&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;similarity-measure&#34;&gt;Similarity measure
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;对于两个样本点的第i个维度: $x_i$和$y_i$，两者的相似性可以用一个距离函数表达：$\rm d(x_i, y_i)$&lt;/li&gt;
+&lt;li&gt;Similarity measure are usually different based on type of data: interval-scaled, boolean, categorical, ordinal ratio, and vector variables.&lt;/li&gt;
+&lt;li&gt;距离种类：
+&lt;ol&gt;
+&lt;li&gt;Euclidean: $\sqrt{\sum_{i=1}^{k}\left(x_{i}-y_{i}\right)^{2}}$ 两点所有属性间的距离&lt;/li&gt;
+&lt;li&gt;Manhattan: $\sum_{i=1}^{k}\left|x_{i}-y_{i}\right|$&lt;/li&gt;
+&lt;li&gt;Minkowski: $\left(\sum_{i=1}^{k}\left(\left|x_{i}-y_i\right|\right)^{2}\right)^{1 / q}$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;major-approaches&#34;&gt;Major approaches
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Partitioning approaches (分区): &lt;br&gt;
+They create various partitions and then evaluate them by some criterion &lt;br&gt;
+e.g., minimizing the sum of square errors &lt;br&gt;
+typical methods: k-means, k-medoids, CLARANS&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Hierarchical approaches (分层): &lt;br&gt;
+They create a hierarchical decomposition of the set of data (or objects) using some criterion &lt;br&gt;
+typical methods: Diana, Agnes, BIRCH, CHAMELEON&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Density-based approaches: &lt;br&gt;
+They are based on connectivity and density functions &lt;br&gt;
+typical methods: DBSACN, OPTICS, DenClue&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Grid-based approaches: &lt;br&gt;
+They are based on a multiple-level granularity structure &lt;br&gt;
+typical methods: STING, WaveCluster, CLIQUE&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Model-based approaches: &lt;br&gt;
+A model is hypothesized for each of the clusters and then aim to find the best fit of that model to each other &lt;br&gt;
+typical methods: EM, SOM, COBWEB&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Frequent pattern-based: &lt;br&gt;
+They are based on the analysis of frequent patterns &lt;br&gt;
+typical methods: p-Cluster&lt;/p&gt;
+&lt;p&gt;etc&amp;hellip;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;partitioning-method&#34;&gt;Partitioning method
+&lt;/h3&gt;&lt;p&gt;K-means 可视化：&lt;a class=&#34;link&#34; href=&#34;https://www.naftaliharris.com/blog/visualizing-k-means-clustering/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Visualizing K-Means Clustering&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;k-nearest-neighbors&#34;&gt;K nearest neighbors
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;supervised, efficient, clustering, classification and regression learning algorithm&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 04 | Error and Noise</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec4_error_and_noise/</link>
+        <pubDate>Sun, 05 Dec 2021 19:19:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec4_error_and_noise/</guid>
+        <description>&lt;p&gt;Video 9 - Error and noise 10-18-2021&lt;/p&gt;
+&lt;p&gt;Outline&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Error measures&lt;/li&gt;
+&lt;li&gt;Noisy targets&lt;/li&gt;
+&lt;li&gt;Preamble to the theory&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Review of Lec 3&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Linear Models&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Using “&lt;strong&gt;signal&lt;/strong&gt;” to classify and regress&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;signal:&lt;/p&gt;
+$$
+  \sum_{i=0}^d w_i x_i = \mathbf{w^T x}
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Linear Classification: $h(\mathbf x) = \rm sign(\mathbf{w^T x})$
+(把信号传入threshold, PLA, Pocket)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Linear Regression: $h(\mathbf x) = \mathbf{w^T x}$
+(不把信号传入threshold, one-shot learning)&lt;/p&gt;
+&lt;p&gt;$\mathbf w = \mathbf{(x^T x)^{-1} x^T} y$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;error-measures&#34;&gt;Error measures
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Quantify the dissimilarity between the output of hypothesis $h$ and the output of the unknown target function $f$.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Almost all error measures are &lt;strong&gt;pointwise&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Compute $h$ and $f$ on individual points $\mathbf x$ using a pointwise error $e(h(\mathbf x), f(\mathbf x))$:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Binary error:&lt;/strong&gt; $e(h(\mathbf x), f(\mathbf x))= [\![ h(\mathbf x) \neq f(\mathbf x) ]\!]$ （不相等error=1, 相等error=0）    (Classification)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Squared error:&lt;/strong&gt; $e(h(\mathbf x), f(\mathbf x)) = (h(\mathbf x) - f(\mathbf x))^2$  (真实距离)  (Regression)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;In-sample error:&lt;/strong&gt; $h(x)$ 与 $f(x)$ 在各样本点上的差异&lt;/p&gt;
+$$
+  E_{in}(h) = \frac{1}{N} \sum_{n=1}^N e(h(\mathbf x_n), f(\mathbf x_n))
+  $$&lt;p&gt;&lt;strong&gt;Out-of-sample error:&lt;/strong&gt; $h(x)$ 与 $f(x)$ 在空间所有点上的偏差的期望&lt;/p&gt;
+$$
+  E_{out}(h) = \mathbb E_x [e(h(\mathbf x), f(\mathbf x))]
+  $$&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;How to choose the error measure&lt;/p&gt;
+&lt;p&gt;False accept and False reject&lt;/p&gt;
+&lt;p&gt;confusion matrix (混淆矩阵):&lt;/p&gt;
+$$
+  \begin{array}{c|lcr}
+    &amp; \qquad f (\text{unknown}) &amp; \\
+   h&amp; +1 &amp; -1 \\
+  \hline
+  +1 &amp; \text{no error} &amp; \text{false accept}  \\
+  -1 &amp; \text{false reject} &amp; \text{no error} \\
+  \end{array}
+  $$&lt;p&gt;The error measure is pretty much related to the kind of application with different penalty.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;noisy-targets&#34;&gt;Noisy targets
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;确定的目标分布 $f(\mathbf x) = \mathbb E(y|\mathbf x)$ + 噪声 $y-f(\mathbf x)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;有时相同的输入对应不同的标签，所以潜在关系不是一个&amp;quot;函数&amp;quot; $y=f(\mathbf x)$，而是一个分布 $P(y|\mathbf x)$&lt;/p&gt;
+&lt;p&gt;$\mathbf x$ 按照某种未知的分布 $P(\mathbf x)$ 从空间$\mathcal X$ 中抽取出来。标签 $y$ 服从分布 $P(y|\mathbf x)$。所以输入 $(\mathbf x,y)$ 是由联合分布 $P(\mathbf x) P(y|\mathbf x) = P(\mathbf x,y)$ 产生。&lt;/p&gt;
+&lt;p&gt;Determistic target 是当 P(y|x)=0 的特殊的noisy target, 那时噪声=0，也就是 $y=f(\mathbf x)$&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Preamble to the theory&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Learning is feasible in a probabilitstic sence: $E_{out}(g) \approx E_{in}(g)$&lt;/li&gt;
+&lt;li&gt;We need $g\approx f$, which means $E_{out}(g) \approx 0$
+&lt;ol&gt;
+&lt;li&gt;$E_{out}(g) \approx E_{in}(g)$ (Hoeffding Inequality)&lt;/li&gt;
+&lt;li&gt;$E_{in}(g) \approx 0$ (PLA, Pocket, Linear classification/regression)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>watch: AML 02 | Learning Feasibility</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/lec2_learning-feasible/</link>
+        <pubDate>Fri, 22 Oct 2021 16:03:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/lec2_learning-feasible/</guid>
+        <description>&lt;h3 id=&#34;3-component-of-using-learning&#34;&gt;3 component of using Learning
+&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;Pattern exists&lt;/li&gt;
+&lt;li&gt;Pin down mathematically&lt;/li&gt;
+&lt;li&gt;have data (most important)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;learning-set-up&#34;&gt;Learning set up
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;
+&lt;li&gt;Unkown target function&lt;/li&gt;
+&lt;li&gt;Dataset:&lt;/li&gt;
+&lt;li&gt;Learing algorithm picks $g\appriox f from hypothesis set H&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;perceptron-learning-algorithm&#34;&gt;Perceptron Learning Algorithm
+&lt;/h3&gt;&lt;h2 id=&#34;feasibility-of-learning&#34;&gt;Feasibility of learning.
+&lt;/h2&gt;&lt;p&gt;In order to establish that learning setup and modifier the data, and in order to answer if that learning is feasible. We said that we gonna restart with specific __ and we went an example of bin. I just quickly review that.&lt;/p&gt;
+&lt;p&gt;We suppose to have a bin. In bin there are red marbles and green marbles as we see. And probility that if you pick a red marble is called $\mu$, and a probability that you pick a&lt;/p&gt;
+&lt;h3 id=&#34;bin-model&#34;&gt;BIN Model
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Bin with red and blue marbles;
+Pick a sample of N marble &lt;strong&gt;independently&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$\mu$: probability to pick a red marbles from the &lt;strong&gt;bin&lt;/strong&gt; (blue: 1-$\mu$)&lt;/li&gt;
+&lt;li&gt;$\nu$: fraction of red marbles in the &lt;strong&gt;sample&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;In a large sample (large N), ν is probably close to μ (within tolerance ε)&lt;/p&gt;
+&lt;p&gt;Hoeffding&amp;rsquo;s Inequality:&lt;/p&gt;
+$$
+    \begin{aligned}
+    P[Bad] &amp;= P[|ν-μ|&gt;ε]≤ 2e^{-2ε^2N},   &amp; \text{for any ε&gt;0} \\
+    P[Good] &amp;= P[|ν-μ|≤ε]&gt; 1-2e^{-2ε^2N},&amp; \text{for any ε&gt;0}
+    \end{aligned}
+    $$&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;N is large, ε is large, the P[Bad] becomes small, ν and μ are very close to each other.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;N=1000, ε=0.05, the probability of ν-ε ≤ μ ≤ ν+ε is 0.986&lt;/li&gt;
+&lt;li&gt;N=1000, ε=0.1,  the probability of ν-ε ≤ μ ≤ ν+ε is 0.999&lt;/li&gt;
+&lt;li&gt;μ∈[ν-ε, μ+ε], error bar is ±ε&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;learn from ν and reach outside the data (μ). There still is a probability of getting wrong sample, but not often.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;μ≈ν is &lt;strong&gt;probably approximately&lt;/strong&gt; correct (PAC-learning)&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;probably&amp;rdquo; : probabilty 2exp(-2 ε^2 N) &lt;br&gt;
+&amp;ldquo;approximately&amp;rdquo; : tolerance ε&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>images</title>
+        <link>http://blog.zichen.uk/post/writenotes/calc/aml/img/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>http://blog.zichen.uk/post/writenotes/calc/aml/img/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>

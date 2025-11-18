@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Convolution 对像素重新计数，并计算新的“像素值”的过程\n卷积核从左上角开始，每次向左或向下滑动，并与其重叠的部分做内积（对应项相乘再求和）\n提取特征\n不做填充（valid padding），卷积后的输出尺寸为 $\\lfloor\\frac{n-k}{s}\\rfloor+1$\n图像尺寸：n×n\n卷积核尺寸：k×k\n步长：s\n卷积核从左上角开始，每次向左滑动一列，最后停靠在右边缘，这时卷积核左侧的像素数再加上1（当前次），就是输出的尺寸 n-k+1。\n比如下图一行有5个像素，k=2，卷积核前面有3个再加上最后1个: 3+1 =4。\n如果步长s=2，不能正好滑到最后，可以丢掉多余的部分或者填充像素。2\n如果步长s=3，计算式应为：$\\frac{n-k}{s}+1 = \\frac{5-2}{3}+1 =2$\n如果步长s=4，计算式应为：$\\lfloor\\frac{n-k}{s}\\rfloor+1 = \\lfloor\\frac{5-2}{4}\\rfloor+1 =1$\n对于 same padding, 输出尺寸：$\\lfloor \\frac{(n+2\\times p-k)}{s} \\rfloor+1$\n就是先对原始图像补充 p 圈像素，再做卷积。\nPadding 在图像外围填充一圈或几圈像素，像素值通常为0 保证输出与输入的尺寸一致。1 常见两种padding： valid padding: 不填充，只使用原始图像 same padding: 填充边缘，使卷积结果与输入尺寸一致。\n为了使输出尺寸仍等于n，即：$\\frac{n-k+2*p}{s}+1 = n$，解得：$p=\\frac{(n-1)*s+k-n}{2}$；如果s=1，则 $p=\\frac{k-1}{2}$。 Stride 卷积核滑动的步长 s stride=1，则卷积核每次向左滑动一列或者向下滑动一行 压缩信息：成比例缩小输出的尺寸，stride=2，则输出为输入的1/2。1 Pooling 保留特征，并减少计算量 max-pooling: 近视眼，只能看到最大的;\naverage-pooling\n(2023-12-12)\nF.avg_pool3d Number of channels doesn&rsquo;t change, and D, H, W shrink. Docs\n">
+<title>memo: DL | Convolution Layers</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/dl-conv_layers/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="memo: DL | Convolution Layers">
+<meta property='og:description' content="Convolution 对像素重新计数，并计算新的“像素值”的过程\n卷积核从左上角开始，每次向左或向下滑动，并与其重叠的部分做内积（对应项相乘再求和）\n提取特征\n不做填充（valid padding），卷积后的输出尺寸为 $\\lfloor\\frac{n-k}{s}\\rfloor+1$\n图像尺寸：n×n\n卷积核尺寸：k×k\n步长：s\n卷积核从左上角开始，每次向左滑动一列，最后停靠在右边缘，这时卷积核左侧的像素数再加上1（当前次），就是输出的尺寸 n-k+1。\n比如下图一行有5个像素，k=2，卷积核前面有3个再加上最后1个: 3+1 =4。\n如果步长s=2，不能正好滑到最后，可以丢掉多余的部分或者填充像素。2\n如果步长s=3，计算式应为：$\\frac{n-k}{s}+1 = \\frac{5-2}{3}+1 =2$\n如果步长s=4，计算式应为：$\\lfloor\\frac{n-k}{s}\\rfloor+1 = \\lfloor\\frac{5-2}{4}\\rfloor+1 =1$\n对于 same padding, 输出尺寸：$\\lfloor \\frac{(n+2\\times p-k)}{s} \\rfloor+1$\n就是先对原始图像补充 p 圈像素，再做卷积。\nPadding 在图像外围填充一圈或几圈像素，像素值通常为0 保证输出与输入的尺寸一致。1 常见两种padding： valid padding: 不填充，只使用原始图像 same padding: 填充边缘，使卷积结果与输入尺寸一致。\n为了使输出尺寸仍等于n，即：$\\frac{n-k+2*p}{s}+1 = n$，解得：$p=\\frac{(n-1)*s+k-n}{2}$；如果s=1，则 $p=\\frac{k-1}{2}$。 Stride 卷积核滑动的步长 s stride=1，则卷积核每次向左滑动一列或者向下滑动一行 压缩信息：成比例缩小输出的尺寸，stride=2，则输出为输入的1/2。1 Pooling 保留特征，并减少计算量 max-pooling: 近视眼，只能看到最大的;\naverage-pooling\n(2023-12-12)\nF.avg_pool3d Number of channels doesn&rsquo;t change, and D, H, W shrink. Docs\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/dl-conv_layers/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-12-23T17:29:00&#43;00:00'/><meta property='article:modified_time' content='2021-12-23T17:29:00&#43;00:00'/>
+<meta name="twitter:title" content="memo: DL | Convolution Layers">
+<meta name="twitter:description" content="Convolution 对像素重新计数，并计算新的“像素值”的过程\n卷积核从左上角开始，每次向左或向下滑动，并与其重叠的部分做内积（对应项相乘再求和）\n提取特征\n不做填充（valid padding），卷积后的输出尺寸为 $\\lfloor\\frac{n-k}{s}\\rfloor+1$\n图像尺寸：n×n\n卷积核尺寸：k×k\n步长：s\n卷积核从左上角开始，每次向左滑动一列，最后停靠在右边缘，这时卷积核左侧的像素数再加上1（当前次），就是输出的尺寸 n-k+1。\n比如下图一行有5个像素，k=2，卷积核前面有3个再加上最后1个: 3+1 =4。\n如果步长s=2，不能正好滑到最后，可以丢掉多余的部分或者填充像素。2\n如果步长s=3，计算式应为：$\\frac{n-k}{s}+1 = \\frac{5-2}{3}+1 =2$\n如果步长s=4，计算式应为：$\\lfloor\\frac{n-k}{s}\\rfloor+1 = \\lfloor\\frac{5-2}{4}\\rfloor+1 =1$\n对于 same padding, 输出尺寸：$\\lfloor \\frac{(n+2\\times p-k)}{s} \\rfloor+1$\n就是先对原始图像补充 p 圈像素，再做卷积。\nPadding 在图像外围填充一圈或几圈像素，像素值通常为0 保证输出与输入的尺寸一致。1 常见两种padding： valid padding: 不填充，只使用原始图像 same padding: 填充边缘，使卷积结果与输入尺寸一致。\n为了使输出尺寸仍等于n，即：$\\frac{n-k+2*p}{s}+1 = n$，解得：$p=\\frac{(n-1)*s+k-n}{2}$；如果s=1，则 $p=\\frac{k-1}{2}$。 Stride 卷积核滑动的步长 s stride=1，则卷积核每次向左滑动一列或者向下滑动一行 压缩信息：成比例缩小输出的尺寸，stride=2，则输出为输入的1/2。1 Pooling 保留特征，并减少计算量 max-pooling: 近视眼，只能看到最大的;\naverage-pooling\n(2023-12-12)\nF.avg_pool3d Number of channels doesn&rsquo;t change, and D, H, W shrink. Docs\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#convolution">Convolution</a>
+      <ol>
+        <li><a href="#padding">Padding</a></li>
+        <li><a href="#stride">Stride</a></li>
+        <li><a href="#pooling">Pooling</a></li>
+      </ol>
+    </li>
+    <li><a href="#favg_pool3d">F.avg_pool3d</a></li>
+    <li><a href="#deconvolution">Deconvolution</a></li>
+    <li><a href="#complexity-of-cnn">Complexity of CNN</a></li>
+    <li><a href="#convtranspose2d">ConvTranspose2d()</a></li>
+    <li><a href="#torchvisionmodelsresnet34">torchvision.models.resnet34</a></li>
+    <li><a href="#fpad">F.pad</a></li>
+    <li><a href="#nnconv3d">nn.Conv3d</a></li>
+    <li><a href="#depthwise-convolution">Depthwise Convolution</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/memo/" style="background-color: #6e57d2; color: #fff;">
+                Memo
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/dl-conv_layers/">memo: DL | Convolution Layers</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 23, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#convolution">Convolution</a>
+      <ol>
+        <li><a href="#padding">Padding</a></li>
+        <li><a href="#stride">Stride</a></li>
+        <li><a href="#pooling">Pooling</a></li>
+      </ol>
+    </li>
+    <li><a href="#favg_pool3d">F.avg_pool3d</a></li>
+    <li><a href="#deconvolution">Deconvolution</a></li>
+    <li><a href="#complexity-of-cnn">Complexity of CNN</a></li>
+    <li><a href="#convtranspose2d">ConvTranspose2d()</a></li>
+    <li><a href="#torchvisionmodelsresnet34">torchvision.models.resnet34</a></li>
+    <li><a href="#fpad">F.pad</a></li>
+    <li><a href="#nnconv3d">nn.Conv3d</a></li>
+    <li><a href="#depthwise-convolution">Depthwise Convolution</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <h2 id="convolution">Convolution
+</h2><ul>
+<li>
+<p>对像素重新计数，并计算新的“像素值”的过程</p>
+</li>
+<li>
+<p>卷积核从左上角开始，每次向左或向下滑动，并与其重叠的部分做内积（对应项相乘再求和）</p>
+</li>
+<li>
+<p>提取特征</p>
+</li>
+<li>
+<p>不做填充（valid padding），卷积后的输出尺寸为 $\lfloor\frac{n-k}{s}\rfloor+1$</p>
+<ul>
+<li>
+<p>图像尺寸：n×n</p>
+</li>
+<li>
+<p>卷积核尺寸：k×k</p>
+</li>
+<li>
+<p>步长：s</p>
+</li>
+<li>
+<p>卷积核从左上角开始，每次向左滑动<strong>一列</strong>，最后停靠在右边缘，这时卷积核左侧的像素数再加上1（当前次），就是输出的尺寸 n-k+1。</p>
+<p>比如下图一行有5个像素，k=2，卷积核前面有3个再加上最后1个: 3+1 =4。</p>
+<p><img src="/post/writenotes/calc/dl-conv_layers/DL_Conv_%E8%BE%93%E5%87%BA%E5%B0%BA%E5%AF%B8.png"
+	width="306"
+	height="65"
+	
+	loading="lazy"
+	
+		alt="img"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="470"
+		data-flex-basis="1129px"
+	
+></p>
+</li>
+<li>
+<p>如果步长s=2，不能正好滑到最后，可以丢掉多余的部分或者填充像素。<a class="link" href="#zhihu-%e5%87%a1%e5%a4%ab" >2</a></p>
+</li>
+<li>
+<p>如果步长s=3，计算式应为：$\frac{n-k}{s}+1 = \frac{5-2}{3}+1 =2$</p>
+</li>
+<li>
+<p>如果步长s=4，计算式应为：$\lfloor\frac{n-k}{s}\rfloor+1 = \lfloor\frac{5-2}{4}\rfloor+1 =1$</p>
+</li>
+</ul>
+</li>
+<li>
+<p>对于 same padding, 输出尺寸：$\lfloor \frac{(n+2\times p-k)}{s} \rfloor+1$<br>
+就是先对原始图像补充 p 圈像素，再做卷积。</p>
+</li>
+</ul>
+<h3 id="padding">Padding
+</h3><ul>
+<li>在图像外围填充一圈或几圈像素，像素值通常为0</li>
+<li>保证输出与输入的尺寸一致。<a class="link" href="#zhihu-G" >1</a></li>
+<li>常见两种padding：
+<ol>
+<li>valid padding: 不填充，只使用原始图像</li>
+<li>same padding: 填充边缘，使卷积结果与输入尺寸一致。<br>
+为了使输出尺寸仍等于n，即：$\frac{n-k+2*p}{s}+1 = n$，解得：$p=\frac{(n-1)*s+k-n}{2}$；如果s=1，则 $p=\frac{k-1}{2}$。</li>
+</ol>
+</li>
+</ul>
+<h3 id="stride">Stride
+</h3><ul>
+<li>卷积核滑动的步长 s</li>
+<li>stride=1，则卷积核每次向左滑动一列或者向下滑动一行</li>
+<li>压缩信息：成比例缩小输出的尺寸，stride=2，则输出为输入的1/2。<a class="link" href="#zhihu-G" >1</a></li>
+</ul>
+<h3 id="pooling">Pooling
+</h3><ul>
+<li>保留特征，并减少计算量</li>
+</ul>
+<ol>
+<li>
+<p>max-pooling: 近视眼，只能看到最大的;</p>
+</li>
+<li>
+<p>average-pooling</p>
+</li>
+</ol>
+<hr>
+<p>(2023-12-12)</p>
+<h2 id="favg_pool3d">F.avg_pool3d
+</h2><p>Number of channels doesn&rsquo;t change, and D, H, W shrink. <a class="link" href="https://pytorch.org/docs/stable/generated/torch.nn.AvgPool3d.html"  target="_blank" rel="noopener"
+    >Docs</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">inp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">F</span><span class="o">.</span><span class="n">avg_pool3d</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">stride</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># (1,3,2,3,4)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 456 329"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 24,144 L 72,144' fill='none' stroke='currentColor'></path>
+<path d='M 88,144 L 136,144' fill='none' stroke='currentColor'></path>
+<path d='M 176,144 L 224,144' fill='none' stroke='currentColor'></path>
+<path d='M 240,144 L 288,144' fill='none' stroke='currentColor'></path>
+<path d='M 328,144 L 376,144' fill='none' stroke='currentColor'></path>
+<path d='M 392,144 L 440,144' fill='none' stroke='currentColor'></path>
+<path d='M 0,16 L 0,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,16 L 16,32' fill='none' stroke='currentColor'></path>
+<path d='M 24,64 L 24,112' fill='none' stroke='currentColor'></path>
+<path d='M 24,112 L 24,144' fill='none' stroke='currentColor'></path>
+<path d='M 32,16 L 32,32' fill='none' stroke='currentColor'></path>
+<path d='M 40,64 L 40,112' fill='none' stroke='currentColor'></path>
+<path d='M 40,176 L 40,192' fill='none' stroke='currentColor'></path>
+<path d='M 40,192 L 40,208' fill='none' stroke='currentColor'></path>
+<path d='M 40,208 L 40,256' fill='none' stroke='currentColor'></path>
+<path d='M 48,16 L 48,32' fill='none' stroke='currentColor'></path>
+<path d='M 56,64 L 56,112' fill='none' stroke='currentColor'></path>
+<path d='M 56,208 L 56,224' fill='none' stroke='currentColor'></path>
+<path d='M 64,16 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 64,256 L 64,304' fill='none' stroke='currentColor'></path>
+<path d='M 72,64 L 72,112' fill='none' stroke='currentColor'></path>
+<path d='M 72,112 L 72,144' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 80,32' fill='none' stroke='currentColor'></path>
+<path d='M 80,256 L 80,304' fill='none' stroke='currentColor'></path>
+<path d='M 88,64 L 88,112' fill='none' stroke='currentColor'></path>
+<path d='M 88,112 L 88,144' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 96,32' fill='none' stroke='currentColor'></path>
+<path d='M 104,64 L 104,112' fill='none' stroke='currentColor'></path>
+<path d='M 120,64 L 120,112' fill='none' stroke='currentColor'></path>
+<path d='M 136,128 L 136,144' fill='none' stroke='currentColor'></path>
+<path d='M 152,16 L 152,48' fill='none' stroke='currentColor'></path>
+<path d='M 168,16 L 168,32' fill='none' stroke='currentColor'></path>
+<path d='M 176,64 L 176,112' fill='none' stroke='currentColor'></path>
+<path d='M 176,112 L 176,144' fill='none' stroke='currentColor'></path>
+<path d='M 184,16 L 184,32' fill='none' stroke='currentColor'></path>
+<path d='M 192,64 L 192,112' fill='none' stroke='currentColor'></path>
+<path d='M 192,176 L 192,192' fill='none' stroke='currentColor'></path>
+<path d='M 192,192 L 192,208' fill='none' stroke='currentColor'></path>
+<path d='M 192,208 L 192,256' fill='none' stroke='currentColor'></path>
+<path d='M 200,16 L 200,32' fill='none' stroke='currentColor'></path>
+<path d='M 208,64 L 208,112' fill='none' stroke='currentColor'></path>
+<path d='M 208,208 L 208,224' fill='none' stroke='currentColor'></path>
+<path d='M 216,16 L 216,32' fill='none' stroke='currentColor'></path>
+<path d='M 216,256 L 216,304' fill='none' stroke='currentColor'></path>
+<path d='M 224,64 L 224,112' fill='none' stroke='currentColor'></path>
+<path d='M 224,112 L 224,144' fill='none' stroke='currentColor'></path>
+<path d='M 232,16 L 232,32' fill='none' stroke='currentColor'></path>
+<path d='M 232,256 L 232,304' fill='none' stroke='currentColor'></path>
+<path d='M 240,64 L 240,112' fill='none' stroke='currentColor'></path>
+<path d='M 240,112 L 240,144' fill='none' stroke='currentColor'></path>
+<path d='M 248,16 L 248,32' fill='none' stroke='currentColor'></path>
+<path d='M 256,64 L 256,112' fill='none' stroke='currentColor'></path>
+<path d='M 272,64 L 272,112' fill='none' stroke='currentColor'></path>
+<path d='M 288,128 L 288,144' fill='none' stroke='currentColor'></path>
+<path d='M 304,16 L 304,48' fill='none' stroke='currentColor'></path>
+<path d='M 320,16 L 320,32' fill='none' stroke='currentColor'></path>
+<path d='M 328,64 L 328,112' fill='none' stroke='currentColor'></path>
+<path d='M 328,112 L 328,144' fill='none' stroke='currentColor'></path>
+<path d='M 336,16 L 336,32' fill='none' stroke='currentColor'></path>
+<path d='M 344,64 L 344,112' fill='none' stroke='currentColor'></path>
+<path d='M 344,176 L 344,192' fill='none' stroke='currentColor'></path>
+<path d='M 344,192 L 344,208' fill='none' stroke='currentColor'></path>
+<path d='M 344,208 L 344,256' fill='none' stroke='currentColor'></path>
+<path d='M 352,16 L 352,32' fill='none' stroke='currentColor'></path>
+<path d='M 360,64 L 360,112' fill='none' stroke='currentColor'></path>
+<path d='M 360,208 L 360,224' fill='none' stroke='currentColor'></path>
+<path d='M 368,16 L 368,32' fill='none' stroke='currentColor'></path>
+<path d='M 368,256 L 368,304' fill='none' stroke='currentColor'></path>
+<path d='M 376,64 L 376,112' fill='none' stroke='currentColor'></path>
+<path d='M 376,112 L 376,144' fill='none' stroke='currentColor'></path>
+<path d='M 384,16 L 384,32' fill='none' stroke='currentColor'></path>
+<path d='M 384,256 L 384,304' fill='none' stroke='currentColor'></path>
+<path d='M 392,64 L 392,112' fill='none' stroke='currentColor'></path>
+<path d='M 392,112 L 392,144' fill='none' stroke='currentColor'></path>
+<path d='M 400,16 L 400,32' fill='none' stroke='currentColor'></path>
+<path d='M 408,64 L 408,112' fill='none' stroke='currentColor'></path>
+<path d='M 424,64 L 424,112' fill='none' stroke='currentColor'></path>
+<path d='M 440,128 L 440,144' fill='none' stroke='currentColor'></path>
+<path d='M 80,208 L 96,176' fill='none' stroke='currentColor'></path>
+<path d='M 232,208 L 248,176' fill='none' stroke='currentColor'></path>
+<path d='M 384,208 L 400,176' fill='none' stroke='currentColor'></path>
+<path d='M 40,256 L 64,304' fill='none' stroke='currentColor'></path>
+<path d='M 64,272 L 80,304' fill='none' stroke='currentColor'></path>
+<path d='M 40,208 L 64,256' fill='none' stroke='currentColor'></path>
+<path d='M 56,208 L 80,256' fill='none' stroke='currentColor'></path>
+<path d='M 0,64 L 24,112' fill='none' stroke='currentColor'></path>
+<path d='M 24,80 L 40,112' fill='none' stroke='currentColor'></path>
+<path d='M 0,16 L 24,64' fill='none' stroke='currentColor'></path>
+<path d='M 40,80 L 56,112' fill='none' stroke='currentColor'></path>
+<path d='M 16,16 L 40,64' fill='none' stroke='currentColor'></path>
+<path d='M 56,80 L 72,112' fill='none' stroke='currentColor'></path>
+<path d='M 32,16 L 56,64' fill='none' stroke='currentColor'></path>
+<path d='M 72,80 L 88,112' fill='none' stroke='currentColor'></path>
+<path d='M 48,16 L 72,64' fill='none' stroke='currentColor'></path>
+<path d='M 88,80 L 104,112' fill='none' stroke='currentColor'></path>
+<path d='M 64,16 L 88,64' fill='none' stroke='currentColor'></path>
+<path d='M 104,80 L 120,112' fill='none' stroke='currentColor'></path>
+<path d='M 192,256 L 216,304' fill='none' stroke='currentColor'></path>
+<path d='M 80,16 L 104,64' fill='none' stroke='currentColor'></path>
+<path d='M 216,272 L 232,304' fill='none' stroke='currentColor'></path>
+<path d='M 96,16 L 120,64' fill='none' stroke='currentColor'></path>
+<path d='M 192,208 L 216,256' fill='none' stroke='currentColor'></path>
+<path d='M 208,208 L 232,256' fill='none' stroke='currentColor'></path>
+<path d='M 160,80 L 176,112' fill='none' stroke='currentColor'></path>
+<path d='M 176,80 L 192,112' fill='none' stroke='currentColor'></path>
+<path d='M 152,16 L 176,64' fill='none' stroke='currentColor'></path>
+<path d='M 192,80 L 208,112' fill='none' stroke='currentColor'></path>
+<path d='M 168,16 L 192,64' fill='none' stroke='currentColor'></path>
+<path d='M 208,80 L 224,112' fill='none' stroke='currentColor'></path>
+<path d='M 184,16 L 208,64' fill='none' stroke='currentColor'></path>
+<path d='M 224,80 L 240,112' fill='none' stroke='currentColor'></path>
+<path d='M 200,16 L 224,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,80 L 256,112' fill='none' stroke='currentColor'></path>
+<path d='M 216,16 L 240,64' fill='none' stroke='currentColor'></path>
+<path d='M 256,80 L 272,112' fill='none' stroke='currentColor'></path>
+<path d='M 344,256 L 368,304' fill='none' stroke='currentColor'></path>
+<path d='M 232,16 L 256,64' fill='none' stroke='currentColor'></path>
+<path d='M 368,272 L 384,304' fill='none' stroke='currentColor'></path>
+<path d='M 248,16 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 344,208 L 368,256' fill='none' stroke='currentColor'></path>
+<path d='M 360,208 L 384,256' fill='none' stroke='currentColor'></path>
+<path d='M 312,80 L 328,112' fill='none' stroke='currentColor'></path>
+<path d='M 328,80 L 344,112' fill='none' stroke='currentColor'></path>
+<path d='M 304,16 L 328,64' fill='none' stroke='currentColor'></path>
+<path d='M 344,80 L 360,112' fill='none' stroke='currentColor'></path>
+<path d='M 320,16 L 344,64' fill='none' stroke='currentColor'></path>
+<path d='M 360,80 L 376,112' fill='none' stroke='currentColor'></path>
+<path d='M 336,16 L 360,64' fill='none' stroke='currentColor'></path>
+<path d='M 376,80 L 392,112' fill='none' stroke='currentColor'></path>
+<path d='M 352,16 L 376,64' fill='none' stroke='currentColor'></path>
+<path d='M 392,80 L 408,112' fill='none' stroke='currentColor'></path>
+<path d='M 368,16 L 392,64' fill='none' stroke='currentColor'></path>
+<path d='M 408,80 L 424,112' fill='none' stroke='currentColor'></path>
+<path d='M 384,16 L 408,64' fill='none' stroke='currentColor'></path>
+<path d='M 400,16 L 424,64' fill='none' stroke='currentColor'></path>
+<path d='M 40,192 L 40,200' fill='none' stroke='currentColor'></path>
+<polygon points='56.000000,192.000000 44.000000,186.399994 44.000000,197.600006' fill='currentColor' transform='rotate(90.000000, 40.000000, 192.000000)'></polygon>
+<polygon points='92.000000,208.000000 80.000000,202.399994 80.000000,213.600006' fill='currentColor' transform='rotate(120.000000, 80.000000, 208.000000)'></polygon>
+<path d='M 192,192 L 192,200' fill='none' stroke='currentColor'></path>
+<polygon points='208.000000,192.000000 196.000000,186.399994 196.000000,197.600006' fill='currentColor' transform='rotate(90.000000, 192.000000, 192.000000)'></polygon>
+<polygon points='244.000000,208.000000 232.000000,202.399994 232.000000,213.600006' fill='currentColor' transform='rotate(120.000000, 232.000000, 208.000000)'></polygon>
+<path d='M 344,192 L 344,200' fill='none' stroke='currentColor'></path>
+<polygon points='360.000000,192.000000 348.000000,186.399994 348.000000,197.600006' fill='currentColor' transform='rotate(90.000000, 344.000000, 192.000000)'></polygon>
+<polygon points='396.000000,208.000000 384.000000,202.399994 384.000000,213.600006' fill='currentColor' transform='rotate(120.000000, 384.000000, 208.000000)'></polygon>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='40' y='164' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='48' y='164' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='56' y='164' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='64' y='4' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='128' y='100' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='136' y='68' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='136' y='84' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='136' y='100' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='152' y='68' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='192' y='164' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='200' y='164' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='208' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='208' y='164' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='216' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='264' y='36' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='272' y='36' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='280' y='52' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='280' y='100' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='288' y='68' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='288' y='84' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='288' y='100' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='304' y='68' fill='currentColor' style='font-size:1em'>'</text>
+<text text-anchor='middle' x='336' y='4' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='344' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='344' y='164' fill='currentColor' style='font-size:1em'>D</text>
+<text text-anchor='middle' x='352' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='352' y='164' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='360' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='360' y='164' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='368' y='4' fill='currentColor' style='font-size:1em'>3</text>
+<text text-anchor='middle' x='416' y='36' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='424' y='36' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='432' y='52' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='432' y='100' fill='currentColor' style='font-size:1em'>⋱</text>
+<text text-anchor='middle' x='440' y='68' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='440' y='84' fill='currentColor' style='font-size:1em'>⋮</text>
+<text text-anchor='middle' x='440' y='100' fill='currentColor' style='font-size:1em'>⋮</text>
+</g>
+
+    </svg>
+  
+</div>
+<p><a class="link" href="https://github.com/YoYo000/MVSNet"  target="_blank" rel="noopener"
+    >MVSNet</a> uses <code>AvgPool3d</code> to compute the sum of every 4 depth-probability planes:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">avg4</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">avg_pool3d</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">     <span class="n">F</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">prob_volume</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="c1"># (bs,C=1,D=192,H=128,W=160)</span>
+</span></span><span class="line"><span class="cl">           <span class="n">pad</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="c1"># (bs,C=1,D=195,H=128,W=160)</span>
+</span></span><span class="line"><span class="cl">     <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="c1"># (bs,C=1,D=192,H=128,W=160)</span>
+</span></span><span class="line"><span class="cl"><span class="n">prob_volume_sum4</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">avg4</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<h2 id="deconvolution">Deconvolution
+</h2><hr>
+<h2 id="complexity-of-cnn">Complexity of CNN
+</h2><p><a class="link" href="#zhihu-Michael" >3</a></p>
+<hr>
+<h2 id="convtranspose2d">ConvTranspose2d()
+</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ConvTranspose2d</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Deconvolution <a class="link" href="https://github.com/vdumoulin/conv_arithmetic/blob/master/README.md"  target="_blank" rel="noopener"
+    >visualization</a></p>
+<hr>
+<p>(2023-07-19)</p>
+<h2 id="torchvisionmodelsresnet34">torchvision.models.resnet34
+</h2><p><a class="link" href="https://pytorch.org/hub/pytorch_vision_resnet/"  target="_blank" rel="noopener"
+    >ResNet - PyTorch</a>
+| <a class="link" href="https://github.com/pytorch/vision/blob/29418e34a94e2c43f861a321265f7f21035e7b19/torchvision/models/resnet.py#L710"  target="_blank" rel="noopener"
+    >Source code</a></p>
+<p>layers: [3,4,6,3] means that <code>layer1</code> has 3 <code>BasicBlock</code> (resnet50 is <code>Bottleneck</code>) convolution blocks,
+and <code>layer2</code> has 4 blocks, and <code>layer3</code> has 6 blocks, and <code>layer4</code> has 3 blocks.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">_forward_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>    <span class="c1"># img.shape: (3, 300, 400)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>   <span class="c1"># nn.Conv2d(), channels↑ and size↓, (1, 64, 150, 200)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>       <span class="c1"># batch norm, shape doesn&#39;t change, (1, 64, 150, 200)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>      <span class="c1"># act, shape keeps the same, (1, 64, 150, 200)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxpool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>   <span class="c1"># max-pooling, size↓, (1, 64, 75, 100)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># 3 identical &#39;BasicBlock&#39;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>    <span class="c1"># stride in the 1st block is 1, so shape doesn&#39;t change, (1, 64, 75, 100)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># 4 identical &#39;BasicBlock&#39;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>    <span class="c1"># stride in the 1st block is 2, so size↓, (1, 128, 38, 50)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># 6 identical &#39;BasicBlock&#39;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer3</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>    <span class="c1"># stride in the 1st block is 2, so size↓, (1, 256, 19, 25)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># 3 identical &#39;BasicBlock</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer4</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>    <span class="c1"># stride in the 1st block is 2, so size↓, (1, 512, 10, 13)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">avgpool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>   <span class="c1"># target output is (1,1), so (1, 512, 1, 1)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>        <span class="c1"># 512 -&gt; num_classes</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
+<p>(2023-09-12)</p>
+<h2 id="fpad">F.pad
+</h2><p>Padding an image along width, or height, or depth directions. <a class="link" href="https://pytorch.org/docs/stable/generated/torch.nn.functional.pad.html"  target="_blank" rel="noopener"
+    >Docs</a></p>
+<ul>
+<li>
+<p>The order of dimensions should be arranged according to Width, Height, Depth, e.g., padding the last 3 dimensions:
+<code>F.pad(x, (padding_left, padding_right, padding_top, padding_bottom, padding_front, padding_back) )</code></p>
+<p>So the order of (l,r,t,b,f,b) is reverse against an image tensor: (Depth, H, W)</p>
+</li>
+</ul>
+<hr>
+<h2 id="nnconv3d">nn.Conv3d
+</h2><p>Input: (B, Ch_in, D, H, W); Output: (B, Ch_out, D_out, H_out, W_out)</p>
+<ul>
+<li>
+<p>For example, a tensor with shape of (2, 3, 4, 224, 224) is
+2 video clips with 3 frames and each frame is a 4-channel image with size 224x224.</p>
+<p>After convolution with a kernel of size (2, 4, 4), it can be transformed to
+(B=2, Ch_out=128, D=2, H=56, W=56)</p>
+
+
+
+<div class="goat svg-container ">
+  
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      font-family="Menlo,Lucida Console,monospace"
+      
+        viewBox="0 0 336 313"
+      >
+      <g transform='translate(8,16)'>
+<path d='M 0,32 L 16,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 32,32' fill='none' stroke='currentColor'></path>
+<path d='M 32,32 L 48,32' fill='none' stroke='currentColor'></path>
+<path d='M 48,32 L 64,32' fill='none' stroke='currentColor'></path>
+<path d='M 120,32 L 136,32' fill='none' stroke='currentColor'></path>
+<path d='M 136,32 L 152,32' fill='none' stroke='currentColor'></path>
+<path d='M 152,32 L 168,32' fill='none' stroke='currentColor'></path>
+<path d='M 168,32 L 184,32' fill='none' stroke='currentColor'></path>
+<path d='M 240,32 L 256,32' fill='none' stroke='currentColor'></path>
+<path d='M 256,32 L 272,32' fill='none' stroke='currentColor'></path>
+<path d='M 272,32 L 288,32' fill='none' stroke='currentColor'></path>
+<path d='M 288,32 L 304,32' fill='none' stroke='currentColor'></path>
+<path d='M 16,64 L 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 136,64 L 152,64' fill='none' stroke='currentColor'></path>
+<path d='M 152,64 L 168,64' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 184,64' fill='none' stroke='currentColor'></path>
+<path d='M 184,64 L 200,64' fill='none' stroke='currentColor'></path>
+<path d='M 256,64 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 272,64 L 288,64' fill='none' stroke='currentColor'></path>
+<path d='M 288,64 L 304,64' fill='none' stroke='currentColor'></path>
+<path d='M 304,64 L 320,64' fill='none' stroke='currentColor'></path>
+<path d='M 16,112 L 32,112' fill='none' stroke='currentColor'></path>
+<path d='M 32,112 L 48,112' fill='none' stroke='currentColor'></path>
+<path d='M 48,112 L 64,112' fill='none' stroke='currentColor'></path>
+<path d='M 64,112 L 80,112' fill='none' stroke='currentColor'></path>
+<path d='M 136,112 L 152,112' fill='none' stroke='currentColor'></path>
+<path d='M 152,112 L 168,112' fill='none' stroke='currentColor'></path>
+<path d='M 168,112 L 184,112' fill='none' stroke='currentColor'></path>
+<path d='M 184,112 L 200,112' fill='none' stroke='currentColor'></path>
+<path d='M 256,112 L 272,112' fill='none' stroke='currentColor'></path>
+<path d='M 272,112 L 288,112' fill='none' stroke='currentColor'></path>
+<path d='M 288,112 L 304,112' fill='none' stroke='currentColor'></path>
+<path d='M 304,112 L 320,112' fill='none' stroke='currentColor'></path>
+<path d='M 40,144 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 144,144 L 160,144' fill='none' stroke='currentColor'></path>
+<path d='M 24,176 L 96,176' fill='none' stroke='currentColor'></path>
+<path d='M 96,176 L 144,176' fill='none' stroke='currentColor'></path>
+<path d='M 112,208 L 128,208' fill='none' stroke='currentColor'></path>
+<path d='M 128,240 L 144,240' fill='none' stroke='currentColor'></path>
+<path d='M 128,288 L 144,288' fill='none' stroke='currentColor'></path>
+<path d='M 0,32 L 0,80' fill='none' stroke='currentColor'></path>
+<path d='M 16,64 L 16,112' fill='none' stroke='currentColor'></path>
+<path d='M 24,128 L 24,176' fill='none' stroke='currentColor'></path>
+<path d='M 32,64 L 32,112' fill='none' stroke='currentColor'></path>
+<path d='M 40,128 L 40,144' fill='none' stroke='currentColor'></path>
+<path d='M 48,64 L 48,112' fill='none' stroke='currentColor'></path>
+<path d='M 64,64 L 64,112' fill='none' stroke='currentColor'></path>
+<path d='M 80,64 L 80,112' fill='none' stroke='currentColor'></path>
+<path d='M 112,208 L 112,256' fill='none' stroke='currentColor'></path>
+<path d='M 120,32 L 120,80' fill='none' stroke='currentColor'></path>
+<path d='M 128,240 L 128,288' fill='none' stroke='currentColor'></path>
+<path d='M 136,64 L 136,112' fill='none' stroke='currentColor'></path>
+<path d='M 144,128 L 144,144' fill='none' stroke='currentColor'></path>
+<path d='M 144,144 L 144,176' fill='none' stroke='currentColor'></path>
+<path d='M 144,240 L 144,288' fill='none' stroke='currentColor'></path>
+<path d='M 152,64 L 152,112' fill='none' stroke='currentColor'></path>
+<path d='M 160,128 L 160,144' fill='none' stroke='currentColor'></path>
+<path d='M 168,64 L 168,112' fill='none' stroke='currentColor'></path>
+<path d='M 184,64 L 184,112' fill='none' stroke='currentColor'></path>
+<path d='M 200,64 L 200,112' fill='none' stroke='currentColor'></path>
+<path d='M 240,32 L 240,80' fill='none' stroke='currentColor'></path>
+<path d='M 256,64 L 256,112' fill='none' stroke='currentColor'></path>
+<path d='M 272,64 L 272,112' fill='none' stroke='currentColor'></path>
+<path d='M 288,64 L 288,112' fill='none' stroke='currentColor'></path>
+<path d='M 304,64 L 304,112' fill='none' stroke='currentColor'></path>
+<path d='M 320,64 L 320,112' fill='none' stroke='currentColor'></path>
+<path d='M 0,80 L 16,112' fill='none' stroke='currentColor'></path>
+<path d='M 0,32 L 16,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,256 L 128,288' fill='none' stroke='currentColor'></path>
+<path d='M 16,32 L 32,64' fill='none' stroke='currentColor'></path>
+<path d='M 112,208 L 128,240' fill='none' stroke='currentColor'></path>
+<path d='M 32,32 L 48,64' fill='none' stroke='currentColor'></path>
+<path d='M 128,208 L 144,240' fill='none' stroke='currentColor'></path>
+<path d='M 48,32 L 64,64' fill='none' stroke='currentColor'></path>
+<path d='M 64,32 L 80,64' fill='none' stroke='currentColor'></path>
+<path d='M 120,80 L 136,112' fill='none' stroke='currentColor'></path>
+<path d='M 120,32 L 136,64' fill='none' stroke='currentColor'></path>
+<path d='M 136,32 L 152,64' fill='none' stroke='currentColor'></path>
+<path d='M 152,32 L 168,64' fill='none' stroke='currentColor'></path>
+<path d='M 168,32 L 184,64' fill='none' stroke='currentColor'></path>
+<path d='M 184,32 L 200,64' fill='none' stroke='currentColor'></path>
+<path d='M 240,80 L 256,112' fill='none' stroke='currentColor'></path>
+<path d='M 240,32 L 256,64' fill='none' stroke='currentColor'></path>
+<path d='M 256,32 L 272,64' fill='none' stroke='currentColor'></path>
+<path d='M 272,32 L 288,64' fill='none' stroke='currentColor'></path>
+<path d='M 288,32 L 304,64' fill='none' stroke='currentColor'></path>
+<path d='M 304,32 L 320,64' fill='none' stroke='currentColor'></path>
+<path d='M 24,120 L 24,128' fill='none' stroke='currentColor'></path>
+<path d='M 40,120 L 40,128' fill='none' stroke='currentColor'></path>
+<path d='M 144,120 L 144,128' fill='none' stroke='currentColor'></path>
+<path d='M 160,120 L 160,128' fill='none' stroke='currentColor'></path>
+<text text-anchor='middle' x='0' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='8' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='8' y='244' fill='currentColor' style='font-size:1em'>O</text>
+<text text-anchor='middle' x='8' y='260' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='16' y='244' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='16' y='260' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='24' y='244' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='24' y='260' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='32' y='196' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='40' y='196' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='40' y='244' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='40' y='260' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='48' y='164' fill='currentColor' style='font-size:1em'>(</text>
+<text text-anchor='middle' x='48' y='196' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='48' y='244' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='56' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='56' y='164' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='56' y='196' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='56' y='244' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='56' y='260' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='64' y='164' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='64' y='196' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='64' y='244' fill='currentColor' style='font-size:1em'>=</text>
+<text text-anchor='middle' x='64' y='260' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='72' y='4' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='72' y='164' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='72' y='196' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='72' y='260' fill='currentColor' style='font-size:1em'>n</text>
+<text text-anchor='middle' x='80' y='164' fill='currentColor' style='font-size:1em'>,</text>
+<text text-anchor='middle' x='80' y='196' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='80' y='244' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='80' y='260' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='88' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='88' y='164' fill='currentColor' style='font-size:1em'>4</text>
+<text text-anchor='middle' x='88' y='244' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='88' y='260' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='96' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='96' y='164' fill='currentColor' style='font-size:1em'>)</text>
+<text text-anchor='middle' x='96' y='196' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='96' y='244' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='104' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='104' y='164' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='104' y='196' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='112' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='112' y='164' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='120' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='120' y='196' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='128' y='164' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='128' y='196' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='136' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='136' y='164' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='136' y='196' fill='currentColor' style='font-size:1em'>1</text>
+<text text-anchor='middle' x='144' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='152' y='4' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='152' y='164' fill='currentColor' style='font-size:1em'>2</text>
+<text text-anchor='middle' x='160' y='4' fill='currentColor' style='font-size:1em'>h</text>
+<text text-anchor='middle' x='176' y='4' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='184' y='4' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='192' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='200' y='4' fill='currentColor' style='font-size:1em'>p</text>
+<text text-anchor='middle' x='256' y='4' fill='currentColor' style='font-size:1em'>f</text>
+<text text-anchor='middle' x='264' y='4' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='272' y='4' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='280' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='288' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='304' y='4' fill='currentColor' style='font-size:1em'>3</text>
+</g>
+
+    </svg>
+  
+</div>
+<p>Iterate each channel for <code>D</code> frames to convolve with a unique 3D kernel. Once every channel has multiplied by a kernel,
+all the 4 weighted channels are summed directly to form one of output channels.</p>
+</li>
+</ul>
+<hr>
+<h2 id="depthwise-convolution">Depthwise Convolution
+</h2><p>(2023-07-25)</p>
+<p>Separate a convolution into two steps:</p>
+<ol>
+<li>
+<p>Shrink the size of the feature maps using 1-channel plane-wise kernel (Depthwise Conv);</p>
+</li>
+<li>
+<p>Expand the number of channels using 1x1 kernel (Pointwise Conv).</p>
+</li>
+<li>
+<p>FLOPs reduced, but the IO access increased resulting in slower inference.
+<a class="link" href="https://zhuanlan.zhihu.com/p/149564248"  target="_blank" rel="noopener"
+    >Depth-wise Convolution - 沈景兵的文章 - 知乎</a></p>
+<p>Expanding channels process costs the equal amount of FLOPs in normal convolution and pointwise convolution.
+For example, when expanding 3 channels to 256 channels, each pixel performs multiplication 256 times.</p>
+<p>However, the depthwise convolution doesn&rsquo;t multiply a kernel by <strong>each</strong> channel and <strong>sum</strong> them together, but only multiply a kernel by only one channel.
+<a class="link" href="https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728"  target="_blank" rel="noopener"
+    >A Basic Introduction to Separable Convolutions - Medium</a></p>
+<figure><a href="https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728"><img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*yG6z6ESzsRW-9q5F_neOsg.png"></a>
+   </figure>
+
+</li>
+<li>
+<p>Fewer parameters: 3x3x253 kernels are replaced with 1x1x256 kernels for every pixel on the resultant feature map.</p>
+<figure><img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*Q7a20gyuunpJzXGnWayUDQ.png">
+   </figure>
+
+</li>
+</ol>
+<p>(2024-06-22)</p>
+<ul>
+<li>
+<p>A video expalnation: <a class="link" href="https://www.bilibili.com/video/BV1BM4m1m7YL?t=790.8"  target="_blank" rel="noopener"
+    >Nik_Li - 15分钟看懂depthwise convolution</a></p>
+<ul>
+<li>
+<p>第一阶段的 depth-wise convlution 是一直不变的，#out channels 是由第二阶段的 point-wise convlution 做多次决定。</p>
+<p>depth-wise 对比 传统卷积类比于：一个 Encoder（第一阶段固定） 和 多个 Decoder（多个输出通道）；
+而传统卷积层是：每个输出通道的“输入量”是不一样的（第一阶段不固定），每一次卷积就是一个 encoder-decoder 组合。</p>
+</li>
+<li>
+<p>如果只有一个输出通道，两种卷积是等价的，因为表达式可以写成一样的。
+如果是有多个输出通道，那么就需要求 Encoder 需要有很好的能力，支持被不同的 “decoder” 解释成不同的输出，以对应不同的信息</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="reference">Reference
+</h2><ol>
+<li>
+<div id="zhihu-G"><a href="https://zhuanlan.zhihu.com/p/77471866">CNN基础知识——卷积（Convolution）、填充（Padding）、步长(Stride) - G-kdom的文章 - 知乎</a></div> (accessed Dec. 22, 2021).
+</li>
+<li>
+<div id="zhihu-凡夫"><a href=https://zhuanlan.zhihu.com/p/338872733>卷积神经网络参数计算及卷积层输出尺寸计算 - 凡夫俗子的文章 - 知乎</a></div>
+</li>
+<li>
+<div id="zhihu-Michael"><a href="https://zhuanlan.zhihu.com/p/31575074">卷积神经网络的复杂度分析 - Michael Yuan的文章 - 知乎</a></div>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

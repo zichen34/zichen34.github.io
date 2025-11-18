@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="RBF核函數參數自動挑選法Python實作\n$x,z$ 是原空间两个点的坐标，$\\gamma$ 是参数：\n$$ \\kappa (x,z,\\gamma) = \\operatorname{exp} (-\\gamma \\| x-z \\|^2) $$rbf核的特殊性质：\n在特征空间中，自己和自己的内积为1（范数），所以$\\phi(x)$ 是在一个超球面上\n两向量夹角等于内积：\n$$ cos(\\theta) = \\frac{\\kappa(x,z,\\gamma)}{\\sqrt{\\kappa(x,x,\\gamma)} \\sqrt{\\kappa(z,z,\\gamma)}} = \\frac{\\kappa(x,z,\\gamma)}{1} = \\kappa(x,z,\\gamma) $$ 当 $x \\neq z$ 时：\n$\\gamma \\rightarrow 0 \\ \\Rightarrow cos(\\theta)=\\kappa(x,z,\\gamma) \\rightarrow 1 \\ \\Rightarrow \\theta \\rightarrow 0^\\circ \\ \\Rightarrow \\phi(x)与\\phi(z)越相似$ $\\gamma \\rightarrow \\infin \\ \\Rightarrow cos(\\theta)=\\kappa(x,z,\\gamma) \\rightarrow 1 \\ \\Rightarrow \\theta \\rightarrow 90^\\circ \\ \\Rightarrow \\phi(x)与\\phi(z)越不相似$ 调参 varying the parameter 在原空间中的距离越大向量，当$\\gamma$变大时，角度拉大的速度越快。 当$\\gamma$ 很小的时候，各向量夹角很小，点很集中，不好分类； 当$\\gamma$很大时，各向量互相垂直，每个点都变一类；所以要取不大不小的$\\gamma$，同类向量夹角小，不同类向量的夹角已经拉到很开。\n">
+<title>RBF-Kernel-Param-Select(Python)</title>
+
+<link rel='canonical' href='http://blog.zichen.uk/post/writenotes/calc/%E6%9D%8E%E6%94%BF%E8%BD%A9/rbf%E6%A0%B8%E5%8F%82%E6%95%B0%E8%87%AA%E5%8A%A8%E6%8C%91%E9%80%89/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e95b70faf4f470dc6ba88da538ece0f8cf22d03bab371e1b345205b81899732.css"><meta property='og:title' content="RBF-Kernel-Param-Select(Python)">
+<meta property='og:description' content="RBF核函數參數自動挑選法Python實作\n$x,z$ 是原空间两个点的坐标，$\\gamma$ 是参数：\n$$ \\kappa (x,z,\\gamma) = \\operatorname{exp} (-\\gamma \\| x-z \\|^2) $$rbf核的特殊性质：\n在特征空间中，自己和自己的内积为1（范数），所以$\\phi(x)$ 是在一个超球面上\n两向量夹角等于内积：\n$$ cos(\\theta) = \\frac{\\kappa(x,z,\\gamma)}{\\sqrt{\\kappa(x,x,\\gamma)} \\sqrt{\\kappa(z,z,\\gamma)}} = \\frac{\\kappa(x,z,\\gamma)}{1} = \\kappa(x,z,\\gamma) $$ 当 $x \\neq z$ 时：\n$\\gamma \\rightarrow 0 \\ \\Rightarrow cos(\\theta)=\\kappa(x,z,\\gamma) \\rightarrow 1 \\ \\Rightarrow \\theta \\rightarrow 0^\\circ \\ \\Rightarrow \\phi(x)与\\phi(z)越相似$ $\\gamma \\rightarrow \\infin \\ \\Rightarrow cos(\\theta)=\\kappa(x,z,\\gamma) \\rightarrow 1 \\ \\Rightarrow \\theta \\rightarrow 90^\\circ \\ \\Rightarrow \\phi(x)与\\phi(z)越不相似$ 调参 varying the parameter 在原空间中的距离越大向量，当$\\gamma$变大时，角度拉大的速度越快。 当$\\gamma$ 很小的时候，各向量夹角很小，点很集中，不好分类； 当$\\gamma$很大时，各向量互相垂直，每个点都变一类；所以要取不大不小的$\\gamma$，同类向量夹角小，不同类向量的夹角已经拉到很开。\n">
+<meta property='og:url' content='http://blog.zichen.uk/post/writenotes/calc/%E6%9D%8E%E6%94%BF%E8%BD%A9/rbf%E6%A0%B8%E5%8F%82%E6%95%B0%E8%87%AA%E5%8A%A8%E6%8C%91%E9%80%89/'>
+<meta property='og:site_name' content='Zichen Wang'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-11-19T17:14:00&#43;00:00'/><meta property='article:modified_time' content='2021-11-19T17:14:00&#43;00:00'/>
+<meta name="twitter:title" content="RBF-Kernel-Param-Select(Python)">
+<meta name="twitter:description" content="RBF核函數參數自動挑選法Python實作\n$x,z$ 是原空间两个点的坐标，$\\gamma$ 是参数：\n$$ \\kappa (x,z,\\gamma) = \\operatorname{exp} (-\\gamma \\| x-z \\|^2) $$rbf核的特殊性质：\n在特征空间中，自己和自己的内积为1（范数），所以$\\phi(x)$ 是在一个超球面上\n两向量夹角等于内积：\n$$ cos(\\theta) = \\frac{\\kappa(x,z,\\gamma)}{\\sqrt{\\kappa(x,x,\\gamma)} \\sqrt{\\kappa(z,z,\\gamma)}} = \\frac{\\kappa(x,z,\\gamma)}{1} = \\kappa(x,z,\\gamma) $$ 当 $x \\neq z$ 时：\n$\\gamma \\rightarrow 0 \\ \\Rightarrow cos(\\theta)=\\kappa(x,z,\\gamma) \\rightarrow 1 \\ \\Rightarrow \\theta \\rightarrow 0^\\circ \\ \\Rightarrow \\phi(x)与\\phi(z)越相似$ $\\gamma \\rightarrow \\infin \\ \\Rightarrow cos(\\theta)=\\kappa(x,z,\\gamma) \\rightarrow 1 \\ \\Rightarrow \\theta \\rightarrow 90^\\circ \\ \\Rightarrow \\phi(x)与\\phi(z)越不相似$ 调参 varying the parameter 在原空间中的距离越大向量，当$\\gamma$变大时，角度拉大的速度越快。 当$\\gamma$ 很小的时候，各向量夹角很小，点很集中，不好分类； 当$\\gamma$很大时，各向量互相垂直，每个点都变一类；所以要取不大不小的$\\gamma$，同类向量夹角小，不同类向量的夹角已经拉到很开。\n">
+    <link rel="shortcut icon" href="/favicon-32x32.png" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_b598b46054b3fa80.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Zichen Wang</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/zichen34'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/luckily1640'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/post/writenotes/' >
+                
+                
+                
+                <span>WriteNotes</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/aboutme/' >
+                
+                
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/page/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#调参-varying-the-parameter">调参 varying the parameter</a></li>
+        <li><a href="#code">code</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/writenotes/calc/%E6%9D%8E%E6%94%BF%E8%BD%A9/rbf%E6%A0%B8%E5%8F%82%E6%95%B0%E8%87%AA%E5%8A%A8%E6%8C%91%E9%80%89/">RBF-Kernel-Param-Select(Python)</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Nov 19, 2021</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+<section class="toc toc--inline">
+    <h2 class="">Table of contents</h2>
+    <div class="" >
+        <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#调参-varying-the-parameter">调参 varying the parameter</a></li>
+        <li><a href="#code">code</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+    </div>
+</section>
+
+
+
+    
+    
+    <p><a class="link" href="https://www.youtube.com/watch?v=aKuTh3eVqDE&amp;list=PLt0SBi1p7xrSGg3HSbK0pU9bFf_Cd86Cd&amp;index=33"  target="_blank" rel="noopener"
+    >RBF核函數參數自動挑選法Python實作</a></p>
+<p>$x,z$ 是原空间两个点的坐标，$\gamma$ 是参数：</p>
+$$
+\kappa (x,z,\gamma) = \operatorname{exp} (-\gamma \| x-z \|^2)
+$$<p>rbf核的特殊性质：</p>
+<ol>
+<li>
+<p>在特征空间中，自己和自己的内积为1（范数），所以$\phi(x)$ 是在一个超球面上</p>
+</li>
+<li>
+<p>两向量夹角等于内积：</p>
+$$
+   cos(\theta) = \frac{\kappa(x,z,\gamma)}{\sqrt{\kappa(x,x,\gamma)} \sqrt{\kappa(z,z,\gamma)}} 
+   = \frac{\kappa(x,z,\gamma)}{1}
+   = \kappa(x,z,\gamma)
+   $$</li>
+<li>
+<p>当 $x \neq z$ 时：</p>
+<ol>
+<li>$\gamma \rightarrow 0 \ \Rightarrow cos(\theta)=\kappa(x,z,\gamma) \rightarrow 1 \ \Rightarrow \theta \rightarrow 0^\circ \ \Rightarrow \phi(x)与\phi(z)越相似$</li>
+<li>$\gamma \rightarrow \infin \ \Rightarrow cos(\theta)=\kappa(x,z,\gamma) \rightarrow 1 \ \Rightarrow \theta \rightarrow 90^\circ \ \Rightarrow \phi(x)与\phi(z)越不相似$</li>
+</ol>
+</li>
+</ol>
+<h3 id="调参-varying-the-parameter">调参 varying the parameter
+</h3><p>在原空间中的距离越大向量，当$\gamma$变大时，角度拉大的速度越快。
+当$\gamma$ 很小的时候，各向量夹角很小，点很集中，不好分类；
+当$\gamma$很大时，各向量互相垂直，每个点都变一类；所以要取不大不小的$\gamma$，同类向量夹角小，不同类向量的夹角已经拉到很开。</p>
+<p><strong>目标：</strong> 调整gamma，同类的内积越接近1越好，不同类内积越接近0越好</p>
+<h3 id="code">code
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 生成样本数据及其标签</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+</span></span><span class="line"><span class="cl"><span class="n">Data</span><span class="p">,</span><span class="n">labels</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">make_circles</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span> <span class="c1">#Data是400x2的矩阵，labels是1x400的列表</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 画三维散点图</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span> 
+</span></span><span class="line"><span class="cl"><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">Data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">Data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">yaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">scalenchor</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">))</span> <span class="c1">#y轴的刻度与x轴一样</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">rbf_kernel</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">AutoRBF</span><span class="p">(</span><span class="n">gv</span><span class="p">,</span> <span class="n">Data</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>  <span class="c1">#计算gv对应的指标J</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># 计算Kernel matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">K</span> <span class="o">=</span> <span class="n">rbf_kernel</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">gv</span><span class="p">)</span> <span class="c1">#400x400</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># 组内：对角线上的block</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n</span><span class="o">=</span><span class="p">[]</span>    <span class="c1">#统计各类样本的个数</span>
+</span></span><span class="line"><span class="cl">    <span class="n">w</span><span class="o">=</span><span class="mi">0</span>     <span class="c1">#同组内积矩阵和累计</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>    <span class="c1">#遍历每一类</span>
+</span></span><span class="line"><span class="cl">        <span class="n">idx</span> <span class="o">=</span> <span class="n">labels</span><span class="o">==</span><span class="n">i</span>  <span class="c1">#把labels列表中等于某类的元素变成:True/False，形成列表idx</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="c1">#Within the Kernel matrix，取出同类矩阵</span>
+</span></span><span class="line"><span class="cl">        <span class="n">KW</span> <span class="o">=</span> <span class="n">K</span><span class="p">[:,</span><span class="n">idx</span><span class="p">]</span>   <span class="c1">#先取列号等于idx列表中元素为True的index的列</span>
+</span></span><span class="line"><span class="cl">        <span class="n">KW</span> <span class="o">=</span> <span class="n">KW</span><span class="p">[</span><span class="n">idx</span><span class="p">,:]</span>  <span class="c1">#再取行号=idx列表中True元素的index的行</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="n">n</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>  <span class="c1">#统计各类元素个数，这里是[200,200]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">w</span> <span class="o">=</span> <span class="n">w</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">KW</span><span class="p">)</span>  <span class="c1">#第一类内积矩阵求和加上第二类内积矩阵求和</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># 组间（不同类样本内积的block）</span>
+</span></span><span class="line"><span class="cl">    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">K</span><span class="p">)</span> <span class="o">-</span> <span class="n">w</span>       <span class="c1">#全部元素之和减去同类内积矩阵之和w就是不同类内积矩阵之和b</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">nw</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="c1">#每类200个，共200x200 + 200x200=4万个值</span>
+</span></span><span class="line"><span class="cl">    <span class="n">nb</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">nw</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">w</span><span class="o">=</span><span class="n">w</span><span class="o">/</span><span class="n">nw</span>  <span class="c1">#取平均</span>
+</span></span><span class="line"><span class="cl">    <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="o">/</span><span class="n">nb</span>  <span class="c1">#取平均</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">J</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">w</span><span class="p">)</span><span class="o">+</span><span class="n">b</span>   <span class="c1">#w越接近1越好，b越接近0越好</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">J</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 第一种方法找最佳gamma：grid</span>
+</span></span><span class="line"><span class="cl"><span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span> <span class="c1">#0-50切成1000份</span>
+</span></span><span class="line"><span class="cl"><span class="n">J</span><span class="o">=</span><span class="p">[]</span>    <span class="c1">#存储各gv对应的J值</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">gv</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">J</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AutoRBF</span><span class="p">(</span><span class="n">gv</span><span class="p">,</span><span class="n">Data</span><span class="p">,</span><span class="n">labels</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">J</span><span class="p">)</span>    <span class="c1">#把J画成曲线</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 第二种方法：用 minimize 函数找最低点（比grid快很多）</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">gv0</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">Data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#初始值：1/维度数</span>
+</span></span><span class="line"><span class="cl"><span class="n">sol</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">AutoRBF</span><span class="p">,</span><span class="n">gv0</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span><span class="n">labels</span><span class="p">))</span> <span class="c1">#solution是使目标函数AutoRBF最小的gv（初值为gv0），args放函数的其余参数</span>
+</span></span><span class="line"><span class="cl"><span class="n">bestgv</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">x</span>   <span class="c1">#最低点的x坐标，最好的gv</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 用kpca降维后，能不能分得好</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">KernelPCA</span>
+</span></span><span class="line"><span class="cl"><span class="n">myKPCA</span> <span class="o">=</span> <span class="n">KernelPCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">bestgv</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">myKPCA</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Data</span><span class="p">)</span>    <span class="c1">#训练</span>
+</span></span><span class="line"><span class="cl"><span class="n">reduced_Data</span> <span class="o">=</span> <span class="n">myKPCA</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Data</span><span class="p">)</span>   <span class="c1">#投影到低维</span>
+</span></span><span class="line"><span class="cl"><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">reduced_Data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">reduced_Data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">yaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">scaleanchor</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+	const mainArticleElement = document.querySelector(".main-article");
+        renderMathInElement(mainArticleElement, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+
+    
+    
+
+
+    
+    
+
+
+    
+    
+
+    
+
+    
+
+
+</article>
+
+
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2025 Zichen Wang
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
